@@ -96,7 +96,7 @@ void main()
     }
     else
     {
-        oEmissive = vec4(0.0);
+        oEmissive = vec4(uMaterial.emissive, 0.0);
     }
 
 	oMetallicRoughnessAo.a = 1.0;

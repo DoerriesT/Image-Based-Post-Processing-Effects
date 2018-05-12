@@ -130,7 +130,7 @@ struct GrabbedComponent : public Component<GrabbedComponent>
 
 struct ModelComponent : public Component<ModelComponent>
 {
-	explicit ModelComponent(const std::vector<std::pair<std::string, Material>> &_model);
+	explicit ModelComponent(const std::vector<std::pair<std::string, Material>> &_model, bool _instantLoading = false);
 	std::vector<std::pair<std::shared_ptr<Mesh>, Material>> model;
 
 	static const std::uint64_t FAMILY_ID;

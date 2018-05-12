@@ -31,7 +31,7 @@ Mesh::Mesh(const std::string &_filepath, bool _instantLoading)
 	{
 		// load scene
 		Assimp::Importer importer;
-		const aiScene *scene = importer.ReadFile(_filepath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+		const aiScene *scene = importer.ReadFile(_filepath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_JoinIdenticalVertices | aiProcess_GenSmoothNormals | aiProcess_ImproveCacheLocality);
 
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{

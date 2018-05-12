@@ -22,11 +22,11 @@ const std::uint64_t MovementPathComponent::FAMILY_ID = MOVEMENT_FAMILY;
 const std::uint64_t CustomTransparencyShaderComponent::FAMILY_ID = TRANSPARENCY_SHADER_FAMILY;
 const std::uint64_t CustomOpaqueShaderComponent::FAMILY_ID = OPAQUE_SHADER_FAMILY;
 
-ModelComponent::ModelComponent(const std::vector<std::pair<std::string, Material>>& _model)
+ModelComponent::ModelComponent(const std::vector<std::pair<std::string, Material>> &_model, bool _instantLoading)
 {
 	for (const auto &pair : _model)
 	{
-		std::shared_ptr<Mesh> mesh = Mesh::createMesh(pair.first);
+		std::shared_ptr<Mesh> mesh = Mesh::createMesh(pair.first, _instantLoading);
 		model.push_back(std::make_pair(mesh, pair.second));
 	}
 };
