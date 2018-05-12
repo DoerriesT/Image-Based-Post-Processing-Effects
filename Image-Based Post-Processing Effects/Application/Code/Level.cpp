@@ -28,7 +28,7 @@ std::shared_ptr<Level> App::loadLevel()
 	level->exposure = 16.0f;
 
 	// water
-	level->water.enabled = false;
+	level->water.enabled = true;
 	level->water.level = -6.0;
 
 	// sun
@@ -69,7 +69,7 @@ std::shared_ptr<Level> App::loadLevel()
 	level->environment.atmosphereParams = params;
 
 	/*- set the lights in the scene*/
-	level->lights.directionalLights.push_back(DirectionalLight::createDirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f), level->sun.direction, true));
+	level->lights.directionalLights.push_back(DirectionalLight::createDirectionalLight(params.intensity, level->sun.direction, true));
 
 	/*- set music*/
 	/*const Entity *musicEntity = entityManager.createEntity();
@@ -83,6 +83,7 @@ std::shared_ptr<Level> App::loadLevel()
 	level->id = (size_t)0;
 	level->valid = true;
 	level->name = "default";
+	level->loaded = true;
 
 	return level;
 }

@@ -1481,7 +1481,7 @@ void SceneRenderer::renderWater(const RenderData &_renderData, const std::shared
 	else
 	{
 		uLightDirW.set(_level->lights.directionalLights[0]->getDirection());
-		uLightColorW.set(glm::vec3(1.5f, 0.575f, 0.5f));
+		uLightColorW.set(_level->lights.directionalLights[0]->getColor());
 	}
 	
 
