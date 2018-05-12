@@ -1,17 +1,31 @@
 #include "Application.h"
+#include "Level.h"
+#include <EntityComponentSystem\SystemManager.h>
 
-void Application::init()
+namespace App
 {
-}
+	Application::Application()
+		:cameraController()
+	{
+	}
 
-void Application::input(double currentTime, double timeDelta)
-{
-}
+	void Application::init()
+	{
+		level = loadLevel();
+		SystemManager::getInstance().setLevel(level);
+		cameraController.setCamera(level->cameras[level->activeCameraIndex]);
+	}
 
-void Application::update(double currentTime, double timeDelta)
-{
-}
+	void Application::input(double currentTime, double timeDelta)
+	{
+		cameraController.input(currentTime, timeDelta);
+	}
 
-void Application::render()
-{
+	void Application::update(double currentTime, double timeDelta)
+	{
+	}
+
+	void Application::render()
+	{
+	}
 }

@@ -70,19 +70,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>.\..\Engine\Code;$(IncludePath)</IncludePath>
+    <IncludePath>.\..\Libraries\include;.\..\Engine\Code;$(IncludePath)</IncludePath>
     <LibraryPath>.\..\Libraries\lib\32\debug;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>.\..\Engine\Code;$(IncludePath)</IncludePath>
+    <IncludePath>.\..\Libraries\include;.\..\Engine\Code;$(IncludePath)</IncludePath>
     <LibraryPath>.\..\Libraries\lib\32\release;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>.\..\Engine\Code;$(IncludePath)</IncludePath>
+    <IncludePath>.\..\Libraries\include;.\..\Engine\Code;$(IncludePath)</IncludePath>
     <LibraryPath>.\..\Libraries\lib\64\debug;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>.\..\Engine\Code;$(IncludePath)</IncludePath>
+    <IncludePath>.\..\Libraries\include;.\..\Engine\Code;$(IncludePath)</IncludePath>
     <LibraryPath>.\..\Libraries\lib\64\release;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -135,10 +135,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Code\Application.cpp" />
+    <ClCompile Include="Code\CameraController.cpp" />
+    <ClCompile Include="Code\Level.cpp" />
     <ClCompile Include="Code\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Application.h" />
+    <ClInclude Include="Code\CameraController.h" />
+    <ClInclude Include="Code\Level.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
