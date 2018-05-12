@@ -14,5 +14,5 @@ public:
 	* @param yOffset
 	*            The scrolling offset on the y axis.
 	*/
-	virtual void onScroll(const double &_xOffset, const double &_yOffset) = 0;
+	virtual void onScroll(double _xOffset, double _yOffset) = 0;
 };

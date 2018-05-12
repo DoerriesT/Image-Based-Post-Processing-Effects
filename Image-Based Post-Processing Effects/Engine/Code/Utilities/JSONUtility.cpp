@@ -50,7 +50,7 @@ bool JSON::getFloat(const Object &jsonObject, const char *key, float &result)
 	return false;
 }
 
-float JSON::getFloatDefault(const Object &jsonObject, const char *key, const float &default)
+float JSON::getFloatDefault(const Object &jsonObject, const char *key, float default)
 {
 	float result;
 	if (!getFloat(jsonObject, key, result))
@@ -71,7 +71,7 @@ bool JSON::getInt(const Object &jsonObject, const char *key, int &result)
 	return false;
 }
 
-int JSON::getIntDefault(const Object &jsonObject, const char *key, const int &default)
+int JSON::getIntDefault(const Object &jsonObject, const char *key, int default)
 {
 	int result;
 	if (!getInt(jsonObject, key, result))
@@ -81,7 +81,7 @@ int JSON::getIntDefault(const Object &jsonObject, const char *key, const int &de
 	return result;
 }
 
-bool JSON::getBoolDefault(const Object &jsonObject, const char *key, const bool &default)
+bool JSON::getBoolDefault(const Object &jsonObject, const char *key, bool default)
 {
 	Value* value = getMemberValue(jsonObject, key);
 	if (value && value->IsBool())

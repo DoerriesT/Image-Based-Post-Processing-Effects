@@ -90,7 +90,7 @@ struct BoundingBoxComponent : public Component<BoundingBoxComponent>
 
 struct CleanupComponent : public Component<CleanupComponent>
 {
-    explicit CleanupComponent(const double &_cleanupTime, const std::function<void()> &_onCleanup)
+	explicit CleanupComponent(double _cleanupTime, std::function<void()> _onCleanup)
 		:cleanupTime(_cleanupTime), onCleanup(_onCleanup) {	};
 	double cleanupTime;
 	std::function<void()> onCleanup;
@@ -100,7 +100,7 @@ struct CleanupComponent : public Component<CleanupComponent>
 
 struct CustomTransparencyShaderComponent : public Component<CustomTransparencyShaderComponent>
 {
-	explicit CustomTransparencyShaderComponent(const std::shared_ptr<ShaderProgram> &_transparencyShader, const std::function<void(const RenderData &, const std::shared_ptr<Level> &, const std::unique_ptr<EntityRenderData> &)> &_renderTransparency)
+	explicit CustomTransparencyShaderComponent(const std::shared_ptr<ShaderProgram> &_transparencyShader, std::function<void(const RenderData &, const std::shared_ptr<Level> &, const std::unique_ptr<EntityRenderData> &)> _renderTransparency)
 		: transparencyShader(_transparencyShader), renderTransparency(_renderTransparency) { };
 	std::shared_ptr<ShaderProgram> transparencyShader;
 	std::function<void(const RenderData &, const std::shared_ptr<Level> &, const std::unique_ptr<EntityRenderData> &)> renderTransparency;
@@ -110,7 +110,7 @@ struct CustomTransparencyShaderComponent : public Component<CustomTransparencySh
 
 struct CustomOpaqueShaderComponent : public Component<CustomOpaqueShaderComponent>
 {
-	explicit CustomOpaqueShaderComponent(const std::shared_ptr<ShaderProgram> &_opaqueShader, const std::function<void(const RenderData &, const std::shared_ptr<Level> &, const std::unique_ptr<EntityRenderData> &)> &_renderOpaque)
+	explicit CustomOpaqueShaderComponent(const std::shared_ptr<ShaderProgram> &_opaqueShader, std::function<void(const RenderData &, const std::shared_ptr<Level> &, const std::unique_ptr<EntityRenderData> &)> _renderOpaque)
 		: opaqueShader(_opaqueShader), renderOpaque(_renderOpaque) { };
 	std::shared_ptr<ShaderProgram> opaqueShader;
 	std::function<void(const RenderData &, const std::shared_ptr<Level> &, const std::unique_ptr<EntityRenderData> &)> renderOpaque;
@@ -120,7 +120,7 @@ struct CustomOpaqueShaderComponent : public Component<CustomOpaqueShaderComponen
 
 struct GrabbedComponent : public Component<GrabbedComponent>
 {
-    explicit GrabbedComponent(const glm::vec3 &_planeOrigin, const glm::vec3 &_planeNormal)
+	explicit GrabbedComponent(const glm::vec3 &_planeOrigin, const glm::vec3 &_planeNormal)
 		:planeOrigin(_planeOrigin), planeNormal(_planeNormal) { };
 	glm::vec3 planeOrigin;
 	glm::vec3 planeNormal;
@@ -138,20 +138,20 @@ struct ModelComponent : public Component<ModelComponent>
 
 struct PathSegment
 {
-    explicit PathSegment(const glm::vec3 &_startPosition, const glm::vec3 &_endPosition, const glm::vec3 &_startTangent, const glm::vec3 &_endTangent, const double &_totalDuration, double(*_easingFunction)(double, const double&), const std::function<void()> _onCompleted = []() {})
+	explicit PathSegment(const glm::vec3 &_startPosition, const glm::vec3 &_endPosition, const glm::vec3 &_startTangent, const glm::vec3 &_endTangent, double _totalDuration, double(*_easingFunction)(double, double), std::function<void()> _onCompleted = []() {})
 		: startPosition(_startPosition), endPosition(_endPosition), startTangent(_startTangent), endTangent(_endTangent), totalDuration(_totalDuration), easingFunction(_easingFunction), onCompleted(_onCompleted) { };
 	glm::vec3 startPosition;
 	glm::vec3 endPosition;
 	glm::vec3 startTangent;
 	glm::vec3 endTangent;
 	double totalDuration;
-	double(*easingFunction)(double, const double &);
+	double(*easingFunction)(double, double);
 	std::function<void()> onCompleted;
 };
 
 struct MovementPathComponent : public Component<MovementPathComponent>
 {
-    explicit MovementPathComponent(const std::vector<PathSegment> &_pathSegments, const double &_startTime, const bool &_repeat)
+	explicit MovementPathComponent(const std::vector<PathSegment> &_pathSegments, double _startTime, bool _repeat)
 		:pathSegments(_pathSegments), startTime(_startTime), repeat(_repeat), currentStartTime(_startTime), currentSegmentIndex(0)
 	{
 		assert(!_pathSegments.empty());
@@ -167,14 +167,14 @@ struct MovementPathComponent : public Component<MovementPathComponent>
 
 struct MovementComponent : public Component<MovementComponent>
 {
-    explicit MovementComponent(const glm::vec3 &_startPosition, const glm::vec3 &_endPosition, const double &_startTime, const double &_totalDuration, double(*_easingFunction)(double, const double&), const std::function<void()> _onCompleted = []() {})
+	explicit MovementComponent(const glm::vec3 &_startPosition, const glm::vec3 &_endPosition, double _startTime, double _totalDuration, double(*_easingFunction)(double, double), std::function<void()> _onCompleted = []() {})
 		:startPosition(_startPosition), endPosition(_endPosition), path(_endPosition - _startPosition), startTime(_startTime), totalDuration(_totalDuration), easingFunction(_easingFunction), onCompleted(_onCompleted) { };
 	glm::vec3 startPosition;
 	glm::vec3 endPosition;
 	glm::vec3 path;
 	double startTime;
 	double totalDuration;
-	double(*easingFunction)(double, const double&);
+	double(*easingFunction)(double, double);
 	std::function<void()> onCompleted;
 
 	static const std::uint64_t FAMILY_ID;
@@ -182,7 +182,7 @@ struct MovementComponent : public Component<MovementComponent>
 
 struct OutlineComponent : public Component<OutlineComponent>
 {
-    explicit OutlineComponent(const float &_scaleMultiplier, const glm::vec4 &_outlineColor)
+	explicit OutlineComponent(float _scaleMultiplier, const glm::vec4 &_outlineColor)
 		:scaleMultiplier(_scaleMultiplier), outlineColor(_outlineColor) { };
 	float scaleMultiplier;
 	glm::vec4 outlineColor;
@@ -192,7 +192,7 @@ struct OutlineComponent : public Component<OutlineComponent>
 
 struct PerpetualRotationComponent : public Component<PerpetualRotationComponent>
 {
-    explicit PerpetualRotationComponent(const glm::vec3 &_rotationIncrement)
+	explicit PerpetualRotationComponent(const glm::vec3 &_rotationIncrement)
 		:rotationIncrement(_rotationIncrement) { };
 	glm::vec3 rotationIncrement;
 
@@ -206,13 +206,13 @@ struct RenderableComponent : public Component<RenderableComponent>
 
 struct RotationComponent : public Component<RotationComponent>
 {
-    explicit RotationComponent(const glm::quat &_startRotation, const glm::quat &_endRotation, const double &_startTime, const double &_totalDuration, double(*_easingFunction)(double, const double&), const std::function<void()> &_onCompleted = []() {})
+	explicit RotationComponent(const glm::quat &_startRotation, const glm::quat &_endRotation, double _startTime, double _totalDuration, double(*_easingFunction)(double, double), std::function<void()> _onCompleted = []() {})
 		: startRotation(_startRotation), endRotation(_endRotation), startTime(_startTime), totalDuration(_totalDuration), easingFunction(_easingFunction), onCompleted(_onCompleted) { };
 	glm::quat startRotation;
 	glm::quat endRotation;
 	double startTime;
 	double totalDuration;
-	double(*easingFunction)(double, const double&);
+	double(*easingFunction)(double, double);
 	std::function<void()> onCompleted;
 
 	static const std::uint64_t FAMILY_ID;
@@ -225,7 +225,7 @@ enum class SoundType
 
 struct SoundComponent : public Component<SoundComponent>
 {
-    explicit SoundComponent(const std::string &_soundFile, const SoundType &_soundType, const float &_volume = 1.0f, const bool &_looping = false, const bool &_paused = true, const bool &_loadInstantly = false)
+	explicit SoundComponent(const std::string &_soundFile, const SoundType &_soundType, float _volume = 1.0f, bool _looping = false, bool _paused = true, bool _loadInstantly = false)
 		: soundFile(_soundFile), soundType(_soundType), volume(_volume), looping(_looping), paused(_paused), loadInstantly(_loadInstantly) { };
 	std::string soundFile;
 	SoundType soundType;
@@ -239,7 +239,7 @@ struct SoundComponent : public Component<SoundComponent>
 
 struct TextureAtlasIndexComponent : public Component<TextureAtlasIndexComponent>
 {
-    explicit TextureAtlasIndexComponent(const unsigned int &_rows, const unsigned int &_columns, const std::map<std::shared_ptr<Mesh>, unsigned int> &_meshToIndexMap)
+	explicit TextureAtlasIndexComponent(const unsigned int &_rows, const unsigned int &_columns, const std::map<std::shared_ptr<Mesh>, unsigned int> &_meshToIndexMap)
 		:rows(_rows), columns(_columns), meshToIndexMap(_meshToIndexMap) { };
 	unsigned int rows;
 	unsigned int columns;
@@ -250,7 +250,7 @@ struct TextureAtlasIndexComponent : public Component<TextureAtlasIndexComponent>
 
 struct TransformationComponent : public Component<TransformationComponent>
 {
-    explicit TransformationComponent(const glm::vec3 &_position = glm::vec3(), const glm::quat &_rotation = glm::quat(), const glm::vec3 &_scale = glm::vec3(1.0f))
+	explicit TransformationComponent(const glm::vec3 &_position = glm::vec3(), const glm::quat &_rotation = glm::quat(), const glm::vec3 &_scale = glm::vec3(1.0f))
 		:position(_position), rotation(_rotation), scale(_scale) { };
 	glm::vec3 position;
 	glm::quat rotation;

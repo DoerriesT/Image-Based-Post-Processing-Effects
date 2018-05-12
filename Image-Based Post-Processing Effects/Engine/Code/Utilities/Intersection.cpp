@@ -72,7 +72,7 @@ bool intersectRayObb(const glm::vec3 &_origin, const glm::vec3 &_dir, const glm:
 	return intersectRayAabb(invRotation * (_origin - _position),  invRotation * _dir, _maxCorner, _result);
 }
 
-const Entity *getSelectedEntity(const std::vector<const Entity*> &_entities, const glm::vec3 &_cameraPosition, const glm::vec3 &_mouseDirection, const bool &_oriented)
+const Entity *getSelectedEntity(const std::vector<const Entity*> &_entities, const glm::vec3 &_cameraPosition, const glm::vec3 &_mouseDirection, bool _oriented)
 {
 	const Entity *closestEntity = nullptr;
 	float closestDistance = std::numeric_limits<float>::max();

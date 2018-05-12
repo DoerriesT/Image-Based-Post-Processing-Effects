@@ -161,9 +161,9 @@ inline void remove(std::unordered_set<T> &_set, const T &_item)
 	_set.erase(_item);
 }
 
-glm::vec3 interpolateHermiteCurve(const double &_t, const glm::vec3 &_p0, const glm::vec3 &_p1, const glm::vec3 &_t0, const glm::vec3 &_t1);
+glm::vec3 interpolateHermiteCurve(double _t, const glm::vec3 &_p0, const glm::vec3 &_p1, const glm::vec3 &_t0, const glm::vec3 &_t1);
 
-glm::quat nlerp(const glm::quat &_x, const glm::quat &_y, const float &_a);
+glm::quat nlerp(const glm::quat &_x, const glm::quat &_y, float _a);
 
 template< typename T >
 std::string to_hex(T i)

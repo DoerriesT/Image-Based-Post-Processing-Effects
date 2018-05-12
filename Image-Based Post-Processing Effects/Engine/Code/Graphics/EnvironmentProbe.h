@@ -23,7 +23,7 @@ public:
 	std::shared_ptr<Texture> getIrradianceMap() const;
 	glm::vec3 getPosition() const;
 	bool isValid() const;
-	void setValid(const bool &_valid);
+	void setValid(bool _valid);
 	void saveToFile(const std::string &_reflectanceMapFilepath, const std::string &_irradianceMapFilepath);
 
 private:

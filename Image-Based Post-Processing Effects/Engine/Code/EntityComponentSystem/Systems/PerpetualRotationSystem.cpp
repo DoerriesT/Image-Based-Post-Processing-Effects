@@ -15,11 +15,11 @@ void PerpetualRotationSystem::init()
 	entityManager.addOnEntityDestructionListener(this);
 }
 
-void PerpetualRotationSystem::input(const double &_currentTime, const double &_timeDelta)
+void PerpetualRotationSystem::input(double _currentTime, double _timeDelta)
 {
 }
 
-void PerpetualRotationSystem::update(const double &_currentTime, const double &_timeDelta)
+void PerpetualRotationSystem::update(double _currentTime, double _timeDelta)
 {
 	for (const Entity *entity : entitiesToRemove)
 	{
@@ -73,7 +73,7 @@ void PerpetualRotationSystem::onDestruction(const Entity *_entity)
 	}
 }
 
-bool PerpetualRotationSystem::validate(const std::uint64_t &_bitMap)
+bool PerpetualRotationSystem::validate(std::uint64_t _bitMap)
 {
 	for (std::uint64_t configuration : validBitMaps)
 	{

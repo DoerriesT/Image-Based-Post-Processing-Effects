@@ -372,7 +372,7 @@ void ShaderProgram::setUniform(const GLint &_location, const glm::vec4 &_value) 
 	glUniform4f(_location, _value.x, _value.y, _value.z, _value.w);
 }
 
-void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<PointLight> _value, const int &_shadowMapTextureUnit) const
+void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<PointLight> _value, int _shadowMapTextureUnit) const
 {
 	setUniform(_locations[0], _value->getColor());
 	setUniform(_locations[1], _value->getPosition());
@@ -381,7 +381,7 @@ void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared
 	setUniform(_locations[4], _value->getViewProjectionMatrix());
 }
 
-void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<SpotLight> _value, const int &_shadowMapTextureUnit) const
+void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<SpotLight> _value, int _shadowMapTextureUnit) const
 {
 	setUniform(_locations[0], _value->getColor());
 	setUniform(_locations[1], _value->getPosition());
@@ -392,7 +392,7 @@ void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared
 	setUniform(_locations[6], _value->getViewProjectionMatrix());
 }
 
-void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<DirectionalLight> _value, const int &_shadowMapTextureUnit) const
+void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<DirectionalLight> _value, int _shadowMapTextureUnit) const
 {
 	setUniform(_locations[0], _value->getColor());
 	setUniform(_locations[1], _value->getDirection());

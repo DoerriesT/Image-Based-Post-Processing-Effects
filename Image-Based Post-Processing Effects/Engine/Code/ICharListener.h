@@ -13,5 +13,5 @@ public:
 	* @param key
 	*            The key code of the key.
 	*/
-	virtual void onChar(const int &_key) = 0;
+	virtual void onChar(int _key) = 0;
 };

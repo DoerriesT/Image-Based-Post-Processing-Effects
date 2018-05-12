@@ -36,7 +36,7 @@ bool EnvironmentProbe::isValid() const
 	return valid;
 }
 
-void EnvironmentProbe::setValid(const bool &_valid)
+void EnvironmentProbe::setValid(bool _valid)
 {
 	valid = _valid;
 }

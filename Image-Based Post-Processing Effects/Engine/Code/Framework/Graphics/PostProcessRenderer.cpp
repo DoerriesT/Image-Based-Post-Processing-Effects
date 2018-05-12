@@ -263,7 +263,7 @@ GLuint PostProcessRenderer::getFinishedTexture() const
 	return finishedTexture;
 }
 
-void PostProcessRenderer::fxaa(const float &_subPixelAA, const float &_edgeThreshold, const float &_edgeThresholdMin)
+void PostProcessRenderer::fxaa(float _subPixelAA, float _edgeThreshold, float _edgeThresholdMin)
 {
 	glDrawBuffer((finishedTexture == fullResolutionTextureA) ? GL_COLOR_ATTACHMENT1 : GL_COLOR_ATTACHMENT0);
 	glActiveTexture(GL_TEXTURE0);

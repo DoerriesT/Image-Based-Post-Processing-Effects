@@ -15,8 +15,8 @@ public:
 	SystemManager(const SystemManager &&) = delete;
 	SystemManager &operator= (const SystemManager &) = delete;
 	SystemManager &operator= (const SystemManager &&) = delete;
-	void input(const double &_currentTime, const double &_timeDelta);
-	void update(const double &_currentTime, const double &_timeDelta);
+	void input(double _currentTime, double _timeDelta);
+	void update(double _currentTime, double _timeDelta);
 	void render();
 	template<typename SystemType, typename ...Args>
 	SystemType *addSystem(Args&& ..._args);

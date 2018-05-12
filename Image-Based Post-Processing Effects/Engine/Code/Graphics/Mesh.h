@@ -19,7 +19,7 @@ struct Vertex
 class Mesh
 {
 public:
-	static std::shared_ptr<Mesh> createMesh(const std::string &_filepath, const bool &_instantLoading = false);
+	static std::shared_ptr<Mesh> createMesh(const std::string &_filepath, bool _instantLoading = false);
 
 	Mesh(const Mesh &) = delete;
 	Mesh(const Mesh &&) = delete;
@@ -40,6 +40,6 @@ private:
 	GLuint EBO;
 	std::size_t indexCount;
 
-	explicit Mesh(const std::string &_filepath, const bool &_instantLoading = false);
+	explicit Mesh(const std::string &_filepath, bool _instantLoading = false);
 	void initOpenGL(const std::vector<Vertex> &_vertices, const std::vector<unsigned int> &_indices);
 };

@@ -16,8 +16,8 @@ class Texture
 {
 public:
 	static std::shared_ptr<Texture> createTexture(const GLuint &_id, const GLenum &_target);
-	static std::shared_ptr<Texture> createTexture(const std::string &_filename, const bool &_instantLoading = false);
-	static void setAnisotropicFilteringAll(const float &_anisotropicFiltering);
+	static std::shared_ptr<Texture> createTexture(const std::string &_filename, bool _instantLoading = false);
+	static void setAnisotropicFilteringAll(float _anisotropicFiltering);
 
 	Texture(const Texture &) = delete;
 	Texture(const Texture &&) = delete;
@@ -27,7 +27,7 @@ public:
 	GLuint getId() const;
 	GLenum getTarget() const;
 	bool isValid() const;
-	void setAnisotropicFiltering(const float &_anisotropicFiltering);
+	void setAnisotropicFiltering(float _anisotropicFiltering);
 
 private:
 	static std::map<std::string, std::weak_ptr<Texture>> textureMap;
@@ -40,7 +40,7 @@ private:
 
 
 	explicit Texture(const GLuint &_id, const GLenum &_target);
-	explicit Texture(const std::string &_filename, const bool &_instantLoading = false);
+	explicit Texture(const std::string &_filename, bool _instantLoading = false);
 	void initOpenGL(const gli::texture &_file);
 	void initOpenGLFromData(PackedJobTexture *texture);
 };

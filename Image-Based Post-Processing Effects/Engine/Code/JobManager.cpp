@@ -10,7 +10,7 @@ JobManager::JobManager()
 	: thread(nullptr), interrupted(false)
 {
 	useMultithreadingSetting = SettingsManager::getInstance().getBoolSetting("misc", "use_multithreading", true);
-	useMultithreadingSetting->addListener([&](const bool &value)
+	useMultithreadingSetting->addListener([&](bool value)
 	{
 		lock_guard lock(mutex);
 		useMutlithreading = value;

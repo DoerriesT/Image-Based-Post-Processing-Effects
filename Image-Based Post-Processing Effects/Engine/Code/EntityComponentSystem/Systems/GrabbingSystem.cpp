@@ -22,11 +22,11 @@ void GrabbingSystem::init()
 	entityManager.addOnEntityDestructionListener(this);
 }
 
-void GrabbingSystem::input(const double &_currentTime, const double &_timeDelta)
+void GrabbingSystem::input(double _currentTime, double _timeDelta)
 {
 }
 
-void GrabbingSystem::update(const double &_currentTime, const double &_timeDelta)
+void GrabbingSystem::update(double _currentTime, double _timeDelta)
 {
 	std::shared_ptr<Level> level = SystemManager::getInstance().getLevel();
 	if (!level || level->cameras.empty())
@@ -96,7 +96,7 @@ void GrabbingSystem::onDestruction(const Entity *_entity)
 	}
 }
 
-bool GrabbingSystem::validate(const std::uint64_t &_bitMap)
+bool GrabbingSystem::validate(std::uint64_t _bitMap)
 {
 	for (std::uint64_t configuration : validBitMaps)
 	{

@@ -11,7 +11,7 @@ public:
 	* @param action
 	*            The action performed on the key (pressed, released, etc..).
 	*/
-	virtual void onKey(const int &_key, const int &_action) = 0;
+	virtual void onKey(int _key, int _action) = 0;
 
 	/**
 	* Callback that is invoked when a character key (e.g.: 'f') is pressed.
@@ -19,7 +19,7 @@ public:
 	* @param charKey
 	*            The id of the pressed character key.
 	*/
-	virtual void onChar(const int &_charKey) = 0;
+	virtual void onChar(int _charKey) = 0;
 
 	/**
 	* Callback that is invoked when a mouse button is pressed or released.
@@ -29,7 +29,7 @@ public:
 	* @param action
 	*            The action performed on the mouse button (pressed, released, etc...)
 	*/
-	virtual void onMouseButton(const int &_mouseButton, const int &_action) = 0;
+	virtual void onMouseButton(int _mouseButton, int _action) = 0;
 
 	/**
 	* Callback that is invoked when the mouse is moved.
@@ -39,7 +39,7 @@ public:
 	* @param y
 	*            The current y coordinate of the mouse.
 	*/
-	virtual void onMouseMove(const double &_x, const double &_y) = 0;
+	virtual void onMouseMove(double _x, double _y) = 0;
 
 	/**
 	* Callback that is invoked when the mouse enters or exits the window.
@@ -47,7 +47,7 @@ public:
 	* @param entered
 	*            true if mouse entered window, false otherwise.
 	*/
-	virtual void onMouseEnter(const bool &_entered) = 0;
+	virtual void onMouseEnter(bool _entered) = 0;
 
 	/**
 	* Callback that is invoked when the mouse scroll wheel is used.
@@ -57,7 +57,7 @@ public:
 	* @param yOffset
 	*            The scroll offset in y direction.
 	*/
-	virtual void onMouseScroll(const double &_xOffset, const double &_yOffset) = 0;
+	virtual void onMouseScroll(double _xOffset, double _yOffset) = 0;
 
 	virtual ~IInputListener() = default;
 };

@@ -4,11 +4,11 @@ void Application::init()
 {
 }
 
-void Application::input(const double & currentTime, const double & timeDelta)
+void Application::input(double currentTime, double timeDelta)
 {
 }
 
-void Application::update(const double & currentTime, const double & timeDelta)
+void Application::update(double currentTime, double timeDelta)
 {
 }
 

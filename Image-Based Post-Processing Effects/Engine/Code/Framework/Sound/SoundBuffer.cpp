@@ -4,7 +4,7 @@
 
 std::map<std::string, std::weak_ptr<SoundBuffer>> SoundBuffer::soundMap;
 
-std::shared_ptr<SoundBuffer> SoundBuffer::createSoundBuffer(const std::string &_file, const bool &_instantLoading)
+std::shared_ptr<SoundBuffer> SoundBuffer::createSoundBuffer(const std::string &_file, bool _instantLoading)
 {
 	if (contains(soundMap, _file))
 	{
@@ -42,7 +42,7 @@ bool SoundBuffer::isValid() const
 	return valid;
 }
 
-SoundBuffer::SoundBuffer(const std::string &_file, const bool &_instantLoading)
+SoundBuffer::SoundBuffer(const std::string &_file, bool _instantLoading)
 	:filepath(_file), valid(false), dataJob(nullptr)
 {
 	auto dataPreparation = [=](JobManager::SharedJob job)

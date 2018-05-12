@@ -1146,7 +1146,7 @@ void SceneRenderer::renderOutlines(const RenderData &_renderData, const Scene &_
 	glStencilMask(0xFF);
 }
 
-void SceneRenderer::renderCustomGeometry(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Scene &_scene, const bool &_opaque)
+void SceneRenderer::renderCustomGeometry(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Scene &_scene, bool _opaque)
 {
 	if (_opaque && !_scene.getCustomOpaqueCount() || !_opaque && !_scene.getCustomTransparencyCount())
 	{

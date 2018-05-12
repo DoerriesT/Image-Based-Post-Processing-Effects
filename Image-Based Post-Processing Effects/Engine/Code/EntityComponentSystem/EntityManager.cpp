@@ -40,7 +40,7 @@ const Entity *EntityManager::createEntity()
 }
 
 
-void EntityManager::removeComponentFamily(const Entity *_entity, const std::uint64_t &_familyId, const bool &_notify)
+void EntityManager::removeComponentFamily(const Entity *_entity, std::uint64_t _familyId, bool _notify)
 {
 	assert(validateEntity(_entity));
 

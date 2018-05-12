@@ -19,10 +19,10 @@ namespace JSON
 	std::string getStringDefault(const Object &jsonObject, const char *key, const std::string &default);
 
 	bool getFloat(const Object &jsonObject, const char *key, float &result);
-	float getFloatDefault(const Object &jsonObject, const char *key, const float &default);
+	float getFloatDefault(const Object &jsonObject, const char *key, float default);
 
 	bool getInt(const Object &jsonObject, const char *key, int &result);
-	int getIntDefault(const Object &jsonObject, const char *key, const int &default);
+	int getIntDefault(const Object &jsonObject, const char *key, int default);
 
-	bool getBoolDefault(const Object &jsonObject, const char *key, const bool &default);
+	bool getBoolDefault(const Object &jsonObject, const char *key, bool default);
 }

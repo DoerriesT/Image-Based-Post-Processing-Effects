@@ -110,7 +110,7 @@ void GuiInputHandler::input(nk_context *ctx)
 //}
 
 
-void GuiInputHandler::onKey(const int &_key, const int &_action)
+void GuiInputHandler::onKey(int _key, int _action)
 {
 	switch (_key) {
 	case INPUT_KEY_DELETE:
@@ -200,13 +200,13 @@ void GuiInputHandler::inputNkKey(nk_keys key, int action) {
 	}
 }
 
-void GuiInputHandler::onChar(const int &_key) {
+void GuiInputHandler::onChar(int _key) {
 	if (glfw_input.text_len < NK_GLFW_TEXT_MAX) {
 		glfw_input.text[glfw_input.text_len++] = _key;
 	}
 }
 
-void GuiInputHandler::onScroll(const double &_xOffset, const double &_yOffset)
+void GuiInputHandler::onScroll(double _xOffset, double _yOffset)
 {
 	glfw_input.scroll.x += (float)_xOffset;
 	glfw_input.scroll.y += (float)_yOffset;

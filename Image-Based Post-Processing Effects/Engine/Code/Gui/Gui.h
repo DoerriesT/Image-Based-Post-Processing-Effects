@@ -64,7 +64,7 @@ public:
 	
 	void toggleNuklearOverviewExample();
 
-	static bool isGuiArea(const float &x, const float &y);
+	static bool isGuiArea(float x, float y);
 
 	static inline const GuiRenderer& getRenderer();
 	static inline GuiStyleSheet& getStyleSheet();

@@ -16,11 +16,11 @@ void RotationSystem::init()
 	entityManager.addOnEntityDestructionListener(this);
 }
 
-void RotationSystem::input(const double &_currentTime, const double &_timeDelta)
+void RotationSystem::input(double _currentTime, double _timeDelta)
 {
 }
 
-void RotationSystem::update(const double &_currentTime, const double &_timeDelta)
+void RotationSystem::update(double _currentTime, double _timeDelta)
 {
 	for (const Entity *entity : entitiesToRemove)
 	{
@@ -93,7 +93,7 @@ void RotationSystem::onDestruction(const Entity *_entity)
 	}
 }
 
-bool RotationSystem::validate(const std::uint64_t &_bitMap)
+bool RotationSystem::validate(std::uint64_t _bitMap)
 {
 	for (std::uint64_t configuration : validBitMaps)
 	{

@@ -116,7 +116,7 @@ const struct nk_rect GuiWindow::getBounds() const
 	return bounds;
 }
 
-bool GuiWindow::isWindowArea(const float &x, const float &y)
+bool GuiWindow::isWindowArea(float x, float y)
 {
 	if (hidden)
 	{

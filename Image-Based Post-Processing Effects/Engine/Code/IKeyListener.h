@@ -15,5 +15,5 @@ public:
 	* @param action
 	*            Either RELEASE, PRESS or REPEAT, indicating what action was performed on the key.
 	*/
-	virtual void onKey(const int &_key, const int &_action) = 0;
+	virtual void onKey(int _key, int _action) = 0;
 };

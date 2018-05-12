@@ -68,7 +68,7 @@ Window* Engine::getWindow()
 	return window.get();
 }
 
-void Engine::runLater(const std::function<void()> &function)
+void Engine::runLater(std::function<void()> function)
 {
 	std::lock_guard<std::mutex> lock(instance->mutex);
 	instance->functionQueue.push_back(function);
@@ -114,14 +114,14 @@ void Engine::gameLoop()
 	window->destroy();
 }
 
-void Engine::input(const double &_currentTime, const double &_timeDelta)
+void Engine::input(double _currentTime, double _timeDelta)
 {
 	userInput.input();
 	systemManager.input(_currentTime, _timeDelta);
 	gameLogic.input(_currentTime, _timeDelta);
 }
 
-void Engine::update(const double &_currentTime, const double &_timeDelta)
+void Engine::update(double _currentTime, double _timeDelta)
 {
 	systemManager.update(_currentTime, _timeDelta);
 	gameLogic.update(_currentTime, _timeDelta);

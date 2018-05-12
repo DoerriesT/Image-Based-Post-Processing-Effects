@@ -20,7 +20,7 @@ public:
 	static Engine* getInstance();
 	Window* getWindow();
 
-	static void runLater(const std::function<void()> &function);
+	static void runLater(std::function<void()> function);
 	static bool isFunctionQueueEmpty();
 
 	int getMaxAnisotropicFiltering();
@@ -44,7 +44,7 @@ private:
 	std::shared_ptr<Setting<bool>> showFps;
 
 	void gameLoop();
-	void input(const double &_currentTime, const double &_timeDelta);
-	void update(const double &_currentTime, const double &_timeDelta);
+	void input(double _currentTime, double _timeDelta);
+	void update(double _currentTime, double _timeDelta);
 	void render();
 };

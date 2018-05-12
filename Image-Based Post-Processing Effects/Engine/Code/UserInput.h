@@ -177,8 +177,8 @@ public:
 	const std::set<int> &getPressedKeys();
 	const std::set<int> &getPressedMouseButtons();
 	bool isMouseInsideWindow();
-	bool isKeyPressed(const int &key);
-	bool isMouseButtonPressed(const int &mouseButton);
+	bool isKeyPressed(int key);
+	bool isMouseButtonPressed(int mouseButton);
 	void addKeyListener(IKeyListener *_listener);
 	void removeKeyListener(IKeyListener *_listener);
 	void addCharListener(ICharListener *_listener);
@@ -195,12 +195,12 @@ public:
 	void addScrollCallback(CallbackType &&_callback);
 	template<typename CallbackType>
 	void addMouseButtonCallback(CallbackType &&_callback);
-	void onKey(const int &_key, const int &_action) override;
-	void onChar(const int &_charKey) override;
-	void onMouseButton(const int &_mouseButton, const int &_action) override;
-	void onMouseMove(const double &_x, const double &_y) override;
-	void onMouseEnter(const bool &_entered) override;
-	void onMouseScroll(const double &_xOffset, const double &_yOffset) override;
+	void onKey(int _key, int _action) override;
+	void onChar(int _charKey) override;
+	void onMouseButton(int _mouseButton, int _action) override;
+	void onMouseMove(double _x, double _y) override;
+	void onMouseEnter(bool _entered) override;
+	void onMouseScroll(double _xOffset, double _yOffset) override;
 
 private:
 	glm::vec2 previousMousePos;

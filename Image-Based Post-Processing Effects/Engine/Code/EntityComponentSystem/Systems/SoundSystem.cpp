@@ -29,29 +29,29 @@ void SoundSystem::init()
 	SettingsManager &settingsManager = SettingsManager::getInstance();
 
 	masterVolume = settingsManager.getDoubleSetting("sound", "master_volume", 0.5);
-	masterVolume->addListener([&](const double &_value) { soundFramework->setMasterVolume((float)_value); });
+	masterVolume->addListener([&](double _value) { soundFramework->setMasterVolume((float)_value); });
 	soundFramework->setMasterVolume((float)masterVolume->get());
 
 	musicVolume = settingsManager.getDoubleSetting("sound", "music_volume", 0.5);
-	musicVolume->addListener([&](const double &_value) { soundFramework->setVolume(SoundType::MUSIC, (float)_value); });
+	musicVolume->addListener([&](double _value) { soundFramework->setVolume(SoundType::MUSIC, (float)_value); });
 	soundFramework->setVolume(SoundType::MUSIC, (float)musicVolume->get());
 
 	effectVolume = settingsManager.getDoubleSetting("sound", "effect_volume", 0.5);
-	effectVolume->addListener([&](const double &_value) { soundFramework->setVolume(SoundType::EFFECT, (float)_value); });
+	effectVolume->addListener([&](double _value) { soundFramework->setVolume(SoundType::EFFECT, (float)_value); });
 	soundFramework->setVolume(SoundType::EFFECT, (float)effectVolume->get());
 
 	uiVolume = settingsManager.getDoubleSetting("sound", "ui_volume", 0.5);
-	uiVolume->addListener([&](const double &_value) { soundFramework->setVolume(SoundType::UI, (float)_value); });
+	uiVolume->addListener([&](double _value) { soundFramework->setVolume(SoundType::UI, (float)_value); });
 	soundFramework->setVolume(SoundType::UI, (float)uiVolume->get());
 
 	settingsManager.saveToIni();
 }
 
-void SoundSystem::input(const double &_currentTime, const double &_timeDelta)
+void SoundSystem::input(double _currentTime, double _timeDelta)
 {
 }
 
-void SoundSystem::update(const double &_currentTime, const double &_timeDelta)
+void SoundSystem::update(double _currentTime, double _timeDelta)
 {
 	std::shared_ptr<Level> level = SystemManager::getInstance().getLevel();
 	if (!level || level->cameras.empty())
@@ -108,7 +108,7 @@ void SoundSystem::onDestruction(const Entity *_entity)
 	}
 }
 
-bool SoundSystem::validate(const std::uint64_t &_bitMap)
+bool SoundSystem::validate(std::uint64_t _bitMap)
 {
 	for (std::uint64_t configuration : validBitMaps)
 	{

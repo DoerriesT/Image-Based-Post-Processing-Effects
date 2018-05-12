@@ -3,5 +3,5 @@
 class IMouseButtonListener
 {
 public:
-	virtual void onMouseButton(const int &_mouseButton, const int &_action) = 0;
+	virtual void onMouseButton(int _mouseButton, int _action) = 0;
 };

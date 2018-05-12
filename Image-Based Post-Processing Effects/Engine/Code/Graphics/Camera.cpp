@@ -55,7 +55,7 @@ void Camera::lookAt(const glm::vec3 &_targetPosition)
 	needToUpdateViewMatrix = false;
 }
 
-void Camera::setZoom(const float &_zoom)
+void Camera::setZoom(float _zoom)
 {
 	assert(zoom > 0.0f);
 	zoom = _zoom;

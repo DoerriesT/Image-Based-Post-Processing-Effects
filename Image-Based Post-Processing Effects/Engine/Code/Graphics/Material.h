@@ -16,9 +16,9 @@ public:
 	static const std::uint32_t AO;
 	static const std::uint32_t EMISSIVE;
 
-	explicit Material(const glm::vec4 &_albedo = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), const float &_metallic = 0.0f, const float &_roughness = 0.0f, const glm::vec3 &_emissive = glm::vec3(0.0f));
+	explicit Material(const glm::vec4 &_albedo = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), float _metallic = 0.0f, float _roughness = 0.0f, const glm::vec3 &_emissive = glm::vec3(0.0f));
 	explicit Material(const std::shared_ptr<Texture> &_albedoMap, const std::shared_ptr<Texture> &_normalMap = nullptr, const  std::shared_ptr<Texture> &_metallicMap = nullptr, const  std::shared_ptr<Texture> &_roughnessMap = nullptr, const  std::shared_ptr<Texture> &_aoMap = nullptr, const std::shared_ptr<Texture> &_emissiveMap = nullptr);
-	explicit Material(const std::string &_basePath, const std::uint32_t &_flags);
+	explicit Material(const std::string &_basePath, std::uint32_t _flags);
 	const std::shared_ptr<Texture> getAlbedoMap() const;
 	const std::shared_ptr<Texture> getNormalMap() const;
 	const std::shared_ptr<Texture> getMetallicMap() const;
@@ -27,8 +27,8 @@ public:
 	const std::shared_ptr<Texture> getEmissiveMap() const;
 	const std::uint32_t getMapBitField() const;
 	const glm::vec4 &getAlbedo() const;
-	const float &getMetallic() const;
-	const float &getRoughness() const;
+	float getMetallic() const;
+	float getRoughness() const;
 	const glm::vec3 &getEmissive() const;
 	void setAlbedoMap(const std::shared_ptr<Texture> &_albedoMap);
 	void setNormalMap(const std::shared_ptr<Texture> &_normalMap);
@@ -37,8 +37,8 @@ public:
 	void setAoMap(const std::shared_ptr<Texture> &_aoMap);
 	void setEmissiveMap(const std::shared_ptr<Texture> &_emissiveMap);
 	void setAlbedo(const glm::vec4 &_albedo);
-	void setMetallic(const float &_metallic);
-	void setRoughness(const float &_roughness);
+	void setMetallic(float _metallic);
+	void setRoughness(float _roughness);
 	void setEmissive(const glm::vec3 &_emissive);
 	void bindTextures() const;
 

@@ -8,7 +8,7 @@ SettingsManager &SettingsManager::getInstance()
 	return instance;
 }
 
-std::shared_ptr<Setting<bool>> SettingsManager::getBoolSetting(const std::string &_section, const std::string &_key, const bool &_defaultValue)
+std::shared_ptr<Setting<bool>> SettingsManager::getBoolSetting(const std::string &_section, const std::string &_key, bool _defaultValue)
 {
 	auto pair = std::make_pair(_section, _key);
 	if (contains(boolSettingMap, pair))
@@ -24,7 +24,7 @@ std::shared_ptr<Setting<bool>> SettingsManager::getBoolSetting(const std::string
 	}
 }
 
-std::shared_ptr<Setting<int>> SettingsManager::getIntSetting(const std::string &_section, const std::string &_key, const int &_defaultValue)
+std::shared_ptr<Setting<int>> SettingsManager::getIntSetting(const std::string &_section, const std::string &_key, int _defaultValue)
 {
 	auto pair = std::make_pair(_section, _key);
 	if (contains(intSettingMap, pair))
@@ -40,7 +40,7 @@ std::shared_ptr<Setting<int>> SettingsManager::getIntSetting(const std::string &
 	}
 }
 
-std::shared_ptr<Setting<double>> SettingsManager::getDoubleSetting(const std::string &_section, const std::string &_key, const double &_defaultValue)
+std::shared_ptr<Setting<double>> SettingsManager::getDoubleSetting(const std::string &_section, const std::string &_key, double _defaultValue)
 {
 	auto pair = std::make_pair(_section, _key);
 	if (contains(doubleSettingMap, pair))

@@ -14,7 +14,7 @@ SystemManager &SystemManager::getInstance()
 	return instance;
 }
 
-void SystemManager::input(const double &_currentTime, const double &_timeDelta)
+void SystemManager::input(double _currentTime, double _timeDelta)
 {
 	for (BaseSystem *system : systems)
 	{
@@ -22,7 +22,7 @@ void SystemManager::input(const double &_currentTime, const double &_timeDelta)
 	}
 }
 
-void SystemManager::update(const double &_currentTime, const double &_timeDelta)
+void SystemManager::update(double _currentTime, double _timeDelta)
 {
 	for (BaseSystem *system : systems)
 	{

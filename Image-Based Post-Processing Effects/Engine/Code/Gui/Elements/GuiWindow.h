@@ -33,7 +33,7 @@ public:
 	void setWidth(const std::string &w);
 	void setHeight(const std::string &h);
 	const struct nk_rect getBounds() const;
-	bool isWindowArea(const float &x, const float &y);
+	bool isWindowArea(float x, float y);
 
 	void setTitle(const std::string &title);
 	void setBordered(bool bordered);

@@ -43,8 +43,8 @@ public:
 	template<typename ComponentType, typename ...Args>
 	ComponentType *addComponent(const Entity *_entity, Args&& ..._args);
 	template<typename ComponentType>
-	void removeComponent(const Entity *_entity, const bool &_notify = true);
-	void removeComponentFamily(const Entity *_entity, const std::uint64_t &_familyId, const bool &_notify = true);
+	void removeComponent(const Entity *_entity, bool _notify = true);
+	void removeComponentFamily(const Entity *_entity, std::uint64_t _familyId, bool _notify = true);
 	template<typename ComponentType>
 	ComponentType *getComponent(const Entity *_entity);
 	void destroyEntity(const Entity *_entity);
@@ -119,7 +119,7 @@ ComponentType *EntityManager::addComponent(const Entity *_entity, Args&& ..._arg
 }
 
 template<typename ComponentType>
-void EntityManager::removeComponent(const Entity *_entity, const bool &_notify)
+void EntityManager::removeComponent(const Entity *_entity, bool _notify)
 {
 	assert(validateEntity(_entity));
 

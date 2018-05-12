@@ -121,7 +121,7 @@ private:
 	Uniform<GLboolean> uAddPreviousBU = Uniform<GLboolean>("uAddPrevious");
 	Uniform<glm::vec2> uRadiusBU = Uniform<glm::vec2>("uRadius");
 
-	void fxaa(const float &_subPixelAA, const float &_edgeThreshold, const float &_edgeThresholdMin);
+	void fxaa(float _subPixelAA, float _edgeThreshold, float _edgeThresholdMin);
 	void singlePassEffects(const Effects &_effects);
 	void downsample(const GLuint &_colorTexture);
 	void upsample();

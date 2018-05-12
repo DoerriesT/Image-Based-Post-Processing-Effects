@@ -22,13 +22,13 @@ public:
 	SoundFramework &operator= (const SoundFramework &&) = delete;
 	~SoundFramework();
 	void init();
-	void addSound(const Entity *_entity, const std::string &_file, const SoundType &_soundType, const float *_volume = nullptr, const bool &_looping = false, const bool &_relative = false, const bool &_paused = true, const glm::vec3 *_position = nullptr, const bool &_loadInstantly = false);
+	void addSound(const Entity *_entity, const std::string &_file, const SoundType &_soundType, const float *_volume = nullptr, bool _looping = false, bool _relative = false, bool _paused = true, const glm::vec3 *_position = nullptr, bool _loadInstantly = false);
 	void removeSound(const Entity *_entity);
 	std::vector<const Entity *> update(const std::shared_ptr<Camera> &_camera);
-	void setPaused(const Entity *_entity, const bool &_paused);
-	void setVolume(const SoundType &_soundType, const float &_volume);
-	void setMasterVolume(const float &_volume);
-	void setAttenuationModel(const int &_model);
+	void setPaused(const Entity *_entity, bool _paused);
+	void setVolume(const SoundType &_soundType, float _volume);
+	void setMasterVolume(float _volume);
+	void setAttenuationModel(int _model);
 
 
 private:
@@ -42,5 +42,5 @@ private:
 	float effectVolume = 1.0f;
 	float uiVolume = 1.0f;
 
-	void addSoundSource(const Entity *_entity, const glm::vec3 *_position, const float *_volume, const float *_soundTypeVolume, const bool &_looping, const bool &_relative);
+	void addSoundSource(const Entity *_entity, const glm::vec3 *_position, const float *_volume, const float *_soundTypeVolume, bool _looping, bool _relative);
 };

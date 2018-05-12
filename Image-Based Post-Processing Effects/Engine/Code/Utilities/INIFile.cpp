@@ -261,7 +261,7 @@ std::string INIFile::getString(const std::string &_section, const std::string &_
 	return _defaultValue;
 }
 
-bool INIFile::getBool(const std::string &_section, const std::string &_key, const bool &_defaultValue)
+bool INIFile::getBool(const std::string &_section, const std::string &_key, bool _defaultValue)
 {
 	std::string value;
 	if (getStringChecked(_section, _key, value))
@@ -279,7 +279,7 @@ bool INIFile::getBool(const std::string &_section, const std::string &_key, cons
 	return _defaultValue;
 }
 
-int INIFile::getInt(const std::string &_section, const std::string &_key, const int &_defaultValue)
+int INIFile::getInt(const std::string &_section, const std::string &_key, int _defaultValue)
 {
 	std::string value;
 	if (getStringChecked(_section, _key, value))
@@ -296,7 +296,7 @@ int INIFile::getInt(const std::string &_section, const std::string &_key, const 
 	return _defaultValue;
 }
 
-double INIFile::getDouble(const std::string &_section, const std::string &_key, const double &_defaultValue)
+double INIFile::getDouble(const std::string &_section, const std::string &_key, double _defaultValue)
 {
 	std::string value;
 	if (getStringChecked(_section, _key, value))
@@ -314,17 +314,17 @@ double INIFile::getDouble(const std::string &_section, const std::string &_key, 
 }
 
 
-void INIFile::setBool(const std::string &_section, const std::string &_key, const bool &_value)
+void INIFile::setBool(const std::string &_section, const std::string &_key, bool _value)
 {
 	setString(_section, _key, std::string(_value ? "1" : "0"));
 }
 
-void INIFile::setInt(const std::string &_section, const std::string &_key, const int &_value)
+void INIFile::setInt(const std::string &_section, const std::string &_key, int _value)
 {
 	setString(_section, _key, std::to_string(_value));
 }
 
-void INIFile::setDouble(const std::string &_section, const std::string &_key, const double &_value)
+void INIFile::setDouble(const std::string &_section, const std::string &_key, double _value)
 {
 	setString(_section, _key, std::to_string(_value));
 }

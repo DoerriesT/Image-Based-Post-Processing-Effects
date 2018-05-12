@@ -12,8 +12,8 @@ class PerpetualRotationSystem : public System<PerpetualRotationSystem>, IOnCompo
 public:
 	explicit PerpetualRotationSystem();
 	void init() override;
-	void input(const double &_currentTime, const double &_timeDelta) override;
-	void update(const double &_currentTime, const double &_timeDelta) override;
+	void input(double _currentTime, double _timeDelta) override;
+	void update(double _currentTime, double _timeDelta) override;
 	void render() override;
 	void onComponentAdded(const Entity *_entity, BaseComponent *_addedComponent) override;
 	void onComponentRemoved(const Entity *_entity, BaseComponent *_removedComponent) override;
@@ -26,5 +26,5 @@ private:
 	std::vector<const Entity *> entitiesToAdd;
 	std::vector<std::uint64_t> validBitMaps;
 
-	bool validate(const std::uint64_t &_bitMap);
+	bool validate(std::uint64_t _bitMap);
 };

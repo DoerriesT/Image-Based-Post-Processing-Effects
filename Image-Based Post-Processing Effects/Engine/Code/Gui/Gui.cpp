@@ -43,16 +43,16 @@ void Gui::init()
 {
 	SettingsManager &settingsManager = SettingsManager::getInstance();
 	windowWidth = settingsManager.getIntSetting("graphics", "window_width", 1080);
-	windowWidth->addListener([&](const int &_value) { updateDimensions(); });
+	windowWidth->addListener([&](int _value) { updateDimensions(); });
 
 	windowHeight = settingsManager.getIntSetting("graphics", "window_height", 720);
-	windowHeight->addListener([&](const int &_value) { updateDimensions(); });
+	windowHeight->addListener([&](int _value) { updateDimensions(); });
 
 	windowMode = settingsManager.getIntSetting("graphics", "window_mode", 0);
-	windowMode->addListener([&](const int &_value) { updateDimensions(); });
+	windowMode->addListener([&](int _value) { updateDimensions(); });
 
 	uiSizeOffset = SettingsManager::getInstance().getIntSetting("graphics", "gui_size", 0);
-	uiSizeOffset->addListener([this](const int &) { updateDimensions(); });
+	uiSizeOffset->addListener([this](int ) { updateDimensions(); });
 
 	renderer.init();
 	inputHandler.init();
@@ -236,7 +236,7 @@ void Gui::toggleNuklearOverviewExample()
 	showOverview = !showOverview;
 }
 
-bool Gui::isGuiArea(const float &x, const float &y)
+bool Gui::isGuiArea(float x, float y)
 {
 	const GuiLayout *layout = instance->currentLayout;
 	if (layout)

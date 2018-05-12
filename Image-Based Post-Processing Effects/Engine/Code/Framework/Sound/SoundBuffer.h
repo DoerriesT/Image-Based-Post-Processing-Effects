@@ -9,7 +9,7 @@
 class SoundBuffer
 {
 public:
-	static std::shared_ptr<SoundBuffer> createSoundBuffer(const std::string &_file, const bool &_instantLoading = false);
+	static std::shared_ptr<SoundBuffer> createSoundBuffer(const std::string &_file, bool _instantLoading = false);
 
 	SoundBuffer(const SoundBuffer &) = delete;
 	SoundBuffer(const SoundBuffer &&) = delete;
@@ -26,5 +26,5 @@ private:
 	JobManager::SharedJob dataJob;
 	ALuint bufferId;
 
-	explicit SoundBuffer(const std::string &_file, const bool &_instantLoading = false);
+	explicit SoundBuffer(const std::string &_file, bool _instantLoading = false);
 };

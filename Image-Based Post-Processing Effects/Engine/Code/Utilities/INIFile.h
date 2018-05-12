@@ -14,14 +14,14 @@ public:
 
 	bool getStringChecked(const std::string &_section, const std::string &_key, std::string &_result);
 	std::string getString(const std::string &_section, const std::string &_key, const std::string &_defaultValue);
-	bool getBool(const std::string &_section, const std::string &_key, const bool &_defaultValue);
-	int getInt(const std::string &_section, const std::string &_key, const int &_defaultValue);
-	double getDouble(const std::string &_section, const std::string &_key, const double &_defaultValue);
+	bool getBool(const std::string &_section, const std::string &_key, bool _defaultValue);
+	int getInt(const std::string &_section, const std::string &_key, int _defaultValue);
+	double getDouble(const std::string &_section, const std::string &_key, double _defaultValue);
 
 	void setString(const std::string &_section, const std::string &_key, const std::string &_value);
-	void setBool(const std::string &_section, const std::string &_key, const bool &_value);
-	void setInt(const std::string &_section, const std::string &_key, const int &_value);
-	void setDouble(const std::string &_section, const std::string &_key, const double &_value);
+	void setBool(const std::string &_section, const std::string &_key, bool _value);
+	void setInt(const std::string &_section, const std::string &_key, int _value);
+	void setDouble(const std::string &_section, const std::string &_key, double _value);
 
 	
 

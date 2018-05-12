@@ -51,12 +51,12 @@ bool UserInput::isMouseInsideWindow()
 	return insideWindow;
 }
 
-bool UserInput::isKeyPressed(const int &_key)
+bool UserInput::isKeyPressed(int _key)
 {
 	return pressedKeys.find(_key) != pressedKeys.end();
 }
 
-bool UserInput::isMouseButtonPressed(const int &_mouseButton)
+bool UserInput::isMouseButtonPressed(int _mouseButton)
 {
 	return pressedMouseButtons.find(_mouseButton) != pressedMouseButtons.end();
 }
@@ -101,7 +101,7 @@ void UserInput::removeMouseButtonListener(IMouseButtonListener *_listener)
 	mouseButtonlisteners.erase(std::remove(mouseButtonlisteners.begin(), mouseButtonlisteners.end(), _listener), mouseButtonlisteners.end());
 }
 
-void UserInput::onKey(const int &_key, const int &_action)
+void UserInput::onKey(int _key, int _action)
 {
 	for (IKeyListener *listener : keyListeners)
 	{
@@ -122,7 +122,7 @@ void UserInput::onKey(const int &_key, const int &_action)
 	}
 }
 
-void UserInput::onChar(const int &_charKey)
+void UserInput::onChar(int _charKey)
 {
 	for (ICharListener *listener : charListeners)
 	{
@@ -135,7 +135,7 @@ void UserInput::onChar(const int &_charKey)
 	pressedKeys.insert(_charKey);
 }
 
-void UserInput::onMouseButton(const int &_mouseButton, const int &_action)
+void UserInput::onMouseButton(int _mouseButton, int _action)
 {
 	for (IMouseButtonListener *listener : mouseButtonlisteners)
 	{
@@ -155,18 +155,18 @@ void UserInput::onMouseButton(const int &_mouseButton, const int &_action)
 	}
 }
 
-void UserInput::onMouseMove(const double &_x, const double &_y)
+void UserInput::onMouseMove(double _x, double _y)
 {
 	currentMousePos.x = static_cast<float>(_x);
 	currentMousePos.y = static_cast<float>(_y);
 }
 
-void UserInput::onMouseEnter(const bool &_entered)
+void UserInput::onMouseEnter(bool _entered)
 {
 	insideWindow = _entered;
 }
 
-void UserInput::onMouseScroll(const double &_xOffset, const double &_yOffset)
+void UserInput::onMouseScroll(double _xOffset, double _yOffset)
 {
 	for (IScrollListener *listener : scrollListeners)
 	{

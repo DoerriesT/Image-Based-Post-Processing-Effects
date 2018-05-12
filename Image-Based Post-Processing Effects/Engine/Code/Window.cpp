@@ -27,12 +27,12 @@ std::shared_ptr<Window> Window::createWindow(const std::string &_title)
 
 void Window::init()
 {
-	vsync->addListener([&](const bool &_value) 
+	vsync->addListener([&](bool _value) 
 	{ 
 		windowFramework->setVsync(_value); 
 	});
 
-	windowWidth->addListener([&](const int &_value) 
+	windowWidth->addListener([&](int _value) 
 	{ 
 		windowFramework->setResolution(std::make_pair<unsigned int, unsigned int>((unsigned int)_value, 0u));
 		unsigned int w = getWidth();
@@ -40,7 +40,7 @@ void Window::init()
 		onResize(w, h);
 	});
 
-	windowHeight->addListener([&](const int &_value) 
+	windowHeight->addListener([&](int _value) 
 	{
 		windowFramework->setResolution(std::make_pair<unsigned int, unsigned int>(0u, (unsigned int)_value)); 
 		unsigned int w = getWidth();
@@ -48,7 +48,7 @@ void Window::init()
 		onResize(w, h);
 	});
 
-	windowMode->addListener([&](const int &_value) 
+	windowMode->addListener([&](int _value) 
 	{ 
 		windowFramework->setWindowMode((WindowMode)_value); 
 		unsigned int w = getWidth();
@@ -121,7 +121,7 @@ void Window::setIcon(size_t count, const char *sizes, unsigned char **pixelData)
 	windowFramework->setIcon(count, sizes, pixelData);
 }
 
-void Window::setFieldOfView(const float &_fov)
+void Window::setFieldOfView(float _fov)
 {
 	fieldOfView = _fov;
 	projectionMatrix = glm::perspective(glm::radians(fieldOfView), static_cast<float>(getWidth()) / static_cast<float>(getHeight()), NEAR_PLANE, FAR_PLANE);

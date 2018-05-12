@@ -16,7 +16,7 @@ struct CameraPathSegment
 	glm::vec3 targetStartTangent;
 	glm::vec3 targetEndTangent;
 	double totalDuration;
-	double(*easingFunction)(double, const double &);
+	double(*easingFunction)(double, double );
 	bool fadeIn = false;
 	bool fadeOut = false;
 	double fadeTime = 2.0;
@@ -28,7 +28,7 @@ public:
 	explicit CameraPath(const std::vector<CameraPathSegment> &_pathSegments = std::vector<CameraPathSegment>());
 	void start(std::shared_ptr<Camera> _camera, bool _repeat);
 	void stop();
-	bool update(const double &_currentTime, const double &_timeDelta);
+	bool update(double _currentTime, double _timeDelta);
 	std::vector<CameraPathSegment> &getPathSegments();
 	bool isRepeating();
 

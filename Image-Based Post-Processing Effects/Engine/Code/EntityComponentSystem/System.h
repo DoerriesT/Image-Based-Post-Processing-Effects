@@ -6,8 +6,8 @@ class BaseSystem
 public:
 	virtual ~BaseSystem() = default;
 	virtual void init() = 0;
-	virtual void input(const double &_currentTime, const double &_timeDelta) = 0;
-	virtual void update(const double &_currentTime, const double &_timeDelta) = 0;
+	virtual void input(double _currentTime, double _timeDelta) = 0;
+	virtual void update(double _currentTime, double _timeDelta) = 0;
 	virtual void render() = 0;
 	virtual std::uint64_t getTypeIdOfDerived() = 0;
 

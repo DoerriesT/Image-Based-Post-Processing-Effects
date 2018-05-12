@@ -40,8 +40,8 @@ private:
 
 	void inputNkKey(nk_keys key, int action);
 
-	void onKey(const int &_key, const int &_action) override;
-	void onChar(const int &_charKey) override;
-	void onScroll(const double &_xOffset, const double &_yOffset) override;
+	void onKey(int _key, int _action) override;
+	void onChar(int _charKey) override;
+	void onScroll(double _xOffset, double _yOffset) override;
 };
 

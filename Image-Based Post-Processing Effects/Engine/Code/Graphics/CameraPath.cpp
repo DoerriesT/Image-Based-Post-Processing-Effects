@@ -25,7 +25,7 @@ void CameraPath::stop()
 	started = false;
 }
 
-bool CameraPath::update(const double &_currentTime, const double &_timeDelta)
+bool CameraPath::update(double _currentTime, double _timeDelta)
 {
 	if (!started)
 	{

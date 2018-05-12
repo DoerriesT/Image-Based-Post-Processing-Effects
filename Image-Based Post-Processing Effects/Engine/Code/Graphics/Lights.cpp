@@ -3,13 +3,13 @@
 #include <glm\trigonometric.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
-DirectionalLight::DirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, const bool &_renderShadows)
+DirectionalLight::DirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows)
 	:color(_color), direction(glm::normalize(_direction)), renderShadows(false)
 {
 	setRenderShadows(_renderShadows);
 }
 
-std::shared_ptr<DirectionalLight> DirectionalLight::createDirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, const bool &_renderShadows)
+std::shared_ptr<DirectionalLight> DirectionalLight::createDirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows)
 {
 	return std::shared_ptr<DirectionalLight>(new DirectionalLight(_color, _direction, _renderShadows));
 }
@@ -22,7 +22,7 @@ DirectionalLight::~DirectionalLight()
 	}
 }
 
-void DirectionalLight::setRenderShadows(const bool &_renderShadows)
+void DirectionalLight::setRenderShadows(bool _renderShadows)
 {
 	if (renderShadows != _renderShadows)
 	{
@@ -87,7 +87,7 @@ unsigned int DirectionalLight::getShadowMap() const
 	return shadowMap;
 }
 
-PointLight::PointLight(const glm::vec3 &_color, const glm::vec3 &_position, const bool &_renderShadows)
+PointLight::PointLight(const glm::vec3 &_color, const glm::vec3 &_position, bool _renderShadows)
 	:color(_color), position(_position), renderShadows(false)
 {
 	setRenderShadows(_renderShadows);
@@ -104,7 +104,7 @@ void PointLight::updateViewProjectionMatrix()
 	viewProjectionMatrix = glm::perspective(glm::acos(glm::radians(45.0f)) * 2.0f, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE) * glm::lookAt(position, position + direction, upDir);
 }
 
-std::shared_ptr<PointLight> PointLight::createPointLight(const glm::vec3 &_color, const glm::vec3 &_position, const bool &_renderShadows)
+std::shared_ptr<PointLight> PointLight::createPointLight(const glm::vec3 &_color, const glm::vec3 &_position, bool _renderShadows)
 {
 	return std::shared_ptr<PointLight>(new PointLight(_color, _position, _renderShadows));
 }
@@ -117,7 +117,7 @@ PointLight::~PointLight()
 	}
 }
 
-void PointLight::setRenderShadows(const bool &_renderShadows)
+void PointLight::setRenderShadows(bool _renderShadows)
 {
 	if (renderShadows != _renderShadows)
 	{
@@ -183,7 +183,7 @@ unsigned int PointLight::getShadowMap() const
 	return shadowMap;
 }
 
-SpotLight::SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, const float &_angle, const bool &_renderShadows)
+SpotLight::SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _angle, bool _renderShadows)
 	:color(_color), position(_position), direction(glm::normalize(_direction)), angle(glm::cos(glm::radians(_angle))), renderShadows(false)
 {
 	setRenderShadows(_renderShadows);
@@ -199,7 +199,7 @@ void SpotLight::updateViewProjectionMatrix()
 	viewProjectionMatrix  = glm::perspective(glm::acos(angle) * 2.0f, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE) * glm::lookAt(position, position + direction, upDir);
 }
 
-std::shared_ptr<SpotLight> SpotLight::createSpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, const float &_angle, const bool &_renderShadows)
+std::shared_ptr<SpotLight> SpotLight::createSpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _angle, bool _renderShadows)
 {
 	return std::shared_ptr<SpotLight>(new SpotLight(_color, _position, _direction, _angle, _renderShadows));
 }
@@ -212,7 +212,7 @@ SpotLight::~SpotLight()
 	}
 }
 
-void SpotLight::setRenderShadows(const bool & _renderShadows)
+void SpotLight::setRenderShadows(bool _renderShadows)
 {
 	if (renderShadows != _renderShadows)
 	{
@@ -254,7 +254,7 @@ void SpotLight::setDirection(const glm::vec3 &_direction)
 	updateViewProjectionMatrix();
 }
 
-void SpotLight::setAngle(const float &_angle)
+void SpotLight::setAngle(float _angle)
 {
 	angle = glm::cos(glm::radians(_angle));
 	updateViewProjectionMatrix();

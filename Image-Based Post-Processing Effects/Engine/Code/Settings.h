@@ -14,7 +14,7 @@ public:
 	Setting(const Type &_value, const std::string &_section, const std::string &_key, INIFile &_iniFile);
 	Type get() const;
 	void set(const Type &_value);
-	void addListener(const std::function<void(const Type &)> &_listener);
+	void addListener(std::function<void(const Type &)> _listener);
 
 private:
 	Type value;
@@ -33,9 +33,9 @@ public:
 	SettingsManager(const SettingsManager &&) = delete;
 	SettingsManager &operator= (const SettingsManager &) = delete;
 	SettingsManager &operator= (const SettingsManager &&) = delete;
-	std::shared_ptr<Setting<bool>> getBoolSetting(const std::string &_section, const std::string &_key, const bool &_defaultValue);
-	std::shared_ptr<Setting<int>> getIntSetting(const std::string &_section, const std::string &_key, const int &_defaultValue);
-	std::shared_ptr<Setting<double>> getDoubleSetting(const std::string &_section, const std::string &_key, const double &_defaultValue);
+	std::shared_ptr<Setting<bool>> getBoolSetting(const std::string &_section, const std::string &_key, bool _defaultValue);
+	std::shared_ptr<Setting<int>> getIntSetting(const std::string &_section, const std::string &_key, int _defaultValue);
+	std::shared_ptr<Setting<double>> getDoubleSetting(const std::string &_section, const std::string &_key, double _defaultValue);
 	std::shared_ptr<Setting<std::string>> getStringSetting(const std::string &_section, const std::string &_key, const std::string &_defaultValue);
 	void saveToIni();
 
@@ -141,7 +141,7 @@ inline void Setting<std::string>::set(const std::string &_value)
 }
 
 template<typename Type>
-inline void Setting<Type>::addListener(const std::function<void(const Type &)> &_listener)
+inline void Setting<Type>::addListener(std::function<void(const Type &)> _listener)
 {
 	listeners.push_back(_listener);
 }

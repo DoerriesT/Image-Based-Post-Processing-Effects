@@ -9,7 +9,7 @@ const std::uint32_t Material::ROUGHNESS = 1 << 3;
 const std::uint32_t Material::AO = 1 << 4;
 const std::uint32_t Material::EMISSIVE = 1 << 5;
 
-Material::Material(const glm::vec4 &_albedo, const float &_metallic, const float &_roughness, const glm::vec3 &_emissive)
+Material::Material(const glm::vec4 &_albedo, float _metallic, float _roughness, const glm::vec3 &_emissive)
 	: albedo(_albedo), metallic(_metallic), roughness(_roughness), emissive(_emissive)
 {
 }
@@ -43,7 +43,7 @@ Material::Material(const std::shared_ptr<Texture> &_albedoMap, const std::shared
 	}
 }
 
-Material::Material(const std::string &_basePath, const std::uint32_t &_flags)
+Material::Material(const std::string &_basePath, std::uint32_t _flags)
 	: albedo(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)), metallic(0.0f), roughness(0.0f)
 {
 	std::string albedoPath = _basePath + "_a.dds";
@@ -150,12 +150,12 @@ const glm::vec4 &Material::getAlbedo() const
 	return albedo;
 }
 
-const float &Material::getMetallic() const
+float Material::getMetallic() const
 {
 	return metallic;
 }
 
-const float &Material::getRoughness() const
+float Material::getRoughness() const
 {
 	return roughness;
 }
@@ -248,12 +248,12 @@ void Material::setAlbedo(const glm::vec4 & _albedo)
 	albedo = _albedo;
 }
 
-void Material::setMetallic(const float & _metallic)
+void Material::setMetallic(float _metallic)
 {
 	metallic = _metallic;
 }
 
-void Material::setRoughness(const float & _roughness)
+void Material::setRoughness(float _roughness)
 {
 	roughness = _roughness;
 }

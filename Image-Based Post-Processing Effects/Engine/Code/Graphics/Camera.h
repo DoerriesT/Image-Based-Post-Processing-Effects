@@ -14,7 +14,7 @@ public:
 	void rotate(const glm::vec3 &_pitchYawRollOffset);
 	void translate(const glm::vec3 &_translationOffset);
 	void lookAt(const glm::vec3 &_targetPosition);
-	void setZoom(const float &_zoom);
+	void setZoom(float _zoom);
 	const glm::mat4 &getViewMatrix();
 	const glm::vec3 &getPosition() const;
 	const glm::quat &getRotation() const;

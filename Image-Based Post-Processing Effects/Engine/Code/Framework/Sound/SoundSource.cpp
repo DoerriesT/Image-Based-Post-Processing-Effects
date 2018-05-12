@@ -5,7 +5,7 @@
 const glm::vec3 SoundSource::defaultPosition;
 const float SoundSource::defaultVolume = 1.0f;
 
-std::shared_ptr<SoundSource> SoundSource::createSoundSource(const glm::vec3 *_position, const float *_volume, const float *_soundTypeVolume, const bool &_looping, const bool &_relative)
+std::shared_ptr<SoundSource> SoundSource::createSoundSource(const glm::vec3 *_position, const float *_volume, const float *_soundTypeVolume, bool _looping, bool _relative)
 {
 	return std::shared_ptr<SoundSource>(new SoundSource(_position, _volume, _soundTypeVolume, _looping, _relative));
 }
@@ -51,7 +51,7 @@ void SoundSource::setSpeed(const glm::vec3 &_speed)
 	alSource3f(sourceId, AL_VELOCITY, _speed.x, _speed.y, _speed.z);
 }
 
-void SoundSource::setProperty(const int &_parameter, const ALfloat &_value)
+void SoundSource::setProperty(int _parameter, const ALfloat &_value)
 {
 	alSourcef(sourceId, _parameter, _value);
 }
@@ -79,7 +79,7 @@ bool SoundSource::isWaiting()
 	return !isBufferSet;
 }
 
-SoundSource::SoundSource(const glm::vec3 *_position, const float *_volume, const float *_soundTypeVolume, const bool &_looping, const bool &_relative)
+SoundSource::SoundSource(const glm::vec3 *_position, const float *_volume, const float *_soundTypeVolume, bool _looping, bool _relative)
 	:position(_position), volume(_volume), soundTypeVolume(_soundTypeVolume), soundBuffer(nullptr), isBufferSet(false)
 {
 	alGenSources(1, &sourceId);

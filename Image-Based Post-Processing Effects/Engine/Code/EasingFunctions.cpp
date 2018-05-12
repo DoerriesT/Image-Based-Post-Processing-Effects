@@ -2,24 +2,24 @@
 #include <cmath>
 #include "EasingFunctions.h"
 
-double linear(double _passedTime, const double &_totalDuration)
+double linear(double _passedTime, double _totalDuration)
 {
 	return _passedTime / _totalDuration;
 }
 
-double quadraticEasingIn(double _passedTime, const double &_totalDuration)
+double quadraticEasingIn(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration;
 	return _passedTime * _passedTime;
 }
 
-double quadraticEasingOut(double _passedTime, const double &_totalDuration)
+double quadraticEasingOut(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration;
 	return -_passedTime * (_passedTime - 2.0);
 }
 
-double quadraticEasingInOut(double _passedTime, const double &_totalDuration)
+double quadraticEasingInOut(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration * 0.5;
 	if (_passedTime < 1.0f)
@@ -31,20 +31,20 @@ double quadraticEasingInOut(double _passedTime, const double &_totalDuration)
 	return -0.5 * (_passedTime * (_passedTime - 2.0) - 1.0);
 }
 
-double cubicEasingIn(double _passedTime, const double &_totalDuration)
+double cubicEasingIn(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration;
 	return _passedTime * _passedTime * _passedTime;
 }
 
-double cubicEasingOut(double _passedTime, const double &_totalDuration)
+double cubicEasingOut(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration;
 	--_passedTime;
 	return _passedTime * _passedTime * _passedTime + 1.0;
 }
 
-double cubicEasingInOut(double _passedTime, const double &_totalDuration)
+double cubicEasingInOut(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration * 0.5;
 	if (_passedTime < 1.0)
@@ -58,20 +58,20 @@ double cubicEasingInOut(double _passedTime, const double &_totalDuration)
 	}
 }
 
-double quarticEasingIn(double _passedTime, const double &_totalDuration)
+double quarticEasingIn(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration;
 	return _passedTime * _passedTime * _passedTime * _passedTime;
 }
 
-double quarticEasingOut(double _passedTime, const double &_totalDuration)
+double quarticEasingOut(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration;
 	--_passedTime;
 	return -(_passedTime * _passedTime * _passedTime * _passedTime - 1.0);
 }
 
-double quarticEasingInOut(double _passedTime, const double &_totalDuration)
+double quarticEasingInOut(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration * 0.5;
 	if (_passedTime < 1.0)
@@ -83,20 +83,20 @@ double quarticEasingInOut(double _passedTime, const double &_totalDuration)
 
 }
 
-double quinticEasingIn(double _passedTime, const double &_totalDuration)
+double quinticEasingIn(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration;
 	return _passedTime * _passedTime * _passedTime * _passedTime * _passedTime;
 }
 
-double quinticEasingOut(double _passedTime, const double &_totalDuration)
+double quinticEasingOut(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration;
 	--_passedTime;
 	return _passedTime * _passedTime * _passedTime * _passedTime * _passedTime + 1.0;
 }
 
-double quinticEasingInOut(double _passedTime, const double &_totalDuration)
+double quinticEasingInOut(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration * 0.5;
 	if (_passedTime < 1.0)
@@ -111,27 +111,27 @@ double quinticEasingInOut(double _passedTime, const double &_totalDuration)
 
 }
 
-double sinusoidalEasingOut(double _passedTime, const double &_totalDuration)
+double sinusoidalEasingOut(double _passedTime, double _totalDuration)
 {
 	return -cos(_passedTime / _totalDuration * (M_PI / 2.0)) + 1.0;
 }
 
-double sinusoidalEasingInOut(double _passedTime, const double &_totalDuration)
+double sinusoidalEasingInOut(double _passedTime, double _totalDuration)
 {
 	return sin(_passedTime / _totalDuration * (M_PI / 2.0));
 }
 
-double exponentialEasingIn(double _passedTime, const double &_totalDuration)
+double exponentialEasingIn(double _passedTime, double _totalDuration)
 {
 	return pow(2.0, 10.0 * (_passedTime / _totalDuration - 1.0));
 }
 
-double exponentialEasingOut(double _passedTime, const double &_totalDuration)
+double exponentialEasingOut(double _passedTime, double _totalDuration)
 {
 	return -pow(2.0, -10.0 * _passedTime / _totalDuration) + 1.0;
 }
 
-double exponentialEasingInOut(double _passedTime, const double &_totalDuration)
+double exponentialEasingInOut(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration * 0.5;
 	if (_passedTime < 1.0)
@@ -143,20 +143,20 @@ double exponentialEasingInOut(double _passedTime, const double &_totalDuration)
 
 }
 
-double circularEasingIn(double _passedTime, const double &_totalDuration)
+double circularEasingIn(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration;
 	return -(sqrt(1.0 - _passedTime * _passedTime) - 1.0);
 }
 
-double circularEasingOut(double _passedTime, const double &_totalDuration)
+double circularEasingOut(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration;
 	--_passedTime;
 	return sqrt(1.0 - _passedTime * _passedTime);
 }
 
-double circularEasingInOut(double _passedTime, const double &_totalDuration)
+double circularEasingInOut(double _passedTime, double _totalDuration)
 {
 	_passedTime /= _totalDuration * 0.5;
 	if (_passedTime < 1.0)

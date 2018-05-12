@@ -39,7 +39,7 @@ std::shared_ptr<Texture> Texture::createTexture(const GLuint &_id, const GLenum 
 	}
 }
 
-std::shared_ptr<Texture> Texture::createTexture(const std::string &_filename, const bool &_instantLoading)
+std::shared_ptr<Texture> Texture::createTexture(const std::string &_filename, bool _instantLoading)
 {
 	if (contains(textureMap, _filename))
 	{
@@ -58,7 +58,7 @@ Texture::Texture(const GLuint &_id, const GLenum &_target)
 {
 }
 
-Texture::Texture(const std::string &_filename, const bool &_instantLoading)
+Texture::Texture(const std::string &_filename, bool _instantLoading)
 	: filepath(_filename), valid(false), dataJob(nullptr)
 {
 	JobManager::Work dataPreparation = [=](JobManager::SharedJob job)
@@ -154,7 +154,7 @@ bool Texture::isValid() const
 	return valid;
 }
 
-void Texture::setAnisotropicFilteringAll(const float &_anisotropicFiltering)
+void Texture::setAnisotropicFilteringAll(float _anisotropicFiltering)
 {
 	if (anisotropicFiltering != _anisotropicFiltering)
 	{
@@ -166,7 +166,7 @@ void Texture::setAnisotropicFilteringAll(const float &_anisotropicFiltering)
 	}
 }
 
-void Texture::setAnisotropicFiltering(const float &_anisotropicFiltering)
+void Texture::setAnisotropicFiltering(float _anisotropicFiltering)
 {
 	if (GLAD_GL_EXT_texture_filter_anisotropic)
 	{

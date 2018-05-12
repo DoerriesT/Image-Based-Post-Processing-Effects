@@ -20,7 +20,7 @@ class WindowFramework
 	friend void charCallback(GLFWwindow *window, unsigned int codepoint);
 
 public:
-	static std::shared_ptr<WindowFramework> createWindowFramework(const std::string &_title, const unsigned int &_width, const unsigned int &_height, const bool &_vsync, const WindowMode &_windowMode = WindowMode::WINDOWED);
+	static std::shared_ptr<WindowFramework> createWindowFramework(const std::string &_title, const unsigned int &_width, const unsigned int &_height, bool _vsync, const WindowMode &_windowMode = WindowMode::WINDOWED);
 	
 	WindowFramework(const WindowFramework &) = delete;
 	WindowFramework(const WindowFramework &&) = delete;
@@ -40,8 +40,8 @@ public:
 	void destroyWindow();
 	bool shouldClose();
 	void setTitle(const std::string &_title);
-	void setVsync(const bool &_vsync);
-	void setShouldClose(const bool &_shouldClose);
+	void setVsync(bool _vsync);
+	void setShouldClose(bool _shouldClose);
 	void setWindowMode(const WindowMode &_windowMode);
 	void setResolution(const std::pair<unsigned int, unsigned int> &_resolution);
 	void setWindowModeAndResolution(const WindowMode &_windowMode, const std::pair<unsigned int, unsigned int> &_resolution);
@@ -63,5 +63,5 @@ private:
 	std::vector<std::pair<unsigned int, unsigned int>> supportedResolutions;
 	WindowMode windowMode;
 
-	explicit WindowFramework(const std::string &_title, const unsigned int &_width, const unsigned int &_height, const bool &_vsync, const WindowMode &_windowMode = WindowMode::WINDOWED);
+	explicit WindowFramework(const std::string &_title, const unsigned int &_width, const unsigned int &_height, bool _vsync, const WindowMode &_windowMode = WindowMode::WINDOWED);
 };

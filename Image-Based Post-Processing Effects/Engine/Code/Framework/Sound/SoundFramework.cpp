@@ -9,7 +9,7 @@ SoundFramework::SoundFramework()
 {
 }
 
-void SoundFramework::addSoundSource(const Entity *_entity, const glm::vec3 *_position, const float *_volume, const float *_soundTypeVolume, const bool &_looping, const bool &_relative)
+void SoundFramework::addSoundSource(const Entity *_entity, const glm::vec3 *_position, const float *_volume, const float *_soundTypeVolume, bool _looping, bool _relative)
 {
 	if (soundSourceMap.find(_entity) != soundSourceMap.end())
 	{
@@ -47,7 +47,7 @@ void SoundFramework::init()
 	soundListener.setOrientation(glm::vec3(0.0f), glm::vec3(0.0f));*/
 }
 
-void SoundFramework::addSound(const Entity *_entity, const std::string &_file, const SoundType &_soundType, const float *_volume, const bool &_looping, const bool &_relative, const bool &_paused, const glm::vec3 *_position, const bool &_loadInstantly)
+void SoundFramework::addSound(const Entity *_entity, const std::string &_file, const SoundType &_soundType, const float *_volume, bool _looping, bool _relative, bool _paused, const glm::vec3 *_position, bool _loadInstantly)
 {
 	switch (_soundType)
 	{
@@ -127,7 +127,7 @@ std::vector<const Entity*> SoundFramework::update(const std::shared_ptr<Camera> 
 }
 
 
-void SoundFramework::setPaused(const Entity *_entity, const bool &_paused)
+void SoundFramework::setPaused(const Entity *_entity, bool _paused)
 {
 	assert(soundSourceMap.find(_entity) != soundSourceMap.end());
 	std::shared_ptr<SoundSource> soundSource = soundSourceMap[_entity];
@@ -143,7 +143,7 @@ void SoundFramework::setPaused(const Entity *_entity, const bool &_paused)
 	}
 }
 
-void SoundFramework::setVolume(const SoundType &_soundType, const float &_volume)
+void SoundFramework::setVolume(const SoundType &_soundType, float _volume)
 {
 	switch (_soundType)
 	{
@@ -169,12 +169,12 @@ void SoundFramework::setVolume(const SoundType &_soundType, const float &_volume
 	}
 }
 
-void SoundFramework::setMasterVolume(const float &_volume)
+void SoundFramework::setMasterVolume(float _volume)
 {
 	soundListener.setGain(_volume);
 }
 
-void SoundFramework::setAttenuationModel(const int &_model)
+void SoundFramework::setAttenuationModel(int _model)
 {
 	alDistanceModel(_model);
 }

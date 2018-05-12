@@ -39,99 +39,99 @@ void RenderSystem::init()
 	SettingsManager &settingsManager = SettingsManager::getInstance();
 	
 	shadowQuality = settingsManager.getIntSetting("graphics", "shadow_quality", 0);
-	shadowQuality->addListener([&](const int &_value) { effects.shadowQuality = (ShadowQuality)_value; });
+	shadowQuality->addListener([&](int _value) { effects.shadowQuality = (ShadowQuality)_value; });
 	effects.shadowQuality = (ShadowQuality)shadowQuality->get();
 
 	anisotropicFiltering = settingsManager.getIntSetting("graphics", "anisotropic_filtering", 1);
-	anisotropicFiltering->addListener([&](const int &_value) { Texture::setAnisotropicFilteringAll((float)_value); });
+	anisotropicFiltering->addListener([&](int _value) { Texture::setAnisotropicFilteringAll((float)_value); });
 	Texture::setAnisotropicFilteringAll((float)anisotropicFiltering->get());
 
 	bloomEnabled = settingsManager.getBoolSetting("graphics", "bloom_enabled", false);
-	bloomEnabled->addListener([&](const bool &_value) { effects.bloom.enabled = _value; });
+	bloomEnabled->addListener([&](bool _value) { effects.bloom.enabled = _value; });
 	effects.bloom.enabled = bloomEnabled->get();
 
 	bloomStrength = settingsManager.getDoubleSetting("graphics", "bloom_strength", 0.01);
-	bloomStrength->addListener([&](const double &_value) { effects.bloom.strength = (float)_value; });
+	bloomStrength->addListener([&](double _value) { effects.bloom.strength = (float)_value; });
 	effects.bloom.strength = (float)bloomStrength->get();
 
 	bloomLensDirtStrength = settingsManager.getDoubleSetting("graphics", "bloom_lens_dirt_strength", 1.0);
-	bloomLensDirtStrength->addListener([&](const double &_value) { effects.bloom.lensDirtStrength = (float)_value; });
+	bloomLensDirtStrength->addListener([&](double _value) { effects.bloom.lensDirtStrength = (float)_value; });
 	effects.bloom.lensDirtStrength = (float)bloomLensDirtStrength->get();
 
 	chromaticAberrationEnabled = settingsManager.getBoolSetting("graphics", "chromatic_aberration_enabled", false);
-	chromaticAberrationEnabled->addListener([&](const bool &_value) { effects.chromaticAberration.enabled = _value; });
+	chromaticAberrationEnabled->addListener([&](bool _value) { effects.chromaticAberration.enabled = _value; });
 	effects.chromaticAberration.enabled = chromaticAberrationEnabled->get();
 
 	chromaticAberrationOffsetMult = settingsManager.getDoubleSetting("graphics", "chromatic_aberration_offset_mult", 0.005);
-	chromaticAberrationOffsetMult->addListener([&](const double &_value) { effects.chromaticAberration.offsetMultiplier = (float)_value; });
+	chromaticAberrationOffsetMult->addListener([&](double _value) { effects.chromaticAberration.offsetMultiplier = (float)_value; });
 	effects.chromaticAberration.offsetMultiplier = (float)chromaticAberrationOffsetMult->get();
 
 	filmGrainEnabled = settingsManager.getBoolSetting("graphics", "film_grain_enabled", false);
-	filmGrainEnabled->addListener([&](const bool &_value) { effects.filmGrain.enabled = _value; });
+	filmGrainEnabled->addListener([&](bool _value) { effects.filmGrain.enabled = _value; });
 	effects.filmGrain.enabled = filmGrainEnabled->get();
 
 	filmGrainStrength = settingsManager.getDoubleSetting("graphics", "film_grain_strength", 0.055);
-	filmGrainStrength->addListener([&](const double &_value) { effects.filmGrain.strength = (float)_value; });
+	filmGrainStrength->addListener([&](double _value) { effects.filmGrain.strength = (float)_value; });
 	effects.filmGrain.strength = (float)filmGrainStrength->get();
 
 	fxaaEnabled = settingsManager.getBoolSetting("graphics", "fxaa_enabled", false);
-	fxaaEnabled->addListener([&](const bool &_value) { effects.fxaa.enabled = _value; });
+	fxaaEnabled->addListener([&](bool _value) { effects.fxaa.enabled = _value; });
 	effects.fxaa.enabled = fxaaEnabled->get();
 
 	fxaaSubPixelAA = settingsManager.getDoubleSetting("graphics", "fxaa_subpixel_aa", 0.75);
-	fxaaSubPixelAA->addListener([&](const double &_value) { effects.fxaa.subPixelAA = (float)_value; });
+	fxaaSubPixelAA->addListener([&](double _value) { effects.fxaa.subPixelAA = (float)_value; });
 	effects.fxaa.subPixelAA = (float)fxaaSubPixelAA->get();
 
 	fxaaEdgeThreshold = settingsManager.getDoubleSetting("graphics", "fxaa_edge_theshold", 0.166);
-	fxaaEdgeThreshold->addListener([&](const double &_value) { effects.fxaa.edgeThreshold = (float)_value; });
+	fxaaEdgeThreshold->addListener([&](double _value) { effects.fxaa.edgeThreshold = (float)_value; });
 	effects.fxaa.edgeThreshold = (float)fxaaEdgeThreshold->get();
 
 	fxaaEdgeThresholdMin = settingsManager.getDoubleSetting("graphics", "fxaa_edge_theshold_min", 0.0833);
-	fxaaEdgeThresholdMin->addListener([&](const double &_value) { effects.fxaa.edgeThresholdMin = (float)_value; });
+	fxaaEdgeThresholdMin->addListener([&](double _value) { effects.fxaa.edgeThresholdMin = (float)_value; });
 	effects.fxaa.edgeThresholdMin = (float)fxaaEdgeThresholdMin->get();
 
 	lensFlaresEnabled = settingsManager.getBoolSetting("graphics", "lens_flares_enabled", false);
-	lensFlaresEnabled->addListener([&](const bool &_value) { effects.lensFlares.enabled = _value; });
+	lensFlaresEnabled->addListener([&](bool _value) { effects.lensFlares.enabled = _value; });
 	effects.lensFlares.enabled = lensFlaresEnabled->get();
 
 	lensFlaresChromaticDistortion = settingsManager.getDoubleSetting("graphics", "lens_flares_chromatic_distortion", 1.5);
-	lensFlaresChromaticDistortion->addListener([&](const double &_value) { effects.lensFlares.chromaticDistortion = (float)_value; });
+	lensFlaresChromaticDistortion->addListener([&](double _value) { effects.lensFlares.chromaticDistortion = (float)_value; });
 	effects.lensFlares.chromaticDistortion = (float)lensFlaresChromaticDistortion->get();
 
 	lensFlaresCount = settingsManager.getIntSetting("graphics", "lens_flares_count", 4);
-	lensFlaresCount->addListener([&](const int &_value) { effects.lensFlares.flareCount = _value; });
+	lensFlaresCount->addListener([&](int _value) { effects.lensFlares.flareCount = _value; });
 	effects.lensFlares.flareCount = lensFlaresCount->get();
 
 	lensFlaresSpacing = settingsManager.getDoubleSetting("graphics", "lens_flares_spacing", 0.33);
-	lensFlaresSpacing->addListener([&](const double &_value) { effects.lensFlares.flareSpacing = (float)_value; });
+	lensFlaresSpacing->addListener([&](double _value) { effects.lensFlares.flareSpacing = (float)_value; });
 	effects.lensFlares.flareSpacing = (float)lensFlaresSpacing->get();
 
 	lensFlaresHaloWidth = settingsManager.getDoubleSetting("graphics", "lens_flares_halo_width", 0.33);
-	lensFlaresHaloWidth->addListener([&](const double &_value) { effects.lensFlares.haloWidth = (float)_value; });
+	lensFlaresHaloWidth->addListener([&](double _value) { effects.lensFlares.haloWidth = (float)_value; });
 	effects.lensFlares.haloWidth = (float)lensFlaresHaloWidth->get();
 
 	vignetteEnabled = settingsManager.getBoolSetting("graphics", "vignette_enabled", false);
-	vignetteEnabled->addListener([&](const bool &_value) { effects.vignette.enabled = _value; });
+	vignetteEnabled->addListener([&](bool _value) { effects.vignette.enabled = _value; });
 	effects.vignette.enabled = vignetteEnabled->get();
 
 	ssaoEnabled = settingsManager.getBoolSetting("graphics", "ssao_enabled", false);
-	ssaoEnabled->addListener([&](const bool &_value) { effects.ssao.enabled = _value; });
+	ssaoEnabled->addListener([&](bool _value) { effects.ssao.enabled = _value; });
 	effects.ssao.enabled = ssaoEnabled->get();
 
 	ssaoKernelSize = settingsManager.getIntSetting("graphics", "ssao_kernel_size", 16);
-	ssaoKernelSize->addListener([&](const int &_value) { effects.ssao.kernelSize = _value; });
+	ssaoKernelSize->addListener([&](int _value) { effects.ssao.kernelSize = _value; });
 	effects.ssao.kernelSize = ssaoKernelSize->get();
 
 	ssaoRadius = settingsManager.getDoubleSetting("graphics", "ssao_radius", 0.5);
-	ssaoRadius->addListener([&](const double &_value) { effects.ssao.radius = (float)_value; });
+	ssaoRadius->addListener([&](double _value) { effects.ssao.radius = (float)_value; });
 	effects.ssao.radius = (float)ssaoRadius->get();
 
 	ssaoBias = settingsManager.getDoubleSetting("graphics", "ssao_bias", 0.025);
-	ssaoBias->addListener([&](const double &_value) { effects.ssao.bias = (float)_value; });
+	ssaoBias->addListener([&](double _value) { effects.ssao.bias = (float)_value; });
 	effects.ssao.bias = (float)ssaoBias->get();
 
 	screenSpaceReflectionsEnabled = settingsManager.getBoolSetting("graphics", "screen_space_reflections_enabled", false);
-	screenSpaceReflectionsEnabled->addListener([&](const bool &_value) { effects.screenSpaceReflections.enabled = _value; });
+	screenSpaceReflectionsEnabled->addListener([&](bool _value) { effects.screenSpaceReflections.enabled = _value; });
 	effects.screenSpaceReflections.enabled = screenSpaceReflectionsEnabled->get();
 
 	loadEnvironmentFromFile = settingsManager.getBoolSetting("graphics", "load_environment_from_file", true);
@@ -149,11 +149,11 @@ void RenderSystem::init()
 	effects.depthOfField.shutterAngleMax = glm::radians(45.0f);
 }
 
-void RenderSystem::input(const double &_currentTime, const double &_timeDelta)
+void RenderSystem::input(double _currentTime, double _timeDelta)
 {
 }
 
-void RenderSystem::update(const double &_currentTime, const double &_timeDelta)
+void RenderSystem::update(double _currentTime, double _timeDelta)
 {
 }
 
@@ -257,7 +257,7 @@ void RenderSystem::setExposureMultiplier(float _multiplier)
 	exposureMultiplier = _multiplier;
 }
 
-bool RenderSystem::validate(const std::uint64_t &_bitMap)
+bool RenderSystem::validate(std::uint64_t _bitMap)
 {
 	for (std::uint64_t configuration : validBitMaps)
 	{

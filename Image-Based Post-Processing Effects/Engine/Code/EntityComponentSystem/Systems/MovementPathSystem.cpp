@@ -16,11 +16,11 @@ void MovementPathSystem::init()
 	entityManager.addOnEntityDestructionListener(this);
 }
 
-void MovementPathSystem::input(const double &_currentTime, const double &_timeDelta)
+void MovementPathSystem::input(double _currentTime, double _timeDelta)
 {
 }
 
-void MovementPathSystem::update(const double &_currentTime, const double &_timeDelta)
+void MovementPathSystem::update(double _currentTime, double _timeDelta)
 {
 	for (const Entity *entity : entitiesToRemove)
 	{
@@ -115,7 +115,7 @@ void MovementPathSystem::onDestruction(const Entity *_entity)
 	}
 }
 
-bool MovementPathSystem::validate(const std::uint64_t &_bitMap)
+bool MovementPathSystem::validate(std::uint64_t _bitMap)
 {
 	for (std::uint64_t configuration : validBitMaps)
 	{

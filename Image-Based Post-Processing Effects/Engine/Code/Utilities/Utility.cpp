@@ -154,7 +154,7 @@ void bindDummyMesh()
 
 
 
-glm::vec3 interpolateHermiteCurve(const double &_t, const glm::vec3 &_p0, const glm::vec3 &_p1, const glm::vec3 &_t0, const glm::vec3 &_t1)
+glm::vec3 interpolateHermiteCurve(double _t, const glm::vec3 &_p0, const glm::vec3 &_p1, const glm::vec3 &_t0, const glm::vec3 &_t1)
 {
 	double t3 = _t * _t * _t;
 	double t2 = _t * _t;
@@ -166,7 +166,7 @@ glm::vec3 interpolateHermiteCurve(const double &_t, const glm::vec3 &_p0, const 
 	return (float)h1 * _p0 + (float)h2 * _p1 + (float)h3 * _t0 + (float)h4 * _t1;
 }
 
-glm::quat nlerp(const glm::quat &_x, const glm::quat &_y, const float &_a)
+glm::quat nlerp(const glm::quat &_x, const glm::quat &_y, float _a)
 {
 	float cosom = _x.x * _y.x + _x.y * _y.y + _x.z * _y.z + _x.w * _y.w;
 	float scale0 = 1.0f - _a;

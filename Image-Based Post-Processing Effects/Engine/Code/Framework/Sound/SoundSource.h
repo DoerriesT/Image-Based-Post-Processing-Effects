@@ -9,7 +9,7 @@ class SoundBuffer;
 class SoundSource
 {
 public:
-	static std::shared_ptr<SoundSource> createSoundSource(const glm::vec3 *_position = nullptr, const float *_volume = nullptr, const float *_soundTypeVolume = nullptr, const bool &_looping = false, const bool &_relative = false);
+	static std::shared_ptr<SoundSource> createSoundSource(const glm::vec3 *_position = nullptr, const float *_volume = nullptr, const float *_soundTypeVolume = nullptr, bool _looping = false, bool _relative = false);
 	
 	SoundSource(const SoundSource &) = delete;
 	SoundSource(const SoundSource &&) = delete;
@@ -21,7 +21,7 @@ public:
 	void stop();
 	void setBuffer(const std::shared_ptr<SoundBuffer> &_buffer);
 	void setSpeed(const glm::vec3 &_speed);
-	void setProperty(const int &_parameter, const ALfloat &_value);
+	void setProperty(int _parameter, const ALfloat &_value);
 	void update();
 	bool isPlaying();
 	bool isWaiting();
@@ -36,5 +36,5 @@ private:
 	std::shared_ptr<SoundBuffer> soundBuffer;
 	bool isBufferSet;
 
-	explicit SoundSource(const glm::vec3 *_position = nullptr, const float *_volume = nullptr, const float *_soundTypeVolume = nullptr, const bool &_looping = false, const bool &_relative = false);
+	explicit SoundSource(const glm::vec3 *_position = nullptr, const float *_volume = nullptr, const float *_soundTypeVolume = nullptr, bool _looping = false, bool _relative = false);
 };

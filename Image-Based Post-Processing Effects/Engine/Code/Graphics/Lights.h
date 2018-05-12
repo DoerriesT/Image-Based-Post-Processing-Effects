@@ -13,14 +13,14 @@ const unsigned int MAX_DIRECTIONAL_LIGHTS = 1;
 class DirectionalLight
 {
 public:
-	static std::shared_ptr<DirectionalLight> createDirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, const bool &_renderShadows = false);
+	static std::shared_ptr<DirectionalLight> createDirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows = false);
 
 	DirectionalLight(const DirectionalLight &) = delete;
 	DirectionalLight(const DirectionalLight &&) = delete;
 	DirectionalLight &operator= (const DirectionalLight &) = delete;
 	DirectionalLight &operator= (const DirectionalLight &&) = delete;
 	~DirectionalLight();
-	void setRenderShadows(const bool &_renderShadows);
+	void setRenderShadows(bool _renderShadows);
 	void setColor(const glm::vec3 &_color);
 	void setDirection(const glm::vec3 &_direction);
 	void setViewProjectionMatrix(const glm::mat4 &_viewProjectionMatrix);
@@ -37,20 +37,20 @@ private:
 	unsigned int shadowMap;
 	glm::mat4 viewProjectionMatrix;
 
-	explicit DirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, const bool &_renderShadows = false);
+	explicit DirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows = false);
 };
 
 class PointLight
 {
 public:
-	static std::shared_ptr<PointLight> createPointLight(const glm::vec3 &_color, const glm::vec3 &_position, const bool &_renderShadows = false);
+	static std::shared_ptr<PointLight> createPointLight(const glm::vec3 &_color, const glm::vec3 &_position, bool _renderShadows = false);
 
 	PointLight(const PointLight &) = delete;
 	PointLight(const PointLight &&) = delete;
 	PointLight &operator= (const PointLight &) = delete;
 	PointLight &operator= (const PointLight &&) = delete;
 	~PointLight();
-	void setRenderShadows(const bool &_renderShadows);
+	void setRenderShadows(bool _renderShadows);
 	void setColor(const glm::vec3 &_color);
 	void setPosition(const glm::vec3 &_position);
 	void setViewProjectionMatrix(const glm::mat4 &_viewProjectionMatrix);
@@ -67,25 +67,25 @@ private:
 	unsigned int shadowMap;
 	glm::mat4 viewProjectionMatrix;
 
-	explicit PointLight(const glm::vec3 &_color, const glm::vec3 &_position, const bool &_renderShadows = false);
+	explicit PointLight(const glm::vec3 &_color, const glm::vec3 &_position, bool _renderShadows = false);
 	void updateViewProjectionMatrix();
 };
 
 class SpotLight
 {
 public:
-	static std::shared_ptr<SpotLight> createSpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, const float &_angle, const bool &_renderShadows = false);
+	static std::shared_ptr<SpotLight> createSpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _angle, bool _renderShadows = false);
 
 	SpotLight(const SpotLight &) = delete;
 	SpotLight(const SpotLight &&) = delete;
 	SpotLight &operator= (const SpotLight &) = delete;
 	SpotLight &operator= (const SpotLight &&) = delete;
 	~SpotLight();
-	void setRenderShadows(const bool &_renderShadows);
+	void setRenderShadows(bool _renderShadows);
 	void setColor(const glm::vec3 &_color);
 	void setPosition(const glm::vec3 &_position);
 	void setDirection(const glm::vec3 &_direction);
-	void setAngle(const float &_angle);
+	void setAngle(float _angle);
 	void setViewProjectionMatrix(const glm::mat4 &_viewProjectionMatrix);
 	bool isRenderShadows() const;
 	glm::vec3 getColor() const;
@@ -104,7 +104,7 @@ private:
 	unsigned int shadowMap;
 	glm::mat4 viewProjectionMatrix;
 
-	explicit SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, const float &_angle, const bool &_renderShadows = false);
+	explicit SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _angle, bool _renderShadows = false);
 	void updateViewProjectionMatrix();
 };
 

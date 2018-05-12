@@ -10,7 +10,7 @@
 
 std::map<std::string, std::weak_ptr<Mesh>> Mesh::meshMap;
 
-std::shared_ptr<Mesh> Mesh::createMesh(const std::string &_filepath, const bool &_instantLoading)
+std::shared_ptr<Mesh> Mesh::createMesh(const std::string &_filepath, bool _instantLoading)
 {
 	if (contains(meshMap, _filepath))
 	{
@@ -24,7 +24,7 @@ std::shared_ptr<Mesh> Mesh::createMesh(const std::string &_filepath, const bool 
 	}
 }
 
-Mesh::Mesh(const std::string &_filepath, const bool &_instantLoading)
+Mesh::Mesh(const std::string &_filepath, bool _instantLoading)
 	:filepath(_filepath), valid(false), dataJob(nullptr)
 {
 	auto dataPreparation = [=](JobManager::SharedJob job)

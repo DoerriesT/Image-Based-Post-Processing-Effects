@@ -33,7 +33,7 @@ public:
 	const glm::mat4 &getProjectionMatrix() const;
 	void setTitle(const std::string &_title);
 	void setIcon(size_t count, const char *sizes, unsigned char **pixelData);
-	void setFieldOfView(const float &_fov);
+	void setFieldOfView(float _fov);
 	void resetFieldOfView();
 	float getFieldOfView() const;
 	std::pair<unsigned int, unsigned int> getSelectedResolution() const;

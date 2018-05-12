@@ -5,7 +5,7 @@ class Application : public IGameLogic
 {
 public:
 	void init();
-	void input(const double &currentTime, const double &timeDelta);
-	void update(const double &currentTime, const double &timeDelta);
+	void input(double currentTime, double timeDelta);
+	void update(double currentTime, double timeDelta);
 	void render();
 };
