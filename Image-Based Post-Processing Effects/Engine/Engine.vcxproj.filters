@@ -1,0 +1,685 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Code">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Code\EntityComponentSystem">
+      <UniqueIdentifier>{bae4ac82-fd35-472e-a2c7-c8685776f2de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Framework">
+      <UniqueIdentifier>{1f83bf33-173a-4147-8d07-ae0a8ba2ed8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Framework\Graphics">
+      <UniqueIdentifier>{5c355ffc-b324-421a-9900-9e97b36b4b1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Framework\Window">
+      <UniqueIdentifier>{9e498f88-37ef-480f-8e84-ee27d5ec8e2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Resources\Shaders">
+      <UniqueIdentifier>{1085c481-b949-4324-882a-2e278f207240}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Graphics">
+      <UniqueIdentifier>{9ae33d89-0111-4a03-9d64-986cff720ca1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\EntityComponentSystem\Systems">
+      <UniqueIdentifier>{36023e1e-0f00-459b-8857-0e16397eef8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Gui">
+      <UniqueIdentifier>{868d1b81-f4b6-4a33-8b27-cdfd3b3cbe85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Gui\Elements">
+      <UniqueIdentifier>{ddf18284-aa0c-4f1b-8546-9b1199824788}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Gui\Systems">
+      <UniqueIdentifier>{095a1411-dae1-467e-af16-8fc134866d5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Utilities">
+      <UniqueIdentifier>{1d64857a-4d43-4374-8d7f-8dacc4c680a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Gui\Style">
+      <UniqueIdentifier>{2d455f71-0b4b-4d1a-b11a-1dfe9be17542}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Network">
+      <UniqueIdentifier>{1286c2c9-1bf9-415e-9759-e97d03f9efcb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Framework\Sound">
+      <UniqueIdentifier>{e6f47753-7a6a-447f-bd99-0ae2ef7188b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Shared">
+      <UniqueIdentifier>{f54cb0f4-abc4-46d1-a4fd-1ad0c4cb86b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\PostProcess">
+      <UniqueIdentifier>{ff480144-1269-4aae-9ff8-2a92397ca37d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Renderer">
+      <UniqueIdentifier>{dc3a3c67-e8b1-485b-843b-fd7cb0ca4208}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Shadows">
+      <UniqueIdentifier>{a52c87ac-4bf9-446d-bdfa-b2e1acb9fb2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Gui">
+      <UniqueIdentifier>{45cf55af-09c7-4ea3-a2be-b10bf29dd37a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Environment">
+      <UniqueIdentifier>{814409e0-b28b-4b8b-b55b-ab5d3c9dd8c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Water">
+      <UniqueIdentifier>{fe4e8533-1997-40ab-96aa-d217dd0a1681}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Custom">
+      <UniqueIdentifier>{7d9e075f-bc31-497f-9c83-a2e6a359f951}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\Window.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Window\IWindowResizeListener.h">
+      <Filter>Code\Framework\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Window\WindowFramework.h">
+      <Filter>Code\Framework\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Graphics\SceneRenderer.h">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Graphics\ShaderProgram.h">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Graphics\GraphicsFramework.h">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\EntityManager.h">
+      <Filter>Code\EntityComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\Component.h">
+      <Filter>Code\EntityComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\System.h">
+      <Filter>Code\EntityComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\SystemManager.h">
+      <Filter>Code\EntityComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\Camera.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Window\IInputListener.h">
+      <Filter>Code\Framework\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\UserInput.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\Texture.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\Mesh.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\Material.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\Lights.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\IGameLogic.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\Scene.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\Systems\RenderSystem.h">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Settings.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EasingFunctions.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\Elements\GuiRow.h">
+      <Filter>Code\Gui\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\Elements\GuiWindow.h">
+      <Filter>Code\Gui\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\Elements\GuiElement.h">
+      <Filter>Code\Gui\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\Systems\GuiFontManager.h">
+      <Filter>Code\Gui\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\Systems\GuiInputHandler.h">
+      <Filter>Code\Gui\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\Systems\GuiRenderer.h">
+      <Filter>Code\Gui\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\GuiEvent.h">
+      <Filter>Code\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\GuiJSONParser.h">
+      <Filter>Code\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\GuiLayout.h">
+      <Filter>Code\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\GuiUtility.h">
+      <Filter>Code\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\nuklearInclude.h">
+      <Filter>Code\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\Gui.h">
+      <Filter>Code\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\DebugMacro.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Utilities\INIFile.h">
+      <Filter>Code\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Utilities\Utility.h">
+      <Filter>Code\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\Style\GuiStyleSheet.h">
+      <Filter>Code\Gui\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\Style\GuiStyleProperty.h">
+      <Filter>Code\Gui\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\Style\GuiStyleBlock.h">
+      <Filter>Code\Gui\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\Systems\MovementSystem.h">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\Systems\GrabbingSystem.h">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\overview.h">
+      <Filter>Code\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Utilities\Intersection.h">
+      <Filter>Code\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Network\asioInclude.h">
+      <Filter>Code\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Network\NetUtility.h">
+      <Filter>Code\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Network\Connection.h">
+      <Filter>Code\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Network\ByteBuffer.h">
+      <Filter>Code\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Network\BaseServer.h">
+      <Filter>Code\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Graphics\PostProcessRenderer.h">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Graphics\ShadowRenderer.h">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Sound\SoundBuffer.h">
+      <Filter>Code\Framework\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Sound\SoundFramework.h">
+      <Filter>Code\Framework\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Sound\SoundListener.h">
+      <Filter>Code\Framework\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Sound\SoundSource.h">
+      <Filter>Code\Framework\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Sound\stb_vorbis.h">
+      <Filter>Code\Framework\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\Systems\RotationSystem.h">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\Systems\SoundSystem.h">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\Systems\PerpetualRotationSystem.h">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\Systems\MovementPathSystem.h">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\Style\GuiStyleApplyable.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Utilities\JSONUtility.h">
+      <Filter>Code\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\IIdentifiable.h">
+      <Filter>Code\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\GuiPopup.h">
+      <Filter>Code\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\Style\IStyleable.h">
+      <Filter>Code\Gui\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Network\NetLoadManager.h">
+      <Filter>Code\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Utilities\md5.h">
+      <Filter>Code\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\EnvironmentProbe.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Graphics\EnvironmentRenderer.h">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Graphics\RenderData.h">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Framework\Graphics\Uniform.h">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Level.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\Effects.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\JobManager.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\EntityRenderData.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\CameraPath.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Gui\IDimensionable.h">
+      <Filter>Code\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ICharListener.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\IKeyListener.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\IMouseButtonListener.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\IOnComponentAddedListener.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\IOnComponentRemovedListener.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\IOnEntityCreatedListener.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\IOnEntityDestructionListener.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\IScrollListener.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\Window.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Engine.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Window\WindowFramework.cpp">
+      <Filter>Code\Framework\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Graphics\ShaderProgram.cpp">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Graphics\GraphicsFramework.cpp">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Graphics\SceneRenderer.cpp">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EntityComponentSystem\EntityManager.cpp">
+      <Filter>Code\EntityComponentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EntityComponentSystem\Component.cpp">
+      <Filter>Code\EntityComponentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EntityComponentSystem\SystemManager.cpp">
+      <Filter>Code\EntityComponentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Graphics\glad.c">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\Camera.cpp">
+      <Filter>Code\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\Material.cpp">
+      <Filter>Code\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\Mesh.cpp">
+      <Filter>Code\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\Texture.cpp">
+      <Filter>Code\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\UserInput.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EntityComponentSystem\Systems\RenderSystem.cpp">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Settings.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EasingFunctions.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Gui\Elements\GuiRow.cpp">
+      <Filter>Code\Gui\Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Gui\Elements\GuiWindow.cpp">
+      <Filter>Code\Gui\Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Gui\Elements\GuiElement.cpp">
+      <Filter>Code\Gui\Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Gui\Systems\GuiInputHandler.cpp">
+      <Filter>Code\Gui\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Gui\Systems\GuiRenderer.cpp">
+      <Filter>Code\Gui\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Gui\Systems\GuiFontManager.cpp">
+      <Filter>Code\Gui\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Gui\GuiJSONParser.cpp">
+      <Filter>Code\Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Gui\GuiLayout.cpp">
+      <Filter>Code\Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Gui\Gui.cpp">
+      <Filter>Code\Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Utilities\INIFile.cpp">
+      <Filter>Code\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Utilities\Utility.cpp">
+      <Filter>Code\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Gui\Style\GuiStyleProperty.cpp">
+      <Filter>Code\Gui\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Gui\Style\GuiStyleSheet.cpp">
+      <Filter>Code\Gui\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Gui\Style\GuiStyleBlock.cpp">
+      <Filter>Code\Gui\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EntityComponentSystem\Systems\MovementSystem.cpp">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EntityComponentSystem\Systems\GrabbingSystem.cpp">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Utilities\Intersection.cpp">
+      <Filter>Code\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Network\NetUtility.cpp">
+      <Filter>Code\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Network\Connection.cpp">
+      <Filter>Code\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Network\ByteBuffer.cpp">
+      <Filter>Code\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Network\BaseServer.cpp">
+      <Filter>Code\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\Lights.cpp">
+      <Filter>Code\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Graphics\PostProcessRenderer.cpp">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Graphics\ShadowRenderer.cpp">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Sound\SoundBuffer.cpp">
+      <Filter>Code\Framework\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Sound\SoundFramework.cpp">
+      <Filter>Code\Framework\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Sound\SoundListener.cpp">
+      <Filter>Code\Framework\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Sound\SoundSource.cpp">
+      <Filter>Code\Framework\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Sound\stb_vorbis.c">
+      <Filter>Code\Framework\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EntityComponentSystem\Systems\RotationSystem.cpp">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EntityComponentSystem\Systems\SoundSystem.cpp">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EntityComponentSystem\Systems\PerpetualRotationSystem.cpp">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EntityComponentSystem\Systems\MovementPathSystem.cpp">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Utilities\JSONUtility.cpp">
+      <Filter>Code\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Gui\Style\IStyleable.cpp">
+      <Filter>Code\Gui\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Network\NetLoadManager.cpp">
+      <Filter>Code\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Utilities\md5.cpp">
+      <Filter>Code\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\EnvironmentProbe.cpp">
+      <Filter>Code\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Graphics\EnvironmentRenderer.cpp">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Level.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Graphics\Uniform.cpp">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\stb_image.cpp">
+      <Filter>Code\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\stb_image_resize.cpp">
+      <Filter>Code\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\JobManager.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\Scene.cpp">
+      <Filter>Code\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\CameraPath.cpp">
+      <Filter>Code\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EntityComponentSystem\System.cpp">
+      <Filter>Code\EntityComponentSystem</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Game\Resources\Shaders\water\butterflyCompute.frag">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\water\butterflyPrecompute.frag">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\water\inversePermute.frag">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\water\normal.frag">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\water\tildeH0k.frag">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\water\tildeHkt.frag">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\water\water.frag">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\water\water.vert">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\environment\environmentBlit.frag">
+      <Filter>Resources\Shaders\Environment</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\environment\environmentProjection.vert">
+      <Filter>Resources\Shaders\Environment</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\environment\irradiance.frag">
+      <Filter>Resources\Shaders\Environment</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\environment\reflectance.frag">
+      <Filter>Resources\Shaders\Environment</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\environment\atmosphere.frag">
+      <Filter>Resources\Shaders\Environment</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Shared\blit.frag">
+      <Filter>Resources\Shaders\Shared</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Shared\fullscreenTriangle.vert">
+      <Filter>Resources\Shaders\Shared</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\PostProcess\downsample.frag">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\PostProcess\fxaa.frag">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\PostProcess\hdr.frag">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\PostProcess\lensFlareBlur.frag">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\PostProcess\lensFlareGen.frag">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\PostProcess\singlePassEffects.frag">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\PostProcess\upsample.frag">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\directionalLightPass.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\gBufferPass.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\gBufferPass.vert">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\globalLightPass.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\outline.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\outline.vert">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\pointLightPass.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\pointLightPass.vert">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\skybox.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\skybox.vert">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\spotLightPass.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\spotLightPass.vert">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\ssao.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\ssaoBlur.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\transparencyForward.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Renderer\transparencyForward.vert">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Shadows\shadow.frag">
+      <Filter>Resources\Shaders\Shadows</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Shadows\shadow.vert">
+      <Filter>Resources\Shaders\Shadows</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Shadows\shadowBlur.frag">
+      <Filter>Resources\Shaders\Shadows</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Gui\gui.frag">
+      <Filter>Resources\Shaders\Gui</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Gui\gui.vert">
+      <Filter>Resources\Shaders\Gui</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Custom\atmosphere.frag">
+      <Filter>Resources\Shaders\Custom</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Custom\atmosphere.vert">
+      <Filter>Resources\Shaders\Custom</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Custom\earth.frag">
+      <Filter>Resources\Shaders\Custom</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Custom\earth.vert">
+      <Filter>Resources\Shaders\Custom</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Custom\sun.frag">
+      <Filter>Resources\Shaders\Custom</Filter>
+    </None>
+    <None Include="..\Game\Resources\Shaders\Custom\sun.vert">
+      <Filter>Resources\Shaders\Custom</Filter>
+    </None>
+  </ItemGroup>
+</Project>
