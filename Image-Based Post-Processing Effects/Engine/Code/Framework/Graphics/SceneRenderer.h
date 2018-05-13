@@ -70,7 +70,7 @@ private:
 
 	std::size_t currentLightColorTexture;
 	GLenum lightColorAttachments[2];
-	
+
 
 	// ssao fbo
 	GLuint ssaoFbo;
@@ -100,8 +100,7 @@ private:
 
 	// skybox uniforms
 	Uniform<glm::mat4> uInverseModelViewProjectionB = Uniform<glm::mat4>("uInverseModelViewProjection");
-	Uniform<glm::mat4> uTransformB = Uniform<glm::mat4>("uTransform");
-	Uniform<glm::mat4> uPrevTransformB = Uniform<glm::mat4>("uPrevTransform");
+	Uniform<glm::mat4> uCurrentToPrevTransformB = Uniform<glm::mat4>("uCurrentToPrevTransform");
 	Uniform<GLint> uAlbedoMapB = Uniform<GLint>("uAlbedoMap");
 	Uniform<glm::vec4> uColorB = Uniform<glm::vec4>("uColor");
 	Uniform<GLboolean> uHasAlbedoMapB = Uniform<GLboolean>("uHasAlbedoMap");
@@ -177,6 +176,7 @@ private:
 	Uniform<GLboolean> uShadowsEnabledD = Uniform<GLboolean>("uShadowsEnabled");
 
 	// transparency uniforms
+	Uniform<glm::mat4> uPrevTransformT = Uniform<glm::mat4>("uPrevTransform");
 	Uniform<glm::mat4> uModelViewProjectionMatrixT = Uniform<glm::mat4>("uModelViewProjectionMatrix");
 	Uniform<glm::mat4> uModelMatrixT = Uniform<glm::mat4>("uModelMatrix");
 	Uniform<glm::vec4> uAtlasDataT = Uniform<glm::vec4>("uAtlasData");
@@ -252,7 +252,7 @@ private:
 	Uniform<GLint> uEnvironmentTextureW = Uniform<GLint>("uEnvironmentTexture");
 	Uniform<glm::mat4> uProjectionW = Uniform<glm::mat4>("uProjection");
 	Uniform<glm::mat4> uViewW = Uniform<glm::mat4>("uView");
-	Uniform<glm::vec3> uCamPosW = Uniform<glm::vec3>("uCamPos"); 
+	Uniform<glm::vec3> uCamPosW = Uniform<glm::vec3>("uCamPos");
 	Uniform<glm::vec2> uTexCoordShiftW = Uniform<glm::vec2>("uTexCoordShift");
 	Uniform<bool> uUseEnvironmentW = Uniform<bool>("uUseEnvironment");
 	Uniform<float> uWaterLevelW = Uniform<float>("uWaterLevel");

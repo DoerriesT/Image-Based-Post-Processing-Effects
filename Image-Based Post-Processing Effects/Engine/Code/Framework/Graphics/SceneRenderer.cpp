@@ -162,10 +162,10 @@ void SceneRenderer::init()
 	uAlbedoMapB.create(skyboxShader);
 	uColorB.create(skyboxShader);
 	uHasAlbedoMapB.create(skyboxShader);
-	uTransformB.create(skyboxShader);
-	uPrevTransformB.create(skyboxShader);
+	uCurrentToPrevTransformB.create(skyboxShader);
 
 	// transparency uniforms
+	uPrevTransformT.create(transparencyShader);
 	uModelViewProjectionMatrixT.create(transparencyShader);
 	uModelMatrixT.create(transparencyShader);
 	uAtlasDataT.create(transparencyShader);
@@ -282,7 +282,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	currentLightColorTexture = (currentLightColorTexture + 1) % 2;
 
 	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 , lightColorAttachments[currentLightColorTexture]};
-	const GLenum secondPassDrawBuffers[] = { lightColorAttachments[currentLightColorTexture] };
+	const GLenum secondPassDrawBuffers[] = { lightColorAttachments[currentLightColorTexture], GL_COLOR_ATTACHMENT3 };
 	glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
 
 	// bind g-buffer
@@ -362,7 +362,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 		glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
 	}
 
-	glDrawBuffers(1, secondPassDrawBuffers);
+	glDrawBuffers(sizeof(secondPassDrawBuffers) / sizeof(GLenum), secondPassDrawBuffers);
 
 	// disable writing to depth, since all geometry from now on is only a utility to draw lights
 	glDepthMask(GL_TRUE);
@@ -832,9 +832,10 @@ void SceneRenderer::renderSkybox(const RenderData &_renderData, const std::share
 		mvpMatrix *= glm::mat4_cast(transformationComponent->rotation);
 	}
 
-	uTransformB.set(mvpMatrix);
-	uPrevTransformB.set(prevTransform);
-	uInverseModelViewProjectionB.set(glm::inverse(mvpMatrix));
+	glm::mat4 invTransform = glm::inverse(mvpMatrix);
+
+	uInverseModelViewProjectionB.set(invTransform);
+	uCurrentToPrevTransformB.set(prevTransform * invTransform);
 
 	prevTransform = mvpMatrix;
 
@@ -1093,9 +1094,14 @@ void SceneRenderer::renderTransparentGeometry(const RenderData &_renderData, con
 			textureOffset = glm::vec2((float)col / columns, (float)row / rows);
 		}
 
+		glm::mat4 mvpTransform = _renderData.viewProjectionMatrix * modelMatrix;
+
 		uAtlasDataT.set(glm::vec4(columns, rows, textureOffset));
 		uModelMatrixT.set(modelMatrix);
-		uModelViewProjectionMatrixT.set(_renderData.viewProjectionMatrix * modelMatrix);
+		uModelViewProjectionMatrixT.set(mvpTransform);
+		uPrevTransformT.set(entityRenderData->transformationComponent->prevTransformation);
+
+		entityRenderData->transformationComponent->prevTransformation = mvpTransform;
 
 		if (entityRenderData->outlineComponent)
 		{

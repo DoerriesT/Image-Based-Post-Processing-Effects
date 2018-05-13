@@ -9,12 +9,15 @@ const int AO = 16;
 const int EMISSIVE = 32;
 
 layout(location = 0) out vec4 oFragColor;
+layout(location = 1) out vec4 oVelocity;
 
 in vec2 vTexCoord;
 in vec3 vNormal;
 in vec3 vTangent;
 in vec3 vBitangent;
 in vec4 vWorldPos;
+in vec4 vCurrentPos;
+in vec4 vPrevPos;
 
 struct Material
 {
@@ -224,4 +227,10 @@ void main()
 	vec3 ambientLightContribution = vec3((kD * diffuse + specular) * ao);
 
 	oFragColor = vec4(directionalLightContribution + ambientLightContribution + emissive, albedo.a);
+
+	vec2 a = (vCurrentPos.xy / vCurrentPos.w);
+    vec2 b = (vPrevPos.xy / vPrevPos.w);
+	vec2 v = abs(a - b);
+	//v = pow(v, vec2(3.0));
+	oVelocity = vec4(v, 0.0, 0.0); // vec4(a - b, 0.0, 0.0); //vec4(pow((a - b) * 0.5 + 0.5, vec2(3.0)), 0.0, 0.0);
 }
