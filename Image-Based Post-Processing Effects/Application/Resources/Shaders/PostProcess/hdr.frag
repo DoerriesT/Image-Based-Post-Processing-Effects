@@ -44,10 +44,10 @@ void main()
 	
 		vec2 velocity = texture(uVelocityTexture, vTexCoord).rg;
 		//velocity = pow(velocity, vec2(1.0 / 3.0));
-		velocity *= 2.0 * uVelocityScale;
+		velocity *= 1.0 * uVelocityScale;
 
 		float speed = length(velocity / texelSize);
-		float sampleCount = MAX_SAMPLES;//clamp(speed, 1.0, MAX_SAMPLES);
+		float sampleCount = clamp(int(speed), 1.0, MAX_SAMPLES);
 		
 		for (float i = 1; i < sampleCount; ++i) 
 		{
