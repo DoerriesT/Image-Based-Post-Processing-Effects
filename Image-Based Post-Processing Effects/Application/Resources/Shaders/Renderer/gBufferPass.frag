@@ -10,13 +10,15 @@ const int EMISSIVE = 32;
 layout(location = 0) out vec4 oAlbedo;
 layout(location = 1) out vec4 oNormal;
 layout(location = 2) out vec4 oMetallicRoughnessAo;
-layout(location = 3) out vec4 oEmissive;
+layout(location = 3) out vec4 oVelocity;
+layout(location = 4) out vec4 oEmissive;
 
 in vec2 vTexCoord;
 in vec3 vNormal;
 in vec3 vTangent;
 in vec3 vBitangent;
-in vec4 vWorldPos;
+in vec4 vCurrentPos;
+in vec4 vPrevPos;
 
 struct Material
 {
@@ -100,4 +102,8 @@ void main()
     }
 
 	oMetallicRoughnessAo.a = 1.0;
+
+	vec2 a = (vCurrentPos.xy / vCurrentPos.w);
+    vec2 b = (vPrevPos.xy / vPrevPos.w);
+	oVelocity = vec4(a - b, 0.0, 0.0); //vec4(pow((a - b) * 0.5 + 0.5, vec2(3.0)), 0.0, 0.0);
 }

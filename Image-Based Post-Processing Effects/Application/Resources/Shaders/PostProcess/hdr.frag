@@ -5,15 +5,20 @@ in vec2 vTexCoord;
 
 uniform sampler2D uScreenTexture; // full resolution source texture
 uniform sampler2D uBloomTexture;
+uniform sampler2D uVelocityTexture;
 uniform sampler2D uLensFlareTex; // input from the blur stage
 uniform sampler2D uLensDirtTex; // full resolution dirt texture
 uniform sampler2D uLensStarTex; // diffraction starburst texture
 uniform mat3 uLensStarMatrix; // transforms texcoords
 uniform bool uLensFlares;
 uniform bool uBloom;
+uniform bool uMotionBlur;
 uniform float uBloomStrength = 0.1;
 uniform float uBloomDirtStrength = 0.5;
 uniform float uExposure = 1.0;
+uniform float uVelocityScale;
+
+const float MAX_SAMPLES = 12.0;
 
 
 const float A = 0.15; // shoulder strength
@@ -32,6 +37,24 @@ vec3 uncharted2Tonemap(vec3 x)
 void main()
 {
 	vec3 color = texture(uScreenTexture, vTexCoord).rgb;
+
+	if (uMotionBlur)
+	{
+		vec2 texelSize = 1.0/vec2(textureSize(uScreenTexture, 0));
+	
+		vec2 velocity = texture(uVelocityTexture, vTexCoord).rg * uVelocityScale;
+
+		float speed = length(velocity / texelSize);
+		float sampleCount = clamp(speed, 1.0, MAX_SAMPLES);
+		
+		for (float i = 1; i < sampleCount; ++i) 
+		{
+			vec2 offset = velocity * (i / (sampleCount - 1) - 0.5);
+			color += texture(uScreenTexture, vTexCoord + offset).rgb;
+		}
+		
+		color /= sampleCount;
+	}
 
 	if (uBloom)
 	{

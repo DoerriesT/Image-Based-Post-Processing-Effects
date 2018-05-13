@@ -88,6 +88,9 @@ void PostProcessRenderer::init()
 	uBloomStrengthH.create(hdrShader);
 	uBloomDirtStrengthH.create(hdrShader);
 	uExposureH.create(hdrShader);
+	uVelocityTextureH.create(hdrShader);
+	uVelocityScaleH.create(hdrShader);
+	uMotionBlurH.create(hdrShader);
 
 	// fxaa
 	uScreenTextureF.create(fxaaShader);
@@ -137,7 +140,7 @@ void PostProcessRenderer::init()
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.obj", true);
 }
 
-void PostProcessRenderer::render(const Effects &_effects, const GLuint &_colorTexture, const GLuint &_depthTexture, const std::shared_ptr<Camera> &_camera)
+void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {
 	fullscreenTriangle->enableVertexAttribArrays();
 
@@ -157,7 +160,6 @@ void PostProcessRenderer::render(const Effects &_effects, const GLuint &_colorTe
 		{
 			// we still have the proper fbo and viewport set from last upsampling step
 			generateFlares(_effects);
-			glErrorCheck("");
 
 			glm::vec3 camx = _camera->getViewMatrix()[0]; // camera x (left) vector
 			glm::vec3 camz = _camera->getViewMatrix()[1]; // camera z (forward) vector
@@ -198,6 +200,8 @@ void PostProcessRenderer::render(const Effects &_effects, const GLuint &_colorTe
 	glBindTexture(GL_TEXTURE_2D, lensDirtTexture->getId());
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, lensStarTexture->getId());
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, _velocityTexture);
 
 	hdrShader->bind();
 	uScreenTextureH.set(0);
@@ -205,6 +209,7 @@ void PostProcessRenderer::render(const Effects &_effects, const GLuint &_colorTe
 	uLensFlareTexH.set(2);
 	uLensDirtTexH.set(3);
 	uLensStarTexH.set(4);
+	uVelocityTextureH.set(5);
 
 	uLensStarMatrixH.set(lensStarMatrix);
 	uLensFlaresH.set(_effects.lensFlares.enabled);
@@ -212,6 +217,8 @@ void PostProcessRenderer::render(const Effects &_effects, const GLuint &_colorTe
 	uBloomStrengthH.set(_effects.bloom.strength);
 	uBloomDirtStrengthH.set(_effects.bloom.lensDirtStrength);
 	uExposureH.set(_effects.exposure);
+	uMotionBlurH.set(false);
+	uVelocityScaleH.set((float)Engine::getCurrentTimeDelta() / 0.001666f);
 
 	fullscreenTriangle->render();
 
@@ -299,7 +306,7 @@ void PostProcessRenderer::singlePassEffects(const Effects &_effects)
 	finishedTexture = (finishedTexture == fullResolutionTextureA) ? fullResolutionTextureB : fullResolutionTextureA;
 }
 
-void PostProcessRenderer::downsample(const GLuint &_colorTexture)
+void PostProcessRenderer::downsample(GLuint _colorTexture)
 {
 	unsigned int windowWidth = window->getWidth();
 	unsigned int windowHeight = window->getHeight();

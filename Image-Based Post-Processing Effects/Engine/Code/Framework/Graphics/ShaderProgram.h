@@ -31,13 +31,13 @@ public:
 	std::vector<GLint> createPointLightUniform(const std::string &_name) const;
 	std::vector<GLint> createSpotLightUniform(const std::string &_name) const;
 	std::vector<GLint> createDirectionalLightUniform(const std::string &_name) const;
-	std::vector<GLint> createPointLightUniformArray(const std::string &_name, const unsigned int &_size) const;
-	std::vector<GLint> createSpotLightUniformArray(const std::string &_name, const unsigned int &_size) const;
-	std::vector<GLint> createDirectionalLightUniformArray(const std::string &_name, const unsigned int &_size) const;
+	std::vector<GLint> createPointLightUniformArray(const std::string &_name, unsigned int _size) const;
+	std::vector<GLint> createSpotLightUniformArray(const std::string &_name, unsigned int _size) const;
+	std::vector<GLint> createDirectionalLightUniformArray(const std::string &_name, unsigned int _size) const;
 	std::vector<GLint> createMaterialUniform(const std::string &_name) const;
 	void setUniform(const GLint &_location, const GLboolean &_value) const;
 	void setUniform(const GLint &_location, const GLint &_value) const;
-	void setUniform(const GLint &_location, const GLuint &_value) const;
+	void setUniform(const GLint &_location, GLuint _value) const;
 	void setUniform(const GLint &_location, const GLfloat &value) const;
 	void setUniform(const GLint &_location, const glm::mat3 &_value) const;
 	void setUniform(const GLint &_location, const glm::mat4 &_value) const;

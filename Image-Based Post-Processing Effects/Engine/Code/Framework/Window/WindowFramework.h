@@ -20,7 +20,7 @@ class WindowFramework
 	friend void charCallback(GLFWwindow *window, unsigned int codepoint);
 
 public:
-	static std::shared_ptr<WindowFramework> createWindowFramework(const std::string &_title, const unsigned int &_width, const unsigned int &_height, bool _vsync, const WindowMode &_windowMode = WindowMode::WINDOWED);
+	static std::shared_ptr<WindowFramework> createWindowFramework(const std::string &_title, unsigned int _width, unsigned int _height, bool _vsync, const WindowMode &_windowMode = WindowMode::WINDOWED);
 	
 	WindowFramework(const WindowFramework &) = delete;
 	WindowFramework(const WindowFramework &&) = delete;
@@ -63,5 +63,5 @@ private:
 	std::vector<std::pair<unsigned int, unsigned int>> supportedResolutions;
 	WindowMode windowMode;
 
-	explicit WindowFramework(const std::string &_title, const unsigned int &_width, const unsigned int &_height, bool _vsync, const WindowMode &_windowMode = WindowMode::WINDOWED);
+	explicit WindowFramework(const std::string &_title, unsigned int _width, unsigned int _height, bool _vsync, const WindowMode &_windowMode = WindowMode::WINDOWED);
 };

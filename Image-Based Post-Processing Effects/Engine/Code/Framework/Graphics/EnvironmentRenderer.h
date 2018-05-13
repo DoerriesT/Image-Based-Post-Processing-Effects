@@ -22,7 +22,7 @@ public:
 	EnvironmentRenderer &operator= (const EnvironmentRenderer &&) = delete;
 	~EnvironmentRenderer();
 	void init();
-	void updateCubeSide(const unsigned int &_side, const GLuint &_source);
+	void updateCubeSide(unsigned int _side, GLuint _source);
 	void calculateReflectance(const std::shared_ptr<EnvironmentProbe> &_environmentProbe);
 	void calculateIrradiance(const std::shared_ptr<EnvironmentProbe> &_environmentProbe);
 	std::shared_ptr<Texture> calculateAtmosphere(const AtmosphereParams &_atmosphereParams);

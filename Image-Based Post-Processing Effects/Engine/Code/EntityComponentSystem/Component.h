@@ -239,7 +239,7 @@ struct SoundComponent : public Component<SoundComponent>
 
 struct TextureAtlasIndexComponent : public Component<TextureAtlasIndexComponent>
 {
-	explicit TextureAtlasIndexComponent(const unsigned int &_rows, const unsigned int &_columns, const std::map<std::shared_ptr<Mesh>, unsigned int> &_meshToIndexMap)
+	explicit TextureAtlasIndexComponent(unsigned int _rows, unsigned int _columns, const std::map<std::shared_ptr<Mesh>, unsigned int> &_meshToIndexMap)
 		:rows(_rows), columns(_columns), meshToIndexMap(_meshToIndexMap) { };
 	unsigned int rows;
 	unsigned int columns;
@@ -255,6 +255,7 @@ struct TransformationComponent : public Component<TransformationComponent>
 	glm::vec3 position;
 	glm::quat rotation;
 	glm::vec3 scale;
+	glm::mat4 prevTransformation;
 
 	static const std::uint64_t FAMILY_ID;
 };

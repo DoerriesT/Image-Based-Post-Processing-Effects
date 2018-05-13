@@ -87,7 +87,7 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 		shadowRenderer.renderShadows(renderData, _scene, _level, _effects);
 	}
 	sceneRenderer.render(renderData, _scene, _level, _effects);
-	postProcessRenderer.render(_effects, sceneRenderer.getColorTexture(), sceneRenderer.getDepthStencilTexture(), _camera);
+	postProcessRenderer.render(_effects, sceneRenderer.getColorTexture(), sceneRenderer.getDepthStencilTexture(), sceneRenderer.getVelocityTexture(), _camera);
 
 	blitToScreen();
 }
@@ -187,7 +187,7 @@ GLuint GraphicsFramework::getFinishedFrameTexture()
 	return postProcessRenderer.getFinishedTexture();
 }
 
-void GraphicsFramework::onResize(const unsigned int &_width, const unsigned int &_height)
+void GraphicsFramework::onResize(unsigned int _width, unsigned int _height)
 {
 	std::pair<unsigned int, unsigned int> resolution = std::make_pair(_width, _height);
 	sceneRenderer.resize(resolution);

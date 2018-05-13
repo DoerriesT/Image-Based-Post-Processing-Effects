@@ -59,7 +59,7 @@ SceneRenderer::~SceneRenderer()
 	glBindVertexArray(0);
 	glDeleteVertexArrays(1, &waterVAO);
 
-	GLuint textures[] = { gAlbedoTexture, gNormalTexture, gMRASTexture, gDepthStencilTexture, gLightColorTextures[0], gLightColorTextures[1] };
+	GLuint textures[] = { gAlbedoTexture, gNormalTexture, gMRASTexture, gDepthStencilTexture, gLightColorTextures[0], gLightColorTextures[1], gVelocityTexture };
 	glDeleteTextures(sizeof(textures) / sizeof(GLuint), textures);
 }
 
@@ -90,6 +90,7 @@ void SceneRenderer::init()
 	uMaterialG.create(gBufferPassShader);
 	uModelMatrixG.create(gBufferPassShader);
 	uModelViewProjectionMatrixG.create(gBufferPassShader);
+	uPrevTransformG.create(gBufferPassShader);
 	uAtlasDataG.create(gBufferPassShader);
 
 	// outline uniforms
@@ -278,13 +279,13 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	// switch current result texture
 	currentLightColorTexture = (currentLightColorTexture + 1) % 2;
 
-	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, lightColorAttachments[currentLightColorTexture] };
+	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 , lightColorAttachments[currentLightColorTexture]};
 	const GLenum secondPassDrawBuffers[] = { lightColorAttachments[currentLightColorTexture] };
 	glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
 
 	// bind g-buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
-	glDrawBuffers(4, firstPassDrawBuffers);
+	glDrawBuffers(sizeof(firstPassDrawBuffers)/sizeof(GLenum), firstPassDrawBuffers);
 
 	// enable depth testing and writing and clear all buffers
 	glEnable(GL_DEPTH_TEST);
@@ -458,7 +459,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 
 void SceneRenderer::resize(const std::pair<unsigned int, unsigned int> &_resolution)
 {
-	GLuint textures[] = { gAlbedoTexture, gNormalTexture, gMRASTexture, gDepthStencilTexture, gLightColorTextures[0], gLightColorTextures[1], ssaoTextureA, ssaoTextureB };
+	GLuint textures[] = { gAlbedoTexture, gNormalTexture, gMRASTexture, gDepthStencilTexture, gLightColorTextures[0], gLightColorTextures[1], gVelocityTexture, ssaoTextureA, ssaoTextureB };
 	glDeleteTextures(sizeof(textures) / sizeof(GLuint), textures);
 	createFboAttachments(_resolution);
 }
@@ -471,6 +472,11 @@ GLuint SceneRenderer::getColorTexture() const
 GLuint SceneRenderer::getDepthStencilTexture() const
 {
 	return gDepthStencilTexture;
+}
+
+GLuint SceneRenderer::getVelocityTexture() const
+{
+	return gVelocityTexture;
 }
 
 void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution)
@@ -504,6 +510,15 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gMRASTexture, 0);
 
+	glGenTextures(1, &gVelocityTexture);
+	glBindTexture(GL_TEXTURE_2D, gVelocityTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution.first, _resolution.second, 0, GL_RG, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gVelocityTexture, 0);
+
 	glGenTextures(1, &gLightColorTextures[0]);
 	glBindTexture(GL_TEXTURE_2D, gLightColorTextures[0]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, _resolution.first, _resolution.second, 0, GL_RGB, GL_FLOAT, NULL);
@@ -511,7 +526,7 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gLightColorTextures[0], 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, gLightColorTextures[0], 0);
 
 	glGenTextures(1, &gLightColorTextures[1]);
 	glBindTexture(GL_TEXTURE_2D, gLightColorTextures[1]);
@@ -520,10 +535,10 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, gLightColorTextures[1], 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, gLightColorTextures[1], 0);
 
-	lightColorAttachments[0] = GL_COLOR_ATTACHMENT3;
-	lightColorAttachments[1] = GL_COLOR_ATTACHMENT4;
+	lightColorAttachments[0] = GL_COLOR_ATTACHMENT4;
+	lightColorAttachments[1] = GL_COLOR_ATTACHMENT5;
 
 	glGenTextures(1, &gDepthStencilTexture);
 	glBindTexture(GL_TEXTURE_2D, gDepthStencilTexture);
@@ -762,9 +777,14 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 			textureOffset = glm::vec2((float)col / columns, (float)row / rows);
 		}
 
+		glm::mat4 mvpTransformation = _renderData.viewProjectionMatrix * modelMatrix;
+		
 		uAtlasDataG.set(glm::vec4(columns, rows, textureOffset));
 		uModelMatrixG.set(modelMatrix);
-		uModelViewProjectionMatrixG.set(_renderData.viewProjectionMatrix * modelMatrix);
+		uModelViewProjectionMatrixG.set(mvpTransformation);
+		uPrevTransformG.set(entityRenderData->transformationComponent->prevTransformation);
+
+		entityRenderData->transformationComponent->prevTransformation = mvpTransformation;
 
 		if (entityRenderData->outlineComponent)
 		{

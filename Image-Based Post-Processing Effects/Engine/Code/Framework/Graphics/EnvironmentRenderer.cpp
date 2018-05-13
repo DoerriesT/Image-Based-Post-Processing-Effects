@@ -94,7 +94,7 @@ void EnvironmentRenderer::init()
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.obj", true);
 }
 
-void EnvironmentRenderer::updateCubeSide(const unsigned int &_side, const GLuint &_source)
+void EnvironmentRenderer::updateCubeSide(unsigned int _side, GLuint _source)
 {
 	fullscreenTriangle->enableVertexAttribArrays();
 

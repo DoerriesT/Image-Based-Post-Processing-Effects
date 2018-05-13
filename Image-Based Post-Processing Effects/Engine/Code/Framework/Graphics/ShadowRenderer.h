@@ -51,7 +51,7 @@ private:
 
 	void render(const glm::mat4 &_viewProjectionMatrix, const Scene &_scene);
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
-	void blur(const GLuint &_textureToBlur);
+	void blur(GLuint _textureToBlur);
 	void deleteAttachments();
 	void deleteFbos();
 	void blit(GLuint targetTexture);

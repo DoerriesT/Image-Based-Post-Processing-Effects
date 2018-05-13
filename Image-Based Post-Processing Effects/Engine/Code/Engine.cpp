@@ -17,6 +17,7 @@
 #include "UserInput.h"
 
 double Engine::currentTime = 0.0;
+double Engine::currentTimeDelta = 0.0;
 Engine* Engine::instance = nullptr;
 
 Engine::Engine(const std::string &_title, IGameLogic & _gameLogic)
@@ -56,6 +57,11 @@ void Engine::shutdown()
 double Engine::getCurrentTime()
 {
 	return currentTime;
+}
+
+double Engine::getCurrentTimeDelta()
+{
+	return currentTimeDelta;
 }
 
 Engine* Engine::getInstance()
@@ -103,10 +109,10 @@ void Engine::gameLoop()
 	while (!shouldShutdown && !window->shouldClose())
 	{
 		currentTime = glfwGetTime();
-		double delta = currentTime - lastFrame;
+		currentTimeDelta = currentTime - lastFrame;
 
-		input(currentTime, delta);
-		update(currentTime, delta);
+		input(currentTime, currentTimeDelta);
+		update(currentTime, currentTimeDelta);
 		render();
 
 		lastFrame = currentTime;

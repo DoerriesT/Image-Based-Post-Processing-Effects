@@ -38,7 +38,7 @@ public:
 	float getFieldOfView() const;
 	std::pair<unsigned int, unsigned int> getSelectedResolution() const;
 	std::vector<std::pair<unsigned int, unsigned int>> getSupportedResolutions();
-	void onResize(const unsigned int &width, const unsigned int &height) override;
+	void onResize(unsigned int width, unsigned int height) override;
 
 private:
 	std::shared_ptr<Setting<bool>> vsync;

@@ -242,7 +242,7 @@ std::vector<GLint> ShaderProgram::createDirectionalLightUniform(const std::strin
 	return ids;
 }
 
-std::vector<GLint> ShaderProgram::createPointLightUniformArray(const std::string &_name, const unsigned int &_size) const
+std::vector<GLint> ShaderProgram::createPointLightUniformArray(const std::string &_name, unsigned int _size) const
 {
 	std::vector<GLint> locations;
 	locations.reserve(_size * 5);
@@ -254,7 +254,7 @@ std::vector<GLint> ShaderProgram::createPointLightUniformArray(const std::string
 	return locations;
 }
 
-std::vector<GLint> ShaderProgram::createSpotLightUniformArray(const std::string &_name, const unsigned int &_size) const
+std::vector<GLint> ShaderProgram::createSpotLightUniformArray(const std::string &_name, unsigned int _size) const
 {
 	std::vector<GLint> locations;
 	locations.reserve(_size * 7);
@@ -266,7 +266,7 @@ std::vector<GLint> ShaderProgram::createSpotLightUniformArray(const std::string 
 	return locations;
 }
 
-std::vector<GLint> ShaderProgram::createDirectionalLightUniformArray(const std::string &_name, const unsigned int &_size) const
+std::vector<GLint> ShaderProgram::createDirectionalLightUniformArray(const std::string &_name, unsigned int _size) const
 {
 	std::vector<GLint> locations;
 	locations.reserve(_size * 5);
@@ -337,7 +337,7 @@ void ShaderProgram::setUniform(const GLint &_location, const GLint &_value) cons
 	glUniform1i(_location, _value);
 }
 
-void ShaderProgram::setUniform(const GLint &_location, const GLuint &_value) const
+void ShaderProgram::setUniform(const GLint &_location, GLuint _value) const
 {
 	glUniform1ui(_location, _value);
 }

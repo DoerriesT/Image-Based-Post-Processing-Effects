@@ -29,7 +29,7 @@ public:
 	void blitToScreen();
 	void setShadowQuality(const ShadowQuality &_shadowQuality);
 	GLuint getFinishedFrameTexture();
-	void onResize(const unsigned int &_width, const unsigned int &_height) override;
+	void onResize(unsigned int _width, unsigned int _height) override;
 
 private:
 	SceneRenderer sceneRenderer;

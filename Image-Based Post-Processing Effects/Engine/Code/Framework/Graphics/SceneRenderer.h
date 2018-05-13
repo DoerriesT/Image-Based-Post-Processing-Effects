@@ -25,6 +25,7 @@ public:
 	void resize(const std::pair<unsigned int, unsigned int> &_resolution);
 	GLuint getColorTexture() const;
 	GLuint getDepthStencilTexture() const;
+	GLuint getVelocityTexture() const;
 
 private:
 	// shaders
@@ -64,6 +65,7 @@ private:
 	GLuint gNormalTexture;
 	GLuint gMRASTexture; // metallic | roughness | ambient occlusion | shaded
 	GLuint gLightColorTextures[2];
+	GLuint gVelocityTexture;
 	GLuint gDepthStencilTexture;
 
 	std::size_t currentLightColorTexture;
@@ -105,6 +107,7 @@ private:
 	// gBufferPass uniforms
 	Uniform<glm::mat4> uModelMatrixG = Uniform<glm::mat4>("uModelMatrix");
 	Uniform<glm::mat4> uModelViewProjectionMatrixG = Uniform<glm::mat4>("uModelViewProjectionMatrix");
+	Uniform<glm::mat4> uPrevTransformG = Uniform<glm::mat4>("uPrevTransform");
 	Uniform<glm::vec4> uAtlasDataG = Uniform<glm::vec4>("uAtlasData");
 	UniformMaterial uMaterialG = UniformMaterial("uMaterial");
 

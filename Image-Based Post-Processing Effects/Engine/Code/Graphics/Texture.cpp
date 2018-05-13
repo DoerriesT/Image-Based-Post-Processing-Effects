@@ -24,7 +24,7 @@ struct PackedJobTexture
 std::map<std::string, std::weak_ptr<Texture>> Texture::textureMap;
 float Texture::anisotropicFiltering = 1.0f;
 
-std::shared_ptr<Texture> Texture::createTexture(const GLuint &_id, const GLenum &_target)
+std::shared_ptr<Texture> Texture::createTexture(GLuint _id, GLenum _target)
 {
 	std::string idStr = std::to_string(_id);
 	if (contains(textureMap, idStr))
@@ -53,7 +53,7 @@ std::shared_ptr<Texture> Texture::createTexture(const std::string &_filename, bo
 	}
 }
 
-Texture::Texture(const GLuint &_id, const GLenum &_target)
+Texture::Texture(GLuint _id, GLenum _target)
 	:filepath(std::to_string(_id)), valid(true), dataJob(nullptr), id(_id), target(_target)
 {
 }

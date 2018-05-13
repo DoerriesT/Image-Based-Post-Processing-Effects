@@ -17,6 +17,7 @@ public:
 	void start();
 	void shutdown();
 	static double getCurrentTime();
+	static double getCurrentTimeDelta();
 	static Engine* getInstance();
 	Window* getWindow();
 
@@ -32,6 +33,7 @@ private:
 	SystemManager &systemManager;
 	std::string title;
 	static double currentTime;
+	static double currentTimeDelta;
 	static Engine *instance;
 	double lastFrame;
 	bool shouldShutdown = false;

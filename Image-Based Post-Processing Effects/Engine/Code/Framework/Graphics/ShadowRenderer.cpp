@@ -302,7 +302,7 @@ void ShadowRenderer::createFboAttachments(const std::pair<unsigned int, unsigned
 	glErrorCheck("");
 }
 
-void ShadowRenderer::blur(const GLuint &_textureToBlur)
+void ShadowRenderer::blur(GLuint _textureToBlur)
 {
 	glDrawBuffer(GL_COLOR_ATTACHMENT1);
 	glActiveTexture(GL_TEXTURE0);

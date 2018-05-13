@@ -15,7 +15,7 @@ namespace gli
 class Texture
 {
 public:
-	static std::shared_ptr<Texture> createTexture(const GLuint &_id, const GLenum &_target);
+	static std::shared_ptr<Texture> createTexture(GLuint _id, GLenum _target);
 	static std::shared_ptr<Texture> createTexture(const std::string &_filename, bool _instantLoading = false);
 	static void setAnisotropicFilteringAll(float _anisotropicFiltering);
 
@@ -39,7 +39,7 @@ private:
 	GLenum target;
 
 
-	explicit Texture(const GLuint &_id, const GLenum &_target);
+	explicit Texture(GLuint _id, GLenum _target);
 	explicit Texture(const std::string &_filename, bool _instantLoading = false);
 	void initOpenGL(const gli::texture &_file);
 	void initOpenGLFromData(PackedJobTexture *texture);

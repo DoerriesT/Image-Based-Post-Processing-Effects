@@ -147,7 +147,7 @@ std::vector<std::pair<unsigned int, unsigned int>> Window::getSupportedResolutio
 	return windowFramework->getSupportedResolutions();
 }
 
-void Window::onResize(const unsigned int &width, const unsigned int &height)
+void Window::onResize(unsigned int width, unsigned int height)
 {
 	if (width != 0 && height != 0)
 	{

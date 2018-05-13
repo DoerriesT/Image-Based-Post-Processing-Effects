@@ -19,12 +19,12 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 
 void charCallback(GLFWwindow *window, unsigned int codepoint);
 
-WindowFramework::WindowFramework(const std::string &_title, const unsigned int &_width, const unsigned int &_height, bool _vsync, const WindowMode &_windowMode)
+WindowFramework::WindowFramework(const std::string &_title, unsigned int _width, unsigned int _height, bool _vsync, const WindowMode &_windowMode)
 	:title(_title), selectedResolution(std::make_pair(_width, _height)), currentResolution(&selectedResolution), vsync(_vsync), windowMode(_windowMode)
 {
 };
 
-std::shared_ptr<WindowFramework> WindowFramework::createWindowFramework(const std::string &_title, const unsigned int &_width, const unsigned int &_height, bool _vsync, const WindowMode &_windowMode)
+std::shared_ptr<WindowFramework> WindowFramework::createWindowFramework(const std::string &_title, unsigned int _width, unsigned int _height, bool _vsync, const WindowMode &_windowMode)
 {
 	return std::shared_ptr<WindowFramework>(new WindowFramework(_title, _width, _height, _vsync, _windowMode));
 }

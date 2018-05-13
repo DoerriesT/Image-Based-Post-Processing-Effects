@@ -18,7 +18,7 @@ public:
 	PostProcessRenderer &operator= (const PostProcessRenderer &&) = delete;
 	~PostProcessRenderer();
 	void init();
-	void render(const Effects &_effects, const GLuint &_colorTexture, const GLuint &_depthTexture, const std::shared_ptr<Camera> &_camera);
+	void render(const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera);
 	void resize(const std::pair<unsigned int, unsigned int> &_resolution);
 	GLuint getFinishedTexture() const;
 
@@ -87,9 +87,12 @@ private:
 	Uniform<glm::mat3> uLensStarMatrixH = Uniform<glm::mat3>("uLensStarMatrix");
 	Uniform<GLboolean> uLensFlaresH = Uniform<GLboolean>("uLensFlares");
 	Uniform<GLboolean> uBloomH = Uniform<GLboolean>("uBloom");
+	Uniform<GLboolean> uMotionBlurH = Uniform<GLboolean>("uMotionBlur");
 	Uniform<GLfloat> uBloomStrengthH = Uniform<GLfloat>("uBloomStrength");
 	Uniform<GLfloat> uBloomDirtStrengthH = Uniform<GLfloat>("uBloomDirtStrength");
 	Uniform<GLfloat> uExposureH = Uniform<GLfloat>("uExposure");
+	Uniform<GLint> uVelocityTextureH = Uniform<GLint>("uVelocityTexture");
+	Uniform<GLfloat> uVelocityScaleH = Uniform<GLfloat>("uVelocityScale");
 	
 	// fxaa uniforms
 	Uniform<GLint> uScreenTextureF = Uniform<GLint>("uScreenTexture");
@@ -121,9 +124,10 @@ private:
 	Uniform<GLboolean> uAddPreviousBU = Uniform<GLboolean>("uAddPrevious");
 	Uniform<glm::vec2> uRadiusBU = Uniform<glm::vec2>("uRadius");
 
+
 	void fxaa(float _subPixelAA, float _edgeThreshold, float _edgeThresholdMin);
 	void singlePassEffects(const Effects &_effects);
-	void downsample(const GLuint &_colorTexture);
+	void downsample(GLuint _colorTexture);
 	void upsample();
 	void generateFlares(const Effects &_effects);
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
