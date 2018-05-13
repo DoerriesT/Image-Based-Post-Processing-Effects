@@ -23,6 +23,22 @@ namespace App
 			glm::vec2 mouseDelta = userInput.getMousePosDelta();
 			camera->rotate(glm::vec3(mouseDelta.y * 0.002f, mouseDelta.x * 0.002f, 0.0));
 		}
+		if (userInput.isKeyPressed(INPUT_KEY_UP))
+		{
+			camera->rotate(glm::vec3(-_timeDelta, 0.0f , 0.0));
+		}
+		if (userInput.isKeyPressed(INPUT_KEY_DOWN))
+		{
+			camera->rotate(glm::vec3(_timeDelta, 0.0f, 0.0));
+		}
+		if (userInput.isKeyPressed(INPUT_KEY_LEFT))
+		{
+			camera->rotate(glm::vec3(0.0f, -_timeDelta,  0.0));
+		}
+		if (userInput.isKeyPressed(INPUT_KEY_RIGHT))
+		{
+			camera->rotate(glm::vec3(0.0f, _timeDelta, 0.0));
+		}
 
 		glm::vec3 cameraTranslation;
 		bool pressed = false;

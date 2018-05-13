@@ -162,6 +162,8 @@ void SceneRenderer::init()
 	uAlbedoMapB.create(skyboxShader);
 	uColorB.create(skyboxShader);
 	uHasAlbedoMapB.create(skyboxShader);
+	uTransformB.create(skyboxShader);
+	uPrevTransformB.create(skyboxShader);
 
 	// transparency uniforms
 	uModelViewProjectionMatrixT.create(transparencyShader);
@@ -805,6 +807,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 void SceneRenderer::renderSkybox(const RenderData &_renderData, const std::shared_ptr<Level> &_level)
 {
 	static const glm::vec4 DEFAULT_ALBEDO_COLOR(1.0);
+	static glm::mat4 prevTransform;
 
 	fullscreenTriangle->enableVertexAttribArrays();
 	skyboxShader->bind();
@@ -829,7 +832,12 @@ void SceneRenderer::renderSkybox(const RenderData &_renderData, const std::share
 		mvpMatrix *= glm::mat4_cast(transformationComponent->rotation);
 	}
 
+	uTransformB.set(mvpMatrix);
+	uPrevTransformB.set(prevTransform);
 	uInverseModelViewProjectionB.set(glm::inverse(mvpMatrix));
+
+	prevTransform = mvpMatrix;
+
 	fullscreenTriangle->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 }

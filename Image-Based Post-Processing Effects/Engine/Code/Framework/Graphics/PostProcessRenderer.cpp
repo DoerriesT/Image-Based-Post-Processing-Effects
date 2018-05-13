@@ -217,8 +217,8 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	uBloomStrengthH.set(_effects.bloom.strength);
 	uBloomDirtStrengthH.set(_effects.bloom.lensDirtStrength);
 	uExposureH.set(_effects.exposure);
-	uMotionBlurH.set(false);
-	uVelocityScaleH.set((float)Engine::getCurrentTimeDelta() / 0.001666f);
+	uMotionBlurH.set(true);
+	uVelocityScaleH.set((float)Engine::getCurrentFps() / 60.0f);
 
 	fullscreenTriangle->render();
 

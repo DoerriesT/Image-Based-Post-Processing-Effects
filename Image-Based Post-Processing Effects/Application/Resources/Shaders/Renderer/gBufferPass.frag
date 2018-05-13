@@ -105,5 +105,7 @@ void main()
 
 	vec2 a = (vCurrentPos.xy / vCurrentPos.w);
     vec2 b = (vPrevPos.xy / vPrevPos.w);
-	oVelocity = vec4(a - b, 0.0, 0.0); //vec4(pow((a - b) * 0.5 + 0.5, vec2(3.0)), 0.0, 0.0);
+	vec2 v = abs(a - b);
+	//v = pow(v, vec2(3.0));
+	oVelocity = vec4(v, 0.0, 0.0); // vec4(a - b, 0.0, 0.0); //vec4(pow((a - b) * 0.5 + 0.5, vec2(3.0)), 0.0, 0.0);
 }

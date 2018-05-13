@@ -5,13 +5,14 @@
 #include ".\..\IOnEntityDestructionListener.h"
 #include ".\..\System.h"
 #include ".\..\..\Graphics\Scene.h"
-#include ".\..\..\Settings.h"
 #include ".\..\..\Graphics\Effects.h"
 
 class GraphicsFramework;
 class Window;
 class Camera;
 class EntityManager;
+template<typename Type>
+class Setting;
 
 class RenderSystem : public System<RenderSystem>, IOnComponentAddedListener, IOnComponentRemovedListener, IOnEntityDestructionListener
 {

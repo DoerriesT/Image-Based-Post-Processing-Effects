@@ -18,7 +18,7 @@ uniform float uBloomDirtStrength = 0.5;
 uniform float uExposure = 1.0;
 uniform float uVelocityScale;
 
-const float MAX_SAMPLES = 12.0;
+const float MAX_SAMPLES = 32.0;
 
 
 const float A = 0.15; // shoulder strength
@@ -42,10 +42,12 @@ void main()
 	{
 		vec2 texelSize = 1.0/vec2(textureSize(uScreenTexture, 0));
 	
-		vec2 velocity = texture(uVelocityTexture, vTexCoord).rg * uVelocityScale;
+		vec2 velocity = texture(uVelocityTexture, vTexCoord).rg;
+		//velocity = pow(velocity, vec2(1.0 / 3.0));
+		velocity *= 2.0 * uVelocityScale;
 
 		float speed = length(velocity / texelSize);
-		float sampleCount = clamp(speed, 1.0, MAX_SAMPLES);
+		float sampleCount = MAX_SAMPLES;//clamp(speed, 1.0, MAX_SAMPLES);
 		
 		for (float i = 1; i < sampleCount; ++i) 
 		{

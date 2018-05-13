@@ -18,6 +18,7 @@ public:
 	void shutdown();
 	static double getCurrentTime();
 	static double getCurrentTimeDelta();
+	static double getCurrentFps();
 	static Engine* getInstance();
 	Window* getWindow();
 

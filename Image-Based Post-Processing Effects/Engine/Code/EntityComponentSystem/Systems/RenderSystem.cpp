@@ -13,6 +13,7 @@
 #include "Level.h"
 #include ".\..\SystemManager.h"
 #include ".\..\..\Graphics\EntityRenderData.h"
+#include ".\..\..\Settings.h"
 
 RenderSystem::RenderSystem(std::shared_ptr<Window> _window)
 	:graphicsFramework(new GraphicsFramework(_window)), 

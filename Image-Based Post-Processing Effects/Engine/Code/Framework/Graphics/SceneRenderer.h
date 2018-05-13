@@ -100,6 +100,8 @@ private:
 
 	// skybox uniforms
 	Uniform<glm::mat4> uInverseModelViewProjectionB = Uniform<glm::mat4>("uInverseModelViewProjection");
+	Uniform<glm::mat4> uTransformB = Uniform<glm::mat4>("uTransform");
+	Uniform<glm::mat4> uPrevTransformB = Uniform<glm::mat4>("uPrevTransform");
 	Uniform<GLint> uAlbedoMapB = Uniform<GLint>("uAlbedoMap");
 	Uniform<glm::vec4> uColorB = Uniform<glm::vec4>("uColor");
 	Uniform<GLboolean> uHasAlbedoMapB = Uniform<GLboolean>("uHasAlbedoMap");

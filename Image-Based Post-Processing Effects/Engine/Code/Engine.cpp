@@ -64,6 +64,11 @@ double Engine::getCurrentTimeDelta()
 	return currentTimeDelta;
 }
 
+double Engine::getCurrentFps()
+{
+	return 1.0 / currentTimeDelta;
+}
+
 Engine* Engine::getInstance()
 {
 	return instance;
@@ -149,7 +154,7 @@ void Engine::render()
 	if (difference > 1.0 && showFps->get())
 	{
 		fps /= difference;
-		window->setTitle(title + " - " + std::to_string(fps) + " FPS " + std::to_string(1.0/fps*1000.0) + " ms");
+		window->setTitle(title + " - " + std::to_string(fps) + " FPS " + std::to_string(1.0 / fps*1000.0) + " ms");
 		lastFpsMeasure = currentTime;
 		fps = 0;
 	}

@@ -109,7 +109,7 @@ std::shared_ptr<Level> App::loadLevel()
 				entityManager.addComponent<TransformationComponent>(teapotEntity, position, glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(1.0f));
 				entityManager.addComponent<RenderableComponent>(teapotEntity);
 
-				float speed = dist1(e);
+				float speed = dist1(e) * 0.5f;
 
 				std::vector<PathSegment> pathSegments;
 				pathSegments.push_back(PathSegment(
