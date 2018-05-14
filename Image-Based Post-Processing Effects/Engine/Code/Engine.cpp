@@ -94,7 +94,14 @@ bool Engine::isFunctionQueueEmpty()
 int Engine::getMaxAnisotropicFiltering()
 {
 	int aa = 1;
-	glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &aa);
+	if (GLAD_GL_EXT_texture_filter_anisotropic)
+	{
+		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aa);
+	}
+	else
+	{
+		std::cout << "OpenGL extension GL_EXT_texture_filter_anisotropic is not supported!" << std::endl;
+	}
 	return aa;
 }
 
