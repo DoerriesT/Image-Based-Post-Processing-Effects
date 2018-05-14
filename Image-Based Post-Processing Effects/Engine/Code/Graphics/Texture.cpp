@@ -168,15 +168,8 @@ void Texture::setAnisotropicFilteringAll(float _anisotropicFiltering)
 
 void Texture::setAnisotropicFiltering(float _anisotropicFiltering)
 {
-	if (GLAD_GL_EXT_texture_filter_anisotropic)
-	{
-		glBindTexture(target, id);
-		glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, static_cast<GLfloat>(_anisotropicFiltering));
-	}
-	else
-	{
-		std::cout << "OpenGL extension GL_EXT_texture_filter_anisotropic is not supported!" << std::endl;
-	}
+	glBindTexture(target, id);
+	glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY, static_cast<GLfloat>(_anisotropicFiltering));
 }
 
 void Texture::initOpenGL(const gli::texture &_file)
@@ -220,51 +213,51 @@ void Texture::initOpenGL(const gli::texture &_file)
 
 				switch (texture.target())
 				{
-					case gli::TARGET_1D:
+				case gli::TARGET_1D:
+				{
+					if (gli::is_compressed(texture.format()))
 					{
-						if (gli::is_compressed(texture.format()))
-						{
-							glCompressedTexImage1D(textureType, format.Internal, static_cast<GLint>(level), 0, extent.x, static_cast<GLsizei>(texture.size(level)), texture.data(layer, face, level));
-						}
-						else
-						{
-							glTexImage1D(textureType, static_cast<GLint>(level), format.Internal, extent.x, 0, format.External, format.Type, texture.data(layer, face, level));
-						}
-						break;
+						glCompressedTexImage1D(textureType, format.Internal, static_cast<GLint>(level), 0, extent.x, static_cast<GLsizei>(texture.size(level)), texture.data(layer, face, level));
 					}
-					case gli::TARGET_1D_ARRAY:
-					case gli::TARGET_2D:
-					case gli::TARGET_CUBE:
+					else
 					{
-						if (gli::is_compressed(texture.format()))
-						{
-							glCompressedTexImage2D(textureType, static_cast<GLint>(level), format.Internal, extent.x, texture.target() == gli::TARGET_1D_ARRAY ? LayerGL : extent.y, 0, static_cast<GLsizei>(texture.size(level)), texture.data(layer, face, level));
-						}
-						else
-						{
-							glTexImage2D(textureType, static_cast<GLint>(level), format.Internal, extent.x, texture.target() == gli::TARGET_1D_ARRAY ? LayerGL : extent.y, 0, format.External, format.Type, texture.data(layer, face, level));
-						}
-						break;
+						glTexImage1D(textureType, static_cast<GLint>(level), format.Internal, extent.x, 0, format.External, format.Type, texture.data(layer, face, level));
 					}
-					case gli::TARGET_2D_ARRAY:
-					case gli::TARGET_3D:
-					case gli::TARGET_CUBE_ARRAY:
+					break;
+				}
+				case gli::TARGET_1D_ARRAY:
+				case gli::TARGET_2D:
+				case gli::TARGET_CUBE:
+				{
+					if (gli::is_compressed(texture.format()))
 					{
-						if (gli::is_compressed(texture.format()))
-						{
-							glCompressedTexImage3D(textureType, static_cast<GLint>(level), format.Internal, extent.x, extent.y, texture.target() == gli::TARGET_3D ? extent.z : LayerGL, 0, static_cast<GLsizei>(texture.size(level)), texture.data(layer, face, level));
-						}
-						else
-						{
-							glTexImage3D(textureType, static_cast<GLint>(level), format.Internal, extent.x, extent.y, texture.target() == gli::TARGET_3D ? extent.z : LayerGL, 0, format.External, format.Type, texture.data(layer, face, level));
-						}
-						break;
+						glCompressedTexImage2D(textureType, static_cast<GLint>(level), format.Internal, extent.x, texture.target() == gli::TARGET_1D_ARRAY ? LayerGL : extent.y, 0, static_cast<GLsizei>(texture.size(level)), texture.data(layer, face, level));
 					}
-					default:
+					else
 					{
-						assert(false);
-						break;
+						glTexImage2D(textureType, static_cast<GLint>(level), format.Internal, extent.x, texture.target() == gli::TARGET_1D_ARRAY ? LayerGL : extent.y, 0, format.External, format.Type, texture.data(layer, face, level));
 					}
+					break;
+				}
+				case gli::TARGET_2D_ARRAY:
+				case gli::TARGET_3D:
+				case gli::TARGET_CUBE_ARRAY:
+				{
+					if (gli::is_compressed(texture.format()))
+					{
+						glCompressedTexImage3D(textureType, static_cast<GLint>(level), format.Internal, extent.x, extent.y, texture.target() == gli::TARGET_3D ? extent.z : LayerGL, 0, static_cast<GLsizei>(texture.size(level)), texture.data(layer, face, level));
+					}
+					else
+					{
+						glTexImage3D(textureType, static_cast<GLint>(level), format.Internal, extent.x, extent.y, texture.target() == gli::TARGET_3D ? extent.z : LayerGL, 0, format.External, format.Type, texture.data(layer, face, level));
+					}
+					break;
+				}
+				default:
+				{
+					assert(false);
+					break;
+				}
 				}
 			}
 		}
@@ -284,15 +277,15 @@ void Texture::initOpenGLFromData(PackedJobTexture *texture)
 
 	switch (texture->channels)
 	{
-		case 4:
-			format = GL_RGBA;
-			break;
-		case 3:
-			format = GL_RGB;
-			break;
-		default:
-			format = GL_RED;
-			break;
+	case 4:
+		format = GL_RGBA;
+		break;
+	case 3:
+		format = GL_RGB;
+		break;
+	default:
+		format = GL_RED;
+		break;
 	}
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
