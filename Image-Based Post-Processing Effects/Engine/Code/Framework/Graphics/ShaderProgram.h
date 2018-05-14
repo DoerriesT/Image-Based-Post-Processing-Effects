@@ -20,6 +20,7 @@ class ShaderProgram
 {
 public:
 	static std::shared_ptr<ShaderProgram> createShaderProgram(const char *_vertexShaderPath, const char *_fragmentShaderPath, const char *_geometryShaderPath = nullptr);
+	static std::shared_ptr<ShaderProgram> createShaderProgram(const char *_computeShaderPath);
 
 	ShaderProgram(const ShaderProgram &) = delete;
 	ShaderProgram(const ShaderProgram &&) = delete;
@@ -56,4 +57,7 @@ private:
 #endif // DEBUG
 
 	explicit ShaderProgram(const char *_vertexShaderPath, const char *_fragmentShaderPath, const char *_geometryShaderPath = nullptr);
+	explicit ShaderProgram(const char *_computeShaderPath);
+	GLuint createShader(GLenum _type, const char *_shaderPath);
+	void statusCheck(GLenum _type);
 };
