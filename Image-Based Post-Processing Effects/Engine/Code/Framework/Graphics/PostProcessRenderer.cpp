@@ -64,6 +64,8 @@ void PostProcessRenderer::init()
 	lensFlareBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/lensFlareBlur.frag");
 	downsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/downsample.frag");
 	upsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/upsample.frag");
+	velocityTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/velocityTileMax.frag");
+	velocityNeighborTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/velocityNeighborTileMax.frag");
 
 	// create uniforms
 
@@ -91,6 +93,8 @@ void PostProcessRenderer::init()
 	uVelocityTextureH.create(hdrShader);
 	uVelocityScaleH.create(hdrShader);
 	uMotionBlurH.create(hdrShader);
+	uVelocityNeighborMaxTextureH.create(hdrShader);
+	uDepthTextureH.create(hdrShader);
 
 	// fxaa
 	uScreenTextureF.create(fxaaShader);
@@ -122,6 +126,14 @@ void PostProcessRenderer::init()
 	uAddPreviousBU.create(upsampleShader);
 	uRadiusBU.create(upsampleShader);
 
+	// velocity tile max
+	uVelocityTextureVTM.create(velocityTileMaxShader);
+	uDirectionVTM.create(velocityTileMaxShader);
+	uTileSizeVTM.create(velocityTileMaxShader);
+
+	// velocity neighbor tile max
+	uVelocityTextureVNTM.create(velocityNeighborTileMaxShader);
+
 	// create FBO
 	glGenFramebuffers(1, &fullResolutionFbo);
 	glGenFramebuffers(1, &halfResolutionFbo);
@@ -130,6 +142,7 @@ void PostProcessRenderer::init()
 	glGenFramebuffers(1, &resolution16Fbo);
 	glGenFramebuffers(1, &resolution32Fbo);
 	glGenFramebuffers(1, &resolution64Fbo);
+	glGenFramebuffers(1, &velocityFbo);
 	createFboAttachments(std::make_pair(window->getWidth(), window->getHeight()));
 
 	// load textures
@@ -139,6 +152,8 @@ void PostProcessRenderer::init()
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.obj", true);
 }
+
+bool mb = false;
 
 void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {
@@ -185,6 +200,53 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 		}
 	}
 
+	if (true)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, velocityFbo);
+		glActiveTexture(GL_TEXTURE0);
+
+		// tile max
+		{
+			velocityTileMaxShader->bind();
+
+			uVelocityTextureVTM.set(0);
+			uTileSizeVTM.set(20);
+
+			// fullscreen to first step
+			{
+				glBindTexture(GL_TEXTURE_2D, _velocityTexture);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityTexTmp, 0);
+
+				uDirectionVTM.set(false);
+
+				fullscreenTriangle->render();
+			}
+
+			// first to second step
+			{
+				glBindTexture(GL_TEXTURE_2D, velocityTexTmp);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityMaxTex, 0);
+
+				uDirectionVTM.set(true);
+
+				fullscreenTriangle->render();
+			}
+		}
+		
+		// tile neighbor max
+		{
+			velocityNeighborTileMaxShader->bind();
+
+			uVelocityTextureVNTM.set(0);
+
+			glBindTexture(GL_TEXTURE_2D, velocityMaxTex);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityNeighborMaxTex, 0);
+
+			fullscreenTriangle->render();
+		}
+		
+	}
+
 	// combine and tonemap
 	glBindFramebuffer(GL_FRAMEBUFFER, fullResolutionFbo);
 	glViewport(0, 0, window->getWidth(), window->getHeight());
@@ -202,6 +264,10 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	glBindTexture(GL_TEXTURE_2D, lensStarTexture->getId());
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, _velocityTexture);
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, velocityNeighborMaxTex);
+	glActiveTexture(GL_TEXTURE7);
+	glBindTexture(GL_TEXTURE_2D, _depthTexture);
 
 	hdrShader->bind();
 	uScreenTextureH.set(0);
@@ -210,6 +276,8 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	uLensDirtTexH.set(3);
 	uLensStarTexH.set(4);
 	uVelocityTextureH.set(5);
+	uVelocityNeighborMaxTextureH.set(6);
+	uDepthTextureH.set(7);
 
 	uLensStarMatrixH.set(lensStarMatrix);
 	uLensFlaresH.set(_effects.lensFlares.enabled);
@@ -217,7 +285,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	uBloomStrengthH.set(_effects.bloom.strength);
 	uBloomDirtStrengthH.set(_effects.bloom.lensDirtStrength);
 	uExposureH.set(_effects.exposure);
-	uMotionBlurH.set(true);
+	uMotionBlurH.set(2);
 	uVelocityScaleH.set((float)Engine::getCurrentFps() / 60.0f);
 
 	fullscreenTriangle->render();
@@ -695,6 +763,42 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
 			std::cout << "1/64 Res Framebuffer not complete!" << std::endl;
+		}
+	}
+
+	// velocity
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, velocityFbo);
+
+		glGenTextures(1, &velocityTexTmp);
+		glBindTexture(GL_TEXTURE_2D, velocityTexTmp);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, _resolution.first / 20, _resolution.second, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityTexTmp, 0);
+
+		glGenTextures(1, &velocityMaxTex);
+		glBindTexture(GL_TEXTURE_2D, velocityMaxTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, _resolution.first / 20, _resolution.second / 20, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glGenTextures(1, &velocityNeighborMaxTex);
+		glBindTexture(GL_TEXTURE_2D, velocityNeighborMaxTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, _resolution.first / 20, _resolution.second / 20, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			std::cout << "velocity Framebuffer not complete!" << std::endl;
 		}
 	}
 

@@ -30,6 +30,8 @@ private:
 	std::shared_ptr<ShaderProgram> lensFlareBlurShader;
 	std::shared_ptr<ShaderProgram> downsampleShader;
 	std::shared_ptr<ShaderProgram> upsampleShader;
+	std::shared_ptr<ShaderProgram> velocityTileMaxShader;
+	std::shared_ptr<ShaderProgram> velocityNeighborTileMaxShader;
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Texture> lensColorTexture;
@@ -69,6 +71,11 @@ private:
 	GLuint resolution64HdrTexA;
 	GLuint resolution64HdrTexB;
 
+	GLuint velocityFbo;
+	GLuint velocityTexTmp;
+	GLuint velocityMaxTex;
+	GLuint velocityNeighborMaxTex;
+
 	// single pass effects uniforms
 	Uniform<GLint> uScreenTextureS = Uniform<GLint>("uScreenTexture");
 	Uniform<GLfloat> uTimeS = Uniform<GLfloat>("uTime");
@@ -87,11 +94,13 @@ private:
 	Uniform<glm::mat3> uLensStarMatrixH = Uniform<glm::mat3>("uLensStarMatrix");
 	Uniform<GLboolean> uLensFlaresH = Uniform<GLboolean>("uLensFlares");
 	Uniform<GLboolean> uBloomH = Uniform<GLboolean>("uBloom");
-	Uniform<GLboolean> uMotionBlurH = Uniform<GLboolean>("uMotionBlur");
+	Uniform<GLint> uMotionBlurH = Uniform<GLint>("uMotionBlur");
 	Uniform<GLfloat> uBloomStrengthH = Uniform<GLfloat>("uBloomStrength");
 	Uniform<GLfloat> uBloomDirtStrengthH = Uniform<GLfloat>("uBloomDirtStrength");
 	Uniform<GLfloat> uExposureH = Uniform<GLfloat>("uExposure");
 	Uniform<GLint> uVelocityTextureH = Uniform<GLint>("uVelocityTexture");
+	Uniform<GLint> uVelocityNeighborMaxTextureH = Uniform<GLint>("uVelocityNeighborMaxTexture");
+	Uniform<GLint> uDepthTextureH = Uniform<GLint>("uDepthTexture");
 	Uniform<GLfloat> uVelocityScaleH = Uniform<GLfloat>("uVelocityScale");
 	
 	// fxaa uniforms
@@ -123,6 +132,14 @@ private:
 	Uniform<GLint> uPreviousBlurredTextureBU = Uniform<GLint>("uPreviousBlurredTexture");
 	Uniform<GLboolean> uAddPreviousBU = Uniform<GLboolean>("uAddPrevious");
 	Uniform<glm::vec2> uRadiusBU = Uniform<glm::vec2>("uRadius");
+
+	// velocity tile max
+	Uniform<GLint> uVelocityTextureVTM = Uniform<GLint>("uVelocityTexture");
+	Uniform<GLboolean> uDirectionVTM = Uniform<GLboolean>("uDirection");
+	Uniform<GLint> uTileSizeVTM = Uniform<GLint>("uTileSize");
+
+	// velocity neighbor tile max
+	Uniform<GLint> uVelocityTextureVNTM = Uniform<GLint>("uVelocityTexture");
 
 
 	void fxaa(float _subPixelAA, float _edgeThreshold, float _edgeThresholdMin);

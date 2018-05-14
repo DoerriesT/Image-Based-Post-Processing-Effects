@@ -678,5 +678,11 @@
     <None Include="..\Application\Resources\Shaders\Water\water.vert">
       <Filter>Resources\Shaders\Water</Filter>
     </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\velocityNeighborTileMax.frag">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\velocityTileMax.frag">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
   </ItemGroup>
 </Project>

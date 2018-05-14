@@ -192,6 +192,8 @@
     <None Include="..\Application\Resources\Shaders\PostProcess\lensFlareGen.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\singlePassEffects.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\upsample.frag" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\velocityNeighborTileMax.frag" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\velocityTileMax.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\directionalLightPass.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\gBufferPass.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\gBufferPass.vert" />
