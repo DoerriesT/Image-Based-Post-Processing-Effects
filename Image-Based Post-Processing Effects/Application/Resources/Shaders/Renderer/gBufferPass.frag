@@ -38,10 +38,10 @@ struct Material
 
 uniform Material uMaterial;
 uniform float uFps = 60.0;
-uniform float uExposureTime = 0.2;
+uniform float uExposureTime = 0.1;
 uniform float uHalfFragmentDimension = 0.000625;
 
-const float MAX_VELOCITY = 20.0;
+const float MAX_VELOCITY = 10.0;
 
 vec2 encode (vec3 n)
 {

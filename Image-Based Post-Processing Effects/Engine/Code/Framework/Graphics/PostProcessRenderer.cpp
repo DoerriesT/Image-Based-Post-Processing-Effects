@@ -214,6 +214,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 
 			// fullscreen to first step
 			{
+				glViewport(0, 0, window->getWidth() / 20, window->getHeight());
 				glBindTexture(GL_TEXTURE_2D, _velocityTexture);
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityTexTmp, 0);
 
@@ -224,6 +225,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 
 			// first to second step
 			{
+				glViewport(0, 0, window->getWidth() / 20, window->getHeight() / 20);
 				glBindTexture(GL_TEXTURE_2D, velocityTexTmp);
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityMaxTex, 0);
 
@@ -232,7 +234,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 				fullscreenTriangle->render();
 			}
 		}
-		
+
 		// tile neighbor max
 		{
 			velocityNeighborTileMaxShader->bind();
@@ -244,7 +246,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 
 			fullscreenTriangle->render();
 		}
-		
+
 	}
 
 	// combine and tonemap
@@ -794,7 +796,7 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		
+
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{

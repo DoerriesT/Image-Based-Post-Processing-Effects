@@ -21,18 +21,14 @@ void vMax(vec2 velocity, inout vec2 maxVelocity, inout float maxMagnitude)
 void main()
 {
 	vec2 texelSize = vec2(1.0 / textureSize(uVelocityTexture, 0));
-
-	vec2 texCoord = vTexCoord;
 	
 	if(uDirection)
 	{
 		texelSize.x = 0.0;
-		texCoord *= 20.0;
 	}
 	else
 	{
 		texelSize.y = 0.0;
-		texCoord.x *= 20.0;
 	}
 	
 	vec2 maxVelocity = vec2(0.0);
@@ -40,7 +36,7 @@ void main()
 	
 	for(int i = 0; i < uTileSize; ++i)
 	{
-		vMax(texture(uVelocityTexture, texCoord + i * texelSize).rg, maxVelocity, maxMagnitude);
+		vMax(texture(uVelocityTexture, vTexCoord + i * texelSize).rg, maxVelocity, maxMagnitude);
 	}
 	
 	oColor = vec4(maxVelocity, 0.0, 0.0);

@@ -28,5 +28,5 @@ void main()
 
 	vec2 v = abs(ray.xy - previous.xy);
 	//v = pow(v, vec2(3.0));
-	oVelocity = vec4(v, 0.0, 0.0);
+	oVelocity = vec4(0.0, 0.0, 0.0, 0.0);
 }
