@@ -780,13 +780,14 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		}
 
 		glm::mat4 mvpTransformation = _renderData.viewProjectionMatrix * modelMatrix;
+		glm::mat4 prevTransformation = glm::mix(_renderData.viewProjectionMatrix, _renderData.prevViewProjectionMatrix, 0.15f) * entityRenderData->transformationComponent->prevTransformation;
 		
 		uAtlasDataG.set(glm::vec4(columns, rows, textureOffset));
 		uModelMatrixG.set(modelMatrix);
 		uModelViewProjectionMatrixG.set(mvpTransformation);
-		uPrevTransformG.set(entityRenderData->transformationComponent->prevTransformation);
+		uPrevTransformG.set(prevTransformation);
 
-		entityRenderData->transformationComponent->prevTransformation = mvpTransformation;
+		entityRenderData->transformationComponent->prevTransformation = modelMatrix;
 
 		if (entityRenderData->outlineComponent)
 		{
@@ -1095,13 +1096,14 @@ void SceneRenderer::renderTransparentGeometry(const RenderData &_renderData, con
 		}
 
 		glm::mat4 mvpTransform = _renderData.viewProjectionMatrix * modelMatrix;
+		glm::mat4 prevTransformation = glm::mix(_renderData.viewProjectionMatrix, _renderData.prevViewProjectionMatrix, 0.15f) * entityRenderData->transformationComponent->prevTransformation;
 
 		uAtlasDataT.set(glm::vec4(columns, rows, textureOffset));
 		uModelMatrixT.set(modelMatrix);
 		uModelViewProjectionMatrixT.set(mvpTransform);
-		uPrevTransformT.set(entityRenderData->transformationComponent->prevTransformation);
+		uPrevTransformT.set(prevTransformation);
 
-		entityRenderData->transformationComponent->prevTransformation = mvpTransform;
+		entityRenderData->transformationComponent->prevTransformation = modelMatrix;
 
 		if (entityRenderData->outlineComponent)
 		{

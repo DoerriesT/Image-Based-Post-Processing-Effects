@@ -69,6 +69,8 @@ void GraphicsFramework::init()
 
 void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
 {
+	static glm::mat4 prevViewProjectionMatrix;
+
 	RenderData renderData;
 	renderData.projectionMatrix = window->getProjectionMatrix();
 	renderData.invProjectionMatrix = glm::inverse(renderData.projectionMatrix);
@@ -76,11 +78,14 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 	renderData.invViewMatrix = glm::inverse(renderData.viewMatrix);
 	renderData.viewProjectionMatrix = renderData.projectionMatrix * renderData.viewMatrix;
 	renderData.invViewProjectionMatrix = glm::inverse(renderData.viewProjectionMatrix);
+	renderData.prevViewProjectionMatrix = prevViewProjectionMatrix;
 	renderData.resolution = std::make_pair(window->getWidth(), window->getHeight());
 	renderData.shadows = _effects.shadowQuality != ShadowQuality::OFF;
 	renderData.time = (float)Engine::getCurrentTime();
 	renderData.cameraPosition = _camera->getPosition();
 	renderData.fov = window->getFieldOfView();
+
+	prevViewProjectionMatrix = renderData.viewProjectionMatrix;
 
 	if (renderData.shadows)
 	{
