@@ -110,6 +110,7 @@ private:
 	Uniform<glm::mat4> uModelViewProjectionMatrixG = Uniform<glm::mat4>("uModelViewProjectionMatrix");
 	Uniform<glm::mat4> uPrevTransformG = Uniform<glm::mat4>("uPrevTransform");
 	Uniform<glm::vec4> uAtlasDataG = Uniform<glm::vec4>("uAtlasData");
+	Uniform<glm::vec2> uVelG = Uniform<glm::vec2>("uVel");
 	UniformMaterial uMaterialG = UniformMaterial("uMaterial");
 
 	// outline uniforms

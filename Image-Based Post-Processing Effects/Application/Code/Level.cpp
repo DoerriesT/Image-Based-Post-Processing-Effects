@@ -131,6 +131,13 @@ std::shared_ptr<Level> App::loadLevel()
 			}
 		}
 
+		/*const Entity *teapotEntity = entityManager.createEntity();
+		level->entityMap["teapot"] = teapotEntity;
+		entityManager.addComponent<ModelComponent>(teapotEntity, std::vector<std::pair<std::string, Material>>({ std::make_pair("Resources/Models/teapot.obj", Material(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 0.0f, 0.0f)) }));
+		auto *tc = entityManager.addComponent<TransformationComponent>(teapotEntity, glm::vec3(), glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(1.0f));
+		entityManager.addComponent<RenderableComponent>(teapotEntity);
+
+		tc->vel = glm::vec2(1.0, 0.0);*/
 	}
 
 	level->id = (size_t)0;

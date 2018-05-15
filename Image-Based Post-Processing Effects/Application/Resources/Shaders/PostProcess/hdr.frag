@@ -63,9 +63,9 @@ float linearDepth(vec2 coord)
 
 const float HASHSCALE1 = 443.8975;
 
-float hash13(vec3 p3)
+float hash12(vec2 p)
 {
-	p3  = fract(p3 * HASHSCALE1);
+	vec3 p3  = fract(vec3(p.xyx) * HASHSCALE1);
     p3 += dot(p3, p3.yzx + 19.19);
     return fract((p3.x + p3.y) * p3.z);
 }
@@ -104,14 +104,15 @@ void main()
 		if (neighborMaxMag > (texelSize.x * 0.5))
 		{
 			vec2 velocity = texture(uVelocityTexture, vTexCoord).rg;
-			float weight = 1.0 / max(length(velocity), 0.000001);
+			float weight = 1.0 / length(velocity);
+			weight = mix(weight, 1.0, isinf(weight));
 			vec3 sum = color * weight;
 
-			for(int i = 1; i <= 16; ++i)
+			for(int i = 1; i <= 19; ++i)
 			{
 				for(int j = -1; j < 2; j+=2)
 				{
-					float rnd = clamp(hash13(vTexCoord.xyx), 0.0, 1.0);
+					float rnd = clamp(hash12(vTexCoord), 0.0, 1.0);
 					rnd = rnd * 2.0 - 1.0;
 					float t = mix(-1.0, 1.0, (i + rnd + 1.0) / 17.0);
 					vec2 sampleCoord = vTexCoord + neighborMaxVel * t * j;

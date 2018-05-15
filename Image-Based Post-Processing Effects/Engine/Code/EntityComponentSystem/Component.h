@@ -256,6 +256,7 @@ struct TransformationComponent : public Component<TransformationComponent>
 	glm::quat rotation;
 	glm::vec3 scale;
 	glm::mat4 prevTransformation;
+	glm::vec2 vel;
 
 	static const std::uint64_t FAMILY_ID;
 };

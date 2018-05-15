@@ -92,6 +92,7 @@ void SceneRenderer::init()
 	uModelViewProjectionMatrixG.create(gBufferPassShader);
 	uPrevTransformG.create(gBufferPassShader);
 	uAtlasDataG.create(gBufferPassShader);
+	uVelG.create(gBufferPassShader);
 
 	// outline uniforms
 	uModelViewProjectionMatrixO.create(outlineShader);
@@ -786,6 +787,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		uModelMatrixG.set(modelMatrix);
 		uModelViewProjectionMatrixG.set(mvpTransformation);
 		uPrevTransformG.set(prevTransformation);
+		uVelG.set(entityRenderData->transformationComponent->vel);
 
 		entityRenderData->transformationComponent->prevTransformation = modelMatrix;
 

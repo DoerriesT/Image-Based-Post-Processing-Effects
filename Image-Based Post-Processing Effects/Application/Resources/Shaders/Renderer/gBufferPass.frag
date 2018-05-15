@@ -39,9 +39,10 @@ struct Material
 uniform Material uMaterial;
 uniform float uFps = 60.0;
 uniform float uExposureTime = 0.1;
-uniform float uHalfFragmentDimension = 0.000625;
+uniform float uHalfFragmentDimension = 0.0003125;
+uniform vec2 uVel;
 
-const float MAX_VELOCITY = 10.0;
+const float MAX_VELOCITY = 25 * 0.000625; // tilesize * pixel width
 
 vec2 encode (vec3 n)
 {
@@ -112,9 +113,9 @@ void main()
     vec2 b = (vPrevPos.xy / vPrevPos.w);
 	vec2 v = abs(a - b);
 	v = v * 0.5 * uExposureTime * uFps;
+	//v = uVel;
 	float velocityMagnitude = length(v);
 	v *= clamp(velocityMagnitude, uHalfFragmentDimension, MAX_VELOCITY);
 	v /= velocityMagnitude + 0.000001;
-	//v = pow(v, vec2(3.0));
-	oVelocity = vec4(v, 0.0, 0.0); // vec4(a - b, 0.0, 0.0); //vec4(pow((a - b) * 0.5 + 0.5, vec2(3.0)), 0.0, 0.0);
+	oVelocity = vec4(v, 0.0, 0.0);
 }
