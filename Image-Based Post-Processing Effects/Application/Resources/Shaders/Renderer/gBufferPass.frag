@@ -113,7 +113,7 @@ void main()
     vec2 b = (vPrevPos.xy / vPrevPos.w);
 	vec2 v = abs(a - b);
 	v = v * 0.5 * uExposureTime * uFps;
-	//v = uVel;
+	v = uVel;
 	float velocityMagnitude = length(v);
 	v *= clamp(velocityMagnitude, uHalfFragmentDimension, MAX_VELOCITY);
 	v /= velocityMagnitude + 0.000001;

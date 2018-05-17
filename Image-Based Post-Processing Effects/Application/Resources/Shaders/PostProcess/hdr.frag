@@ -56,9 +56,7 @@ float cylinder(vec2 x, vec2 y, vec2 velocity)
 
 float linearDepth(vec2 coord)
 {
-	float z_b = texture(uDepthTexture, vTexCoord).x;
-    float z_n = 2.0 * z_b - 1.0;
-    return 2.0 * Z_NEAR * Z_FAR / (Z_FAR + Z_NEAR - z_n * (Z_FAR - Z_NEAR));
+	return Z_FAR * Z_NEAR / (Z_FAR + texture(uDepthTexture, vTexCoord).x * (Z_NEAR - Z_FAR));
 }
 
 const float HASHSCALE1 = 443.8975;
