@@ -96,7 +96,8 @@ void main()
 	{
 		vec2 neighborMaxVel = texture(uVelocityNeighborMaxTexture, vTexCoord).rg;
 		float neighborMaxMag = length(neighborMaxVel);
-		vec2 texelSize = 1.0/vec2(textureSize(uScreenTexture, 0));
+		vec2 texSize = vec2(textureSize(uScreenTexture, 0));
+		vec2 texelSize = 1.0 / texSize;
 
 		if (neighborMaxMag > (texelSize.x * 0.5))
 		{
@@ -110,6 +111,7 @@ void main()
 
 			for(int i = 0; i < 19; ++i)
 			{
+				// TODO: avoid this if
 				if ( i == 9)
 				{
 					continue;
@@ -128,8 +130,9 @@ void main()
 							+ cylinder(sampleCoord, vTexCoord, sampleVelocityMag)
 							* cylinder(vTexCoord, sampleCoord, centerVelocityMag)
 							* 2.0;
+
 				weight += alpha;
-				sum += alpha * texture(uScreenTexture, sampleCoord).rgb;
+				sum += alpha * texelFetch(uScreenTexture, ivec2(sampleCoord * texSize), 0).rgb;
 			}
 
 			color = sum / weight;
