@@ -55,7 +55,9 @@ float cylinder(vec2 x, vec2 y, float velocityMag)
 
 float linearDepth(vec2 coord)
 {
-	return Z_FAR * Z_NEAR / (Z_FAR + texture(uDepthTexture, vTexCoord).x * (Z_NEAR - Z_FAR));
+	float z_b = texture(uDepthTexture, coord).x;
+    float z_n = 2.0 * z_b - 1.0;
+    return 2.0 * Z_NEAR * Z_FAR / (Z_FAR + Z_NEAR - z_n * (Z_FAR - Z_NEAR));
 }
 
 const float HASHSCALE1 = 443.8975;
@@ -100,8 +102,7 @@ void main()
 		{
 			vec2 centerVelocity = texture(uVelocityTexture, vTexCoord).rg;
 			float centerVelocityMag = length(centerVelocity);
-			float weight = 1.0 / centerVelocityMag;
-			weight = mix(weight, 1.0, isinf(weight));
+			float weight = 1.0 / mix(1.0, centerVelocityMag, sign(centerVelocityMag));
 			vec3 sum = color * weight;
 
 			float centerDepth = -linearDepth(vTexCoord);
