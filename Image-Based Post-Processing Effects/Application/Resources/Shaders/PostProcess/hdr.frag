@@ -21,7 +21,7 @@ uniform float uExposure = 1.0;
 uniform float uVelocityScale;
 
 const float MAX_SAMPLES = 32.0;
-const float SOFT_Z_EXTENT = 0.01;
+const float SOFT_Z_EXTENT = 1.0;
 const float Z_NEAR = 0.1;
 const float Z_FAR = 3000.0;
 
@@ -43,15 +43,14 @@ float softDepthCompare(float a, float b)
 	return clamp(1.0 - (a - b) / SOFT_Z_EXTENT, 0.0, 1.0);
 }
 
-float cone(vec2 x, vec2 y, vec2 velocity)
+float cone(vec2 x, vec2 y, float velocityMag)
 {
-	return clamp(1.0 - length(x - y) / length(velocity), 0.0, 1.0);
+	return mix(0.0, clamp(1.0 - length(x - y) / velocityMag, 0.0, 1.0),  sign(velocityMag));
 }
 
-float cylinder(vec2 x, vec2 y, vec2 velocity)
+float cylinder(vec2 x, vec2 y, float velocityMag)
 {
-	float mag = length(velocity);
-	return 1.0 - smoothstep(0.95 * mag, 1.05 * mag, length(x - y));
+	return 1.0 - smoothstep(0.95 * velocityMag, 1.05 * velocityMag, length(x - y));
 }
 
 float linearDepth(vec2 coord)
@@ -97,37 +96,39 @@ void main()
 		float neighborMaxMag = length(neighborMaxVel);
 		vec2 texelSize = 1.0/vec2(textureSize(uScreenTexture, 0));
 
-		float depth = linearDepth(vTexCoord);
-
 		if (neighborMaxMag > (texelSize.x * 0.5))
 		{
-			vec2 velocity = texture(uVelocityTexture, vTexCoord).rg;
-			float weight = 1.0 / length(velocity);
+			vec2 centerVelocity = texture(uVelocityTexture, vTexCoord).rg;
+			float centerVelocityMag = length(centerVelocity);
+			float weight = 1.0 / centerVelocityMag;
 			weight = mix(weight, 1.0, isinf(weight));
 			vec3 sum = color * weight;
 
-			for(int i = 1; i <= 19; ++i)
+			float centerDepth = -linearDepth(vTexCoord);
+			float rnd = clamp(hash12(vTexCoord), 0.0, 1.0) - 0.5;
+
+			for(int i = 0; i < 19; ++i)
 			{
-				for(int j = -1; j < 2; j+=2)
+				if ( i == 9)
 				{
-					float rnd = clamp(hash12(vTexCoord), 0.0, 1.0);
-					rnd = rnd * 2.0 - 1.0;
-					float t = mix(-1.0, 1.0, (i + rnd + 1.0) / 17.0);
-					vec2 sampleCoord = vTexCoord + neighborMaxVel * t * j;
-					float sampleDepth = linearDepth(sampleCoord);
-					vec2 sampleVel = texture(uVelocityTexture, sampleCoord).rg;
-
-					float f = softDepthCompare(depth, sampleDepth);
-					float b = softDepthCompare(sampleDepth, depth);
-
-					float alpha = f * cone(sampleCoord, vTexCoord, sampleVel)
-								+ b * cone(vTexCoord, sampleCoord, velocity)
-								+ cylinder(sampleCoord, vTexCoord, sampleVel)
-								* cylinder(vTexCoord, sampleCoord, velocity)
-								* 2.0;
-					weight += alpha;
-					sum += alpha * texture(uScreenTexture, sampleCoord).rgb;
+					continue;
 				}
+				float t = mix(-1.0, 1.0, (i + rnd + 1.0) / 20.0);
+				vec2 sampleCoord = vTexCoord + neighborMaxVel * t + (texelSize.x * 0.5);
+				float sampleDepth = -linearDepth(sampleCoord);
+
+				float f = softDepthCompare(centerDepth, sampleDepth);
+				float b = softDepthCompare(sampleDepth, centerDepth);
+
+				float sampleVelocityMag = length(texture(uVelocityTexture, sampleCoord).rg);
+
+				float alpha = f * cone(sampleCoord, vTexCoord, sampleVelocityMag)
+							+ b * cone(vTexCoord, sampleCoord, centerVelocityMag)
+							+ cylinder(sampleCoord, vTexCoord, sampleVelocityMag)
+							* cylinder(vTexCoord, sampleCoord, centerVelocityMag)
+							* 2.0;
+				weight += alpha;
+				sum += alpha * texture(uScreenTexture, sampleCoord).rgb;
 			}
 
 			color = sum / weight;
