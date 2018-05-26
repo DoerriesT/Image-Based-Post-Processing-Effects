@@ -1,0 +1,192 @@
+{
+  "*": {
+    "window-spacing": "10,10",
+    "window-header-normal": "0,0,0,128",
+    "window-header-hover": "0,0,0,128",
+    "window-header-active": "0,0,0,128",
+    "window-header-label-normal": "255,255,255,255",
+    "window-header-label-hover": "255,255,255,255",
+    "window-header-label-active": "255,255,255,255",
+	
+    "window-fixed-background": "255,255,255,180",
+    "window-background": "255,255,255,255",
+		
+	"scrollv-normal": "255,255,255,255",
+	"scrollv-hover": "255,255,255,255",
+	"scrollv-active": "255,255,255,255",
+	
+	"scrollv-cursor-normal": "128,128,128,255",
+	"scrollv-cursor-hover": "64,64,64,255",
+	"scrollv-cursor-active": "64,64,64,255",
+	"scrollv-cursor-border-color": "128,128,128,255",
+	"scrollv-border-cursor": "1",
+	
+    "window-combo-border": "1",
+	"window-combo-border-color": "0,0,0,255",
+	
+	"text-color": "0,0,0,255",
+	
+    "button-rounding": "0",
+    "button-text-alignment": "2",
+	
+    "button-text-normal": "0,0,0,255",
+    "button-text-hover": "255,255,255,255",
+    "button-text-active": "255,255,255,255",
+    "button-normal": "255,255,255,128",
+    "button-hover": "0,0,0,128",
+    "button-active": "0,0,0,255",
+	
+    "window-border-color": "0,0,0,235",
+    "window-group-border-color": "24,24,24,255",
+    "button-border-color": "100,100,100,255",
+	"combo-border-color": "100,100,100,255",	
+    "edit-border-color": "80,80,80,255",
+	
+    "window-group-border": "1",
+    "button-border": "1",	
+	"combo-border": "1",	
+	"edit-border" : "1",
+    "window-border": "1",
+	
+	"checkbox-border-color" : "140,140,140,255",
+	"checkbox-border" : "2",
+	"option-border-color" : "140,140,140,255",
+	"option-border" : "2",
+	
+	"edit-normal": "255,255,255,128",
+    "edit-hover": "0,120,215,128",
+    "edit-active": "0,120,215,64",
+	"edit-text-normal": "0,0,0,255",
+	"edit-text-hover": "0,0,0,255",
+	"edit-text-active": "0,0,0,255",
+	"edit-cursor-normal": "32,32,32,255",
+	"edit-cursor-hover": "32,32,32,255",
+    "edit-cursor-text-hover": "255,255,255,255",
+    "edit-cursor-text-normal": "255,255,255,255",
+	"edit-selected-normal": "0,0,0,255",
+	"edit-selected-hover":  "0,0,0,255",
+	"edit-selected-text-normal": "255,255,255,255",
+	"edit-selected-text-hover": "255,255,255,255",
+
+    "combo-normal": "255,255,255,128",
+    "combo-hover": "0,0,0,128",
+    "combo-active": "0,0,0,255",
+    "combo-label-normal": "0,0,0,255",
+    "combo-label-hover": "255,255,255,255",
+    "combo-label-active": "255,255,255,255",
+
+	
+	"selectable-normal": "255,255,255,128",
+	"selectable-hover": "255,255,255,128",
+	"selectable-pressed": "255,255,255,128",
+	"selectable-normal-active":  "0,0,0,128",
+	"selectable-hover-active":   "0,0,0,128",
+	"selectable-pressed-active": "0,0,0,128",
+	"selectable-text-normal":  "0,0,0,255",
+	"selectable-text-hover":   "0,0,0,255",
+	"selectable-text-pressed": "0,0,0,255",
+	"selectable-text-normal-active":  "255,255,255,255",
+	"selectable-text-hover-active":   "255,255,255,255",
+	"selectable-text-pressed-active": "255,255,255,255",
+	"selectable-text-background": "255,0,0,255",
+
+	
+	"contextual-button-normal": "0,0,0,0",
+	"contextual-button-hover": "0,0,0,255",
+	"contextual-button-active": "0,0,0,255",
+	"contextual-button-border-color": "0,0,0,0",
+	"contextual-button-text-background": "255,0,0,0",
+	"contextual-button-text-normal": "0,0,0,255",
+	"contextual-button-text-hover": "255,255,255,255",
+	"contextual-button-text-active": "255,255,255,255",
+	"window-contextual-border-color": "0,0,0,255",
+
+	
+	"option-normal"     : "230,230,230,255",
+	"option-hover"      : "200,200,200,255",
+	"option-active"     : "230,230,230,255",
+	"checkbox-normal"   : "230,230,230,255",
+	"checkbox-hover"    : "200,200,200,255",
+	"checkbox-active"   : "230,230,230,255",
+	
+	"option-text-normal"     : "0,0,0,255",
+	"option-text-hover"      : "0,0,0,255",
+	"option-text-active"     : "0,0,0,255",
+	"checkbox-text-normal"   : "0,0,0,255",
+	"checkbox-text-hover"    : "0,0,0,255",
+	"checkbox-text-active"   : "0,0,0,255",
+	
+	"checkbox-cursor-normal" : "120,120,120,255",
+	"option-cursor-normal"   : "120,120,120,255",
+	"checkbox-cursor-hover"  : "120,120,120,255",
+	"option-cursor-hover"    : "120,120,120,255",
+	"checkbox-padding" : "3,3",
+	"option-padding"   : "3,3"
+  },
+  "mainmenu-window": {
+    "button-border": "0",
+    "button-text-alignment": "20",
+	"window-scrollbar-size": "0",
+	"button-padding": "8,0",
+    "button-normal": "0,0,0,0"
+  },
+  "player-tag": {
+	"window-padding": "0,0",
+    "window-spacing": "0,0"
+  },
+  "player-tag-selected": {
+	"window-padding": "0,0",
+    "window-spacing": "0,0",
+    "window-border-color": "0,255,0,255"
+  },
+  "disabled-button": {
+    "button-border-color": "170,170,170,255",
+    "button-text-hover":   "170,170,170,255",
+    "button-text-active":  "170,170,170,255",
+    "button-text-normal":  "170,170,170,255",
+    "button-normal": "255,255,255,128",
+    "button-hover": "255,255,255,128",
+    "button-active": "255,255,255,128"	
+  },
+  "error-popup": {
+    "window-header-normal": "255,0,0,255",
+    "window-header-hover": "255,0,0,255",
+    "window-header-active": "255,0,0,255",
+    "window-header-label-normal": "255,255,255,255",
+    "window-header-label-hover": "255,255,255,255",
+    "window-header-label-active": "255,255,255,255",
+    "window-border-color": "255,0,0,255"
+  },
+  "logo-window": {
+    "window-fixed-background": "0,0,0,0"  
+  },
+  "loading-layout": {  
+    "window-fixed-background": "255,255,255,255", 
+	"text-color": "0,0,0,255",
+	
+    "progress-normal": "0,0,0,0",
+    "progress-hover": "0,0,0,0",
+    "progress-active": "0,0,0,0",
+    "progress-border-color": "0,0,0,255",
+    "progress-cursor-normal": "0,0,0,255",
+    "progress-cursor-hover":  "0,0,0,255",
+    "progress-cursor-active": "0,0,0,255",
+
+    "progress-border": "2",
+    "progress-border-color": "0,0,0,255"
+  },
+  "alpha-group": {
+    "window-fixed-background": "0,0,0,0"
+  },
+  "game-status-window": {
+    "window-fixed-background": "0,0,0,0",
+	"text-color": "255,255,255,255"
+  },
+  "conditional-window": {
+    "window-padding": "2,5",
+    "window-spacing": "5,5" 
+  },
+  "credits-layout": {
+    "window-spacing": "10,0" 
+  }  
+}

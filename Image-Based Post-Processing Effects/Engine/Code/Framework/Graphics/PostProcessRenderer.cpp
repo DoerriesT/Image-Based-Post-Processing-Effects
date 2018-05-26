@@ -153,7 +153,6 @@ void PostProcessRenderer::init()
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.obj", true);
 }
 
-bool mb = false;
 unsigned int tileSize = 40;
 
 void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
@@ -201,7 +200,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 		}
 	}
 
-	if (true)
+	if (_effects.motionBlur != MotionBlur::OFF)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, velocityFbo);
 		glActiveTexture(GL_TEXTURE0);
@@ -288,7 +287,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	uBloomStrengthH.set(_effects.bloom.strength);
 	uBloomDirtStrengthH.set(_effects.bloom.lensDirtStrength);
 	uExposureH.set(_effects.exposure);
-	uMotionBlurH.set(2);
+	uMotionBlurH.set(GLint(_effects.motionBlur));
 	uVelocityScaleH.set((float)Engine::getCurrentFps() / 60.0f);
 
 	fullscreenTriangle->render();

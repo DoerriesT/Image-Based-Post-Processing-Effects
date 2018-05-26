@@ -1,0 +1,193 @@
+{
+  "style": {},
+  "id": "settings_layout",
+  "windows": [{
+    "centered": false,
+    "x": "0.79*w",
+    "width": "0.2*w",
+    "y": "0.02*h",
+    "id": "settings_window",
+    "bordered": true,
+    "titled": true,
+    "title": "Options",
+    "rows": [
+      {"elements": [
+        {
+          "multiline": false,
+          "id": "",
+          "text": "FPS",
+          "type": "label",
+          "align": "left",
+          "class": "",
+          "font_offset": 0
+        },
+        {
+          "multiline": false,
+          "id": "fps_label",
+          "text": "60",
+          "type": "label",
+          "align": "center",
+          "class": "",
+          "font_offset": 0
+        }
+      ]},
+      {"elements": [
+        {
+          "multiline": false,
+          "id": "",
+          "text": "Frame Time (ms)",
+          "type": "label",
+          "align": "left",
+          "class": "",
+          "font_offset": 0
+        },
+        {
+          "multiline": false,
+          "id": "frame_time_label",
+          "text": "16.6",
+          "type": "label",
+          "align": "center",
+          "class": "",
+          "font_offset": 0
+        }
+      ]},
+      {"elements": [
+        {
+          "id": "",
+          "text": "Window Mode",
+          "type": "label",
+          "align": "left"
+        },
+        {
+          "id": "window_mode_box",
+          "type": "combobox",
+          "items": "Windowed;Windowed Fullscreen;Fullscreen"
+        }
+      ]},
+      {"elements": [
+        {
+          "id": "",
+          "text": "Resolution",
+          "type": "label",
+          "align": "left"
+        },
+        {
+          "id": "resolution_box",
+          "type": "combobox",
+          "items": "",
+          "class": ""
+        }
+      ]},
+      {"elements": [{
+        "checked": false,
+        "id": "vsync_checkbox",
+        "text": "Vertical Sync",
+        "type": "checkbox",
+        "group": ""
+      }]},
+      {"elements": [{
+        "checked": false,
+        "id": "anti_aliasing_checkbox",
+        "text": "Anti-Aliasing",
+        "type": "checkbox",
+        "group": ""
+      }]},
+      {"elements": [
+        {
+          "id": "",
+          "text": "Anisotropic Filtering",
+          "type": "label",
+          "align": "left"
+        },
+        {
+          "id": "anisotropic_filtering_box",
+          "type": "combobox",
+          "items": ""
+        }
+      ]},
+      {"elements": [
+        {
+          "id": "",
+          "text": "Shadow Quality",
+          "type": "label",
+          "align": "left"
+        },
+        {
+          "id": "shadow_quality_box",
+          "type": "combobox",
+          "items": "Off;Normal;High",
+          "class": ""
+        }
+      ]},
+      {"elements": [{
+        "id": "",
+        "text": "Post-Processing Effects",
+        "type": "label",
+        "align": "center"
+      }]},
+      {"elements": [{
+        "checked": false,
+        "id": "bloom_checkbox",
+        "text": "Bloom",
+        "type": "checkbox",
+        "group": ""
+      }]},
+      {"elements": [{
+        "checked": false,
+        "id": "lens_flare_checkbox",
+        "text": "Lens Flares",
+        "type": "checkbox",
+        "group": ""
+      }]},
+      {"elements": [{
+        "checked": false,
+        "id": "ambient_occlusion_checkbox",
+        "text": "Ambient Occlusion",
+        "type": "checkbox",
+        "group": ""
+      }]},
+      {"elements": [
+        {
+          "multiline": false,
+          "id": "",
+          "text": "Motion Blur",
+          "type": "label",
+          "align": "left",
+          "class": "",
+          "font_offset": 0
+        },
+        {
+          "id": "motion_blur_box",
+          "type": "combobox",
+          "class": "",
+          "items": "Off;1;2;3"
+        }
+      ]},
+      {"elements": [{
+        "multiline": false,
+        "id": "",
+        "text": "Scene",
+        "type": "label",
+        "align": "center",
+        "class": "",
+        "font_offset": 0
+      }]},
+      {"elements": [{
+        "checked": false,
+        "id": "bounce_checkbox",
+        "text": "Bouncing",
+        "type": "checkbox",
+        "group": ""
+      }]},
+      {"elements": [{
+        "checked": false,
+        "id": "colors_checkbox",
+        "text": "Colors",
+        "type": "checkbox",
+        "group": ""
+      }]}
+    ],
+    "class": "",
+    "height": "0.65*h"
+  }]
+}

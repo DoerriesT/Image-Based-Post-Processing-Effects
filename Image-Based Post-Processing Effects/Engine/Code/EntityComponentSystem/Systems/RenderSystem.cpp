@@ -131,6 +131,10 @@ void RenderSystem::init()
 	ssaoBias->addListener([&](double _value) { effects.ssao.bias = (float)_value; });
 	effects.ssao.bias = (float)ssaoBias->get();
 
+	motionBlur = settingsManager.getIntSetting("graphics", "motion_blur", 0);
+	motionBlur->addListener([&](int _value) { effects.motionBlur = static_cast<MotionBlur>(_value); });
+	effects.motionBlur = static_cast<MotionBlur>(motionBlur->get());
+
 	screenSpaceReflectionsEnabled = settingsManager.getBoolSetting("graphics", "screen_space_reflections_enabled", false);
 	screenSpaceReflectionsEnabled->addListener([&](bool _value) { effects.screenSpaceReflections.enabled = _value; });
 	effects.screenSpaceReflections.enabled = screenSpaceReflectionsEnabled->get();

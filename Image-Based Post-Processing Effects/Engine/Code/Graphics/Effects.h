@@ -71,6 +71,11 @@ enum class ShadowQuality
 	OFF, NORMAL, HIGH
 };
 
+enum class MotionBlur
+{
+	OFF, ONE, TWO, THREE
+};
+
 struct Effects
 {
 	SSAO ssao;
@@ -83,5 +88,6 @@ struct Effects
 	LensFlares lensFlares;
 	ShadowQuality shadowQuality;
 	ScreenSpaceReflections screenSpaceReflections;
+	MotionBlur motionBlur;
 	float exposure;
 };

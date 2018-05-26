@@ -69,6 +69,7 @@ private:
 	std::shared_ptr<Setting<bool>> screenSpaceReflectionsEnabled;
 	std::shared_ptr<Setting<bool>> loadEnvironmentFromFile;
 	std::shared_ptr<Setting<bool>> saveEnvironmentToFile;
+	std::shared_ptr<Setting<int>> motionBlur;
 
 	bool validate(std::uint64_t bitMap);
 };

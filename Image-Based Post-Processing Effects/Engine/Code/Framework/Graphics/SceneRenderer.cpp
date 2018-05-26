@@ -679,19 +679,19 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 {
 	std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0);
 	std::default_random_engine generator;
-	std::vector<glm::vec3> ssaoNoise;
+	glm::vec3 ssaoNoise[16];
 	for (unsigned int i = 0; i < 16; ++i)
 	{
 		glm::vec3 noise(
 			randomFloats(generator) * 2.0 - 1.0,
 			randomFloats(generator) * 2.0 - 1.0,
 			0.0f);
-		ssaoNoise.push_back(noise);
+		ssaoNoise[i] = noise;
 	}
 
 	glGenTextures(1, &noiseTexture);
 	glBindTexture(GL_TEXTURE_2D, noiseTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 4, 4, 0, GL_RGB, GL_FLOAT, ssaoNoise);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -701,7 +701,7 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 
 	glGenTextures(1, &ssaoTextureA);
 	glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _resolution.first / 2, _resolution.second / 2, 0, GL_RED, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, _resolution.first, _resolution.second, 0, GL_RED, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -710,7 +710,7 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 
 	glGenTextures(1, &ssaoTextureB);
 	glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _resolution.first / 2, _resolution.second / 2, 0, GL_RED, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, _resolution.first, _resolution.second, 0, GL_RED, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -789,7 +789,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		uModelViewProjectionMatrixG.set(mvpTransformation);
 		uPrevTransformG.set(prevTransformation);
 		uVelG.set(entityRenderData->transformationComponent->vel);
-		uExposureTimeG.set(0.001f * Engine::getCurrentFps());
+		uExposureTimeG.set(0.001f /* Engine::getCurrentFps()*/ * 60.0f);
 
 		entityRenderData->transformationComponent->prevTransformation = modelMatrix;
 
@@ -1272,7 +1272,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 	fullscreenTriangle->enableVertexAttribArrays();
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
-	glViewport(0, 0, _renderData.resolution.first / 2, _renderData.resolution.second / 2);
+	glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
 
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	glActiveTexture(GL_TEXTURE5);
