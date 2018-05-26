@@ -19,11 +19,14 @@ uniform float uBloomStrength = 0.1;
 uniform float uBloomDirtStrength = 0.5;
 uniform float uExposure = 1.0;
 uniform float uVelocityScale;
+uniform float uHalfPixelWidth = 0.0003125;
 
 const float MAX_SAMPLES = 32.0;
 const float SOFT_Z_EXTENT = 1.0;
 const float Z_NEAR = 0.1;
 const float Z_FAR = 3000.0;
+const int TILE_SIZE = 40;
+const float GAMMA = 1.5;
 
 const float A = 0.15; // shoulder strength
 const float B = 0.50; // linear strength
@@ -38,25 +41,30 @@ vec3 uncharted2Tonemap(vec3 x)
    return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
 }
 
+float zCompare(float a, float b)
+{
+	float result = (a - b) / min(a, b);
+	return clamp(1.0 - result, 0.0, 1.0);
+}
+
 float softDepthCompare(float a, float b)
 {
 	return clamp(1.0 - (a - b) / SOFT_Z_EXTENT, 0.0, 1.0);
 }
 
-float cone(vec2 x, vec2 y, float velocityMag)
+float cone(float dist, float velocityMag)
 {
-	return mix(0.0, clamp(1.0 - length(x - y) / velocityMag, 0.0, 1.0),  sign(velocityMag));
+	return mix(0.0, clamp(1.0 - dist / velocityMag, 0.0, 1.0),  sign(velocityMag));
 }
 
-float cylinder(vec2 x, vec2 y, float velocityMag)
+float cylinder(float dist, float velocityMag)
 {
-	return 1.0 - smoothstep(0.95 * velocityMag, 1.05 * velocityMag, length(x - y));
+	return 1.0 - smoothstep(0.95 * velocityMag, 1.05 * velocityMag, dist);
 }
 
-float linearDepth(vec2 coord)
+float linearDepth(float depth)
 {
-	float z_b = texture(uDepthTexture, coord).x;
-    float z_n = 2.0 * z_b - 1.0;
+    float z_n = 2.0 * depth - 1.0;
     return 2.0 * Z_NEAR * Z_FAR / (Z_FAR + Z_NEAR - z_n * (Z_FAR - Z_NEAR));
 }
 
@@ -67,6 +75,12 @@ float hash12(vec2 p)
 	vec3 p3  = fract(vec3(p.xyx) * HASHSCALE1);
     p3 += dot(p3, p3.yzx + 19.19);
     return fract((p3.x + p3.y) * p3.z);
+}
+
+vec2 jitteredNeighborMax()
+{
+	// TODO: do some actual jittering
+	return texture(uVelocityNeighborMaxTexture, vTexCoord).rg;
 }
 
 void main()
@@ -106,29 +120,32 @@ void main()
 			float weight = 1.0 / mix(1.0, centerVelocityMag, sign(centerVelocityMag));
 			vec3 sum = color * weight;
 
-			float centerDepth = -linearDepth(vTexCoord);
+			float centerDepth = -linearDepth(texture(uDepthTexture, vTexCoord).x);
 			float rnd = clamp(hash12(vTexCoord), 0.0, 1.0) - 0.5;
 
-			for(int i = 0; i < 19; ++i)
+			float numSamples = 25.0;
+
+			for(float i = 0; i < numSamples; ++i)
 			{
 				// TODO: avoid this if
-				if ( i == 9)
+				if ( i == floor(numSamples * 0.5))
 				{
 					continue;
 				}
-				float t = mix(-1.0, 1.0, (i + rnd + 1.0) / 20.0);
+				float t = mix(-1.0, 1.0, (i + rnd + 1.0) / (numSamples + 1.0));
 				vec2 sampleCoord = vTexCoord + neighborMaxVel * t + (texelSize.x * 0.5);
-				float sampleDepth = -linearDepth(sampleCoord);
+				float sampleDepth = -linearDepth(texture(uDepthTexture, sampleCoord).x);
 
 				float f = softDepthCompare(centerDepth, sampleDepth);
 				float b = softDepthCompare(sampleDepth, centerDepth);
 
 				float sampleVelocityMag = length(texture(uVelocityTexture, sampleCoord).rg);
+				float dist = distance(sampleCoord, vTexCoord);
 
-				float alpha = f * cone(sampleCoord, vTexCoord, sampleVelocityMag)
-							+ b * cone(vTexCoord, sampleCoord, centerVelocityMag)
-							+ cylinder(sampleCoord, vTexCoord, sampleVelocityMag)
-							* cylinder(vTexCoord, sampleCoord, centerVelocityMag)
+				float alpha = f * cone(dist, sampleVelocityMag)
+							+ b * cone(dist, centerVelocityMag)
+							+ cylinder(dist, sampleVelocityMag)
+							* cylinder(dist, centerVelocityMag)
 							* 2.0;
 
 				weight += alpha;
@@ -136,6 +153,69 @@ void main()
 			}
 
 			color = sum / weight;
+		}
+	}
+	else if (uMotionBlur == 3)
+	{
+		vec2 texSize = vec2(textureSize(uScreenTexture, 0));
+		
+		vec2 neighborhoodVelocity = jitteredNeighborMax() * texSize;
+		float neighborhoodVelocityMag = max(length(neighborhoodVelocity), 0.5);
+
+		if (neighborhoodVelocityMag > 0.5)
+		{
+			vec2 centerVelocity = texelFetch(uVelocityTexture, ivec2(gl_FragCoord.xy), 0).rg * texSize;
+			float centerVelocityMag = max(length(centerVelocity), 0.5);
+			
+			vec2 wNeighborhood = normalize(neighborhoodVelocity);
+			vec2 wPerpendicular = vec2(-wNeighborhood.y, wNeighborhood.x);
+			
+			if(dot(wPerpendicular, centerVelocity) < 0)
+			{
+				wPerpendicular = -wPerpendicular;
+			}
+			
+			vec2 wCenter = normalize(mix(wPerpendicular, normalize(centerVelocity), (centerVelocityMag - 0.5) / GAMMA));
+
+			const float sampleCount = 25.0;
+
+			float totalWeight = sampleCount / (TILE_SIZE * centerVelocityMag);
+			vec3 result = color * totalWeight;
+			
+			float centerDepth = -linearDepth(texelFetch(uDepthTexture, ivec2(gl_FragCoord.xy), 0).x);
+
+			float rnd = 0.0;//clamp(hash12(vTexCoord), 0.0, 1.0) - 0.5;
+			
+			for(float i = 0; i < sampleCount; ++i)
+			{
+				float t = mix(-1.0 , 1.0, (i + rnd * 0.95 + 1.0) / (sampleCount + 1.0));
+				
+				vec2 samplingDir = mix(neighborhoodVelocity, centerVelocity, mod(i, 2.0));
+				float dist = t * neighborhoodVelocityMag;
+				ivec2 sampleCoord = ivec2(t * samplingDir) + ivec2(gl_FragCoord.xy);
+				
+				float sampleDepth = -linearDepth(texelFetch(uDepthTexture, sampleCoord, 0).x);
+				
+				float f = zCompare(centerDepth, sampleDepth);
+				float b = zCompare(sampleDepth, centerDepth);
+				
+				vec2 sampleVelocity = texelFetch(uVelocityTexture, sampleCoord, 0).rg * texSize;
+				
+				float wA = dot(wCenter, samplingDir);
+				float wB = dot(normalize(sampleVelocity), samplingDir);
+				
+				float sampleVelocityMag = max(length(sampleVelocity), 0.5);
+				
+				float weight = 0.0;
+				weight += f * cone(dist, 1.0 / sampleVelocityMag) * wB;
+				weight += b * cone(dist, 1.0 / centerVelocityMag) * wA;
+				weight += cylinder(dist, min(sampleVelocityMag, centerVelocityMag)) * max(wA, wB) * 2.0;
+				
+				result += texelFetch(uScreenTexture, sampleCoord, 0).rgb * weight;
+				totalWeight += weight;
+			}
+
+			color = result / totalWeight;
 		}
 	}
 

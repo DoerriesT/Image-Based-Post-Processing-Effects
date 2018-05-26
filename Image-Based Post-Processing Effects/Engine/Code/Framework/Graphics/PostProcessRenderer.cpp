@@ -154,7 +154,7 @@ void PostProcessRenderer::init()
 }
 
 bool mb = false;
-unsigned int tileSize = 25;
+unsigned int tileSize = 40;
 
 void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {

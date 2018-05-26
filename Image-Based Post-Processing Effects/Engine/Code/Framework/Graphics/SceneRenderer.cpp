@@ -93,6 +93,7 @@ void SceneRenderer::init()
 	uPrevTransformG.create(gBufferPassShader);
 	uAtlasDataG.create(gBufferPassShader);
 	uVelG.create(gBufferPassShader);
+	uExposureTimeG.create(gBufferPassShader);
 
 	// outline uniforms
 	uModelViewProjectionMatrixO.create(outlineShader);
@@ -788,6 +789,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		uModelViewProjectionMatrixG.set(mvpTransformation);
 		uPrevTransformG.set(prevTransformation);
 		uVelG.set(entityRenderData->transformationComponent->vel);
+		uExposureTimeG.set(0.001f * Engine::getCurrentFps());
 
 		entityRenderData->transformationComponent->prevTransformation = modelMatrix;
 
