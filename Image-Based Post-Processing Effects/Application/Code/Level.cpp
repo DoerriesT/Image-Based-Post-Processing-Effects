@@ -86,7 +86,7 @@ std::shared_ptr<Level> App::loadLevel()
 	{
 		const Entity *planeEntity = entityManager.createEntity();
 		level->entityMap["plane"] = planeEntity;
-		entityManager.addComponent<ModelComponent>(planeEntity, std::vector<std::pair<std::string, Material>>({ std::make_pair("Resources/Models/plane.obj", Material(glm::vec4(glm::vec3(1.0f), 1.0f), 0.0f, 0.0f)) }));
+		entityManager.addComponent<ModelComponent>(planeEntity, std::vector<std::pair<std::string, Material>>({ std::make_pair("Resources/Models/plane.obj", Material(glm::vec4(glm::vec3(1.0f), 1.0f), 0.0f, 0.0f)) }), true);
 		entityManager.addComponent<TransformationComponent>(planeEntity, glm::vec3(), glm::quat(glm::vec3(glm::radians(180.0f), 0.0f, 0.0f)), glm::vec3(100.0f));
 		entityManager.addComponent<RenderableComponent>(planeEntity);
 
@@ -101,7 +101,7 @@ std::shared_ptr<Level> App::loadLevel()
 
 				const Entity *teapotEntity = entityManager.createEntity();
 				level->entityMap["teapot" + std::to_string(i * 10 + j)] = teapotEntity;
-				entityManager.addComponent<ModelComponent>(teapotEntity, std::vector<std::pair<std::string, Material>>({ std::make_pair("Resources/Models/teapot.obj", Material(glm::vec4(color, 1.0f), 0.0f, 0.0f)) }));
+				entityManager.addComponent<ModelComponent>(teapotEntity, std::vector<std::pair<std::string, Material>>({ std::make_pair("Resources/Models/teapot.obj", Material(glm::vec4(color, 1.0f), 0.0f, 0.0f)) }), true);
 				entityManager.addComponent<TransformationComponent>(teapotEntity, position, glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(1.0f));
 				entityManager.addComponent<RenderableComponent>(teapotEntity);
 			}
