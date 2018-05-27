@@ -75,6 +75,7 @@ void SceneRenderer::init()
 	skyboxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/skybox.vert", "Resources/Shaders/Renderer/skybox.frag");
 	transparencyShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/transparencyForward.vert", "Resources/Shaders/Renderer/transparencyForward.frag");
 	ssaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssao.frag");
+	ssaoOriginalShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoOriginal.frag");
 	ssaoBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoBlur.frag");
 	tildeH0kShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/tildeH0k.frag");
 	tildeHktShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/tildeHkt.frag");
@@ -195,6 +196,10 @@ void SceneRenderer::init()
 	uRadiusAO.create(ssaoShader);
 	uBiasAO.create(ssaoShader);
 
+	// ssao original
+	uDepthTextureAOO.create(ssaoOriginalShader);
+	uNoiseTextureAOO.create(ssaoOriginalShader);
+
 	// ssao blur
 	uInputTextureAOB.create(ssaoBlurShader);
 	uBlurSizeAOB.create(ssaoBlurShader);
@@ -283,13 +288,13 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	// switch current result texture
 	currentLightColorTexture = (currentLightColorTexture + 1) % 2;
 
-	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 , lightColorAttachments[currentLightColorTexture]};
+	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 , lightColorAttachments[currentLightColorTexture] };
 	const GLenum secondPassDrawBuffers[] = { lightColorAttachments[currentLightColorTexture], GL_COLOR_ATTACHMENT3 };
 	glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
 
 	// bind g-buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
-	glDrawBuffers(sizeof(firstPassDrawBuffers)/sizeof(GLenum), firstPassDrawBuffers);
+	glDrawBuffers(sizeof(firstPassDrawBuffers) / sizeof(GLenum), firstPassDrawBuffers);
 
 	// enable depth testing and writing and clear all buffers
 	glEnable(GL_DEPTH_TEST);
@@ -385,7 +390,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	// enable additive blending for the lights
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
-	
+
 
 	// render environment light and the first directional light, if present
 	if (_level->environment.skyboxEntity)
@@ -420,7 +425,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	
+
 
 	glDepthMask(GL_TRUE);
 
@@ -685,13 +690,13 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 		glm::vec3 noise(
 			randomFloats(generator) * 2.0 - 1.0,
 			randomFloats(generator) * 2.0 - 1.0,
-			0.0f);
+			randomFloats(generator) * 2.0 - 1.0);
 		ssaoNoise[i] = noise;
 	}
 
 	glGenTextures(1, &noiseTexture);
 	glBindTexture(GL_TEXTURE_2D, noiseTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 4, 4, 0, GL_RGB, GL_FLOAT, ssaoNoise);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, ssaoNoise);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -701,7 +706,7 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 
 	glGenTextures(1, &ssaoTextureA);
 	glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, _resolution.first, _resolution.second, 0, GL_RED, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _resolution.first / 2, _resolution.second / 2, 0, GL_RED, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -710,7 +715,7 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 
 	glGenTextures(1, &ssaoTextureB);
 	glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, _resolution.first, _resolution.second, 0, GL_RED, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _resolution.first / 2, _resolution.second / 2, 0, GL_RED, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -783,7 +788,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 
 		glm::mat4 mvpTransformation = _renderData.viewProjectionMatrix * modelMatrix;
 		glm::mat4 prevTransformation = glm::mix(_renderData.viewProjectionMatrix, _renderData.prevViewProjectionMatrix, 0.15f) * entityRenderData->transformationComponent->prevTransformation;
-		
+
 		uAtlasDataG.set(glm::vec4(columns, rows, textureOffset));
 		uModelMatrixG.set(modelMatrix);
 		uModelViewProjectionMatrixG.set(mvpTransformation);
@@ -1242,72 +1247,102 @@ void SceneRenderer::renderCustomGeometry(const RenderData &_renderData, const st
 
 void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::mat4 &_inverseProjection, const Effects &_effects)
 {
-	std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0);
-	static std::default_random_engine generator;
-	static std::vector<glm::vec3> ssaoKernel;
-	static bool generateKernel = true;
-	static unsigned int currentKernelSize = 16;
-	if (currentKernelSize != _effects.ssao.kernelSize)
+	static bool original = false;
+
+	if (original)
 	{
-		currentKernelSize = _effects.ssao.kernelSize;
-		generateKernel = true;
+		fullscreenTriangle->enableVertexAttribArrays();
+		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
+		glViewport(0, 0, _renderData.resolution.first / 2, _renderData.resolution.second / 2);
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, noiseTexture);
+
+		ssaoOriginalShader->bind();
+		uDepthTextureAOO.set(3);
+		uNoiseTextureAOO.set(5);
+
+		fullscreenTriangle->render();
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT1);
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
+
+		ssaoBlurShader->bind();
+		uInputTextureAOB.set(6);
+		uBlurSizeAOB.set(4);
+
+		fullscreenTriangle->render();
 	}
-	if (generateKernel)
+	else
 	{
-		ssaoKernel.clear();
-		generateKernel = false;
+		std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0);
+		static std::default_random_engine generator;
+		static std::vector<glm::vec3> ssaoKernel;
+		static bool generateKernel = true;
+		static unsigned int currentKernelSize = 16;
+		if (currentKernelSize != _effects.ssao.kernelSize)
+		{
+			currentKernelSize = _effects.ssao.kernelSize;
+			generateKernel = true;
+		}
+		if (generateKernel)
+		{
+			ssaoKernel.clear();
+			generateKernel = false;
+			for (unsigned int i = 0; i < currentKernelSize; ++i)
+			{
+				glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
+				sample = glm::normalize(sample);
+				sample *= randomFloats(generator);
+				float scale = float(i) / currentKernelSize;
+
+				// scale samples s.t. they're more aligned to center of kernel
+				scale = glm::mix(0.1f, 1.0f, scale * scale);
+				sample *= scale;
+				ssaoKernel.push_back(sample);
+			}
+		}
+
+		fullscreenTriangle->enableVertexAttribArrays();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
+		glViewport(0, 0, _renderData.resolution.first / 2, _renderData.resolution.second / 2);
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, noiseTexture);
+
+		ssaoShader->bind();
+		uDepthTextureAO.set(3);
+		uNormalTextureAO.set(1);
+		uNoiseTextureAO.set(5);
+		uViewAO.set(_renderData.viewMatrix);
+		uProjectionAO.set(_renderData.projectionMatrix);
+		uInverseProjectionAO.set(_inverseProjection);
+		uKernelSizeAO.set((int)currentKernelSize);
+		uRadiusAO.set(_effects.ssao.radius);
+		uBiasAO.set(_effects.ssao.bias);
 		for (unsigned int i = 0; i < currentKernelSize; ++i)
 		{
-			glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
-			sample = glm::normalize(sample);
-			sample *= randomFloats(generator);
-			float scale = float(i) / currentKernelSize;
-
-			// scale samples s.t. they're more aligned to center of kernel
-			scale = glm::mix(0.1f, 1.0f, scale * scale);
-			sample *= scale;
-			ssaoKernel.push_back(sample);
+			ssaoShader->setUniform(uSamplesAO[i], ssaoKernel[i]);
 		}
+
+		fullscreenTriangle->render();
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT1);
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
+
+		ssaoBlurShader->bind();
+		uInputTextureAOB.set(6);
+		uBlurSizeAOB.set(4);
+
+		fullscreenTriangle->render();
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
-
-	fullscreenTriangle->enableVertexAttribArrays();
-	
-	glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
-	glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
-
-	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, noiseTexture);
-
-	ssaoShader->bind();
-	uDepthTextureAO.set(3);
-	uNormalTextureAO.set(1);
-	uNoiseTextureAO.set(5);
-	uViewAO.set(_renderData.viewMatrix);
-	uProjectionAO.set(_renderData.projectionMatrix);
-	uInverseProjectionAO.set(_inverseProjection);
-	uKernelSizeAO.set((int)currentKernelSize);
-	uRadiusAO.set(_effects.ssao.radius);
-	uBiasAO.set(_effects.ssao.bias);
-	for (unsigned int i = 0; i < currentKernelSize; ++i)
-	{
-		ssaoShader->setUniform(uSamplesAO[i], ssaoKernel[i]);
-	}
-
-	fullscreenTriangle->render();
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	glDrawBuffer(GL_COLOR_ATTACHMENT1);
-	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
-	
-	ssaoBlurShader->bind();
-	uInputTextureAOB.set(6);
-	uBlurSizeAOB.set(4);
-
-	fullscreenTriangle->render();
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
-}
 
 void SceneRenderer::precomputeFftTextures()
 {
@@ -1351,7 +1386,7 @@ void SceneRenderer::precomputeFftTextures()
 		fullscreenTriangle->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
-	
+
 	// butterfly precompute
 	{
 		std::uint32_t bitReversedIndices[N];
@@ -1404,7 +1439,7 @@ void SceneRenderer::computeFft()
 		fullscreenTriangle->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
-	
+
 	// butterfly computation/ inversion
 	{
 		butterflyComputeShader->bind();
@@ -1524,12 +1559,12 @@ void SceneRenderer::renderWater(const RenderData &_renderData, const std::shared
 		uLightDirW.set(_level->lights.directionalLights[0]->getDirection());
 		uLightColorW.set(_level->lights.directionalLights[0]->getColor());
 	}
-	
+
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, waterNormalTexture);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture); 
+	glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, foamTexture->getId());
 	glActiveTexture(GL_TEXTURE3);

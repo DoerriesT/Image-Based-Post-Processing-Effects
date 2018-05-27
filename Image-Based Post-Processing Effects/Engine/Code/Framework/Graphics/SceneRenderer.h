@@ -38,6 +38,7 @@ private:
 	std::shared_ptr<ShaderProgram> skyboxShader;
 	std::shared_ptr<ShaderProgram> transparencyShader;
 	std::shared_ptr<ShaderProgram> ssaoShader;
+	std::shared_ptr<ShaderProgram> ssaoOriginalShader;
 	std::shared_ptr<ShaderProgram> ssaoBlurShader;
 	std::shared_ptr<ShaderProgram> butterflyPrecomputeShader;
 	std::shared_ptr<ShaderProgram> tildeH0kShader;
@@ -202,6 +203,10 @@ private:
 	Uniform<GLint> uKernelSizeAO = Uniform<GLint>("uKernelSize");
 	Uniform<GLfloat> uRadiusAO = Uniform<GLfloat>("uRadius");
 	Uniform<GLfloat> uBiasAO = Uniform<GLfloat>("uBias");
+
+	// ssao original
+	Uniform<GLint> uDepthTextureAOO = Uniform<GLint>("uDepthTexture");
+	Uniform<GLint> uNoiseTextureAOO = Uniform<GLint>("uNoiseTexture");
 
 	// ssao blur uniforms
 	Uniform<GLint> uInputTextureAOB = Uniform<GLint>("uInputTexture");

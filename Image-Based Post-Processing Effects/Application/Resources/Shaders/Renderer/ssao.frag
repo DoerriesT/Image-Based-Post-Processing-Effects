@@ -48,7 +48,9 @@ void main()
     vec3 fragPos = viewSpacePos.xyz;
     vec3 N = decode(texture(uNormalTexture, texCoord).xy);
 	N = (uView * vec4(N, 0.0)).xyz;
-    vec3 randomVec = normalize(texture(uNoiseTexture, texCoord * noiseScale).xyz);
+    vec3 randomVec = texture(uNoiseTexture, texCoord * noiseScale).xyz;
+	randomVec.z = 0.0;
+	randomVec = normalize(randomVec);
 	
     vec3 tangent = normalize(randomVec - N * dot(randomVec, N));
     vec3 bitangent = cross(N, tangent);

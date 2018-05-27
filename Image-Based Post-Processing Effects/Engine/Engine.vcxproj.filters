@@ -684,5 +684,8 @@
     <None Include="..\Application\Resources\Shaders\PostProcess\velocityTileMax.frag">
       <Filter>Resources\Shaders\PostProcess</Filter>
     </None>
+    <None Include="..\Application\Resources\Shaders\Renderer\ssaoOriginal.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
   </ItemGroup>
 </Project>
