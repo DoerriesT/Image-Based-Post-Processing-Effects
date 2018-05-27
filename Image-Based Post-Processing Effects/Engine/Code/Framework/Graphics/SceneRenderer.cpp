@@ -706,7 +706,7 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 
 	glGenTextures(1, &ssaoTextureA);
 	glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _resolution.first / 2, _resolution.second / 2, 0, GL_RED, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _resolution.first, _resolution.second, 0, GL_RED, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -715,7 +715,7 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 
 	glGenTextures(1, &ssaoTextureB);
 	glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _resolution.first / 2, _resolution.second / 2, 0, GL_RED, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _resolution.first, _resolution.second, 0, GL_RED, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -1253,7 +1253,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 	{
 		fullscreenTriangle->enableVertexAttribArrays();
 		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
-		glViewport(0, 0, _renderData.resolution.first / 2, _renderData.resolution.second / 2);
+		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glActiveTexture(GL_TEXTURE5);
@@ -1290,7 +1290,6 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		if (generateKernel)
 		{
 			ssaoKernel.clear();
-			generateKernel = false;
 			for (unsigned int i = 0; i < currentKernelSize; ++i)
 			{
 				glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
@@ -1308,7 +1307,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		fullscreenTriangle->enableVertexAttribArrays();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
-		glViewport(0, 0, _renderData.resolution.first / 2, _renderData.resolution.second / 2);
+		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glActiveTexture(GL_TEXTURE5);
@@ -1324,9 +1323,13 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		uKernelSizeAO.set((int)currentKernelSize);
 		uRadiusAO.set(_effects.ssao.radius);
 		uBiasAO.set(_effects.ssao.bias);
-		for (unsigned int i = 0; i < currentKernelSize; ++i)
+		if (generateKernel)
 		{
-			ssaoShader->setUniform(uSamplesAO[i], ssaoKernel[i]);
+			generateKernel = false;
+			for (unsigned int i = 0; i < currentKernelSize; ++i)
+			{
+				ssaoShader->setUniform(uSamplesAO[i], ssaoKernel[i]);
+			}
 		}
 
 		fullscreenTriangle->render();
@@ -1343,6 +1346,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		fullscreenTriangle->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
+}
 
 void SceneRenderer::precomputeFftTextures()
 {
