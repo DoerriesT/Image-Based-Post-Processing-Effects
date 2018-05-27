@@ -356,14 +356,14 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	glDisable(GL_DEPTH_TEST);
 
 	// render ssao texture
-	if (_effects.ssao.enabled)
+	if (_effects.ambientOcclusion != AmbientOcclusion::OFF)
 	{
 		glDisable(GL_CULL_FACE);
 		renderSsaoTexture(_renderData, invProj, _effects);
 		glEnable(GL_CULL_FACE);
 	}
 
-	if (_effects.ssao.enabled || _level->water.enabled)
+	if (_effects.ambientOcclusion != AmbientOcclusion::OFF || _level->water.enabled)
 	{
 		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
 		glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
@@ -884,7 +884,7 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 	uPrefilterMapE.set(7);
 	uBrdfLUTE.set(8);
 	uPrevFrameE.set(9);
-	uSsaoE.set(_effects.ssao.enabled);
+	uSsaoE.set(_effects.ambientOcclusion != AmbientOcclusion::OFF);
 	uUseSsrE.set(_effects.screenSpaceReflections.enabled);
 
 	static glm::mat4 prevViewProjection;
@@ -1247,9 +1247,9 @@ void SceneRenderer::renderCustomGeometry(const RenderData &_renderData, const st
 
 void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::mat4 &_inverseProjection, const Effects &_effects)
 {
-	static bool original = false;
-
-	if (original)
+	switch (_effects.ambientOcclusion)
+	{
+	case AmbientOcclusion::SSAO_ORIGINAL:
 	{
 		fullscreenTriangle->enableVertexAttribArrays();
 		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
@@ -1274,8 +1274,9 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		uBlurSizeAOB.set(4);
 
 		fullscreenTriangle->render();
+		break;
 	}
-	else
+	case AmbientOcclusion::SSAO:
 	{
 		std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0);
 		static std::default_random_engine generator;
@@ -1345,6 +1346,10 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 
 		fullscreenTriangle->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		break;
+	}
+	default:
+		assert(false);
 	}
 }
 

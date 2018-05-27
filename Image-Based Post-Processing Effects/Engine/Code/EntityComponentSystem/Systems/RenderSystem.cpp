@@ -115,9 +115,9 @@ void RenderSystem::init()
 	vignetteEnabled->addListener([&](bool _value) { effects.vignette.enabled = _value; });
 	effects.vignette.enabled = vignetteEnabled->get();
 
-	ssaoEnabled = settingsManager.getBoolSetting("graphics", "ssao_enabled", false);
-	ssaoEnabled->addListener([&](bool _value) { effects.ssao.enabled = _value; });
-	effects.ssao.enabled = ssaoEnabled->get();
+	ambientOcclusion = settingsManager.getIntSetting("graphics", "ambient_occlusion", 0);
+	ambientOcclusion->addListener([&](int _value) { effects.ambientOcclusion = static_cast<AmbientOcclusion>(_value); });
+	effects.ambientOcclusion = static_cast<AmbientOcclusion>(ambientOcclusion->get());
 
 	ssaoKernelSize = settingsManager.getIntSetting("graphics", "ssao_kernel_size", 16);
 	ssaoKernelSize->addListener([&](int _value) { effects.ssao.kernelSize = _value; });

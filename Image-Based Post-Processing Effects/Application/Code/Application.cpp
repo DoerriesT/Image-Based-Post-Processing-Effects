@@ -30,7 +30,7 @@ namespace App
 			bloomEnabled = settingsManager.getBoolSetting("graphics", "bloom_enabled", false);
 			fxaaEnabled = settingsManager.getBoolSetting("graphics", "fxaa_enabled", false);
 			lensFlaresEnabled = settingsManager.getBoolSetting("graphics", "lens_flares_enabled", false);
-			ssaoEnabled = settingsManager.getBoolSetting("graphics", "ssao_enabled", false);
+			ambientOcclusion = settingsManager.getIntSetting("graphics", "ambient_occlusion", 0);
 			vsync = settingsManager.getBoolSetting("graphics", "vsync", false);
 			windowWidth = settingsManager.getIntSetting("graphics", "window_width", 1080);
 			windowHeight = settingsManager.getIntSetting("graphics", "window_height", 720);
@@ -132,9 +132,9 @@ namespace App
 		{
 			bloomEnabled->set(checkbox->isChecked());
 		}
-		if (optionsGui->getElementById("ambient_occlusion_checkbox", checkbox) && _event.source == checkbox)
+		if (optionsGui->getElementById("ambient_occlusion_box", box) && _event.source == box)
 		{
-			ssaoEnabled->set(checkbox->isChecked());
+			ambientOcclusion->set(static_cast<int>(box->getSelectedItem()));
 		}
 		if (optionsGui->getElementById("motion_blur_box", box) && _event.source == box)
 		{
@@ -221,11 +221,13 @@ namespace App
 		}
 		if (optionsGui->getElementById("ssao_kernel_size_slider", slider) && _event.source == slider)
 		{
-			ssaoKernelSize->set(slider->getValue());
+			ssaoKernelSize->set((int)slider->getValue());
+			optionsGui->getElementById<GuiLabel>("ssao_kernel_size_label")->setText(std::to_string(ssaoKernelSize->get()));
 		}
 		if (optionsGui->getElementById("ssao_radius_slider", slider) && _event.source == slider)
 		{
 			ssaoRadius->set(slider->getValue());
+			optionsGui->getElementById<GuiLabel>("ssao_radius_label")->setText(std::to_string(ssaoRadius->get()));
 		}
 
 		settingsManager.saveToIni();
@@ -308,7 +310,7 @@ namespace App
 		}
 		if (optionsGui->getElementById("ambient_occlusion_checkbox", checkbox))
 		{
-			checkbox->setChecked(ssaoEnabled->get());
+			checkbox->setChecked(ambientOcclusion->get());
 		}
 		if (optionsGui->getElementById("motion_blur_box", box))
 		{
@@ -316,12 +318,13 @@ namespace App
 		}
 		if (optionsGui->getElementById("ssao_kernel_size_slider", slider))
 		{
-			slider->setValue(ssaoKernelSize->get());
+			slider->setValue(static_cast<float>(ssaoKernelSize->get()));
 		}
 		if (optionsGui->getElementById("ssao_radius_slider", slider))
 		{
-			slider->setValue(ssaoRadius->get());
+			slider->setValue(static_cast<float>(ssaoRadius->get()));
 		}
-
+		optionsGui->getElementById<GuiLabel>("ssao_radius_label")->setText(std::to_string(ssaoRadius->get()));
+		optionsGui->getElementById<GuiLabel>("ssao_kernel_size_label")->setText(std::to_string(ssaoKernelSize->get()));
 	}
 }

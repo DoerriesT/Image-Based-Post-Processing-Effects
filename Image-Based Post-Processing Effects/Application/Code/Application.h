@@ -30,7 +30,7 @@ namespace App
 		std::shared_ptr<Setting<bool>> bloomEnabled;
 		std::shared_ptr<Setting<bool>> fxaaEnabled;
 		std::shared_ptr<Setting<bool>> lensFlaresEnabled;
-		std::shared_ptr<Setting<bool>> ssaoEnabled;
+		std::shared_ptr<Setting<int>> ambientOcclusion;
 		std::shared_ptr<Setting<bool>> vsync;
 		std::shared_ptr<Setting<int>> windowWidth;
 		std::shared_ptr<Setting<int>> windowHeight;

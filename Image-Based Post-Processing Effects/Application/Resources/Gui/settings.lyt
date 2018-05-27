@@ -139,13 +139,23 @@
         "type": "checkbox",
         "group": ""
       }]},
-      {"elements": [{
-        "checked": false,
-        "id": "ambient_occlusion_checkbox",
-        "text": "Ambient Occlusion",
-        "type": "checkbox",
-        "group": ""
-      }]},
+      {"elements": [
+        {
+          "multiline": false,
+          "id": "",
+          "text": "Ambient Occlusion",
+          "type": "label",
+          "align": "center",
+          "class": "",
+          "font_offset": 0
+        },
+        {
+          "id": "ambient_occlusion_box",
+          "type": "combobox",
+          "class": "",
+          "items": "Off;SSAO (Original);SSAO"
+        }
+      ]},
       {"elements": [
         {
           "multiline": false,
@@ -163,6 +173,15 @@
           "id": "ssao_kernel_size_slider",
           "type": "slider",
           "value": 8
+        },
+        {
+          "multiline": false,
+          "id": "ssao_kernel_size_label",
+          "text": "16",
+          "type": "label",
+          "align": "right",
+          "class": "",
+          "font_offset": 0
         }
       ]},
       {"elements": [
@@ -182,6 +201,15 @@
           "id": "ssao_radius_slider",
           "type": "slider",
           "value": 0.5
+        },
+        {
+          "multiline": false,
+          "id": "ssao_radius_label",
+          "text": "0.5",
+          "type": "label",
+          "align": "right",
+          "class": "",
+          "font_offset": 0
         }
       ]},
       {"elements": [

@@ -55,10 +55,14 @@ struct FilmGrain
 
 struct SSAO
 {
-	bool enabled;
 	unsigned int kernelSize;
 	float radius;
 	float bias;
+};
+
+enum class AmbientOcclusion
+{
+	OFF, SSAO_ORIGINAL, SSAO
 };
 
 struct ScreenSpaceReflections
@@ -78,6 +82,7 @@ enum class MotionBlur
 
 struct Effects
 {
+	AmbientOcclusion ambientOcclusion;
 	SSAO ssao;
 	Bloom bloom;
 	Vignette vignette;

@@ -120,7 +120,7 @@ void GraphicsFramework::render(const std::shared_ptr<EnvironmentProbe> &_environ
 	renderData.fov = window->getFieldOfView();
 
 	Effects effects = _effects;
-	effects.ssao.enabled = false;
+	effects.ambientOcclusion = AmbientOcclusion::OFF;
 
 
 	for (unsigned int i = 0; i < 6; ++i)

@@ -62,7 +62,7 @@ private:
 	std::shared_ptr<Setting<double>> lensFlaresSpacing;
 	std::shared_ptr<Setting<double>> lensFlaresHaloWidth;
 	std::shared_ptr<Setting<bool>> vignetteEnabled;
-	std::shared_ptr<Setting<bool>> ssaoEnabled;
+	std::shared_ptr<Setting<int>> ambientOcclusion;
 	std::shared_ptr<Setting<int>> ssaoKernelSize;
 	std::shared_ptr<Setting<double>> ssaoRadius;
 	std::shared_ptr<Setting<double>> ssaoBias;
