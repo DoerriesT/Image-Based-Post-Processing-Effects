@@ -84,7 +84,7 @@ void PostProcessRenderer::init()
 	uLensFlareTexH.create(hdrShader);
 	uLensDirtTexH.create(hdrShader);
 	uLensStarTexH.create(hdrShader);
-	uLensStarMatrixH.create(hdrShader);
+	uStarburstOffsetH.create(hdrShader);
 	uLensFlaresH.create(hdrShader);
 	uBloomH.create(hdrShader);
 	uBloomStrengthH.create(hdrShader);
@@ -108,7 +108,7 @@ void PostProcessRenderer::init()
 	uLensColorLFG.create(lensFlareGenShader);
 	uGhostsLFG.create(lensFlareGenShader);
 	uGhostDispersalLFG.create(lensFlareGenShader);
-	uHaloWidthLFG.create(lensFlareGenShader);
+	uHaloRadiusLFG.create(lensFlareGenShader);
 	uDistortionLFG.create(lensFlareGenShader);
 	uScaleLFG.create(lensFlareGenShader);
 	uBiasLFG.create(lensFlareGenShader);
@@ -146,9 +146,9 @@ void PostProcessRenderer::init()
 	createFboAttachments(std::make_pair(window->getWidth(), window->getHeight()));
 
 	// load textures
-	lensColorTexture = Texture::createTexture("Resources/Textures/lensColor.dds", true);
-	lensDirtTexture = Texture::createTexture("Resources/Textures/lensDirt.dds", true);
-	lensStarTexture = Texture::createTexture("Resources/Textures/lensStar.dds", true);
+	lensColorTexture = Texture::createTexture("Resources/Textures/lenscolor.dds", true);
+	lensDirtTexture = Texture::createTexture("Resources/Textures/lensdirt.dds", true);
+	lensStarTexture = Texture::createTexture("Resources/Textures/starburst.dds", true);
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.obj", true);
 }
@@ -175,28 +175,6 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 		{
 			// we still have the proper fbo and viewport set from last upsampling step
 			generateFlares(_effects);
-
-			glm::vec3 camx = _camera->getViewMatrix()[0]; // camera x (left) vector
-			glm::vec3 camz = _camera->getViewMatrix()[1]; // camera z (forward) vector
-			float camrot = glm::dot(camx, glm::vec3(0, 0, 1)) + glm::dot(camz, glm::vec3(0, 1, 0));
-
-			static const glm::mat3 scaleBias1 = glm::transpose(glm::mat3(
-				2.0f, 0.0f, -1.0f,
-				0.0f, 2.0f, -1.0f,
-				0.0f, 0.0f, 1.0f
-			));
-			glm::mat3 rotation = glm::mat3(
-				cos(camrot), -sin(camrot), 0.0f,
-				sin(camrot), cos(camrot), 0.0f,
-				0.0f, 0.0f, 1.0f
-			);
-			static const glm::mat3 scaleBias2 = glm::transpose(glm::mat3(
-				0.5f, 0.0f, 0.5f,
-				0.0f, 0.5f, 0.5f,
-				0.0f, 0.0f, 1.0f
-			));
-
-			lensStarMatrix = scaleBias2 * glm::transpose(rotation) * scaleBias1;
 		}
 	}
 
@@ -281,7 +259,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	uVelocityNeighborMaxTextureH.set(6);
 	uDepthTextureH.set(7);
 
-	uLensStarMatrixH.set(lensStarMatrix);
+	uStarburstOffsetH.set(glm::dot(glm::vec3(1.0), _camera->getForwardDirection()));
 	uLensFlaresH.set(_effects.lensFlares.enabled);
 	uBloomH.set(_effects.bloom.enabled);
 	uBloomStrengthH.set(_effects.bloom.strength);
@@ -525,7 +503,7 @@ void PostProcessRenderer::generateFlares(const Effects &_effects)
 	uLensColorLFG.set(1);
 	uGhostsLFG.set(_effects.lensFlares.flareCount);
 	uGhostDispersalLFG.set(_effects.lensFlares.flareSpacing);
-	uHaloWidthLFG.set(_effects.lensFlares.haloWidth);
+	uHaloRadiusLFG.set(_effects.lensFlares.haloWidth);
 	uDistortionLFG.set(_effects.lensFlares.chromaticDistortion);
 
 	fullscreenTriangle->render();

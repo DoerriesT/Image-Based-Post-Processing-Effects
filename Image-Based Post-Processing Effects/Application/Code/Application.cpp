@@ -36,6 +36,8 @@ namespace App
 			windowHeight = settingsManager.getIntSetting("graphics", "window_height", 720);
 			windowMode = settingsManager.getIntSetting("graphics", "window_mode", 0);
 			motionBlur = settingsManager.getIntSetting("graphics", "motion_blur", 0);
+			ssaoKernelSize = settingsManager.getIntSetting("graphics", "ssao_kernel_size", 16);
+			ssaoRadius = settingsManager.getDoubleSetting("graphics", "ssao_radius", 0.5);
 
 			settingsManager.saveToIni();
 		}
@@ -89,6 +91,7 @@ namespace App
 
 		GuiComboBox *box;
 		GuiToggle *checkbox;
+		GuiSlider *slider;
 
 		if (optionsGui->getElementById("window_mode_box", box) && _event.source == box)
 		{
@@ -216,6 +219,15 @@ namespace App
 				}
 			}
 		}
+		if (optionsGui->getElementById("ssao_kernel_size_slider", slider) && _event.source == slider)
+		{
+			ssaoKernelSize->set(slider->getValue());
+		}
+		if (optionsGui->getElementById("ssao_radius_slider", slider) && _event.source == slider)
+		{
+			ssaoRadius->set(slider->getValue());
+		}
+
 		settingsManager.saveToIni();
 	}
 
@@ -228,6 +240,7 @@ namespace App
 
 		GuiComboBox *box;
 		GuiToggle *checkbox;
+		GuiSlider *slider;
 
 		if (optionsGui->getElementById("window_mode_box", box))
 		{
@@ -300,6 +313,14 @@ namespace App
 		if (optionsGui->getElementById("motion_blur_box", box))
 		{
 			box->setSelectedItem(static_cast<size_t>(motionBlur->get()));
+		}
+		if (optionsGui->getElementById("ssao_kernel_size_slider", slider))
+		{
+			slider->setValue(ssaoKernelSize->get());
+		}
+		if (optionsGui->getElementById("ssao_radius_slider", slider))
+		{
+			slider->setValue(ssaoRadius->get());
 		}
 
 	}

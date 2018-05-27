@@ -36,6 +36,8 @@ namespace App
 		std::shared_ptr<Setting<int>> windowHeight;
 		std::shared_ptr<Setting<int>> windowMode;
 		std::shared_ptr<Setting<int>> motionBlur;
+		std::shared_ptr<Setting<int>> ssaoKernelSize;
+		std::shared_ptr<Setting<double>> ssaoRadius;
 
 		void initGuiData();
 	};

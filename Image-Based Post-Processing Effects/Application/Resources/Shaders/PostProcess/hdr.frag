@@ -11,9 +11,10 @@ uniform sampler2D uDepthTexture;
 uniform sampler2D uLensFlareTex; // input from the blur stage
 uniform sampler2D uLensDirtTex; // full resolution dirt texture
 uniform sampler2D uLensStarTex; // diffraction starburst texture
-uniform mat3 uLensStarMatrix; // transforms texcoords
+uniform float uStarburstOffset; // transforms texcoords
 uniform bool uLensFlares;
 uniform bool uBloom;
+uniform bool uLensDirt = false;
 uniform int uMotionBlur;
 uniform float uBloomStrength = 0.1;
 uniform float uBloomDirtStrength = 0.5;
@@ -224,19 +225,29 @@ void main()
 	{
 		vec3 lensMod = texture(uLensDirtTex, vTexCoord).rgb;
 		vec3 bloom = texture(uBloomTexture, vTexCoord).rgb * uBloomStrength;
-		bloom = mix(bloom, bloom * (vec3(1.0) + lensMod), uBloomDirtStrength);
+		//bloom = mix(bloom, bloom * (vec3(1.0) + lensMod), uBloomDirtStrength);
 		color += bloom;
 	}
 
 	if (uLensFlares)
 	{
-		vec3 lensMod = texture(uLensDirtTex, vTexCoord).rgb;
-		vec2 lensStarTexCoord = (uLensStarMatrix * vec3(vTexCoord, 1.0)).xy;
-		lensStarTexCoord = clamp(lensStarTexCoord, vec2(0.0), vec2(1.0));
-		lensMod += texture(uLensStarTex, lensStarTexCoord).rgb;
-		vec3 lensFlare = texture(uLensFlareTex, vTexCoord).rgb * lensMod;
-		color.rgb += vec3(1.0) - exp(-lensFlare * 8.0 * dot(lensFlare, vec3(0.299, 0.587, 0.114)));
-		//color.rgb += lensFlare;
+		vec2 centerVec = vTexCoord - vec2(0.5);
+		float d = length(centerVec);
+		float radial = acos(centerVec.x / d);
+		float mask = texture(uLensStarTex, vec2(radial + uStarburstOffset * 1.0, 0.0)).r
+					* texture(uLensStarTex, vec2(radial - uStarburstOffset * 0.5, 0.0)).r;
+		
+		mask = clamp(mask + (1.0 - smoothstep(0.0, 0.3, d)), 0.0, 1.0);
+
+		vec3 lensFlare = texture(uLensFlareTex, vTexCoord).rgb * mask;
+		color.rgb += vec3(1.0) - exp(-lensFlare * 0.15 * dot(lensFlare, vec3(0.299, 0.587, 0.114)));
+	}
+
+	if (uLensDirt)
+	{
+		float brightness = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+		vec3 dirt = texture(uLensDirtTex, vTexCoord).rgb;
+		color.rgb += (dirt + vec3(1.0)) * clamp(brightness / 5.0, 0.0, 1.0);
 	}
 	
 	// HDR tonemapping

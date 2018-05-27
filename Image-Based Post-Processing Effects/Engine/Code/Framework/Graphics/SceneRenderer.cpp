@@ -1254,6 +1254,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 	}
 	if (generateKernel)
 	{
+		ssaoKernel.clear();
 		generateKernel = false;
 		for (unsigned int i = 0; i < currentKernelSize; ++i)
 		{

@@ -91,7 +91,7 @@ private:
 	Uniform<GLint> uLensFlareTexH = Uniform<GLint>("uLensFlareTex"); // input from the blur stage
 	Uniform<GLint> uLensDirtTexH = Uniform<GLint>("uLensDirtTex"); // full resolution dirt texture
 	Uniform<GLint> uLensStarTexH = Uniform<GLint>("uLensStarTex"); // diffraction starburst texture
-	Uniform<glm::mat3> uLensStarMatrixH = Uniform<glm::mat3>("uLensStarMatrix");
+	Uniform<GLfloat> uStarburstOffsetH = Uniform<GLfloat>("uStarburstOffset");
 	Uniform<GLboolean> uLensFlaresH = Uniform<GLboolean>("uLensFlares");
 	Uniform<GLboolean> uBloomH = Uniform<GLboolean>("uBloom");
 	Uniform<GLint> uMotionBlurH = Uniform<GLint>("uMotionBlur");
@@ -115,7 +115,7 @@ private:
 	Uniform<GLint> uLensColorLFG = Uniform<GLint>("uLensColor");
 	Uniform<GLint> uGhostsLFG = Uniform<GLint>("uGhosts");
 	Uniform<GLfloat> uGhostDispersalLFG = Uniform<GLfloat>("uGhostDispersal");
-	Uniform<GLfloat> uHaloWidthLFG = Uniform<GLfloat>("uHaloWidth");
+	Uniform<GLfloat> uHaloRadiusLFG = Uniform<GLfloat>("uHaloRadius");
 	Uniform<GLfloat> uDistortionLFG = Uniform<GLfloat>("uDistortion");
 	Uniform<glm::vec4> uScaleLFG = Uniform<glm::vec4>("uScale");
 	Uniform<glm::vec4> uBiasLFG = Uniform<glm::vec4>("uBias");
