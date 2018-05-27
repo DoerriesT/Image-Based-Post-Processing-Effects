@@ -39,6 +39,12 @@ namespace App
 		std::shared_ptr<Setting<int>> ssaoKernelSize;
 		std::shared_ptr<Setting<double>> ssaoRadius;
 		std::shared_ptr<Setting<double>> ssaoStrength;
+		std::shared_ptr<Setting<int>> hbaoDirections;
+		std::shared_ptr<Setting<int>> hbaoSteps;
+		std::shared_ptr<Setting<double>> hbaoStrength;
+		std::shared_ptr<Setting<double>> hbaoRadius;
+		std::shared_ptr<Setting<double>> hbaoMaxRadiusPixels;
+		std::shared_ptr<Setting<double>> hbaoAngleBias;
 
 		void initGuiData();
 	};

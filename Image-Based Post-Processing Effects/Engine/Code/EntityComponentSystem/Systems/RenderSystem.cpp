@@ -135,6 +135,30 @@ void RenderSystem::init()
 	ssaoStrength->addListener([&](double _value) { effects.ssao.strength = (float)_value; });
 	effects.ssao.strength = (float)ssaoStrength->get();
 
+	hbaoDirections = settingsManager.getIntSetting("graphics", "hbao_directions", 4);
+	hbaoDirections->addListener([&](int _value) { effects.hbao.directions = _value; });
+	effects.hbao.directions = hbaoDirections->get();
+
+	hbaoSteps = settingsManager.getIntSetting("graphics", "hbao_steps", 4);
+	hbaoSteps->addListener([&](int _value) { effects.hbao.steps = _value; });
+	effects.hbao.steps = hbaoSteps->get();
+
+	hbaoStrength = settingsManager.getDoubleSetting("graphics", "hbao_strength", 0.5);
+	hbaoStrength->addListener([&](double _value) { effects.hbao.strength = (float)_value; });
+	effects.hbao.strength = (float)hbaoStrength->get();
+
+	hbaoRadius = settingsManager.getDoubleSetting("graphics", "hbao_radius", 0.3);
+	hbaoRadius->addListener([&](double _value) { effects.hbao.radius = (float)_value; });
+	effects.hbao.radius = (float)hbaoRadius->get();
+
+	hbaoMaxRadiusPixels = settingsManager.getDoubleSetting("graphics", "hbao_max_radius_pixels", 50.0);
+	hbaoMaxRadiusPixels->addListener([&](double _value) { effects.hbao.maxRadiusPixels = (float)_value; });
+	effects.hbao.maxRadiusPixels = (float)hbaoMaxRadiusPixels->get();
+
+	hbaoAngleBias = settingsManager.getDoubleSetting("graphics", "hbao_angle_bias", glm::tan(glm::radians(30.0f)));
+	hbaoAngleBias->addListener([&](double _value) { effects.hbao.angleBias = (float)_value; });
+	effects.hbao.angleBias = (float)hbaoAngleBias->get();
+
 	motionBlur = settingsManager.getIntSetting("graphics", "motion_blur", 0);
 	motionBlur->addListener([&](int _value) { effects.motionBlur = static_cast<MotionBlur>(_value); });
 	effects.motionBlur = static_cast<MotionBlur>(motionBlur->get());

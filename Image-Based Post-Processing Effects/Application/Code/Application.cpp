@@ -39,6 +39,12 @@ namespace App
 			ssaoKernelSize = settingsManager.getIntSetting("graphics", "ssao_kernel_size", 16);
 			ssaoRadius = settingsManager.getDoubleSetting("graphics", "ssao_radius", 0.5);
 			ssaoStrength = settingsManager.getDoubleSetting("graphics", "ssao_strength", 1.0);
+			hbaoDirections = settingsManager.getIntSetting("graphics", "hbao_directions", 4);
+			hbaoSteps = settingsManager.getIntSetting("graphics", "hbao_steps", 4);
+			hbaoStrength = settingsManager.getDoubleSetting("graphics", "hbao_strength", 0.5);
+			hbaoRadius = settingsManager.getDoubleSetting("graphics", "hbao_radius", 0.3);
+			hbaoMaxRadiusPixels = settingsManager.getDoubleSetting("graphics", "hbao_max_radius_pixels", 50.0);
+			hbaoAngleBias = settingsManager.getDoubleSetting("graphics", "hbao_angle_bias", glm::tan(glm::radians(30.0f)));
 
 			settingsManager.saveToIni();
 		}
@@ -158,7 +164,7 @@ namespace App
 					assert(entity);
 
 					glm::vec3 position = glm::vec3(i - 5.0f, 0.0f, j - 5.0f) * 4.0f;
-					
+
 					if (bounce)
 					{
 						glm::vec3 bouncePos = position + glm::vec3(0.0f, 10.0f, 0.0f);
@@ -234,6 +240,36 @@ namespace App
 		{
 			ssaoStrength->set(slider->getValue());
 			optionsGui->getElementById<GuiLabel>("ssao_strength_label")->setText(std::to_string(ssaoStrength->get()));
+		}
+		if (optionsGui->getElementById("hbao_directions_slider", slider) && _event.source == slider)
+		{
+			hbaoDirections->set((int)slider->getValue());
+			optionsGui->getElementById<GuiLabel>("hbao_directions_label")->setText(std::to_string(hbaoDirections->get()));
+		}
+		if (optionsGui->getElementById("hbao_steps_slider", slider) && _event.source == slider)
+		{
+			hbaoSteps->set((int)slider->getValue());
+			optionsGui->getElementById<GuiLabel>("hbao_steps_label")->setText(std::to_string(hbaoSteps->get()));
+		}
+		if (optionsGui->getElementById("hbao_strength_slider", slider) && _event.source == slider)
+		{
+			hbaoStrength->set(slider->getValue());
+			optionsGui->getElementById<GuiLabel>("hbao_strength_label")->setText(std::to_string(hbaoStrength->get()));
+		}
+		if (optionsGui->getElementById("hbao_radius_slider", slider) && _event.source == slider)
+		{
+			hbaoRadius->set(slider->getValue());
+			optionsGui->getElementById<GuiLabel>("hbao_radius_label")->setText(std::to_string(hbaoRadius->get()));
+		}
+		if (optionsGui->getElementById("hbao_max_radius_pixels_slider", slider) && _event.source == slider)
+		{
+			hbaoMaxRadiusPixels->set(slider->getValue());
+			optionsGui->getElementById<GuiLabel>("hbao_max_radius_pixels_label")->setText(std::to_string(hbaoMaxRadiusPixels->get()));
+		}
+		if (optionsGui->getElementById("hbao_angle_bias_slider", slider) && _event.source == slider)
+		{
+			hbaoAngleBias->set(slider->getValue());
+			optionsGui->getElementById<GuiLabel>("hbao_angle_bias_label")->setText(std::to_string(hbaoAngleBias->get()));
 		}
 
 		settingsManager.saveToIni();
@@ -337,5 +373,12 @@ namespace App
 		optionsGui->getElementById<GuiLabel>("ssao_radius_label")->setText(std::to_string(ssaoRadius->get()));
 		optionsGui->getElementById<GuiLabel>("ssao_kernel_size_label")->setText(std::to_string(ssaoKernelSize->get()));
 		optionsGui->getElementById<GuiLabel>("ssao_strength_label")->setText(std::to_string(ssaoStrength->get()));
+		optionsGui->getElementById<GuiLabel>("hbao_directions_label")->setText(std::to_string(hbaoDirections->get()));
+		optionsGui->getElementById<GuiLabel>("hbao_steps_label")->setText(std::to_string(hbaoSteps->get()));
+		optionsGui->getElementById<GuiLabel>("hbao_strength_label")->setText(std::to_string(hbaoStrength->get()));
+		optionsGui->getElementById<GuiLabel>("hbao_radius_label")->setText(std::to_string(hbaoRadius->get()));
+		optionsGui->getElementById<GuiLabel>("hbao_max_radius_pixels_label")->setText(std::to_string(hbaoMaxRadiusPixels->get()));
+		optionsGui->getElementById<GuiLabel>("hbao_angle_bias_label")->setText(std::to_string(hbaoAngleBias->get()));
+
 	}
 }

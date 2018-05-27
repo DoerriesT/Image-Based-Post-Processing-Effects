@@ -67,6 +67,12 @@ private:
 	std::shared_ptr<Setting<double>> ssaoRadius;
 	std::shared_ptr<Setting<double>> ssaoBias;
 	std::shared_ptr<Setting<double>> ssaoStrength;
+	std::shared_ptr<Setting<int>> hbaoDirections;
+	std::shared_ptr<Setting<int>> hbaoSteps;
+	std::shared_ptr<Setting<double>> hbaoStrength;
+	std::shared_ptr<Setting<double>> hbaoRadius;
+	std::shared_ptr<Setting<double>> hbaoMaxRadiusPixels;
+	std::shared_ptr<Setting<double>> hbaoAngleBias;
 	std::shared_ptr<Setting<bool>> screenSpaceReflectionsEnabled;
 	std::shared_ptr<Setting<bool>> loadEnvironmentFromFile;
 	std::shared_ptr<Setting<bool>> saveEnvironmentToFile;

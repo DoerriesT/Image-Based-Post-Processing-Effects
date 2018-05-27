@@ -1,28 +1,31 @@
 #version 330 core
 
-out vec4 oFragColor;
-in vec2 vTexCoord;
-
-uniform sampler2D uDepthMap;
-uniform sampler2D uNormalMap;
-uniform sampler2D uNoiseMap; //(cos(alpha), sin(alpha), beta); αE[0,2π/Nd] and β [0,1).
-uniform float uRadius; // view space
-uniform float uDirections;
-uniform float uNumSteps;
-uniform float uAngleBias;
-uniform float uStrength;
-uniform float uMaxRadiusPixels;
-uniform vec2 uFocalLength; // (cotan(fovy / 2), h / w, cotan(fovy / 2))
-uniform mat4 uInverseProjection;
-
-const float Z_NEAR = 0.1;
-const float Z_FAR = 3000.0;
 const float PI = 3.14159265;
 
-vec2 gTexSize = vec2(0.0);
-vec2 gTexelSize = vec2(0.0);
-float gNegInvR2 = 1.0;
-float gR2 = 1.0;
+in vec2 vTexCoord;
+
+out vec4 oColor;
+
+uniform sampler2D uDepthMap;
+uniform sampler2D uNoiseMap;
+
+uniform vec2 uFocalLength;
+uniform mat4 uInverseProjection;
+
+uniform vec2 uAORes = vec2(1600.0, 900.0);
+uniform vec2 uInvAORes = vec2(1.0/1600.0, 1.0/900.0);
+uniform vec2 uNoiseScale = vec2(1600.0, 900.0) / 4.0;
+
+uniform float uStrength = 1.9;
+uniform float uRadius = 0.3;
+uniform float uRadius2 = 0.3*0.3;
+uniform float uNegInvR2 = - 1.0 / (0.3*0.3);
+uniform float uTanBias = tan(30.0 * PI / 180.0);
+uniform float uMaxRadiusPixels = 50.0;
+
+uniform float uNumDirections = 4;
+uniform float uNumSteps = 4;
+
 
 vec3 getViewSpacePos(vec2 uv)
 {
@@ -34,51 +37,34 @@ vec3 getViewSpacePos(vec2 uv)
 	return viewSpacePosition.xyz;
 }
 
-float invLength(vec2 v)
+float tanToSin(float x)
 {
-    return inversesqrt(dot(v,v));
+	return x * inversesqrt(x*x + 1.0);
 }
 
-float tangent(vec3 T)
+float invLength(vec2 V)
 {
-    return -T.z * invLength(T.xy);
+	return inversesqrt(dot(V,V));
+}
+
+float tangent(vec3 V)
+{
+	return V.z * invLength(V.xy);
+}
+
+float biasedTangent(vec3 V)
+{
+	return V.z * invLength(V.xy) + uTanBias;
 }
 
 float tangent(vec3 P, vec3 S)
 {
-    return (P.z - S.z) * invLength(S.xy - P.xy);
+    return -(P.z - S.z) * invLength(S.xy - P.xy);
 }
 
-float biasedTangent(vec3 T)
+float length2(vec3 V)
 {
-    // Do not use atan() because it gets expanded by fxc to many math instructions
-    return tangent(T) + uAngleBias;
-}
-
-vec3 tangentVector(vec2 deltaUV, vec3 dPdu, vec3 dPdv)
-{
-    return deltaUV.x * dPdu + deltaUV.y * dPdv;
-}
-
-float tanToSin(float x)
-{
-    return x * inversesqrt(x*x + 1.0f);
-}
-
-vec2 rotateDirections(vec2 Dir, vec2 CosSin)
-{
-    return vec2(Dir.x*CosSin.x - Dir.y*CosSin.y, Dir.x*CosSin.y + Dir.y*CosSin.x);
-}
-
-float length2(vec3 v)
-{
-    return dot(v, v);
-}
-
-float falloff(float d2)
-{
-    // 1 scalar mad instruction
-    return d2 * gNegInvR2 + 1.0f;
+	return dot(V,V);
 }
 
 vec3 minDiff(vec3 P, vec3 Pr, vec3 Pl)
@@ -90,16 +76,74 @@ vec3 minDiff(vec3 P, vec3 Pr, vec3 Pl)
 
 vec2 snapUVOffset(vec2 uv)
 {
-    return round(uv * gTexSize) * gTexelSize;
+    return round(uv * uAORes) * uInvAORes;
 }
 
-void computeSteps(inout vec2 stepSizeUV, inout float numSteps, float radiusPix, float rand)
+float falloff(float d2)
 {
-    // Avoid oversampling if NUM_STEPS is greater than the kernel radius in pixels
-    numSteps = min(uNumSteps, radiusPix);
+	return d2 * uNegInvR2 + 1.0f;
+}
+
+float horizonOcclusion(	vec2 deltaUV,
+						vec3 P,
+						vec3 dPdu,
+						vec3 dPdv,
+						float randstep,
+						float numSamples)
+{
+	float ao = 0;
+
+	// Offset the first coord with some noise
+	vec2 uv = vTexCoord + snapUVOffset(randstep*deltaUV);
+	deltaUV = snapUVOffset( deltaUV );
+
+	// Calculate the tangent vector
+	vec3 T = deltaUV.x * dPdu + deltaUV.y * dPdv;
+
+	// Get the angle of the tangent vector from the viewspace axis
+	float tanH = biasedTangent(T);
+	float sinH = tanToSin(tanH);
+
+	float tanS;
+	float d2;
+	vec3 S;
+
+	// Sample to find the maximum angle
+	for(float s = 1; s <= numSamples; ++s)
+	{
+		uv += deltaUV;
+		S = getViewSpacePos(uv);
+		tanS = tangent(P, S);
+		d2 = length2(S - P);
+
+		// Is the sample within the radius and the angle greater?
+		if(d2 < uRadius2 && tanS > tanH)
+		{
+			float sinS = tanToSin(tanS);
+			// Apply falloff based on the distance
+			ao += falloff(d2) * (sinS - sinH);
+
+			tanH = tanS;
+			sinH = sinS;
+		}
+	}
+	
+	return ao;
+}
+
+vec2 rotateDirections(vec2 Dir, vec2 CosSin)
+{
+    return vec2(Dir.x*CosSin.x - Dir.y*CosSin.y,
+                  Dir.x*CosSin.y + Dir.y*CosSin.x);
+}
+
+void computeSteps(inout vec2 stepSizeUv, inout float numSteps, float rayRadiusPix, float rand)
+{
+    // Avoid oversampling if numSteps is greater than the kernel radius in pixels
+    numSteps = min(uNumSteps, rayRadiusPix);
 
     // Divide by Ns+1 so that the farthest samples are not fully attenuated
-    float stepSizePix = radiusPix / (numSteps + 1.0);
+    float stepSizePix = rayRadiusPix / (numSteps + 1);
 
     // Clamp numSteps if it is greater than the max kernel footprint
     float maxNumSteps = uMaxRadiusPixels / stepSizePix;
@@ -107,155 +151,71 @@ void computeSteps(inout vec2 stepSizeUV, inout float numSteps, float radiusPix, 
     {
         // Use dithering to avoid AO discontinuities
         numSteps = floor(maxNumSteps + rand);
-		numSteps = max(numSteps, 1.0);
+        numSteps = max(numSteps, 1);
         stepSizePix = uMaxRadiusPixels / numSteps;
     }
 
     // Step size in uv space
-    stepSizeUV = stepSizePix * gTexelSize;
+    stepSizeUv = stepSizePix * uInvAORes;
 }
 
-float integerateOcclusion(vec2 uv0,
-                          vec2 snappedDuv,
-                          vec3 P,
-                          vec3 dPdu,
-                          vec3 dPdv,
-                          inout float tanH)
+void main(void)
 {
-    float ao = 0;
 
-    // Compute a tangent vector for snapped_duv
-    vec3 T1 = tangentVector(snappedDuv, dPdu, dPdv);
-    float tanT = biasedTangent(T1);
-    float sinT = tanToSin(tanT);
+	vec3 P 	= getViewSpacePos(vTexCoord);
 
-    vec3 S = getViewSpacePos(uv0 + snappedDuv);
-    float tanS = tangent(P, S);
+    // Get the random samples from the noise texture
+	vec3 random = texture(uNoiseMap, vTexCoord.xy * uNoiseScale).rgb;
 
-    float sinS = tanToSin(tanS);
-    float d2 = length2(S - P);
+	// Calculate the projected size of the hemisphere
+    vec2 rayRadiusUV = 0.5 * uRadius * uFocalLength / P.z;
+    float rayRadiusPix = rayRadiusUV.x * uAORes.x;
 
-    if ((d2 < gR2) && (tanS > tanT))
+    float ao = 1.0;
+
+    // Make sure the radius of the evaluated hemisphere is more than a pixel
+    if(rayRadiusPix > 1.0)
     {
-        // Compute AO between the tangent plane and the sample
-        ao = falloff(d2) * (sinS - sinT);
+    	float numSteps;
+    	vec2 stepSizeUV;
 
-        // Update the horizon angle
-        tanH = max(tanH, tanS);
-    }
+    	// Compute the number of steps
+    	computeSteps(stepSizeUV, numSteps, rayRadiusPix, random.z);
 
-    return ao;
-}
+		// Sample neighboring pixels
+		vec3 Pr = getViewSpacePos(vTexCoord + vec2( uInvAORes.x, 0));
+		vec3 Pl = getViewSpacePos(vTexCoord + vec2(-uInvAORes.x, 0));
+		vec3 Pt = getViewSpacePos(vTexCoord + vec2( 0, uInvAORes.y));
+		vec3 Pb = getViewSpacePos(vTexCoord + vec2( 0,-uInvAORes.y));
 
-float horizonOcclusion(vec2 deltaUV,
-                        vec2 texelDeltaUV,
-                        vec2 uv0,
-                        vec3 P,
-                        float numSteps,
-                        float randstep,
-                        vec3 dPdu,
-                        vec3 dPdv )
-{
-    float ao = 0;
-
-    // Randomize starting point within the first sample distance
-    vec2 uv = uv0 + snapUVOffset( randstep * deltaUV );
-
-    // Snap increments to pixels to avoid disparities between xy
-    // and z sample locations and sample along a line
-    deltaUV = snapUVOffset( deltaUV );
-
-    // Compute tangent vector using the tangent plane
-    vec3 T = deltaUV.x * dPdu + deltaUV.y * dPdv;
-
-    float tanH = biasedTangent(T);
-
-#if SAMPLE_FIRST_STEP
-    // Take a first sample between uv0 and uv0 + deltaUV
-    //vec2 snappedDuv = snapUVOffset( randstep * deltaUV + texelDeltaUV );
-    //ao = integerateOcclusion(uv0, snapped_duv, P, dPdu, dPdv, tanH);
-    //--numSteps;
-#endif
-
-    float sinH = tanH / sqrt(1.0f + tanH*tanH);
-
-    for (float j = 1; j <= numSteps; ++j)
-    {
-        uv += deltaUV;
-        vec3 S = getViewSpacePos(uv);
-        float tanS = tangent(P, S);
-        float d2 = length2(S - P);
-
-        // Use a merged dynamic branch
-        if ((d2 < gR2) && (tanS > tanH))
-        {
-            // Accumulate AO between the horizon and the sample
-            float sinS = tanS / sqrt(1.0f + tanS*tanS);
-            ao += falloff(d2) * (sinS - sinH);
-
-            // Update the current horizon angle
-            tanH = tanS;
-            sinH = sinS;
-        }
-    }
-
-    return ao;
-}
-
-void main()
-{
-	// get center view space position
-	vec3 P = getViewSpacePos(vTexCoord);
-	
-	vec3 noiseValues = texture(uNoiseMap, vTexCoord / 4).xyz;
-	
-	gTexSize = textureSize(uNormalMap, 0);
-	gTexelSize = 1.0 / gTexSize;
-	gR2 = uRadius * uRadius;
-	gNegInvR2 = -(1.0 / gR2);
-	
-	// project radius into screen space
-	// Multiply by 0.5 to scale from [-1,1]^2 to [0,1]^2
-	vec2 radiusUV = 0.5 * uRadius * uFocalLength / P.z;
-	float radiusPix = radiusUV.x * gTexSize.x;
-	
-	if (radiusPix >= 1.0)
-	{
-		
-		float numSteps;
-		vec2 stepSize;
-		computeSteps(stepSize, numSteps, radiusPix, noiseValues.z);
-		
-		// Nearest neighbor pixels on the tangent plane
-		vec3 Pr, Pl, Pt, Pb;
-		Pr = getViewSpacePos(vTexCoord + vec2(gTexelSize.x, 0.0));
-		Pl = getViewSpacePos(vTexCoord + vec2(-gTexelSize.x, 0.0));
-		Pt = getViewSpacePos(vTexCoord + vec2(0.0, gTexelSize.y));
-		Pb = getViewSpacePos(vTexCoord + vec2(0.0, -gTexelSize.y));
-		
-		// Screen-aligned basis for the tangent plane
+		// Calculate tangent basis vectors using the minimu difference
 		vec3 dPdu = minDiff(P, Pr, Pl);
-		vec3 dPdv = minDiff(P, Pt, Pb) * (gTexSize.y * gTexelSize.x);
-		
-		float ao = 0.0;
-		float alpha = 2.0 * PI / uDirections;
-		
-		for (float d = 0; d < uDirections; ++d)
+		vec3 dPdv = minDiff(P, Pt, Pb) * (uAORes.y * uInvAORes.x);
+
+		ao = 0.0;
+		float alpha = 2.0 * PI / uNumDirections;
+
+		// Calculate the horizon occlusion of each direction
+		for(float d = 0; d < uNumDirections; ++d)
 		{
-			float angle = alpha * d;
-			vec2 dir = rotateDirections(vec2(cos(angle), sin(angle)), noiseValues.xy);
-			vec2 deltaUV = dir * stepSize.xy;
-			vec2 texelDeltaUV = dir * gTexelSize;
-			ao += horizonOcclusion(deltaUV, texelDeltaUV, vTexCoord, P, numSteps, noiseValues.z, dPdu, dPdv);
+			float theta = alpha * d;
+
+			// Apply noise to the direction
+			vec2 dir = rotateDirections(vec2(cos(theta), sin(theta)), random.xy);
+			vec2 deltaUV = dir * stepSizeUV;
+
+			// Sample the pixels along the direction
+			ao += horizonOcclusion(	deltaUV,
+									P,
+									dPdu,
+									dPdv,
+									random.z,
+									numSteps);
 		}
-		
-		
-		ao = 1.0 - ao / uDirections * uStrength;
-		oFragColor = vec4(ao, 0.0, 0.0, 0.0);
-		
+
+		// Average the results and produce the final AO
+		ao = clamp(1.0 - ao / uNumDirections * uStrength, 0.0, 1.0);
 	}
-	else
-	{
-		oFragColor = vec4(0.0, 0.0, 0.0, 0.0);
-	}
+
+	oColor = vec4(ao);
 }

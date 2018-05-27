@@ -61,6 +61,16 @@ struct SSAO
 	float strength;
 };
 
+struct HBAO
+{
+	unsigned int directions;
+	unsigned int steps;
+	float strength;
+	float radius;
+	float maxRadiusPixels;
+	float angleBias;
+};
+
 enum class AmbientOcclusion
 {
 	OFF, SSAO_ORIGINAL, SSAO, HBAO
@@ -85,6 +95,7 @@ struct Effects
 {
 	AmbientOcclusion ambientOcclusion;
 	SSAO ssao;
+	HBAO hbao;
 	Bloom bloom;
 	Vignette vignette;
 	FilmGrain filmGrain;

@@ -208,16 +208,20 @@ void SceneRenderer::init()
 
 	// hbao
 	uDepthMapHBAO.create(hbaoShader);
-	uNormalMapHBAO.create(hbaoShader);
 	uNoiseMapHBAO.create(hbaoShader);
-	uRadiusHBAO.create(hbaoShader);
-	uDirectionsHBAO.create(hbaoShader);
-	uNumStepsHBAO.create(hbaoShader);
-	uAngleBiasHBAO.create(hbaoShader);
-	uStrengthHBAO.create(hbaoShader);
-	uMaxRadiusPixelsHBAO.create(hbaoShader);
 	uFocalLengthHBAO.create(hbaoShader);
 	uInverseProjectionHBAO.create(hbaoShader);
+	uAOResHBAO.create(hbaoShader);
+	uInvAOResHBAO.create(hbaoShader);
+	uNoiseScaleHBAO.create(hbaoShader);
+	uStrengthHBAO.create(hbaoShader);
+	uRadiusHBAO.create(hbaoShader);
+	uRadius2HBAO.create(hbaoShader);
+	uNegInvR2HBAO.create(hbaoShader);
+	uTanBiasHBAO.create(hbaoShader);
+	uMaxRadiusPixelsHBAO.create(hbaoShader);
+	uNumDirectionsHBAO.create(hbaoShader);
+	uNumStepsHBAO.create(hbaoShader);
 
 	// tildeh0k
 	uNoiseR0TextureH0.create(tildeH0kShader);
@@ -717,8 +721,8 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	std::uniform_real_distribution<GLfloat> hbaoAlphaDist(0.0, 2.0 * glm::pi<float>() / 4.0);
-	std::uniform_real_distribution<GLfloat> hbaoBetaDist(0.0, 0.999999);
+	std::uniform_real_distribution<GLfloat> hbaoAlphaDist(0.0f, 2.0f * glm::pi<float>() / 4.0f);
+	std::uniform_real_distribution<GLfloat> hbaoBetaDist(0.0f, 0.999999f);
 	glm::vec3 hbaoNoise[16];
 	for (unsigned int i = 0; i < 16; ++i)
 	{
@@ -1392,33 +1396,39 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
 		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
 
-		glDrawBuffer(GL_COLOR_ATTACHMENT1);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glActiveTexture(GL_TEXTURE5);
 		glBindTexture(GL_TEXTURE_2D, noiseTexture2);
 
-		float test = (40.0f * glm::pi<float>() / 180.0f);
-		float aspectRatio = (window->getHeight() / (float)window->getWidth());
-		float fovy = 2.0 * glm::atan(glm::tan(glm::radians(window->getFieldOfView()) * 0.5) * aspectRatio);
+		float aspectRatio = _renderData.resolution.second / (float)_renderData.resolution.first;
+		float fovy = 2.0f * glm::atan(glm::tan(glm::radians(window->getFieldOfView()) * 0.5f) * aspectRatio);
 		glm::vec2 focalLength;
-		focalLength.x = 1.0f / tanf(test * 0.5f) * aspectRatio;
+		focalLength.x = 1.0f / tanf(fovy * 0.5f) * aspectRatio;
 		focalLength.y = 1.0f / tanf(fovy * 0.5f);
+
+		glm::vec2 res(_renderData.resolution.first, _renderData.resolution.second);
+		float radius = 0.3f;
 
 		hbaoShader->bind();
 		uDepthMapHBAO.set(3);
-		uNormalMapHBAO.set(1);
 		uNoiseMapHBAO.set(5);
-		uRadiusHBAO.set(0.3f);
-		uDirectionsHBAO.set(4.0f);
-		uNumStepsHBAO.set(4.0f);
-		uAngleBiasHBAO.set(0.0f);
-		uStrengthHBAO.set(1.0f);
-		uMaxRadiusPixelsHBAO.set(16.0f);
 		uFocalLengthHBAO.set(focalLength);
 		uInverseProjectionHBAO.set(_renderData.invProjectionMatrix);
+		uAOResHBAO.set(res);
+		uInvAOResHBAO.set(1.0f / res);
+		uNoiseScaleHBAO.set(res * 0.25f);
+		uStrengthHBAO.set(_effects.hbao.strength);
+		uRadiusHBAO.set(_effects.hbao.radius);
+		uRadius2HBAO.set(_effects.hbao.radius * _effects.hbao.radius);
+		uNegInvR2HBAO.set(-1.0f / (_effects.hbao.radius * _effects.hbao.radius));
+		uTanBiasHBAO.set(_effects.hbao.angleBias);
+		uMaxRadiusPixelsHBAO.set(_effects.hbao.maxRadiusPixels);
+		uNumDirectionsHBAO.set((float)_effects.hbao.directions);
+		uNumStepsHBAO.set((float)_effects.hbao.steps);
 
 		fullscreenTriangle->render();
 
-		/*glDrawBuffer(GL_COLOR_ATTACHMENT1);
+		glDrawBuffer(GL_COLOR_ATTACHMENT1);
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
 
@@ -1426,7 +1436,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		uInputTextureAOB.set(6);
 		uBlurSizeAOB.set(4);
 
-		fullscreenTriangle->render();*/
+		fullscreenTriangle->render();
 
 		break;
 	}
