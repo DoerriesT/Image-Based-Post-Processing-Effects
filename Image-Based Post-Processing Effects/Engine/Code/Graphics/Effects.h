@@ -58,6 +58,7 @@ struct SSAO
 	unsigned int kernelSize;
 	float radius;
 	float bias;
+	float strength;
 };
 
 enum class AmbientOcclusion

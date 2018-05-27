@@ -131,6 +131,10 @@ void RenderSystem::init()
 	ssaoBias->addListener([&](double _value) { effects.ssao.bias = (float)_value; });
 	effects.ssao.bias = (float)ssaoBias->get();
 
+	ssaoStrength = settingsManager.getDoubleSetting("graphics", "ssao_strength", 1.0);
+	ssaoStrength->addListener([&](double _value) { effects.ssao.strength = (float)_value; });
+	effects.ssao.strength = (float)ssaoStrength->get();
+
 	motionBlur = settingsManager.getIntSetting("graphics", "motion_blur", 0);
 	motionBlur->addListener([&](int _value) { effects.motionBlur = static_cast<MotionBlur>(_value); });
 	effects.motionBlur = static_cast<MotionBlur>(motionBlur->get());

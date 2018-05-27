@@ -195,6 +195,7 @@ void SceneRenderer::init()
 	uKernelSizeAO.create(ssaoShader);
 	uRadiusAO.create(ssaoShader);
 	uBiasAO.create(ssaoShader);
+	uStrengthAO.create(ssaoShader);
 
 	// ssao original
 	uDepthTextureAOO.create(ssaoOriginalShader);
@@ -1324,6 +1325,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		uKernelSizeAO.set((int)currentKernelSize);
 		uRadiusAO.set(_effects.ssao.radius);
 		uBiasAO.set(_effects.ssao.bias);
+		uStrengthAO.set(_effects.ssao.strength);
 		if (generateKernel)
 		{
 			generateKernel = false;

@@ -59,7 +59,7 @@ void main()
 					vec3 vOffset = normalize(vec3(x, y, z)) * offsetScale;
 					
 					// rotate offset vector by rotation matrix
-					vec3 vRotatedOffset =  vOffset;// * rotMat;
+					vec3 vRotatedOffset =  vOffset * rotMat;
 					
 					// get center pixel 3d coordinates in screen space
 					vec3 vSamplePos = vec3(vTexCoord, centerDepth);

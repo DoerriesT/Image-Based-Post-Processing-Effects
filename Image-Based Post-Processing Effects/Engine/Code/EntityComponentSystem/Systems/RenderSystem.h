@@ -66,6 +66,7 @@ private:
 	std::shared_ptr<Setting<int>> ssaoKernelSize;
 	std::shared_ptr<Setting<double>> ssaoRadius;
 	std::shared_ptr<Setting<double>> ssaoBias;
+	std::shared_ptr<Setting<double>> ssaoStrength;
 	std::shared_ptr<Setting<bool>> screenSpaceReflectionsEnabled;
 	std::shared_ptr<Setting<bool>> loadEnvironmentFromFile;
 	std::shared_ptr<Setting<bool>> saveEnvironmentToFile;

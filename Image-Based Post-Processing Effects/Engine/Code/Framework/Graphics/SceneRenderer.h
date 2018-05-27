@@ -203,6 +203,7 @@ private:
 	Uniform<GLint> uKernelSizeAO = Uniform<GLint>("uKernelSize");
 	Uniform<GLfloat> uRadiusAO = Uniform<GLfloat>("uRadius");
 	Uniform<GLfloat> uBiasAO = Uniform<GLfloat>("uBias");
+	Uniform<GLfloat> uStrengthAO = Uniform<GLfloat>("uStrength");
 
 	// ssao original
 	Uniform<GLint> uDepthTextureAOO = Uniform<GLint>("uDepthTexture");

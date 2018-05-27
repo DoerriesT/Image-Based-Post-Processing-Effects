@@ -38,6 +38,7 @@ namespace App
 			motionBlur = settingsManager.getIntSetting("graphics", "motion_blur", 0);
 			ssaoKernelSize = settingsManager.getIntSetting("graphics", "ssao_kernel_size", 16);
 			ssaoRadius = settingsManager.getDoubleSetting("graphics", "ssao_radius", 0.5);
+			ssaoStrength = settingsManager.getDoubleSetting("graphics", "ssao_strength", 1.0);
 
 			settingsManager.saveToIni();
 		}
@@ -229,6 +230,11 @@ namespace App
 			ssaoRadius->set(slider->getValue());
 			optionsGui->getElementById<GuiLabel>("ssao_radius_label")->setText(std::to_string(ssaoRadius->get()));
 		}
+		if (optionsGui->getElementById("ssao_strength_slider", slider) && _event.source == slider)
+		{
+			ssaoStrength->set(slider->getValue());
+			optionsGui->getElementById<GuiLabel>("ssao_strength_label")->setText(std::to_string(ssaoStrength->get()));
+		}
 
 		settingsManager.saveToIni();
 	}
@@ -316,6 +322,10 @@ namespace App
 		{
 			box->setSelectedItem(static_cast<size_t>(motionBlur->get()));
 		}
+		if (optionsGui->getElementById("ambient_occlusion_box", box))
+		{
+			box->setSelectedItem(static_cast<size_t>(ambientOcclusion->get()));
+		}
 		if (optionsGui->getElementById("ssao_kernel_size_slider", slider))
 		{
 			slider->setValue(static_cast<float>(ssaoKernelSize->get()));
@@ -326,5 +336,6 @@ namespace App
 		}
 		optionsGui->getElementById<GuiLabel>("ssao_radius_label")->setText(std::to_string(ssaoRadius->get()));
 		optionsGui->getElementById<GuiLabel>("ssao_kernel_size_label")->setText(std::to_string(ssaoKernelSize->get()));
+		optionsGui->getElementById<GuiLabel>("ssao_strength_label")->setText(std::to_string(ssaoStrength->get()));
 	}
 }

@@ -14,6 +14,7 @@ uniform vec3 uSamples[64];
 uniform int uKernelSize = 64;
 uniform float uRadius = 0.5;
 uniform float uBias = 0.025;
+uniform float uStrength = 1.0;
 
 const float NEAR_PLANE = 0.1;
 const float FAR_PLANE = 3000.0;
@@ -79,7 +80,7 @@ void main()
 		float rangeCheck = smoothstep(0.0, 1.0, uRadius / abs(fragPos.z - sampleDepth));
         occlusion += (sampleDepth >= sample.z + uBias ? 1.0 : 0.0) * rangeCheck;           
     }
-    occlusion = 1.0 - min((occlusion / uKernelSize) * 5.0, 1.0);
+    occlusion = 1.0 - min((occlusion / uKernelSize) * uStrength, 1.0);
     
     oColor = vec4(occlusion, 0.0, 0.0, 0.0);
 }

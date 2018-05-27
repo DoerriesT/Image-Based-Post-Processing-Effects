@@ -38,6 +38,7 @@ namespace App
 		std::shared_ptr<Setting<int>> motionBlur;
 		std::shared_ptr<Setting<int>> ssaoKernelSize;
 		std::shared_ptr<Setting<double>> ssaoRadius;
+		std::shared_ptr<Setting<double>> ssaoStrength;
 
 		void initGuiData();
 	};
