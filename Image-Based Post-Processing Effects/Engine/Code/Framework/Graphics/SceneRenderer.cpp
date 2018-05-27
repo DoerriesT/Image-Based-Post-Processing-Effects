@@ -77,6 +77,7 @@ void SceneRenderer::init()
 	ssaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssao.frag");
 	ssaoOriginalShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoOriginal.frag");
 	ssaoBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoBlur.frag");
+	hbaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/hbao.frag");
 	tildeH0kShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/tildeH0k.frag");
 	tildeHktShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/tildeHkt.frag");
 	butterflyPrecomputeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/butterflyPrecompute.frag");
@@ -204,6 +205,19 @@ void SceneRenderer::init()
 	// ssao blur
 	uInputTextureAOB.create(ssaoBlurShader);
 	uBlurSizeAOB.create(ssaoBlurShader);
+
+	// hbao
+	uDepthMapHBAO.create(hbaoShader);
+	uNormalMapHBAO.create(hbaoShader);
+	uNoiseMapHBAO.create(hbaoShader);
+	uRadiusHBAO.create(hbaoShader);
+	uDirectionsHBAO.create(hbaoShader);
+	uNumStepsHBAO.create(hbaoShader);
+	uAngleBiasHBAO.create(hbaoShader);
+	uStrengthHBAO.create(hbaoShader);
+	uMaxRadiusPixelsHBAO.create(hbaoShader);
+	uFocalLengthHBAO.create(hbaoShader);
+	uInverseProjectionHBAO.create(hbaoShader);
 
 	// tildeh0k
 	uNoiseR0TextureH0.create(tildeH0kShader);
@@ -698,6 +712,28 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 	glGenTextures(1, &noiseTexture);
 	glBindTexture(GL_TEXTURE_2D, noiseTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, ssaoNoise);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	std::uniform_real_distribution<GLfloat> hbaoAlphaDist(0.0, 2.0 * glm::pi<float>() / 4.0);
+	std::uniform_real_distribution<GLfloat> hbaoBetaDist(0.0, 0.999999);
+	glm::vec3 hbaoNoise[16];
+	for (unsigned int i = 0; i < 16; ++i)
+	{
+		float alpha = hbaoAlphaDist(generator);
+		float beta = hbaoBetaDist(generator);
+		glm::vec3 noise(
+			glm::cos(alpha),
+			glm::sin(alpha),
+			beta);
+		hbaoNoise[i] = noise;
+	}
+
+	glGenTextures(1, &noiseTexture2);
+	glBindTexture(GL_TEXTURE_2D, noiseTexture2);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, hbaoNoise);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1348,6 +1384,50 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 
 		fullscreenTriangle->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		break;
+	}
+	case AmbientOcclusion::HBAO:
+	{
+		fullscreenTriangle->enableVertexAttribArrays();
+		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
+		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT1);
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, noiseTexture2);
+
+		float test = (40.0f * glm::pi<float>() / 180.0f);
+		float aspectRatio = (window->getHeight() / (float)window->getWidth());
+		float fovy = 2.0 * glm::atan(glm::tan(glm::radians(window->getFieldOfView()) * 0.5) * aspectRatio);
+		glm::vec2 focalLength;
+		focalLength.x = 1.0f / tanf(test * 0.5f) * aspectRatio;
+		focalLength.y = 1.0f / tanf(fovy * 0.5f);
+
+		hbaoShader->bind();
+		uDepthMapHBAO.set(3);
+		uNormalMapHBAO.set(1);
+		uNoiseMapHBAO.set(5);
+		uRadiusHBAO.set(0.3f);
+		uDirectionsHBAO.set(4.0f);
+		uNumStepsHBAO.set(4.0f);
+		uAngleBiasHBAO.set(0.0f);
+		uStrengthHBAO.set(1.0f);
+		uMaxRadiusPixelsHBAO.set(16.0f);
+		uFocalLengthHBAO.set(focalLength);
+		uInverseProjectionHBAO.set(_renderData.invProjectionMatrix);
+
+		fullscreenTriangle->render();
+
+		/*glDrawBuffer(GL_COLOR_ATTACHMENT1);
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
+
+		ssaoBlurShader->bind();
+		uInputTextureAOB.set(6);
+		uBlurSizeAOB.set(4);
+
+		fullscreenTriangle->render();*/
+
 		break;
 	}
 	default:

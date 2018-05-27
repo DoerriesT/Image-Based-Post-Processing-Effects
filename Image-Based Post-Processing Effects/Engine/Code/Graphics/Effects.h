@@ -63,7 +63,7 @@ struct SSAO
 
 enum class AmbientOcclusion
 {
-	OFF, SSAO_ORIGINAL, SSAO
+	OFF, SSAO_ORIGINAL, SSAO, HBAO
 };
 
 struct ScreenSpaceReflections

@@ -40,6 +40,7 @@ private:
 	std::shared_ptr<ShaderProgram> ssaoShader;
 	std::shared_ptr<ShaderProgram> ssaoOriginalShader;
 	std::shared_ptr<ShaderProgram> ssaoBlurShader;
+	std::shared_ptr<ShaderProgram> hbaoShader;
 	std::shared_ptr<ShaderProgram> butterflyPrecomputeShader;
 	std::shared_ptr<ShaderProgram> tildeH0kShader;
 	std::shared_ptr<ShaderProgram> tildeHktShader;
@@ -78,6 +79,7 @@ private:
 	GLuint ssaoTextureA;
 	GLuint ssaoTextureB;
 	GLuint noiseTexture;
+	GLuint noiseTexture2;
 
 	// fft fbo
 	GLuint fftFbo;
@@ -212,6 +214,19 @@ private:
 	// ssao blur uniforms
 	Uniform<GLint> uInputTextureAOB = Uniform<GLint>("uInputTexture");
 	Uniform<GLint> uBlurSizeAOB = Uniform<GLint>("uBlurSize"); // size of noise texture
+
+	// hbao
+	Uniform<GLint> uDepthMapHBAO = Uniform<GLint>("uDepthMap");
+	Uniform<GLint> uNormalMapHBAO = Uniform<GLint>("uNormalMap");
+	Uniform<GLint> uNoiseMapHBAO = Uniform<GLint>("uNoiseMap");
+	Uniform<GLfloat> uRadiusHBAO = Uniform<GLfloat>("uRadius");
+	Uniform<GLfloat> uDirectionsHBAO = Uniform<GLfloat>("uDirections");
+	Uniform<GLfloat> uNumStepsHBAO = Uniform<GLfloat>("uNumSteps");
+	Uniform<GLfloat> uAngleBiasHBAO = Uniform<GLfloat>("uAngleBias");
+	Uniform<GLfloat> uStrengthHBAO = Uniform<GLfloat>("uStrength");
+	Uniform<GLfloat> uMaxRadiusPixelsHBAO = Uniform<GLfloat>("uMaxRadiusPixels");
+	Uniform<glm::vec2> uFocalLengthHBAO = Uniform<glm::vec2>("uFocalLength");
+	Uniform<glm::mat4> uInverseProjectionHBAO = Uniform<glm::mat4>("uInverseProjection");
 
 	// tildeh0k
 	Uniform<GLint> uNoiseR0TextureH0 = Uniform<GLint>("uNoiseR0Texture");

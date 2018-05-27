@@ -687,5 +687,8 @@
     <None Include="..\Application\Resources\Shaders\Renderer\ssaoOriginal.frag">
       <Filter>Resources\Shaders\Renderer</Filter>
     </None>
+    <None Include="..\Application\Resources\Shaders\Renderer\hbao.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
   </ItemGroup>
 </Project>

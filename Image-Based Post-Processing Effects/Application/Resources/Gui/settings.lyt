@@ -153,7 +153,7 @@
           "id": "ambient_occlusion_box",
           "type": "combobox",
           "class": "",
-          "items": "Off;SSAO (Original);SSAO"
+          "items": "Off;SSAO (Original);SSAO;HBAO"
         }
       ]},
       {"elements": [

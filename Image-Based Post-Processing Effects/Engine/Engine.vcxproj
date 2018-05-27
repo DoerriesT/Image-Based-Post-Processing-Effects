@@ -198,6 +198,7 @@
     <None Include="..\Application\Resources\Shaders\Renderer\gBufferPass.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\gBufferPass.vert" />
     <None Include="..\Application\Resources\Shaders\Renderer\globalLightPass.frag" />
+    <None Include="..\Application\Resources\Shaders\Renderer\hbao.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\outline.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\outline.vert" />
     <None Include="..\Application\Resources\Shaders\Renderer\pointLightPass.frag" />
