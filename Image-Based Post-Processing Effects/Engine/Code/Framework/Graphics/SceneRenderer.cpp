@@ -90,7 +90,7 @@ void SceneRenderer::init()
 
 	// gBufferPass uniforms
 	uMaterialG.create(gBufferPassShader);
-	uModelMatrixG.create(gBufferPassShader);
+	uModelViewMatrixG.create(gBufferPassShader);
 	uModelViewProjectionMatrixG.create(gBufferPassShader);
 	uPrevTransformG.create(gBufferPassShader);
 	uAtlasDataG.create(gBufferPassShader);
@@ -109,7 +109,6 @@ void SceneRenderer::init()
 	uSsaoMapE.create(environmentLightPassShader);
 	uInverseProjectionE.create(environmentLightPassShader);
 	uInverseViewE.create(environmentLightPassShader);
-	uCamPosE.create(environmentLightPassShader);
 	uIrradianceMapE.create(environmentLightPassShader);
 	uPrefilterMapE.create(environmentLightPassShader);
 	uBrdfLUTE.create(environmentLightPassShader);
@@ -118,7 +117,6 @@ void SceneRenderer::init()
 	uRenderDirectionalLightE.create(environmentLightPassShader);
 	uSsaoE.create(environmentLightPassShader);
 	uPrevFrameE.create(environmentLightPassShader);
-	uViewE.create(environmentLightPassShader);
 	uProjectionE.create(environmentLightPassShader);
 	uPrevViewProjectionE.create(environmentLightPassShader);
 	uUseSsrE.create(environmentLightPassShader);
@@ -133,7 +131,6 @@ void SceneRenderer::init()
 	uPointLightP.create(pointLightPassShader);
 	uInverseProjectionP.create(pointLightPassShader);
 	uInverseViewP.create(pointLightPassShader);
-	uCamPosP.create(pointLightPassShader);
 	uShadowsEnabledP.create(pointLightPassShader);
 	uViewportSizeP.create(pointLightPassShader);
 
@@ -146,7 +143,6 @@ void SceneRenderer::init()
 	uSpotLightS.create(spotLightPassShader);
 	uInverseViewS.create(spotLightPassShader);
 	uInverseProjectionS.create(spotLightPassShader);
-	uCamPosS.create(spotLightPassShader);
 	uShadowsEnabledS.create(spotLightPassShader);
 	uViewportSizeS.create(spotLightPassShader);
 
@@ -158,7 +154,6 @@ void SceneRenderer::init()
 	uDirectionalLightD.create(directionalLightShader);
 	uInverseViewD.create(directionalLightShader);
 	uInverseProjectionD.create(directionalLightShader);
-	uCamPosD.create(directionalLightShader);
 	uShadowsEnabledD.create(directionalLightShader);
 
 	// skybox uniforms
@@ -831,7 +826,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		glm::mat4 prevTransformation = glm::mix(_renderData.viewProjectionMatrix, _renderData.prevViewProjectionMatrix, 0.15f) * entityRenderData->transformationComponent->prevTransformation;
 
 		uAtlasDataG.set(glm::vec4(columns, rows, textureOffset));
-		uModelMatrixG.set(modelMatrix);
+		uModelViewMatrixG.set(glm::mat3(_renderData.viewMatrix * modelMatrix));
 		uModelViewProjectionMatrixG.set(mvpTransformation);
 		uPrevTransformG.set(prevTransformation);
 		uVelG.set(entityRenderData->transformationComponent->vel);
@@ -911,11 +906,9 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 
 	environmentLightPassShader->bind();
 
-	uViewE.set(_renderData.viewMatrix);
 	uInverseViewE.set(_inverseView);
 	uProjectionE.set(_renderData.projectionMatrix);
 	uInverseProjectionE.set(_inverseProjection);
-	uCamPosE.set(_renderData.cameraPosition);
 	uAlbedoMapE.set(0);
 	uNormalMapE.set(1);
 	uMetallicRoughnessAoMapE.set(2);
@@ -936,6 +929,7 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 	if (!_level->lights.directionalLights.empty())
 	{
 		std::shared_ptr<DirectionalLight> directionalLight = _level->lights.directionalLights[0];
+		directionalLight->updateViewValues(_renderData.viewMatrix);
 		if (directionalLight->isRenderShadows())
 		{
 			glActiveTexture(GL_TEXTURE5);
@@ -962,7 +956,6 @@ void SceneRenderer::renderDirectionalLights(const RenderData &_renderData, const
 
 	uInverseViewD.set(_inverseView);
 	uInverseProjectionD.set(_inverseProjection);
-	uCamPosD.set(_renderData.cameraPosition);
 	uAlbedoMapD.set(0);
 	uNormalMapD.set(1);
 	uMetallicRoughnessAoMapD.set(2);
@@ -972,6 +965,7 @@ void SceneRenderer::renderDirectionalLights(const RenderData &_renderData, const
 	for (size_t i = _level->environment.skyboxEntity ? 1 : 0; i < _level->lights.directionalLights.size(); ++i)
 	{
 		std::shared_ptr<DirectionalLight> directionalLight = _level->lights.directionalLights[i];
+		directionalLight->updateViewValues(_renderData.viewMatrix);
 		if (directionalLight->isRenderShadows())
 		{
 			glActiveTexture(GL_TEXTURE4);
@@ -996,12 +990,13 @@ void SceneRenderer::renderPointLights(const RenderData &_renderData, const std::
 	uDepthMapP.set(3);
 	uInverseViewP.set(_inverseView);
 	uInverseProjectionP.set(_inverseProjection);
-	uCamPosP.set(_renderData.cameraPosition);
 	uShadowsEnabledP.set(_renderData.shadows);
 	uViewportSizeP.set(glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
 
 	for (std::shared_ptr<PointLight> pointLight : _level->lights.pointLights)
 	{
+		pointLight->updateViewValues(_renderData.viewMatrix);
+
 		if (pointLight->isRenderShadows())
 		{
 			glActiveTexture(GL_TEXTURE4);
@@ -1026,12 +1021,13 @@ void SceneRenderer::renderSpotLights(const RenderData &_renderData, const std::s
 	uDepthMapS.set(3);
 	uInverseViewS.set(_inverseView);
 	uInverseProjectionS.set(_inverseProjection);
-	uCamPosS.set(_renderData.cameraPosition);
 	uShadowsEnabledS.set(_renderData.shadows);
 	uViewportSizeS.set(glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
 
 	for (std::shared_ptr<SpotLight> spotLight : _level->lights.spotLights)
 	{
+		spotLight->updateViewValues(_renderData.viewMatrix);
+
 		if (spotLight->isRenderShadows())
 		{
 			glActiveTexture(GL_TEXTURE4);

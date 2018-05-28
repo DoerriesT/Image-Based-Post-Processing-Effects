@@ -4,7 +4,7 @@
 bool operator==(const std::shared_ptr<PointLight> &_lhv, const std::shared_ptr<PointLight> &_rhv)
 {
 	return _lhv->getColor() == _rhv->getColor() &&
-		_lhv->getPosition() == _rhv->getPosition() &&
+		_lhv->getViewPosition() == _rhv->getViewPosition() &&
 		_lhv->isRenderShadows() == _rhv->isRenderShadows() &&
 		_lhv->getShadowMap() == _rhv->getShadowMap() &&
 		_lhv->getViewProjectionMatrix() == _rhv->getViewProjectionMatrix();
@@ -13,8 +13,8 @@ bool operator==(const std::shared_ptr<PointLight> &_lhv, const std::shared_ptr<P
 bool operator==(const std::shared_ptr<SpotLight> &_lhv, const std::shared_ptr<SpotLight> &_rhv)
 {
 	return _lhv->getColor() == _rhv->getColor() &&
-		_lhv->getPosition() == _rhv->getPosition() &&
-		_lhv->getDirection() == _rhv->getDirection() &&
+		_lhv->getViewPosition() == _rhv->getViewPosition() &&
+		_lhv->getViewDirection() == _rhv->getViewDirection() &&
 		_lhv->getAngle() == _rhv->getAngle() &&
 		_lhv->isRenderShadows() == _rhv->isRenderShadows() &&
 		_lhv->getShadowMap() == _rhv->getShadowMap() &&
@@ -24,7 +24,7 @@ bool operator==(const std::shared_ptr<SpotLight> &_lhv, const std::shared_ptr<Sp
 bool operator==(const std::shared_ptr<DirectionalLight> &_lhv, const std::shared_ptr<DirectionalLight> &_rhv)
 {
 	return _lhv->getColor() == _rhv->getColor() &&
-		_lhv->getDirection() == _rhv->getDirection() &&
+		_lhv->getViewDirection() == _rhv->getViewDirection() &&
 		_lhv->isRenderShadows() == _rhv->isRenderShadows() &&
 		_lhv->getShadowMap() == _rhv->getShadowMap() &&
 		_lhv->getViewProjectionMatrix() == _rhv->getViewProjectionMatrix();

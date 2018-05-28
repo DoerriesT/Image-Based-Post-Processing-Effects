@@ -22,7 +22,6 @@ uniform sampler2D uDepthMap;
 uniform DirectionalLight uDirectionalLight;
 uniform mat4 uInverseView;
 uniform mat4 uInverseProjection;
-uniform vec3 uCamPos;
 uniform bool uShadowsEnabled;
 
 vec3 decode (vec2 enc)
@@ -87,12 +86,12 @@ void main()
 		vec4 clipSpacePosition = vec4(vTexCoord * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
 		vec4 viewSpacePosition = uInverseProjection * clipSpacePosition;
 		viewSpacePosition /= viewSpacePosition.w;
-		vec4 worldPos4 = uInverseView * viewSpacePosition;
 
 		// shadow
 		float shadow = 0.0;
 		if(uDirectionalLight.renderShadows && uShadowsEnabled)
 		{		
+			vec4 worldPos4 = uInverseView * viewSpacePosition;
 			vec4 projCoords4 = uDirectionalLight.viewProjectionMatrix * worldPos4;
 			vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
 			projCoords = projCoords * 0.5 + 0.5; 
@@ -111,7 +110,7 @@ void main()
 			}
 		}
 
-		vec3 V = normalize(uCamPos - worldPos4.xyz/worldPos4.w);
+		vec3 V = -normalize(viewSpacePosition.xyz);
 		vec3 L = normalize(uDirectionalLight.direction);
 		vec3 H = normalize(V + L);
 

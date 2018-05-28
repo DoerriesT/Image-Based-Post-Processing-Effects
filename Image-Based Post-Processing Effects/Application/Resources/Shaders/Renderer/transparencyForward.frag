@@ -110,6 +110,7 @@ void main()
         albedo = uMaterial.albedo;
     }
 
+	// TODO: switch to view space normals for uniformity
     vec3 N = normalize(vNormal);
     if((uMaterial.mapBitField & NORMAL) == NORMAL)
     {

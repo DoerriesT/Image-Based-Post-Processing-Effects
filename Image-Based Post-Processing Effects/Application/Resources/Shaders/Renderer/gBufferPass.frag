@@ -62,11 +62,12 @@ void main()
 		oAlbedo = uMaterial.albedo;
 	}
 
+	// we save normals in view space
     vec3 N = normalize(vNormal);
     if((uMaterial.mapBitField & NORMAL) != 0)
     {
         vec3 tangentNormal = texture(uMaterial.normalMap, vTexCoord).xyz * 2.0 - 1.0;
-        N = normalize(mat3(normalize(vTangent), -normalize(vBitangent), N)*tangentNormal);
+        N = normalize(mat3(normalize(vTangent), -normalize(vBitangent), N) * tangentNormal);
     }
 	oNormal = vec4(encode(N), 0.0, 0.0);
 	

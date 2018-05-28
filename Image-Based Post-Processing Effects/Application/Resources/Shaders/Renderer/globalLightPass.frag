@@ -22,12 +22,10 @@ uniform sampler2D uMetallicRoughnessAoMap;
 uniform sampler2D uDepthMap;
 uniform sampler2D uSsaoMap;
 uniform sampler2D uPrevFrame;
-uniform mat4 uView;
 uniform mat4 uInverseView;
 uniform mat4 uProjection;
 uniform mat4 uInverseProjection;
 uniform mat4 uPrevViewProjection;
-uniform vec3 uCamPos;
 uniform DirectionalLight uDirectionalLight;
 uniform bool uShadowsEnabled;
 uniform bool uRenderDirectionalLight;
@@ -233,11 +231,9 @@ void main()
 		vec4 clipSpacePosition = vec4(vTexCoord * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
 		vec4 viewSpacePosition = uInverseProjection * clipSpacePosition;
 		viewSpacePosition /= viewSpacePosition.w;
-		vec4 worldPos4 = uInverseView * viewSpacePosition;
-		worldPos4 /= worldPos4.w;
 
 		vec3 F0 = mix(vec3(0.04), albedo, metallicRoughnessAoShaded.r);
-		vec3 V = normalize(uCamPos - worldPos4.xyz);
+		vec3 V = -normalize(viewSpacePosition.xyz);
 		float NdotV = max(dot(N, V), 0.0);
 
 		vec3 directionalLightContribution = vec3(0.0);
@@ -248,6 +244,8 @@ void main()
 			float shadow = 0.0;
 			if(uDirectionalLight.renderShadows && uShadowsEnabled)
 			{		
+				vec4 worldPos4 = uInverseView * viewSpacePosition;
+				worldPos4 /= worldPos4.w;
 				vec4 projCoords4 = uDirectionalLight.viewProjectionMatrix * worldPos4;
 				vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
 				projCoords = projCoords * 0.5 + 0.5; 
@@ -297,7 +295,9 @@ void main()
 			vec3 kD = 1.0 - kS;
 			kD *= 1.0 - metallicRoughnessAoShaded.r;
 
-			vec3 irradiance = texture(uIrradianceMap, N).rgb;
+			vec3 worldNormal = (uInverseView * vec4(N, 0.0)).xyz;
+
+			vec3 irradiance = texture(uIrradianceMap, worldNormal).rgb;
 			vec3 diffuse = irradiance * albedo;
 
 			vec3 prefilteredColor = vec3(0.0);
@@ -305,12 +305,14 @@ void main()
 			// Screenspace Reflections
 			if(uUseSsr)
 			{
+				vec4 worldPos4 = uInverseView * viewSpacePosition;
+				worldPos4 /= worldPos4.w;
 				// start raymarching at current view space position
 				vec3 ssrHitPos = viewSpacePosition.xyz;
 				float dDepth = 0.0;
 				// add jittering to ray to simulate roughness
 				vec3 jittering = mix(vec3(0.0), hash(worldPos4.xyz), metallicRoughnessAoShaded.g);
-				vec3 R = (uView * vec4(reflect(-V, N), 0.0)).xyz;
+				vec3 R = reflect(-V, N);
 				vec3 coords = ssrRaymarch(jittering + R * max(minRayStep, -viewSpacePosition.z), ssrHitPos, dDepth);
 
 				vec2 dCoords = smoothstep(0.2, 0.6, abs(vec2(0.5) - coords.xy));
@@ -323,12 +325,12 @@ void main()
 				vec3 ssr = texture(uPrevFrame, coords.xy).rgb * clamp(reflectionMultiplier, 0.0, 0.9);
 
 				// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-				prefilteredColor = mix(textureLod(uPrefilterMap, reflect(-V, N), metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb, ssr, screenEdgeFactor);
+				prefilteredColor = mix(textureLod(uPrefilterMap, (uInverseView * vec4(reflect(-V, N), 0.0)).xyz, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb, ssr, screenEdgeFactor);
 			}
 			else
 			{
 				// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-				prefilteredColor = textureLod(uPrefilterMap, reflect(-V, N), metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
+				prefilteredColor = textureLod(uPrefilterMap, (uInverseView * vec4(reflect(-V, N), 0.0)).xyz, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
 			}
 
 

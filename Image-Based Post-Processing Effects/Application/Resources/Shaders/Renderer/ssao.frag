@@ -9,7 +9,6 @@ uniform sampler2D uNormalTexture;
 uniform sampler2D uNoiseTexture;
 uniform mat4 uProjection;
 uniform mat4 uInverseProjection;
-uniform mat4 uView;
 uniform vec3 uSamples[64];
 uniform int uKernelSize = 64;
 uniform float uRadius = 0.5;
@@ -48,7 +47,6 @@ void main()
 	
     vec3 fragPos = viewSpacePos.xyz;
     vec3 N = decode(texture(uNormalTexture, texCoord).xy);
-	N = (uView * vec4(N, 0.0)).xyz;
     vec3 randomVec = texture(uNoiseTexture, texCoord * noiseScale).xyz;
 	randomVec.z = 0.0;
 	randomVec = normalize(randomVec);

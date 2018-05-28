@@ -109,7 +109,7 @@ private:
 	Uniform<GLboolean> uHasAlbedoMapB = Uniform<GLboolean>("uHasAlbedoMap");
 
 	// gBufferPass uniforms
-	Uniform<glm::mat4> uModelMatrixG = Uniform<glm::mat4>("uModelMatrix");
+	Uniform<glm::mat3> uModelViewMatrixG = Uniform<glm::mat3>("uModelViewMatrix");
 	Uniform<glm::mat4> uModelViewProjectionMatrixG = Uniform<glm::mat4>("uModelViewProjectionMatrix");
 	Uniform<glm::mat4> uPrevTransformG = Uniform<glm::mat4>("uPrevTransform");
 	Uniform<glm::vec4> uAtlasDataG = Uniform<glm::vec4>("uAtlasData");
@@ -130,10 +130,8 @@ private:
 	Uniform<GLint> uPrevFrameE = Uniform<GLint>("uPrevFrame");
 	Uniform<glm::mat4> uProjectionE = Uniform<glm::mat4>("uProjection");
 	Uniform<glm::mat4> uInverseProjectionE = Uniform<glm::mat4>("uInverseProjection");
-	Uniform<glm::mat4> uViewE = Uniform<glm::mat4>("uView");
 	Uniform<glm::mat4> uInverseViewE = Uniform<glm::mat4>("uInverseView");
 	Uniform<glm::mat4> uPrevViewProjectionE = Uniform<glm::mat4>("uPrevViewProjection");
-	Uniform<glm::vec3> uCamPosE = Uniform<glm::vec3>("uCamPos");
 	Uniform<GLint> uIrradianceMapE = Uniform<GLint>("uIrradianceMap");
 	Uniform<GLint> uPrefilterMapE = Uniform<GLint>("uPrefilterMap");
 	Uniform<GLint> uBrdfLUTE = Uniform<GLint>("uBrdfLUT");
@@ -152,7 +150,6 @@ private:
 	UniformPointLight uPointLightP = UniformPointLight("uPointLight");
 	Uniform<glm::mat4> uInverseProjectionP = Uniform<glm::mat4>("uInverseProjection");
 	Uniform<glm::mat4> uInverseViewP = Uniform<glm::mat4>("uInverseView");
-	Uniform<glm::vec3> uCamPosP = Uniform<glm::vec3>("uCamPos");
 	Uniform<GLboolean> uShadowsEnabledP = Uniform<GLboolean>("uShadowsEnabled");
 	Uniform<glm::vec2> uViewportSizeP = Uniform<glm::vec2>("uViewportSize");
 
@@ -165,7 +162,6 @@ private:
 	UniformSpotLight uSpotLightS = UniformSpotLight("uSpotLight");
 	Uniform<glm::mat4> uInverseProjectionS = Uniform<glm::mat4>("uInverseProjection");
 	Uniform<glm::mat4> uInverseViewS = Uniform<glm::mat4>("uInverseView");
-	Uniform<glm::vec3> uCamPosS = Uniform<glm::vec3>("uCamPos");
 	Uniform<GLboolean> uShadowsEnabledS = Uniform<GLboolean>("uShadowsEnabled");
 	Uniform<glm::vec2> uViewportSizeS = Uniform<glm::vec2>("uViewportSize");
 
@@ -177,7 +173,6 @@ private:
 	UniformDirectionalLight uDirectionalLightD = UniformDirectionalLight("uDirectionalLight");
 	Uniform<glm::mat4> uInverseViewD = Uniform<glm::mat4>("uInverseView");
 	Uniform<glm::mat4> uInverseProjectionD = Uniform<glm::mat4>("uInverseProjection");
-	Uniform<glm::vec3> uCamPosD = Uniform<glm::vec3>("uCamPos");
 	Uniform<GLboolean> uShadowsEnabledD = Uniform<GLboolean>("uShadowsEnabled");
 
 	// transparency uniforms

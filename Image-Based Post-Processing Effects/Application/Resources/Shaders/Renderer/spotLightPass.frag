@@ -25,7 +25,6 @@ uniform sampler2D uDepthMap;
 uniform SpotLight uSpotLight;
 uniform mat4 uInverseView;
 uniform mat4 uInverseProjection;
-uniform vec3 uCamPos;
 uniform bool uShadowsEnabled;
 uniform vec2 uViewportSize;
 
@@ -85,11 +84,9 @@ void main()
 	vec4 clipSpacePosition = vec4((gl_FragCoord.xy / uViewportSize) * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
 	vec4 viewSpacePosition = uInverseProjection * clipSpacePosition;
 	viewSpacePosition /= viewSpacePosition.w;
-	vec4 worldPos4 = uInverseView * viewSpacePosition;
-	vec3 worldPos = worldPos4.xyz;
 
 	
-	vec3 L = uSpotLight.position - worldPos;
+	vec3 L = uSpotLight.position - viewSpacePosition.xyz;
 	float distance = length(L);
 	L /= distance;
     
@@ -98,7 +95,7 @@ void main()
 		vec3 N = decode(texture(uNormalMap, texCoord).xy);
 		
 				
-		vec3 V = normalize(uCamPos - worldPos);
+		vec3 V = -normalize(viewSpacePosition.xyz);
 		vec3 R = reflect(-V, N);
 		vec3 H = normalize(V + L);
 
@@ -111,7 +108,7 @@ void main()
 		float shadow = 0.0;
 		if(uSpotLight.renderShadows && uShadowsEnabled)
 		{
-					
+			vec4 worldPos4 = uInverseView * viewSpacePosition;
 			vec4 projCoords4 = uSpotLight.viewProjectionMatrix * worldPos4;
 			vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
 			projCoords = projCoords * 0.5 + 0.5; 

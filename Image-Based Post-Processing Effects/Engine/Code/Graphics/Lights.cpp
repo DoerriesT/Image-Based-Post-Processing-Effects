@@ -62,6 +62,11 @@ void DirectionalLight::setViewProjectionMatrix(const glm::mat4 &_viewProjectionM
 	viewProjectionMatrix = _viewProjectionMatrix;
 }
 
+void DirectionalLight::updateViewValues(const glm::mat4 &_viewMatrix)
+{
+	viewDirection = glm::vec3(_viewMatrix * glm::vec4(direction, 0.0));
+}
+
 bool DirectionalLight::isRenderShadows() const
 {
 	return renderShadows;
@@ -75,6 +80,11 @@ glm::vec3 DirectionalLight::getColor() const
 glm::vec3 DirectionalLight::getDirection() const
 {
 	return direction;
+}
+
+glm::vec3 DirectionalLight::getViewDirection() const
+{
+	return viewDirection;
 }
 
 glm::mat4 DirectionalLight::getViewProjectionMatrix() const
@@ -158,6 +168,12 @@ void PointLight::setViewProjectionMatrix(const glm::mat4 &_viewProjectionMatrix)
 	viewProjectionMatrix = _viewProjectionMatrix;
 }
 
+void PointLight::updateViewValues(const glm::mat4 &_viewMatrix)
+{
+	glm::vec4 tmp = _viewMatrix * glm::vec4(position, 1.0);
+	viewPosition = glm::vec3(tmp / tmp.w);
+}
+
 bool PointLight::isRenderShadows() const
 {
 	return renderShadows;
@@ -171,6 +187,11 @@ glm::vec3 PointLight::getColor() const
 glm::vec3 PointLight::getPosition() const
 {
 	return position;
+}
+
+glm::vec3 PointLight::getViewPosition() const
+{
+	return viewPosition;
 }
 
 glm::mat4 PointLight::getViewProjectionMatrix() const
@@ -265,6 +286,13 @@ void SpotLight::setViewProjectionMatrix(const glm::mat4 &_viewProjectionMatrix)
 	viewProjectionMatrix = _viewProjectionMatrix;
 }
 
+void SpotLight::updateViewValues(const glm::mat4 &_viewMatrix)
+{
+	glm::vec4 tmp = _viewMatrix * glm::vec4(position, 1.0);
+	viewPosition = glm::vec3(tmp / tmp.w);
+	viewDirection = glm::vec3(_viewMatrix * glm::vec4(direction, 0.0));
+}
+
 bool SpotLight::isRenderShadows() const
 {
 	return renderShadows;
@@ -283,6 +311,16 @@ glm::vec3 SpotLight::getPosition() const
 glm::vec3 SpotLight::getDirection() const
 {
 	return direction;
+}
+
+glm::vec3 SpotLight::getViewPosition() const
+{
+	return viewPosition;
+}
+
+glm::vec3 SpotLight::getViewDirection() const
+{
+	return viewDirection;
 }
 
 float SpotLight::getAngle() const
