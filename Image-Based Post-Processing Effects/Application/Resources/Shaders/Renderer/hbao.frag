@@ -39,32 +39,32 @@ vec3 getViewSpacePos(vec2 uv)
 
 float tanToSin(float x)
 {
-	return x * inversesqrt(x*x + 1.0);
+	return x * inversesqrt(x * x + 1.0);
 }
 
-float invLength(vec2 V)
+float invLength(vec2 v)
 {
-	return inversesqrt(dot(V,V));
+	return inversesqrt(dot(v, v));
 }
 
-float tangent(vec3 V)
+float tangent(vec3 T)
 {
-	return V.z * invLength(V.xy);
-}
-
-float biasedTangent(vec3 V)
-{
-	return V.z * invLength(V.xy) + uTanBias;
+	return -T.z * invLength(T.xy);
 }
 
 float tangent(vec3 P, vec3 S)
 {
-    return -(P.z - S.z) * invLength(S.xy - P.xy);
+    return (P.z - S.z) * invLength(S.xy - P.xy);
 }
 
-float length2(vec3 V)
+float biasedTangent(vec3 T)
 {
-	return dot(V,V);
+	return tangent(T) + uTanBias;
+}
+
+float length2(vec3 v)
+{
+	return dot(v, v);
 }
 
 vec3 minDiff(vec3 P, vec3 Pr, vec3 Pl)
@@ -81,7 +81,7 @@ vec2 snapUVOffset(vec2 uv)
 
 float falloff(float d2)
 {
-	return d2 * uNegInvR2 + 1.0f;
+	return d2 * uNegInvR2 + 1.0;
 }
 
 float horizonOcclusion(	vec2 deltaUV,
@@ -94,8 +94,8 @@ float horizonOcclusion(	vec2 deltaUV,
 	float ao = 0;
 
 	// Offset the first coord with some noise
-	vec2 uv = vTexCoord + snapUVOffset(randstep*deltaUV);
-	deltaUV = snapUVOffset( deltaUV );
+	vec2 uv = vTexCoord + snapUVOffset(randstep * deltaUV);
+	deltaUV = snapUVOffset(deltaUV);
 
 	// Calculate the tangent vector
 	vec3 T = deltaUV.x * dPdu + deltaUV.y * dPdv;
@@ -104,17 +104,13 @@ float horizonOcclusion(	vec2 deltaUV,
 	float tanH = biasedTangent(T);
 	float sinH = tanToSin(tanH);
 
-	float tanS;
-	float d2;
-	vec3 S;
-
 	// Sample to find the maximum angle
-	for(float s = 1; s <= numSamples; ++s)
+	for(float s = 1.0; s <= numSamples; ++s)
 	{
 		uv += deltaUV;
-		S = getViewSpacePos(uv);
-		tanS = tangent(P, S);
-		d2 = length2(S - P);
+		vec3 S = getViewSpacePos(uv);
+		float tanS = tangent(P, S);
+		float d2 = length2(S - P);
 
 		// Is the sample within the radius and the angle greater?
 		if(d2 < uRadius2 && tanS > tanH)
@@ -131,10 +127,9 @@ float horizonOcclusion(	vec2 deltaUV,
 	return ao;
 }
 
-vec2 rotateDirections(vec2 Dir, vec2 CosSin)
+vec2 rotateDirections(vec2 dir, vec2 cosSin)
 {
-    return vec2(Dir.x*CosSin.x - Dir.y*CosSin.y,
-                  Dir.x*CosSin.y + Dir.y*CosSin.x);
+    return vec2(dir.x * cosSin.x - dir.y * cosSin.y, dir.x * cosSin.y + dir.y * cosSin.x);
 }
 
 void computeSteps(inout vec2 stepSizeUv, inout float numSteps, float rayRadiusPix, float rand)
@@ -143,7 +138,7 @@ void computeSteps(inout vec2 stepSizeUv, inout float numSteps, float rayRadiusPi
     numSteps = min(uNumSteps, rayRadiusPix);
 
     // Divide by Ns+1 so that the farthest samples are not fully attenuated
-    float stepSizePix = rayRadiusPix / (numSteps + 1);
+    float stepSizePix = rayRadiusPix / (numSteps + 1.0);
 
     // Clamp numSteps if it is greater than the max kernel footprint
     float maxNumSteps = uMaxRadiusPixels / stepSizePix;

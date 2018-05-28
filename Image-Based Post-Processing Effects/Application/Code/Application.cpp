@@ -370,6 +370,30 @@ namespace App
 		{
 			slider->setValue(static_cast<float>(ssaoRadius->get()));
 		}
+		if (optionsGui->getElementById("hbao_directions_slider", slider))
+		{
+			slider->setValue(static_cast<float>(hbaoDirections->get()));
+		}
+		if (optionsGui->getElementById("hbao_steps_slider", slider))
+		{
+			slider->setValue(static_cast<float>(hbaoSteps->get()));
+		}
+		if (optionsGui->getElementById("hbao_strength_slider", slider))
+		{
+			slider->setValue(static_cast<float>(hbaoStrength->get()));
+		}
+		if (optionsGui->getElementById("hbao_radius_slider", slider))
+		{
+			slider->setValue(static_cast<float>(hbaoRadius->get()));
+		}
+		if (optionsGui->getElementById("hbao_max_radius_pixels_slider", slider))
+		{
+			slider->setValue(static_cast<float>(hbaoMaxRadiusPixels->get()));
+		}
+		if (optionsGui->getElementById("hbao_angle_bias_slider", slider))
+		{
+			slider->setValue(static_cast<float>(hbaoAngleBias->get()));
+		}
 		optionsGui->getElementById<GuiLabel>("ssao_radius_label")->setText(std::to_string(ssaoRadius->get()));
 		optionsGui->getElementById<GuiLabel>("ssao_kernel_size_label")->setText(std::to_string(ssaoKernelSize->get()));
 		optionsGui->getElementById<GuiLabel>("ssao_strength_label")->setText(std::to_string(ssaoStrength->get()));
