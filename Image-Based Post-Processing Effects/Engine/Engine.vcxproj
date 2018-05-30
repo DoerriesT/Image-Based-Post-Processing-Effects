@@ -57,6 +57,7 @@
     <ClInclude Include="Code\Graphics\EnvironmentProbe.h" />
     <ClInclude Include="Code\Graphics\Effects.h" />
     <ClInclude Include="Code\Graphics\EntityRenderData.h" />
+    <ClInclude Include="Code\Graphics\Model.h" />
     <ClInclude Include="Code\Graphics\Scene.h" />
     <ClInclude Include="Code\Gui\Elements\GuiElement.h" />
     <ClInclude Include="Code\Gui\Elements\GuiRow.h" />
@@ -139,6 +140,7 @@
     <ClCompile Include="Code\Graphics\Lights.cpp" />
     <ClCompile Include="Code\Graphics\Material.cpp" />
     <ClCompile Include="Code\Graphics\Mesh.cpp" />
+    <ClCompile Include="Code\Graphics\Model.cpp" />
     <ClCompile Include="Code\Graphics\Scene.cpp" />
     <ClCompile Include="Code\Graphics\stb_image.cpp" />
     <ClCompile Include="Code\Graphics\stb_image_resize.cpp" />

@@ -91,12 +91,12 @@ void EnvironmentRenderer::init()
 	}
 
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.obj", true);
+	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 void EnvironmentRenderer::updateCubeSide(unsigned int _side, GLuint _source)
 {
-	fullscreenTriangle->enableVertexAttribArrays();
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, environmentFbo);
 	glViewport(0, 0, ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
@@ -107,13 +107,13 @@ void EnvironmentRenderer::updateCubeSide(unsigned int _side, GLuint _source)
 	blitShader->bind();
 	blitShader->setUniform(uScreenTextureBlit, 0); 
 
-	fullscreenTriangle->render();
+	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void EnvironmentRenderer::calculateReflectance(const std::shared_ptr<EnvironmentProbe>  &_environmentProbe)
 {
-	fullscreenTriangle->enableVertexAttribArrays();
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap);
@@ -136,7 +136,7 @@ void EnvironmentRenderer::calculateReflectance(const std::shared_ptr<Environment
 		{
 			uRotationR.set(rotations[i]);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, _environmentProbe->getReflectanceMap()->getId(), mip);
-			fullscreenTriangle->render();
+			fullscreenTriangle->getSubMesh()->render();
 			//glDrawArrays(GL_TRIANGLES, 0, 3);
 		}
 	}
@@ -144,7 +144,7 @@ void EnvironmentRenderer::calculateReflectance(const std::shared_ptr<Environment
 
 void EnvironmentRenderer::calculateIrradiance(const std::shared_ptr<EnvironmentProbe>  &_environmentProbe)
 {
-	fullscreenTriangle->enableVertexAttribArrays();
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap);
@@ -159,14 +159,14 @@ void EnvironmentRenderer::calculateIrradiance(const std::shared_ptr<EnvironmentP
 	{
 		uRotationI.set(rotations[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, _environmentProbe->getIrradianceMap()->getId(), 0);
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
 }
 
 std::shared_ptr<Texture> EnvironmentRenderer::calculateAtmosphere(const AtmosphereParams &_atmosphereParams)
 {
-	fullscreenTriangle->enableVertexAttribArrays();
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, convolutionFbo);
 
@@ -211,7 +211,7 @@ std::shared_ptr<Texture> EnvironmentRenderer::calculateAtmosphere(const Atmosphe
 	{
 		uRotationA.set(rotations[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, atmosphereMap, 0);
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
 

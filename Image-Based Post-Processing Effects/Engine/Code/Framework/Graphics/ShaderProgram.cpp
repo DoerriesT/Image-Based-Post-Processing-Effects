@@ -71,9 +71,9 @@ GLuint ShaderProgram::createShader(GLenum _type, const char *_shaderPath)
 {
 	GLuint shader = glCreateShader(_type);
 
-	const char *shaderCode = readTextResourceFile(_shaderPath);
+	std::vector<char> data = readTextFile(_shaderPath);
+	const char *shaderCode = data.data();
 	glShaderSource(shader, 1, &shaderCode, NULL);
-	delete[] shaderCode;
 	glCompileShader(shader);
 
 	// print compile errors if any

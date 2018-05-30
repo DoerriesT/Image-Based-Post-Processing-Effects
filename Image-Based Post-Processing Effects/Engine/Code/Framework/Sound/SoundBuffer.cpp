@@ -49,10 +49,9 @@ SoundBuffer::SoundBuffer(const std::string &_file, bool _instantLoading)
 	{
 		stb_vorbis_info info;
 
-		char *vorbisData;
-		std::streamsize vorbisDataSize = loadBinaryFile(_file.c_str(), &vorbisData);
+		std::vector<char> vorbisData = readBinaryFile(_file.c_str());
 		int error = 0;
-		stb_vorbis *decoder = stb_vorbis_open_memory((unsigned char *)vorbisData, (int)vorbisDataSize, &error, nullptr);
+		stb_vorbis *decoder = stb_vorbis_open_memory((unsigned char *)vorbisData.data(), (int)vorbisData.size(), &error, nullptr);
 		if (!decoder)
 		{
 			std::cerr << "Failed to open Ogg Vorbis file.Error: " << error << std::endl;
@@ -65,7 +64,6 @@ SoundBuffer::SoundBuffer(const std::string &_file, bool _instantLoading)
 		short *data = new short[lengthSamples];
 		stb_vorbis_get_samples_short_interleaved(decoder, channels, data, lengthSamples);
 		stb_vorbis_close(decoder);
-		delete[] vorbisData;
 
 		auto *result = new std::tuple<short *, unsigned int, unsigned int, int>(data, lengthSamples * sizeof(short), info.sample_rate, info.channels);
 		job->setUserData(result);

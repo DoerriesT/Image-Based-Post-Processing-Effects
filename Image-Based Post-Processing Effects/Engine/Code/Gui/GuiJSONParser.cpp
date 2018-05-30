@@ -11,11 +11,7 @@ using rapidjson::SizeType;
 
 GuiLayout* GuiJSONParser::parseLayoutJSONFile(const char *filename)
 {
-	const char *jsonStr = readTextResourceFile(filename);
-
-	GuiLayout *layout = parseLayoutJSON(jsonStr);
-
-	delete[] jsonStr;
+	GuiLayout *layout = parseLayoutJSON(readTextFile(filename).data());
 	return layout;
 }
 
@@ -56,9 +52,7 @@ GuiLayout* GuiJSONParser::parseLayoutJSON(const char *jsonString)
 
 GuiStyleSheet GuiJSONParser::parseStyleJSONFile(const char *filename)
 {
-	const char *jsonStr = readTextResourceFile(filename);
-	GuiStyleSheet styleSheet = parseStyleJSON(jsonStr);
-	delete[] jsonStr;
+	GuiStyleSheet styleSheet = parseStyleJSON(readTextFile(filename).data());
 	return styleSheet;
 }
 

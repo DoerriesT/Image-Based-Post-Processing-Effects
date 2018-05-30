@@ -2,15 +2,14 @@
 #include "Mesh.h"
 #include ".\..\Utilities\Utility.h"
 #include <functional>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 #include ".\..\Engine.h"
 #include ".\..\JobManager.h"
 
+const std::uint32_t MAGIC_NUMBER = 0xFFABCDFF;
+
 std::map<std::string, std::weak_ptr<Mesh>> Mesh::meshMap;
 
-std::shared_ptr<Mesh> Mesh::createMesh(const std::string &_filepath, bool _instantLoading)
+std::shared_ptr<Mesh> Mesh::createMesh(const std::string &_filepath, std::size_t _reserveCount, bool _instantLoading)
 {
 	if (contains(meshMap, _filepath))
 	{
@@ -18,107 +17,109 @@ std::shared_ptr<Mesh> Mesh::createMesh(const std::string &_filepath, bool _insta
 	}
 	else
 	{
-		std::shared_ptr<Mesh> mesh = std::shared_ptr<Mesh>(new Mesh(_filepath, _instantLoading));
+		std::shared_ptr<Mesh> mesh = std::shared_ptr<Mesh>(new Mesh(_filepath, _reserveCount, _instantLoading));
 		meshMap[_filepath] = mesh;
 		return mesh;
 	}
 }
 
-Mesh::Mesh(const std::string &_filepath, bool _instantLoading)
-	:filepath(_filepath), valid(false), dataJob(nullptr)
+Mesh::~Mesh()
 {
+	if (dataJob)
+	{
+		dataJob->kill();
+	}
+	remove(meshMap, filepath);
+}
+
+std::shared_ptr<SubMesh> Mesh::getSubMesh(std::size_t _index) const
+{
+	assert(_index < subMeshes.size());
+	return subMeshes[_index];
+}
+
+const std::vector<std::shared_ptr<SubMesh>> Mesh::getSubMeshes() const
+{
+	return subMeshes;
+}
+
+std::size_t Mesh::size() const
+{
+	return subMeshes.size();
+}
+
+bool Mesh::isValid() const
+{
+	return valid;
+}
+
+Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instantLoading)
+	:filepath(_filepath), valid(false)
+{
+	for (unsigned int i = 0; i < _reserveCount; ++i)
+	{
+		subMeshes.push_back(SubMesh::createSubMesh());
+	}
+
 	auto dataPreparation = [=](JobManager::SharedJob job)
 	{
-		// load scene
-		Assimp::Importer importer;
-		const aiScene *scene = importer.ReadFile(_filepath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_JoinIdenticalVertices | aiProcess_GenSmoothNormals | aiProcess_ImproveCacheLocality);
-
-		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-		{
-			std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
-			job->markDone(false);
-			return;
-		}
-
-		// assert scene has at least one mesh
-		assert(scene->mNumMeshes);
-
-		// get first mesh
-		aiMesh *mesh = scene->mMeshes[0];
-		
-		// prepare vertex and index lists
-		std::vector<Vertex> vertices;
-		std::vector<uint32_t> indices;
-
-		for (uint32_t i = 0; i < mesh->mNumVertices; ++i)
-		{
-			Vertex vertex;
-			glm::vec3 vector;
-			vector.x = mesh->mVertices[i].x;
-			vector.y = mesh->mVertices[i].y;
-			vector.z = mesh->mVertices[i].z;
-			vertex.position = vector;
-
-			vector.x = mesh->mNormals[i].x;
-			vector.y = mesh->mNormals[i].y;
-			vector.z = mesh->mNormals[i].z;
-			vertex.normal = glm::normalize(vector);
-
-			if (mesh->mTextureCoords[0])
-			{
-				glm::vec2 vec;
-				vec.x = mesh->mTextureCoords[0][i].x;
-				vec.y = mesh->mTextureCoords[0][i].y;
-				vertex.texCoords = vec;
-			}
-			else
-			{
-				vertex.texCoords = glm::vec2(0.0f, 0.0f);
-			}
-
-			if (mesh->mTangents && mesh->mBitangents)
-			{
-				vector.x = mesh->mTangents[i].x;
-				vector.y = mesh->mTangents[i].y;
-				vector.z = mesh->mTangents[i].z;
-				vertex.tangent = glm::normalize(vector);
-
-				vector.x = mesh->mBitangents[i].x;
-				vector.y = mesh->mBitangents[i].y;
-				vector.z = mesh->mBitangents[i].z;
-				vertex.bitangent = glm::normalize(vector);
-			}
-			else
-			{
-				vertex.tangent = glm::vec3();
-				vertex.bitangent = glm::vec3();
-			}
-
-			vertices.push_back(vertex);
-		}
-
-		for (uint32_t i = 0; i < mesh->mNumFaces; ++i)
-		{
-			aiFace face = mesh->mFaces[i];
-
-			for (uint32_t j = 0; j < face.mNumIndices; ++j)
-			{
-				indices.push_back(face.mIndices[j]);
-			}
-		}
-		
-		auto *result = new std::pair<std::vector<Vertex>, std::vector<unsigned int>>(std::move(vertices), std::move(indices));
-		assert(result);
-		job->setUserData(result);
+		std::vector<char> data = readBinaryFile(_filepath);
+		assert(data.size());
+		void *userData = new std::vector<char>(std::move(data));
+		job->setUserData(userData);
 	};
 
 	auto dataInitialization = [=](JobManager::SharedJob job)
 	{
-		auto *p = (std::pair<std::vector<Vertex>, std::vector<unsigned int>> *)job->getUserData();
-		indexCount = p->second.size();
+		// magic number (4) | mesh count (4) | {vertex buffer size (4) | vertex buffer | index buffer size (4) | index buffer} * mesh count
+		std::vector<char> &data = *(std::vector<char> *)job->getUserData();
 
-		// initialize with opengl
-		initOpenGL(p->first, p->second);
+		char *rawData = data.data();
+
+		assert(*(std::uint32_t *)rawData == MAGIC_NUMBER);
+
+		// skip past magic number
+		std::size_t currentOffset = sizeof(std::uint32_t);
+
+		// read subMesh count and reserve space
+		std::size_t numSubMeshes = *(std::uint32_t *)&rawData[currentOffset];
+		subMeshes.reserve(numSubMeshes);
+
+		// skip past sub mesh count
+		currentOffset += sizeof(std::uint32_t);
+
+		// read all sub mesh data
+		for (unsigned int i = 0; i < numSubMeshes; ++i)
+		{
+			// read buffer size
+			std::uint32_t vertexBufferSize = *(std::uint32_t *)&rawData[currentOffset];
+			// skip past bufferSize
+			currentOffset += sizeof(std::uint32_t);
+			// get pointer to buffer data
+			char *vertexBuffer = &rawData[currentOffset];
+			// skip past buffer data
+			currentOffset += vertexBufferSize;
+
+			// read buffer size
+			std::uint32_t indexBufferSize = *(std::uint32_t *)&rawData[currentOffset];
+			// skip past bufferSize
+			currentOffset += sizeof(std::uint32_t);
+			// get pointer to buffer data
+			char *indexBuffer = &rawData[currentOffset];
+			// skip past buffer data
+			currentOffset += indexBufferSize;
+
+			if (_reserveCount)
+			{
+				assert(_reserveCount == numSubMeshes);
+				subMeshes[i]->setData(vertexBufferSize, vertexBuffer, indexBufferSize, indexBuffer);
+			}
+			else
+			{
+				subMeshes.push_back(SubMesh::createSubMesh(vertexBufferSize, vertexBuffer, indexBufferSize, indexBuffer));
+			}
+		}
+
 
 		// set flag that mesh can be used
 		valid = true;
@@ -130,8 +131,8 @@ Mesh::Mesh(const std::string &_filepath, bool _instantLoading)
 
 	auto dataCleanup = [=](JobManager::SharedJob job)
 	{
-		auto *p = (std::pair<std::vector<Vertex>, std::vector<unsigned int>> *)job->getUserData();
-		delete p;
+		std::vector<char> *data = (std::vector<char> *)job->getUserData();
+		delete data;
 	};
 
 	if (_instantLoading)
@@ -144,28 +145,83 @@ Mesh::Mesh(const std::string &_filepath, bool _instantLoading)
 	}
 }
 
-Mesh::~Mesh()
+std::shared_ptr<SubMesh> SubMesh::createSubMesh()
 {
-	if (dataJob)
-	{
-		dataJob->kill();
-	}
-	remove(meshMap, filepath);
-	if (valid)
-	{
-		glBindVertexArray(VAO);
-		glDisableVertexAttribArray(0);
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDeleteBuffers(1, &EBO);
-		glDeleteBuffers(1, &VBO);
-
-		glBindVertexArray(0);
-		glDeleteVertexArrays(1, &VAO);
-	}
+	return std::shared_ptr<SubMesh>(new SubMesh());
 }
 
-void Mesh::enableVertexAttribArrays() const
+std::shared_ptr<SubMesh> SubMesh::createSubMesh(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize, char *_indices)
+{
+	return std::shared_ptr<SubMesh>(new SubMesh(_vertexBufferSize, _vertices, _indexBufferSize, _indices));
+}
+
+SubMesh::SubMesh()
+	:valid(false), dataIsSet(false)
+{
+}
+
+SubMesh::SubMesh(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize, char *_indices)
+	: valid(false), dataIsSet(false)
+{
+	setData(_vertexBufferSize, _vertices, _indexBufferSize, _indices);
+}
+
+void SubMesh::setData(std::uint32_t _vertexBufferSize, char * _vertices, std::uint32_t _indexBufferSize, char * _indices)
+{
+	assert(!dataIsSet);
+	dataIsSet = true;
+	indexCount = _indexBufferSize / sizeof(std::uint32_t);
+
+	// create buffers/arrays
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, _vertexBufferSize, _vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indexBufferSize, _indices, GL_STATIC_DRAW);
+
+	// vertex positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+
+	// vertex texture coord
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+
+	// vertex normals
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+
+	// vertex tangent
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
+
+	glBindVertexArray(0);
+
+	valid = true;
+}
+
+SubMesh::~SubMesh()
+{
+	glBindVertexArray(VAO);
+	glDisableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glDeleteBuffers(1, &EBO);
+	glDeleteBuffers(1, &VBO);
+
+	glBindVertexArray(0);
+	glDeleteVertexArrays(1, &VAO);
+}
+
+bool SubMesh::isValid() const
+{
+	return valid;
+}
+
+void SubMesh::enableVertexAttribArrays() const
 {
 	assert(VAO);
 	glBindVertexArray(VAO);
@@ -176,42 +232,7 @@ void Mesh::enableVertexAttribArrays() const
 	glEnableVertexAttribArray(4);
 }
 
-void Mesh::initOpenGL(const std::vector<Vertex> &_vertices, const std::vector<unsigned int> &_indices)
-{
-	// create buffers/arrays
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(Vertex), &_vertices[0], GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(std::uint32_t), &_indices[0], GL_STATIC_DRAW);
-
-	// vertex Positions
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-
-	// vertex normals
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-
-	// vertex texture coords
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
-
-	// vertex tangent
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
-
-	// vertex bitangent
-	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent));
-
-	glBindVertexArray(0);
-}
-
-void Mesh::render()  const
+void SubMesh::render() const
 {
 #ifdef _DEBUG
 	glErrorCheck("BEFORE");
@@ -222,9 +243,4 @@ void Mesh::render()  const
 #ifdef _DEBUG
 	glErrorCheck("AFTER");
 #endif // DEBUG	
-}
-
-bool Mesh::isValid() const
-{
-	return valid;
 }

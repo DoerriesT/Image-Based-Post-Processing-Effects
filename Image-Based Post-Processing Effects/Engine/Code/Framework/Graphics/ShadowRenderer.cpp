@@ -46,7 +46,7 @@ void ShadowRenderer::init()
 	glGenFramebuffers(1, &shadowFbo);
 	createFboAttachments(std::make_pair(1024u, 1024u));
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.obj", true);
+	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
@@ -182,7 +182,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 	shadowBlurShader->setUniform(uHeight, 1024);
 	shadowBlurShader->setUniform(uWidth, 1024);
 
-	fullscreenTriangle->enableVertexAttribArrays();
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	for (const std::shared_ptr<DirectionalLight> &directionalLight : _level->lights.directionalLights)
 	{
@@ -216,7 +216,7 @@ void ShadowRenderer::render(const glm::mat4 &_viewProjectionMatrix, const Scene 
 {
 	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
 
-	std::shared_ptr<Mesh> currentMesh = nullptr;
+	std::shared_ptr<SubMesh> currentMesh = nullptr;
 	bool enabledMesh = false;
 
 	for (std::size_t i = 0; i < data.size(); ++i)
@@ -309,14 +309,14 @@ void ShadowRenderer::blur(GLuint _textureToBlur)
 	glBindTexture(GL_TEXTURE_2D, _textureToBlur);
 		
 	shadowBlurShader->setUniform(uDirection, false);
-	fullscreenTriangle->render();
+	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	glBindTexture(GL_TEXTURE_2D, shadowTextureB);
 	glDrawBuffer(GL_COLOR_ATTACHMENT2);
 
 	shadowBlurShader->setUniform(uDirection, true);
-	fullscreenTriangle->render();
+	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
@@ -348,8 +348,8 @@ void ShadowRenderer::blit(GLuint targetTexture)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, shadowTextureA);
 
-	fullscreenTriangle->enableVertexAttribArrays();
-	fullscreenTriangle->render();
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	fullscreenTriangle->getSubMesh()->render();
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);

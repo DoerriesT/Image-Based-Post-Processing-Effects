@@ -14,7 +14,7 @@
 #include <direct.h>
 #include <iomanip>
 
-char* readTextResourceFile(const std::string &_filename)
+std::vector<char> readTextFile(const std::string & _filename)
 {
 	std::ifstream file(_filename, std::ios::ate);
 	file.exceptions(std::ifstream::badbit);
@@ -24,7 +24,8 @@ char* readTextResourceFile(const std::string &_filename)
 		throw std::runtime_error("failed to open file " + _filename + "!");
 	}
 	size_t fileSize = (size_t)file.tellg();
-	char *buffer = new char[fileSize + 1];
+	std::vector<char> buffer;
+	buffer.reserve(fileSize);
 	file.seekg(0);
 
 	//file.read(buffer, fileSize);
@@ -33,30 +34,38 @@ char* readTextResourceFile(const std::string &_filename)
 	while (file.get(c))
 	{
 		//if (c != '\r') {
-		buffer[position] = c;
+		buffer.push_back(c);
 		++position;
 		assert(position <= fileSize);
 	}
-	buffer[position] = '\0';
+	buffer.push_back('\0');
 
 	file.close();
 
 	return buffer;
 }
 
-std::streamsize loadBinaryFile(const char *_filename, char **_buffer)
+std::vector<char> readBinaryFile(const std::string & _filename)
 {
 	std::ifstream file(_filename, std::ios::binary | std::ios::ate);
+
+	if (!file.is_open())
+	{
+		throw std::runtime_error("failed to open file " + _filename + "!");
+	}
+
 	std::streamsize size = file.tellg();
 	file.seekg(0, std::ios::beg);
 
-	//std::vector<char> buffer(size);
-	*_buffer = new char[(uint32_t)size];
-	if (file.read(*_buffer, size))
+	std::vector<char> buffer((unsigned int)size);
+	if (file.read(buffer.data(), size))
 	{
-		return size;
+		return buffer;
 	}
-	return -1;
+	else
+	{
+		throw std::runtime_error("failed to read file " + _filename + "!");
+	}
 }
 
 void glErrorCheck(const std::string &_message)
@@ -281,18 +290,17 @@ bool Util::isDirectory(const std::string &directoryPath)
 
 std::string Util::fileMD5Hash(const std::string & filePath)
 {
-	char *buf;
-	auto size = loadBinaryFile(filePath.c_str(), &buf);
+	std::vector<char> buffer = readBinaryFile(filePath);
 	MD5 md5;
-	md5.update(buf, (unsigned int)size);
+	md5.update(buffer.data(), (unsigned int)buffer.size());
 	md5.finalize();
-	delete[] buf;
 	return md5.hexdigest();
 }
 
 bool Util::readTextFile(const std::string & _filename, std::string & _result)
 {
-	char *buffer = nullptr;
+	// wtf?
+	/*char *buffer = nullptr;
 	try
 	{
 		buffer = readTextResourceFile(_filename);
@@ -302,7 +310,8 @@ bool Util::readTextFile(const std::string & _filename, std::string & _result)
 	{
 	}
 	delete[] buffer;
-	return buffer;
+	return buffer;*/
+	return false;
 }
 
 void Util::createFile(const std::string &filePath, const std::string &content)

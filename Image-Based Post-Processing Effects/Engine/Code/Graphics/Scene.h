@@ -3,7 +3,7 @@
 #include <memory>
 
 class ShaderProgram;
-class Mesh;
+class SubMesh;
 struct EntityRenderData;
 struct Entity;
 

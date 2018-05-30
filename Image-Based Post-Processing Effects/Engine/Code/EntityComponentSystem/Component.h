@@ -7,10 +7,11 @@
 #include <glm\gtc\quaternion.hpp>
 #include <map>
 #include <memory>
+#include ".\..\Graphics\Model.h"
 
 class Scene;
 class ShaderProgram;
-class Mesh;
+class SubMesh;
 class Material;
 struct Entity;
 struct Level;
@@ -130,8 +131,9 @@ struct GrabbedComponent : public Component<GrabbedComponent>
 
 struct ModelComponent : public Component<ModelComponent>
 {
-	explicit ModelComponent(const std::vector<std::pair<std::string, Material>> &_model, bool _instantLoading = false);
-	std::vector<std::pair<std::shared_ptr<Mesh>, Material>> model;
+	explicit ModelComponent(const Model &_model)
+		:model(_model) { };
+	Model model;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -239,11 +241,11 @@ struct SoundComponent : public Component<SoundComponent>
 
 struct TextureAtlasIndexComponent : public Component<TextureAtlasIndexComponent>
 {
-	explicit TextureAtlasIndexComponent(unsigned int _rows, unsigned int _columns, const std::map<std::shared_ptr<Mesh>, unsigned int> &_meshToIndexMap)
+	explicit TextureAtlasIndexComponent(unsigned int _rows, unsigned int _columns, const std::map<std::shared_ptr<SubMesh>, unsigned int> &_meshToIndexMap)
 		:rows(_rows), columns(_columns), meshToIndexMap(_meshToIndexMap) { };
 	unsigned int rows;
 	unsigned int columns;
-	std::map<std::shared_ptr<Mesh>, unsigned int> meshToIndexMap;
+	std::map<std::shared_ptr<SubMesh>, unsigned int> meshToIndexMap;
 
 	static const std::uint64_t FAMILY_ID;
 };

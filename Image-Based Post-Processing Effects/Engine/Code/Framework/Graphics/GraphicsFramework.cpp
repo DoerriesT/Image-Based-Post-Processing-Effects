@@ -64,7 +64,7 @@ void GraphicsFramework::init()
 
 	uScreenTextureBlit = blitShader->createUniform("uScreenTexture");
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.obj", true);
+	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
@@ -169,8 +169,8 @@ void GraphicsFramework::blitToScreen()
 	blitShader->setUniform(uScreenTextureBlit, 0);
 
 	// draw to back buffer
-	fullscreenTriangle->enableVertexAttribArrays();
-	fullscreenTriangle->render();
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	static double lastPressed = Engine::getCurrentTime();

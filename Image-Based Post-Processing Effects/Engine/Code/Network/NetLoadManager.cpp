@@ -307,10 +307,8 @@ void NetLoadManager::runUpload(UpLoad *load)
 				bodyStream << "Content-Type: text/plain; charset=" + charset << CRLF;
 				bodyStream << CRLF;
 
-				char *fileContent;
-				std::streamsize size = loadBinaryFile(filePath.c_str(), &fileContent);
-				bodyStream.write(fileContent, size);
-				delete[] fileContent;
+				std::vector<char> fileContent = readBinaryFile(filePath.c_str());
+				bodyStream.write(fileContent.data(), fileContent.size());
 				bodyStream << CRLF;
 			}
 			bodyStream << "--" + boundary << "--";

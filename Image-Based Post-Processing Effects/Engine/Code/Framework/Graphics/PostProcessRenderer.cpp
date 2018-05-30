@@ -150,14 +150,14 @@ void PostProcessRenderer::init()
 	lensDirtTexture = Texture::createTexture("Resources/Textures/lensdirt.dds", true);
 	lensStarTexture = Texture::createTexture("Resources/Textures/starburst.dds", true);
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.obj", true);
+	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 unsigned int tileSize = 40;
 
 void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {
-	fullscreenTriangle->enableVertexAttribArrays();
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	glm::mat3 lensStarMatrix = glm::mat3();
 
@@ -198,7 +198,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 
 				uDirectionVTM.set(false);
 
-				fullscreenTriangle->render();
+				fullscreenTriangle->getSubMesh()->render();
 			}
 
 			// first to second step
@@ -209,7 +209,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 
 				uDirectionVTM.set(true);
 
-				fullscreenTriangle->render();
+				fullscreenTriangle->getSubMesh()->render();
 			}
 		}
 
@@ -222,7 +222,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 			glBindTexture(GL_TEXTURE_2D, velocityMaxTex);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityNeighborMaxTex, 0);
 
-			fullscreenTriangle->render();
+			fullscreenTriangle->getSubMesh()->render();
 		}
 
 	}
@@ -268,7 +268,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	uMotionBlurH.set(GLint(_effects.motionBlur));
 	uVelocityScaleH.set((float)Engine::getCurrentFps() / 60.0f);
 
-	fullscreenTriangle->render();
+	fullscreenTriangle->getSubMesh()->render();
 
 	finishedTexture = fullResolutionTextureA;
 
@@ -331,7 +331,7 @@ void PostProcessRenderer::fxaa(float _subPixelAA, float _edgeThreshold, float _e
 	uEdgeThresholdMinF.set(_edgeThresholdMin);
 	uInverseResolutionF.set(1.0f / glm::vec2(window->getWidth(), window->getHeight()));
 
-	fullscreenTriangle->render();
+	fullscreenTriangle->getSubMesh()->render();
 	finishedTexture = (finishedTexture == fullResolutionTextureA) ? fullResolutionTextureB : fullResolutionTextureA;
 }
 
@@ -350,7 +350,7 @@ void PostProcessRenderer::singlePassEffects(const Effects &_effects)
 	uChromaticAberrationS.set(_effects.chromaticAberration.enabled);
 	uChromAbOffsetMultiplierS.set(_effects.chromaticAberration.offsetMultiplier);
 
-	fullscreenTriangle->render();
+	fullscreenTriangle->getSubMesh()->render();
 	finishedTexture = (finishedTexture == fullResolutionTextureA) ? fullResolutionTextureB : fullResolutionTextureA;
 }
 
@@ -402,7 +402,7 @@ void PostProcessRenderer::downsample(GLuint _colorTexture)
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, colorTextures[i]);
 
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
 }
@@ -484,7 +484,7 @@ void PostProcessRenderer::upsample()
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, sourceTextures[i]);
 
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 	}
 }
 
@@ -506,7 +506,7 @@ void PostProcessRenderer::generateFlares(const Effects &_effects)
 	uHaloRadiusLFG.set(_effects.lensFlares.haloWidth);
 	uDistortionLFG.set(_effects.lensFlares.chromaticDistortion);
 
-	fullscreenTriangle->render();
+	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	// blur result (maybe skip this step, since source should already be pretty blurry)
@@ -519,7 +519,7 @@ void PostProcessRenderer::generateFlares(const Effects &_effects)
 	uInputTexLFB.set(0);
 	uDirectionLFB.set(true);
 
-	fullscreenTriangle->render();
+	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	glDrawBuffer(GL_COLOR_ATTACHMENT0); // write to A
@@ -528,7 +528,7 @@ void PostProcessRenderer::generateFlares(const Effects &_effects)
 
 	uDirectionLFB.set(false);
 
-	fullscreenTriangle->render();
+	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 

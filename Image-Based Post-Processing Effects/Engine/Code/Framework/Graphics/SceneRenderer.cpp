@@ -290,9 +290,9 @@ void SceneRenderer::init()
 	createWaterAttachments();
 	createSsaoAttachments(res);
 
-	pointLightMesh = Mesh::createMesh("Resources/Models/pointlight.obj", true);
-	spotLightMesh = Mesh::createMesh("Resources/Models/spotlight.obj", true);
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.obj", true);
+	pointLightMesh = Mesh::createMesh("Resources/Models/pointlight.mesh", 1, true);
+	spotLightMesh = Mesh::createMesh("Resources/Models/spotlight.mesh", 1, true);
+	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 
 	createWaterPlane(waterGridDimensions, waterVBO, waterVAO, waterEBO);
 }
@@ -765,7 +765,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 
 	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
 
-	std::shared_ptr<Mesh> currentMesh = nullptr;
+	std::shared_ptr<SubMesh> currentMesh = nullptr;
 	bool enabledMesh = false;
 
 	for (std::size_t i = 0; i < data.size(); ++i)
@@ -855,7 +855,7 @@ void SceneRenderer::renderSkybox(const RenderData &_renderData, const std::share
 	static const glm::vec4 DEFAULT_ALBEDO_COLOR(1.0);
 	static glm::mat4 prevTransform;
 
-	fullscreenTriangle->enableVertexAttribArrays();
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 	skyboxShader->bind();
 
 	EntityManager &entityManager = EntityManager::getInstance();
@@ -885,13 +885,13 @@ void SceneRenderer::renderSkybox(const RenderData &_renderData, const std::share
 
 	prevTransform = mvpMatrix;
 
-	fullscreenTriangle->render();
+	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const glm::mat4 &_inverseView, const glm::mat4 &_inverseProjection, const Effects &_effects)
 {
-	fullscreenTriangle->enableVertexAttribArrays();
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
@@ -944,13 +944,13 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 		uRenderDirectionalLightE.set(false);
 	}
 
-	fullscreenTriangle->render();
+	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void SceneRenderer::renderDirectionalLights(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const glm::mat4 &_inverseView, const glm::mat4 &_inverseProjection)
 {
-	fullscreenTriangle->enableVertexAttribArrays();
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	directionalLightShader->bind();
 
@@ -973,14 +973,14 @@ void SceneRenderer::renderDirectionalLights(const RenderData &_renderData, const
 		}
 
 		uDirectionalLightD.set(directionalLight, 4);
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
 }
 
 void SceneRenderer::renderPointLights(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const glm::mat4 &_inverseView, const glm::mat4 &_inverseProjection)
 {
-	pointLightMesh->enableVertexAttribArrays();
+	pointLightMesh->getSubMesh()->enableVertexAttribArrays();
 
 	pointLightPassShader->bind();
 
@@ -1005,13 +1005,13 @@ void SceneRenderer::renderPointLights(const RenderData &_renderData, const std::
 
 		uModelViewProjectionP.set(_renderData.viewProjectionMatrix * glm::translate(pointLight->getPosition()) * glm::scale(glm::vec3(calculateLightScale(pointLight->getColor()))));
 		uPointLightP.set(pointLight, 4);
-		pointLightMesh->render();
+		pointLightMesh->getSubMesh()->render();
 	}
 }
 
 void SceneRenderer::renderSpotLights(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const glm::mat4 &_inverseView, const glm::mat4 &_inverseProjection)
 {
-	spotLightMesh->enableVertexAttribArrays();
+	spotLightMesh->getSubMesh()->enableVertexAttribArrays();
 
 	spotLightPassShader->bind();
 
@@ -1049,7 +1049,7 @@ void SceneRenderer::renderSpotLights(const RenderData &_renderData, const std::s
 
 		uModelViewProjectionS.set(_renderData.viewProjectionMatrix * glm::translate(position) * rot * glm::scale(glm::vec3(calculateLightScale(spotLight->getColor()))));
 		uSpotLightS.set(spotLight, 4);
-		spotLightMesh->render();
+		spotLightMesh->getSubMesh()->render();
 	}
 }
 
@@ -1084,7 +1084,7 @@ void SceneRenderer::renderTransparentGeometry(const RenderData &_renderData, con
 
 	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
 
-	std::shared_ptr<Mesh> currentMesh = nullptr;
+	std::shared_ptr<SubMesh> currentMesh = nullptr;
 	bool enabledMesh = false;
 
 	for (std::size_t i = 0; i < data.size(); ++i)
@@ -1180,7 +1180,7 @@ void SceneRenderer::renderOutlines(const RenderData &_renderData, const Scene &_
 
 	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
 
-	std::shared_ptr<Mesh> currentMesh = nullptr;
+	std::shared_ptr<SubMesh> currentMesh = nullptr;
 	bool enabledMesh = false;
 
 	for (std::size_t i = 0; i < data.size(); ++i)
@@ -1237,7 +1237,7 @@ void SceneRenderer::renderCustomGeometry(const RenderData &_renderData, const st
 
 	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
 
-	std::shared_ptr<Mesh> currentMesh = nullptr;
+	std::shared_ptr<SubMesh> currentMesh = nullptr;
 	bool enabledMesh = false;
 
 	for (std::size_t i = 0; i < data.size(); ++i)
@@ -1288,7 +1288,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 	{
 	case AmbientOcclusion::SSAO_ORIGINAL:
 	{
-		fullscreenTriangle->enableVertexAttribArrays();
+		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
 		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
 
@@ -1300,7 +1300,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		uDepthTextureAOO.set(3);
 		uNoiseTextureAOO.set(5);
 
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT1);
 		glActiveTexture(GL_TEXTURE6);
@@ -1310,7 +1310,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		uInputTextureAOB.set(6);
 		uBlurSizeAOB.set(4);
 
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 		break;
 	}
 	case AmbientOcclusion::SSAO:
@@ -1342,7 +1342,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 			}
 		}
 
-		fullscreenTriangle->enableVertexAttribArrays();
+		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
 		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
@@ -1371,7 +1371,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 			}
 		}
 
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT1);
@@ -1382,13 +1382,13 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		uInputTextureAOB.set(6);
 		uBlurSizeAOB.set(4);
 
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		break;
 	}
 	case AmbientOcclusion::HBAO:
 	{
-		fullscreenTriangle->enableVertexAttribArrays();
+		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
 		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
 
@@ -1422,7 +1422,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		uNumDirectionsHBAO.set((float)_effects.hbao.directions);
 		uNumStepsHBAO.set((float)_effects.hbao.steps);
 
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT1);
 		glActiveTexture(GL_TEXTURE6);
@@ -1432,7 +1432,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		uInputTextureAOB.set(6);
 		uBlurSizeAOB.set(4);
 
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 
 		break;
 	}
@@ -1443,7 +1443,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 
 void SceneRenderer::precomputeFftTextures()
 {
-	fullscreenTriangle->enableVertexAttribArrays();
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	// tildeh0k/minusk
 	{
@@ -1480,7 +1480,7 @@ void SceneRenderer::precomputeFftTextures()
 		GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 		glDrawBuffers(2, drawBuffers);
 
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
 
@@ -1505,14 +1505,14 @@ void SceneRenderer::precomputeFftTextures()
 		glBindFramebuffer(GL_FRAMEBUFFER, twiddleIndicesFbo);
 		glViewport(0, 0, log2N, N);
 
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
 }
 
 void SceneRenderer::computeFft()
 {
-	fullscreenTriangle->enableVertexAttribArrays();
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 	// tildehkt
 	{
 		tildeHktShader->bind();
@@ -1533,7 +1533,7 @@ void SceneRenderer::computeFft()
 		GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
 		glDrawBuffers(3, drawBuffers);
 
-		fullscreenTriangle->render();
+		fullscreenTriangle->getSubMesh()->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
 
@@ -1575,7 +1575,7 @@ void SceneRenderer::computeFft()
 				glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][2]);
 				glDrawBuffers(3, drawBuffers[drawBuffer]);
 
-				fullscreenTriangle->render();
+				fullscreenTriangle->getSubMesh()->render();
 				//glDrawArrays(GL_TRIANGLES, 0, 3);
 				drawBuffer = 1 - drawBuffer;
 			}
@@ -1601,7 +1601,7 @@ void SceneRenderer::computeFft()
 
 			glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-			fullscreenTriangle->render();
+			fullscreenTriangle->getSubMesh()->render();
 			//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 			// generate mips
@@ -1620,7 +1620,7 @@ void SceneRenderer::computeFft()
 
 			glDrawBuffer(GL_COLOR_ATTACHMENT1);
 
-			fullscreenTriangle->render();
+			fullscreenTriangle->getSubMesh()->render();
 			//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 			// generate mips
@@ -1716,7 +1716,7 @@ void SceneRenderer::createWaterPlane(const glm::vec2 &_dimensions, GLuint &_VBO,
 }
 
 #ifdef SPHERES
-std::shared_ptr<Mesh> mesh;
+std::shared_ptr<SubMesh> mesh;
 void renderSphere()
 {
 	if (!mesh)
@@ -1784,7 +1784,7 @@ void renderSphere()
 			vertices.push_back(vertex);
 		}
 
-		mesh = Mesh::createMesh(vertices, indices);
+		mesh = SubMesh::createMesh(vertices, indices);
 
 	}
 

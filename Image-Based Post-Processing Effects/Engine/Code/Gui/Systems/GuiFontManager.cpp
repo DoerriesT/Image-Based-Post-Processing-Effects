@@ -21,9 +21,8 @@ void GuiFontManager::init(GuiRenderer *renderer)
 {
 	renderer->fontStashBegin(atlas);
 
-	char *buf;
-	long long bytesRead = loadBinaryFile("Resources/Gui/Fonts/FiraSans.ttf", &buf);
-	if (bytesRead >= 0)
+	std::vector<char> buffer = readBinaryFile("Resources/Gui/Fonts/FiraSans.ttf");
+	if (!buffer.empty())
 	{
 		for (uint32_t i = 0; i < GUI_SIZE_COUNT; ++i)
 		{
@@ -31,11 +30,10 @@ void GuiFontManager::init(GuiRenderer *renderer)
 			struct nk_font_config config = nk_font_config(fontSize);
 			config.oversample_h = 4;
 			config.oversample_v = 4;
-			fonts[i] = nk_font_atlas_add_from_memory(atlas, buf, (nk_size)bytesRead, fontSize, &config);
+			fonts[i] = nk_font_atlas_add_from_memory(atlas, buffer.data(), (nk_size)buffer.size(), fontSize, &config);
 		}
 	}
 	renderer->fontStashEnd(atlas);
-	delete[] buf;
 }
 
 nk_user_font* GuiFontManager::getFont(GuiSize size)

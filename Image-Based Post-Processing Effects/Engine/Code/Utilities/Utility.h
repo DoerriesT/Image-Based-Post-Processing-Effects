@@ -11,10 +11,8 @@
 #include <iomanip>
 #include "md5.h"
 
-char* readTextResourceFile(const std::string &_filename);
-
-//Writes the contents of a file into a buffer, returns the read bytes or -1 if read failed. Buffer has to be deleted !
-std::streamsize loadBinaryFile(const char *_filename, char **_buffer);
+std::vector<char> readTextFile(const std::string &_filename);
+std::vector<char> readBinaryFile(const std::string &_filename);
 
 void glErrorCheck(const std::string &_message);
 

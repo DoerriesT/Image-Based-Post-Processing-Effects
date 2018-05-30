@@ -9,13 +9,13 @@ struct CustomTransparencyShaderComponent;
 struct TransparencyComponent;
 struct ModelComponent;
 struct Entity;
-class Mesh;
+class SubMesh;
 class Material;
 
 struct EntityRenderData
 {
 	const Entity *entity;
-	std::shared_ptr<Mesh> mesh;
+	std::shared_ptr<SubMesh> mesh;
 	Material *material;
 	TransformationComponent *transformationComponent;
 	ModelComponent *modelComponent;

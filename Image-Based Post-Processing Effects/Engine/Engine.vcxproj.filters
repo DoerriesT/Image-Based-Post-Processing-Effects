@@ -122,9 +122,6 @@
     <ClInclude Include="Code\Graphics\Texture.h">
       <Filter>Code\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\Mesh.h">
-      <Filter>Code\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Graphics\Material.h">
       <Filter>Code\Graphics</Filter>
     </ClInclude>
@@ -332,6 +329,12 @@
     <ClInclude Include="Code\EntityComponentSystem\IOnEntityDestructionListener.h">
       <Filter>Code\EntityComponentSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\Model.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\Mesh.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Window.cpp">
@@ -528,6 +531,9 @@
     </ClCompile>
     <ClCompile Include="Code\EntityComponentSystem\System.cpp">
       <Filter>Code\EntityComponentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\Model.cpp">
+      <Filter>Code\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

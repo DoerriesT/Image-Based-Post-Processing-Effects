@@ -159,17 +159,7 @@ INIFile::INIFile(const std::string &_filename)
 
 void INIFile::load()
 {
-	char *fileContent = "";
-
-	try
-	{
-		fileContent = readTextResourceFile(filename);
-	}
-	catch (std::exception&)
-	{
-	}
-
-	parse(fileContent);
+	parse(readTextFile(filename).data());
 
 #ifdef _DEBUG
 	printf("-- INIFile loaded Data: --\n");
