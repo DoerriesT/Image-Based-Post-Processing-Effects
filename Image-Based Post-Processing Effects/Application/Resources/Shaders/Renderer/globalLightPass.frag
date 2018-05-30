@@ -175,11 +175,11 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
     NdotH2 *= NdotH2;
 
     float nom   = a2;
-    float denom = max(NdotH2 * (a2 - 1.0) + 1.0, 0.0000001);
+    float denom = NdotH2 * (a2 - 1.0) + 1.0;
 
     denom = PI * denom * denom;
 
-    return nom / denom;
+    return nom / max(denom, 0.0000001);
 }
 
 float GeometrySmith(float NdotV, float NdotL, float roughness)
@@ -195,18 +195,14 @@ float GeometrySmith(float NdotV, float NdotL, float roughness)
 
 vec3 fresnelSchlick(float HdotV, vec3 F0)
 {
-	float fresnel = 1.0 - HdotV;
-	fresnel *= fresnel;
-	fresnel *= fresnel;
-	return F0 + (1.0 - F0) * fresnel;
+	float power = (-5.55473 * HdotV - 6.98316) * HdotV;
+	return F0 + (1.0 - F0) * pow(2.0, power);
 }
 
 vec3 fresnelSchlickRoughness(float HdotV, vec3 F0, float roughness)
 {
-	float fresnel = 1.0 - HdotV;
-	fresnel *= fresnel;
-	fresnel *= fresnel;
-    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * fresnel;
+	float power = (-5.55473 * HdotV - 6.98316) * HdotV;
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(2.0, power);
 }
 
 void main()

@@ -27,6 +27,7 @@ void EnvironmentRenderer::init()
 	atmosphereShader = ShaderProgram::createShaderProgram("Resources/Shaders/Environment/environmentProjection.vert", "Resources/Shaders/Environment/atmosphere.frag");
 	irradianceShader = ShaderProgram::createShaderProgram("Resources/Shaders/Environment/environmentProjection.vert", "Resources/Shaders/Environment/irradiance.frag");
 	reflectanceShader = ShaderProgram::createShaderProgram("Resources/Shaders/Environment/environmentProjection.vert", "Resources/Shaders/Environment/reflectance.frag");
+	brdfShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Environment/brdf.frag");
 	blitShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Shared/blit.frag");
 	
 	// uniforms
@@ -90,6 +91,14 @@ void EnvironmentRenderer::init()
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, environmentMap, 0);
 	}
 
+	glGenTextures(1, &brdfLUT);
+	glBindTexture(GL_TEXTURE_2D, brdfLUT);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, BRDF_LUT_SIZE, BRDF_LUT_SIZE, 0, GL_RG, GL_FLOAT, nullptr);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
@@ -109,6 +118,32 @@ void EnvironmentRenderer::updateCubeSide(unsigned int _side, GLuint _source)
 
 	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
+}
+
+void EnvironmentRenderer::generateMipmaps()
+{
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap);
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+}
+
+void EnvironmentRenderer::calculateBrdfLUT()
+{
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	glBindFramebuffer(GL_FRAMEBUFFER, convolutionFbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUT, 0);
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	glViewport(0, 0, BRDF_LUT_SIZE, BRDF_LUT_SIZE);
+
+	brdfShader->bind();
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
+
+	fullscreenTriangle->getSubMesh()->render();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void EnvironmentRenderer::calculateReflectance(const std::shared_ptr<EnvironmentProbe>  &_environmentProbe)
@@ -221,4 +256,9 @@ std::shared_ptr<Texture> EnvironmentRenderer::calculateAtmosphere(const Atmosphe
 GLuint EnvironmentRenderer::getEnvironmentMap() const
 {
 	return environmentMap;
+}
+
+GLuint EnvironmentRenderer::getBrdfLUT() const
+{
+	return brdfLUT;
 }

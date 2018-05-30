@@ -182,6 +182,7 @@
     <None Include="..\Application\Resources\Shaders\Custom\sun.frag" />
     <None Include="..\Application\Resources\Shaders\Custom\sun.vert" />
     <None Include="..\Application\Resources\Shaders\Environment\atmosphere.frag" />
+    <None Include="..\Application\Resources\Shaders\Environment\brdf.frag" />
     <None Include="..\Application\Resources\Shaders\Environment\environmentProjection.vert" />
     <None Include="..\Application\Resources\Shaders\Environment\irradiance.frag" />
     <None Include="..\Application\Resources\Shaders\Environment\reflectance.frag" />

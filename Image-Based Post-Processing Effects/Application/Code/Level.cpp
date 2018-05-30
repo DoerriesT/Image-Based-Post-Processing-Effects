@@ -101,7 +101,10 @@ std::shared_ptr<Level> App::loadLevel()
 
 				const Entity *teapotEntity = entityManager.createEntity();
 				level->entityMap["teapot" + std::to_string(i * 10 + j)] = teapotEntity;
-				entityManager.addComponent<ModelComponent>(teapotEntity, Model("Resources/Models/teapot.meshmat", true));
+				Model model("Resources/Models/teapot.meshmat", true);
+				model[0].second.setRoughness(i / 10.0f);
+				model[0].second.setMetallic(j / 10.0f);
+				entityManager.addComponent<ModelComponent>(teapotEntity, model);
 				entityManager.addComponent<TransformationComponent>(teapotEntity, position, glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(1.0f));
 				entityManager.addComponent<RenderableComponent>(teapotEntity);
 			}

@@ -59,7 +59,7 @@ void GraphicsFramework::init()
 	postProcessRenderer.init();
 	shadowRenderer.init();
 	environmentRenderer.init();
-
+	
 	blitShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Shared/blit.frag");
 
 	uScreenTextureBlit = blitShader->createUniform("uScreenTexture");
@@ -130,6 +130,7 @@ void GraphicsFramework::render(const std::shared_ptr<EnvironmentProbe> &_environ
 		sceneRenderer.render(renderData, _scene, _level, effects);
 		environmentRenderer.updateCubeSide(i, sceneRenderer.getColorTexture());
 	}
+	environmentRenderer.generateMipmaps();
 	environmentRenderer.calculateReflectance(_environmentProbe);
 	environmentRenderer.calculateIrradiance(_environmentProbe);
 }

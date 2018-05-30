@@ -11,6 +11,7 @@ struct Level;
 
 const unsigned int ATMOSPHERE_MAP_SIZE = 1024;
 const unsigned int ENVIRONMENT_MAP_SIZE = 512;
+const unsigned int BRDF_LUT_SIZE = 512;
 
 class EnvironmentRenderer
 {
@@ -23,16 +24,20 @@ public:
 	~EnvironmentRenderer();
 	void init();
 	void updateCubeSide(unsigned int _side, GLuint _source);
+	void generateMipmaps();
+	void calculateBrdfLUT();
 	void calculateReflectance(const std::shared_ptr<EnvironmentProbe> &_environmentProbe);
 	void calculateIrradiance(const std::shared_ptr<EnvironmentProbe> &_environmentProbe);
 	std::shared_ptr<Texture> calculateAtmosphere(const AtmosphereParams &_atmosphereParams);
 	GLuint getEnvironmentMap() const;
+	GLuint getBrdfLUT() const;
 
 private:
 	// shaders
 	std::shared_ptr<ShaderProgram> atmosphereShader;
 	std::shared_ptr<ShaderProgram> reflectanceShader;
 	std::shared_ptr<ShaderProgram> irradianceShader;
+	std::shared_ptr<ShaderProgram> brdfShader;
 	std::shared_ptr<ShaderProgram> blitShader;
 
 	// fullscreenTriangle
@@ -42,6 +47,7 @@ private:
 	GLuint convolutionFbo;
 
 	GLuint environmentMap;
+	GLuint brdfLUT;
 
 	// blit
 	GLint uScreenTextureBlit;
