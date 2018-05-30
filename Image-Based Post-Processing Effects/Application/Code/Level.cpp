@@ -86,8 +86,8 @@ std::shared_ptr<Level> App::loadLevel()
 	{
 		const Entity *planeEntity = entityManager.createEntity();
 		level->entityMap["plane"] = planeEntity;
-		entityManager.addComponent<ModelComponent>(planeEntity, Model("Resources/Models/plane.meshmat", true));
-		entityManager.addComponent<TransformationComponent>(planeEntity, glm::vec3(), glm::quat(glm::vec3(glm::radians(180.0f), 0.0f, 0.0f)), glm::vec3(100.0f));
+		entityManager.addComponent<ModelComponent>(planeEntity, Model("Resources/Models/sponza_wo_flag.meshmat", true));
+		entityManager.addComponent<TransformationComponent>(planeEntity, glm::vec3(), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(0.1f));
 		entityManager.addComponent<RenderableComponent>(planeEntity);
 
 		for (int i = 0; i < 10; ++i)

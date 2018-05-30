@@ -1,0 +1,303 @@
+material count: 25
+mesh file: sponza_wo_flag.mesh
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/lion_a.dds
+normalPath: Resources/Textures/Sponza/lion_n.dds
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/background_a.dds
+normalPath: Resources/Textures/Sponza/background_n.dds
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/vase_plant_a.dds
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/arch_a.dds
+normalPath: Resources/Textures/Sponza/arch_n.dds
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/arch_r.dds
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/bricks_a_a.dds
+normalPath: Resources/Textures/Sponza/bricks_a_n.dds
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/bricks_a_r.dds
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/ceiling_a_a.dds
+normalPath: 
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/ceiling_a_r.dds
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/chain_texture_a.dds
+normalPath: Resources/Textures/Sponza/chain_texture_n.dds
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/column_a_a.dds
+normalPath: Resources/Textures/Sponza/column_a_n.dds
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/column_a_r.dds
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/column_b_a.dds
+normalPath: Resources/Textures/Sponza/column_b_n.dds
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/column_b_r.dds
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/column_c_a.dds
+normalPath: Resources/Textures/Sponza/column_c_n.dds
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/column_c_r.dds
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/details_a.dds
+normalPath: 
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/details_r.dds
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/fabric_a.dds
+normalPath: 
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/fabric_r.dds
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/curtain_a.dds
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/fabric_blue_a.dds
+normalPath: 
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/fabric_r.dds 
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/fabric_green_a.dds
+normalPath: 
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/fabric_r.dds
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/curtain_green_a.dds
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/curtain_blue_a.dds
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/flagpole_a.dds
+normalPath: 
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/flagpole_r.dds
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/floor_a_a.dds
+normalPath: 
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/floor_a_r.dds
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/thorn_a.dds
+normalPath: Resources/Textures/Sponza/thorn_n.dds
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/thorn_r.dds
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/roof_a.dds
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/vase_a.dds
+normalPath: Resources/Textures/Sponza/vase_n.dds
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/vase_hanging_a.dds
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/Sponza/vase_round_a.dds
+normalPath: Resources/Textures/Sponza/vase_round_n.dds
+metallicPath: 
+roughnessPath: Resources/Textures/Sponza/vase_round_r.dds 
+aoPath: 
+emissivePath: 
+
