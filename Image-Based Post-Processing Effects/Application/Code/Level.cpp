@@ -42,11 +42,11 @@ std::shared_ptr<Level> App::loadLevel()
 	//oceanLevel->environment.environmentMap = Texture::createTexture("Resources/Textures/oceanskybox.dds", true);
 	if (SettingsManager::getInstance().getBoolSetting("graphics", "load_environment_from_file", true)->get())
 	{
-		level->environment.environmentProbe = EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 10.0f, 0.0f), Texture::createTexture(level->filepath + "reflectance.dds", true), Texture::createTexture(level->filepath + "irradiance.dds", true));
+		level->environment.environmentProbe = EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 30.0f, 0.0f), Texture::createTexture(level->filepath + "reflectance.dds", true), Texture::createTexture(level->filepath + "irradiance.dds", true));
 	}
 	else
 	{
-		level->environment.environmentProbe = EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 10.0f, 0.0f));
+		level->environment.environmentProbe = EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 30.0f, 0.0f));
 	}
 	level->environment.brdfMap = Texture::createTexture("Resources/Textures/brdf.dds", true);
 

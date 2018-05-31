@@ -699,5 +699,8 @@
     <None Include="..\Application\Resources\Shaders\Environment\brdf.frag">
       <Filter>Resources\Shaders\Environment</Filter>
     </None>
+    <None Include="..\Application\Resources\Shaders\Renderer\brdf.comp">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
   </ItemGroup>
 </Project>

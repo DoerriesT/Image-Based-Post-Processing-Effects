@@ -329,9 +329,7 @@ void main()
 				prefilteredColor = textureLod(uPrefilterMap, (uInverseView * vec4(reflect(-V, N), 0.0)).xyz, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
 			}
 
-
-			// TODO: find out why brdfLUT is weirdly sampled
-			vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, max(metallicRoughnessAoShaded.g, 0.004))).rg;
+			vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, metallicRoughnessAoShaded.g)).rg;
 			vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 
 			ambientLightContribution = metallicRoughnessAoShaded.a * (kD * diffuse + specular) * metallicRoughnessAoShaded.b;

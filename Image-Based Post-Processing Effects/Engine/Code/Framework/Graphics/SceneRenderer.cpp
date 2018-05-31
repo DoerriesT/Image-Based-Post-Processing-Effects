@@ -59,7 +59,7 @@ SceneRenderer::~SceneRenderer()
 	glBindVertexArray(0);
 	glDeleteVertexArrays(1, &waterVAO);
 
-	GLuint textures[] = { gAlbedoTexture, gNormalTexture, gMRASTexture, gDepthStencilTexture, gLightColorTextures[0], gLightColorTextures[1], gVelocityTexture };
+	GLuint textures[] = { gAlbedoTexture, gNormalTexture, gMRASTexture, gDepthStencilTexture, gLightColorTextures[0], gLightColorTextures[1], gVelocityTexture, brdfLUT };
 	glDeleteTextures(sizeof(textures) / sizeof(GLuint), textures);
 }
 
