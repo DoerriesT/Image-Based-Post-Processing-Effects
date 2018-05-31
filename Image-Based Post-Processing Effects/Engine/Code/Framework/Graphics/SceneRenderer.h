@@ -26,6 +26,7 @@ public:
 	GLuint getColorTexture() const;
 	GLuint getDepthStencilTexture() const;
 	GLuint getVelocityTexture() const;
+	GLuint getBrdfLUT() const;
 
 private:
 	// shaders
@@ -54,6 +55,8 @@ private:
 	std::shared_ptr<Mesh> pointLightMesh;
 	std::shared_ptr<Mesh> spotLightMesh;
 	std::shared_ptr<Mesh> fullscreenTriangle;
+
+	GLuint brdfLUT;
 
 	// water mesh
 	glm::vec2 waterGridDimensions = glm::vec2(300);
@@ -303,5 +306,6 @@ private:
 	void computeFft();
 	void renderWater(const RenderData &_renderData, const std::shared_ptr<Level> &_level);
 	void createWaterPlane(const glm::vec2 &_dimensions, GLuint &_VBO, GLuint &_VAO, GLuint &_EBO);
+	void createBrdfLUT();
 };
 

@@ -30,14 +30,12 @@ public:
 	void calculateIrradiance(const std::shared_ptr<EnvironmentProbe> &_environmentProbe);
 	std::shared_ptr<Texture> calculateAtmosphere(const AtmosphereParams &_atmosphereParams);
 	GLuint getEnvironmentMap() const;
-	GLuint getBrdfLUT() const;
 
 private:
 	// shaders
 	std::shared_ptr<ShaderProgram> atmosphereShader;
 	std::shared_ptr<ShaderProgram> reflectanceShader;
 	std::shared_ptr<ShaderProgram> irradianceShader;
-	std::shared_ptr<ShaderProgram> brdfShader;
 	std::shared_ptr<ShaderProgram> blitShader;
 
 	// fullscreenTriangle
@@ -47,7 +45,6 @@ private:
 	GLuint convolutionFbo;
 
 	GLuint environmentMap;
-	GLuint brdfLUT;
 
 	// blit
 	GLint uScreenTextureBlit;

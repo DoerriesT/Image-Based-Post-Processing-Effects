@@ -295,6 +295,7 @@ void SceneRenderer::init()
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 
 	createWaterPlane(waterGridDimensions, waterVBO, waterVAO, waterEBO);
+	createBrdfLUT();
 }
 
 void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
@@ -500,6 +501,11 @@ GLuint SceneRenderer::getDepthStencilTexture() const
 GLuint SceneRenderer::getVelocityTexture() const
 {
 	return gVelocityTexture;
+}
+
+GLuint SceneRenderer::getBrdfLUT() const
+{
+	return brdfLUT;
 }
 
 void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution)
@@ -900,7 +906,7 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getReflectanceMap()->getId());
 	glActiveTexture(GL_TEXTURE8);
-	glBindTexture(GL_TEXTURE_2D, _level->environment.brdfMap->getId());
+	glBindTexture(GL_TEXTURE_2D, brdfLUT);
 	glActiveTexture(GL_TEXTURE9);
 	glBindTexture(GL_TEXTURE_2D, gLightColorTextures[(currentLightColorTexture + 1) % 2]);
 
@@ -1713,6 +1719,25 @@ void SceneRenderer::createWaterPlane(const glm::vec2 &_dimensions, GLuint &_VBO,
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(0);
+}
+
+void SceneRenderer::createBrdfLUT()
+{
+	std::shared_ptr<ShaderProgram> brdfShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/brdf.comp");
+
+	glGenTextures(1, &brdfLUT);
+
+	glBindTexture(GL_TEXTURE_2D, brdfLUT);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_HALF_FLOAT, nullptr);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	brdfShader->bind();
+	glBindImageTexture(0, brdfLUT, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
+	glDispatchCompute(512, 512, 1);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
 #ifdef SPHERES

@@ -1,8 +1,8 @@
-#version 330 core
+#version 450 core
 
-layout(location = 0) out vec4 oColor;
+layout(local_size_x = 1, local_size_y = 1, local_size_z= 1) in;
 
-in vec2 vTexCoord;
+layout(rg16f, binding = 0) uniform image2D uImgOut;
 
 const float PI = 3.14159265359;
 
@@ -58,8 +58,9 @@ float GeometrySmith(float NdotV, float NdotL, float roughness)
 
 void main()
 {
-	float roughness = vTexCoord.x;
-	float NdotV = vTexCoord.y;
+	ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
+	float roughness = gl_GlobalInvocationID.x / 512.0;
+	float NdotV = gl_GlobalInvocationID.y / 512.0;
 	
 	vec3 V;
 	V.x = sqrt(1.0 - NdotV * NdotV); // sin
@@ -97,5 +98,5 @@ void main()
 	A /= float(NUM_SAMPLES);
     B /= float(NUM_SAMPLES);
 	
-	oColor = vec4(A, B, 0.0, 1.0);
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(A, B, 0.0, 0.0));
 }
