@@ -414,7 +414,7 @@ void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared
 
 void ShaderProgram::setUniform(const std::vector<GLint> &_locations, const Material *_value) const
 {
-	setUniform(_locations[0], _value->getAlbedo());
+	setUniform(_locations[0], glm::pow(_value->getAlbedo(), glm::vec4(glm::vec3(1.0 / 2.2), 1.0)));
 	setUniform(_locations[1], _value->getMetallic());
 	setUniform(_locations[2], _value->getRoughness());
 	setUniform(_locations[3], 1.0f);
