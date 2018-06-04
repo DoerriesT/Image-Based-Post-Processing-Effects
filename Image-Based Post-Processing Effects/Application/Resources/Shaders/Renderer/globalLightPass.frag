@@ -37,123 +37,100 @@ uniform samplerCube uIrradianceMap;
 uniform samplerCube uPrefilterMap;
 uniform sampler2D uBrdfLUT;
 
-const float stepLength = 0.04;
-const float minRayStep = 0.1;
-const float maxSteps = 30;
-const int numBinarySearchSteps = 10;
-const float reflectionSpecularFalloffExponent = 3.0;
+const float Z_NEAR = 0.1;
+const float Z_FAR = 3000.0;
 
-#define Scale vec3(.8, .8, .8)
-#define K 19.19
 
-vec3 hash(vec3 a)
+
+#define INVALID_HIT_POINT vec3(-1.0)
+#define LRM_MAX_ITERATIONS		100						// Maximal number of iterations for linear ray-marching
+#define BS_MAX_ITERATIONS		30						// Maximal number of iterations for bineary search
+#define BS_DELTA_EPSILON 0.0001
+
+float linearDepth(float depth)
 {
-    a = fract(a * Scale);
-    a += dot(a, a.yxz + K);
-    return fract((a.xxy + a.yxx)*a.zyx);
+    float z_n = 2.0 * depth - 1.0;
+    return 2.0 * Z_NEAR * Z_FAR / (Z_FAR + Z_NEAR - z_n * (Z_FAR - Z_NEAR));
 }
 
-vec3 binarySearch(inout vec3 dir, // ray direction
-	inout vec3 hitCoord, // ray startpoint / resolut point 
-	inout float dDepth)
+vec3 project(vec3 vsCoord)
 {
-    float depth;
+	vec4 projectedCoord = uProjection * vec4(vsCoord, 1.0f);
+	projectedCoord.xyz /= projectedCoord.w;
+	projectedCoord.xy = projectedCoord.xy * vec2(0.5) + vec2(0.5);
 
-    vec4 projectedCoord;
- 
-    for(int i = 0; i < numBinarySearchSteps; ++i)
-    {
-		// transform from viewspace to postprojective space
-        projectedCoord = uProjection * vec4(hitCoord, 1.0);
-        projectedCoord.xy /= projectedCoord.w;
-        projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
- 
-        // get depth at new position
-		float depth = texture(uDepthMap, projectedCoord.xy).r;
-		vec4 clipSpacePosition = vec4(projectedCoord.xy * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
-		vec4 viewSpacePosition = uInverseProjection * clipSpacePosition;
-		viewSpacePosition /= viewSpacePosition.w;
-        depth = viewSpacePosition.z;
-
- 
-        dDepth = hitCoord.z - depth;
-
-        dir *= 0.5;
-        if(dDepth > 0.0)
-		{
-			hitCoord += dir;
-		}
-        else
-		{
-			hitCoord -= dir;   
-		} 
-    }
-
-	/*
-    projectedCoord = uProjection * vec4(hitCoord, 1.0);
-    projectedCoord.xy /= projectedCoord.w;
-    projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
-
-	return vec3(projectedCoord.xy, depth);
-	*/
-	
-	vec4 reprojectedCoord = uPrevViewProjection * uInverseView * vec4(hitCoord, 1.0);
-	reprojectedCoord.xy /= reprojectedCoord.w;
-	reprojectedCoord.xy = reprojectedCoord.xy * 0.5 + 0.5;
- 
-    return vec3(reprojectedCoord.xy, depth);
-	
+	return projectedCoord.xyz;
 }
 
-vec3 ssrRaymarch(
-	vec3 dir, // ray direction
-	inout vec3 hitCoord, // ray startpoint / resolut point 
-	out float dDepth)
+vec3 unproject(vec3 ssCoord)
 {
-	dir *= stepLength;
- 
-    float depth;
-    int steps;
-    vec4 projectedCoord;
+	ssCoord.xy = (ssCoord.xy - vec2(0.5)) * vec2(2.0);
+	vec4 vsCoord = uInverseProjection * vec4(ssCoord, 1.0);
+	return vsCoord.xyz / vsCoord.w;
+}
 
- 
-    for(int i = 0; i < maxSteps; ++i)
-    {
-		// marching step
-        hitCoord += dir;
- 
-		// transform from viewspace to postprojective space
-        projectedCoord = uProjection * vec4(hitCoord, 1.0);
-        projectedCoord.xy /= projectedCoord.w;
-        projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
- 
-		// get depth at new position
-		float depth = texture(uDepthMap, projectedCoord.xy).r;
-		vec4 clipSpacePosition = vec4(projectedCoord.xy * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
-		vec4 viewSpacePosition = uInverseProjection * clipSpacePosition;
-		viewSpacePosition /= viewSpacePosition.w;
-        depth = viewSpacePosition.z;
-
-        if(depth > 1000.0)
-        {
-			continue;
+bool linearRayTraceBinarySearch(inout vec3 rayPos, vec3 rayDir)
+{
+	for (uint i = 0; i < BS_MAX_ITERATIONS; ++i)
+	{		
+		/* Check if we found our final hit point */
+		float depth = textureLod(uDepthMap, rayPos.xy, 0.0).r;
+		float depthDelta = linearDepth(depth) - linearDepth(rayPos.z);
+		
+		if (abs(depthDelta) < BS_DELTA_EPSILON)
+		{
+			return true;
 		}
- 
-        dDepth = hitCoord.z - depth;
+		
+		/*
+		Move ray forwards if we are in front of geometry and
+		move backwards, if we are behind geometry
+		*/
+		if (depthDelta > 0.0)
+		{
+			rayPos += rayDir;
+		}
+		else
+		{
+			rayPos -= rayDir;
+		}
+		
+		rayDir *= 0.5;
+	}
+	return false;
+}
 
-        if((dir.z - dDepth) < 2.2)
-        {
-            if(dDepth <= 0.0)
-            {   
-                return vec3(binarySearch(dir, hitCoord, dDepth));
-            }
-        }
-        
-        ++steps;
-    }
- 
-    
-    return vec3(projectedCoord.xy, depth);
+bool linearRayTrace(inout vec3 rayPos, vec3 rayDir)
+{
+	rayDir = normalize(rayDir);
+	vec3 rayStart = rayPos;
+	vec3 rayEnd = rayStart + rayDir;
+	vec3 prevPos = rayPos;
+	
+	
+	for (uint i = 0; i < LRM_MAX_ITERATIONS; ++i)
+	{
+		/* Move to the next sample point */
+		prevPos = rayPos;
+		rayPos = mix(rayStart, rayEnd, float(i) / LRM_MAX_ITERATIONS);
+		
+		/* Check if the ray hit any geometry (delta < 0) */
+		float depth = textureLod(uDepthMap, rayPos.xy, 0).r;
+		float depthDelta = depth - rayPos.z;
+		
+		if (depthDelta < 0.0)
+		{			
+			/*
+			Move between the current and previous point and
+			make a binary search, to quickly find the final hit point
+			*/
+			rayPos = (rayPos + prevPos) * 0.5;
+			return linearRayTraceBinarySearch(rayPos, (rayPos - prevPos) );
+		}
+	}
+	
+	rayPos = INVALID_HIT_POINT;
+	return false;
 }
 
 vec3 decode (vec2 enc)
@@ -301,27 +278,22 @@ void main()
 			// Screenspace Reflections
 			if(uUseSsr)
 			{
-				vec4 worldPos4 = uInverseView * viewSpacePosition;
-				worldPos4 /= worldPos4.w;
-				// start raymarching at current view space position
-				vec3 ssrHitPos = viewSpacePosition.xyz;
-				float dDepth = 0.0;
-				// add jittering to ray to simulate roughness
-				vec3 jittering = mix(vec3(0.0), hash(worldPos4.xyz), metallicRoughnessAoShaded.g);
-				vec3 R = reflect(-V, N);
-				vec3 coords = ssrRaymarch(jittering + R * max(minRayStep, -viewSpacePosition.z), ssrHitPos, dDepth);
+				vec3 ssPosition = vec3(vTexCoord, texture(uDepthMap, vTexCoord).x);
+				vec3 vsPosition = unproject(ssPosition);
+				vec3 vsDir = normalize(vsPosition);
+				vec3 vsR = reflect(vsDir, N);
+				vec3 ssO = project(vsPosition + vsR * Z_NEAR);
+				vec3 R = ssO - ssPosition;
 
-				vec2 dCoords = smoothstep(0.2, 0.6, abs(vec2(0.5) - coords.xy));
+				bool hit = linearRayTrace(ssPosition, R);
 
-				float screenEdgeFactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
+				vec2 dCoords = smoothstep(0.2, 0.5, abs(vec2(0.5) - ssPosition.xy));
+				float edgeFactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
 
-				float reflectionMultiplier = pow(metallicRoughnessAoShaded.r, reflectionSpecularFalloffExponent) * screenEdgeFactor * -R.z;
+				vec3 ssrColor = texture(uPrevFrame, ssPosition.xy).rgb;
+				vec3 cubeColor = textureLod(uPrefilterMap, (uInverseView * vec4(reflect(-V, N), 0.0)).xyz, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
+				prefilteredColor = mix(cubeColor, ssrColor, float(hit) * edgeFactor);
 
-				// get reflected color from previous frame
-				vec3 ssr = texture(uPrevFrame, coords.xy).rgb * clamp(reflectionMultiplier, 0.0, 0.9);
-
-				// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-				prefilteredColor = mix(textureLod(uPrefilterMap, (uInverseView * vec4(reflect(-V, N), 0.0)).xyz, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb, ssr, screenEdgeFactor);
 			}
 			else
 			{
