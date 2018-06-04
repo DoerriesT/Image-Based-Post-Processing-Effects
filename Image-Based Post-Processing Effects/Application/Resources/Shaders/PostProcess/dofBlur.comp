@@ -1,0 +1,46 @@
+#version 450 core
+
+layout(local_size_x = 32, local_size_y = 32, local_size_z= 1) in;
+
+layout(rgba16f, binding = 0) writeonly uniform image2D uImgOutA;
+layout(rgba16f, binding = 1) writeonly uniform image2D uImgOutB;
+
+uniform sampler2D uColorTexture;
+uniform sampler2D uCocTexture;
+uniform vec2 uSampleCoords[64];
+uniform float uBokehScale;
+
+void main()
+{	
+	vec2 texelSize = vec2(1.0 / (textureSize(uColorTexture, 0).xy * 0.5));
+	vec2 centerCoord = vec2(gl_GlobalInvocationID.xy) * texelSize;
+	
+	vec2 coc = texture(uCocTexture, centerCoord).xy;
+
+    float cocNear = coc.x;
+	float cocFar = coc.y;
+	
+	texelSize *= uBokehScale;
+	
+	vec3 sumNear = vec3(0.0);
+	vec3 sumFar = vec3(0.0);
+ 
+    for (int i = 0; i < 64; ++i)
+    {
+        vec2 sampleCoordNear = vec2(centerCoord + cocNear * texelSize * uSampleCoords[i]);
+        vec3 sampleNear = texture(uColorTexture, sampleCoordNear).rgb;
+ 
+        sumNear += sampleNear;
+
+		vec2 sampleCoordFar = vec2(centerCoord + cocFar * texelSize * uSampleCoords[i]);
+        vec3 sampleFar = texture(uColorTexture, sampleCoordFar).rgb;
+ 
+        sumFar += sampleFar;
+    }
+ 
+    sumNear *= (1.0 / 64.0);
+	sumFar *= (1.0 / 64.0);
+	
+	imageStore(uImgOutA, ivec2(gl_GlobalInvocationID.xy), vec4(sumNear, cocNear));
+	imageStore(uImgOutB, ivec2(gl_GlobalInvocationID.xy), vec4(sumFar, cocFar));
+}

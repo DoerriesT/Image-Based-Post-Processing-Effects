@@ -32,6 +32,10 @@ private:
 	std::shared_ptr<ShaderProgram> upsampleShader;
 	std::shared_ptr<ShaderProgram> velocityTileMaxShader;
 	std::shared_ptr<ShaderProgram> velocityNeighborTileMaxShader;
+	std::shared_ptr<ShaderProgram> cocShader;
+	std::shared_ptr<ShaderProgram> cocBlurShader;
+	std::shared_ptr<ShaderProgram> dofBlurShader;
+	std::shared_ptr<ShaderProgram> dofFillShader;
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Texture> lensColorTexture;
@@ -45,11 +49,18 @@ private:
 	GLuint fullResolutionFbo;
 	GLuint fullResolutionTextureA;
 	GLuint fullResolutionTextureB;
+	GLuint fullResolutionCocTexture;
 
 	GLuint halfResolutionFbo;
 	GLuint halfResolutionHdrTexA;
 	GLuint halfResolutionHdrTexB;
 	GLuint halfResolutionHdrTexC;
+	GLuint halfResolutionCocTexA;
+	GLuint halfResolutionCocTexB;
+	GLuint halfResolutionDofTexA;
+	GLuint halfResolutionDofTexB;
+	GLuint halfResolutionDofTexC;
+	GLuint halfResolutionDofTexD;
 
 	GLuint resolution4Fbo;
 	GLuint resolution4HdrTexA;
@@ -102,6 +113,8 @@ private:
 	Uniform<GLint> uVelocityNeighborMaxTextureH = Uniform<GLint>("uVelocityNeighborMaxTexture");
 	Uniform<GLint> uDepthTextureH = Uniform<GLint>("uDepthTexture");
 	Uniform<GLfloat> uVelocityScaleH = Uniform<GLfloat>("uVelocityScale");
+	Uniform<GLint> uDofNearTextureH = Uniform<GLint>("uDofNearTexture");
+	Uniform<GLint> uDofFarTextureH = Uniform<GLint>("uDofFarTexture");
 	
 	// fxaa uniforms
 	Uniform<GLint> uScreenTextureF = Uniform<GLint>("uScreenTexture");
@@ -141,12 +154,35 @@ private:
 	// velocity neighbor tile max
 	Uniform<GLint> uVelocityTextureVNTM = Uniform<GLint>("uVelocityTexture");
 
+	// coc
+	Uniform<GLint> uDepthTextureCOC = Uniform<GLint>("uDepthTexture");
+	Uniform<GLfloat> uFocusDistanceCOC = Uniform<GLfloat>("uFocusDistance");
+	Uniform<GLfloat> uFocalLengthCOC = Uniform<GLfloat>("uFocalLength");
+
+	// coc blur
+	Uniform<GLint> uCocTextureCOCB = Uniform<GLint>("uCocTexture");
+	Uniform<GLboolean> uDirectionCOCB = Uniform<GLboolean>("uDirection");
+
+	// dof blur
+	Uniform<GLint> uColorTextureDOFB = Uniform<GLint>("uColorTexture");
+	Uniform<GLint> uCocTextureDOFB = Uniform<GLint>("uCocTexture");
+	std::vector<GLint> uSampleCoordsDOFB;
+	Uniform<GLfloat> uBokehScaleDOFB = Uniform<GLfloat>("uBokehScale");
+
+	// dof fill
+	Uniform<GLint> uColorNearTextureDOFF = Uniform<GLint>("uColorNearTexture");
+	Uniform<GLint> uColorFarTextureDOFF = Uniform<GLint>("uColorFarTexture");
+	std::vector<GLint> uSampleCoordsDOFF;
+	Uniform<GLfloat> uBokehScaleDOFF = Uniform<GLfloat>("uBokehScale");
+
 
 	void fxaa(float _subPixelAA, float _edgeThreshold, float _edgeThresholdMin);
 	void singlePassEffects(const Effects &_effects);
 	void downsample(GLuint _colorTexture);
 	void upsample();
 	void generateFlares(const Effects &_effects);
+	void calculateCoc(GLuint _depthTexture);
+	void simpleDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
 	
 };

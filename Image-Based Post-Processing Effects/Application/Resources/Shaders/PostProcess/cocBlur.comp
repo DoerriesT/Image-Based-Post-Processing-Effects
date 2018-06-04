@@ -1,0 +1,46 @@
+#version 450 core
+
+layout(local_size_x = 32, local_size_y = 32, local_size_z= 1) in;
+
+layout(rg16f, binding = 0) uniform image2D uImgOut;
+
+uniform sampler2D uCocTexture;
+uniform bool uDirection;
+
+const float weights[] = float[](0.38774, 0.24477, 0.06136);
+const float offsets[] = float[](1.5, 3.5);
+
+void main()
+{	
+	vec2 sum = vec2(0.0);
+	
+	// full res to half res
+	if (!uDirection)
+	{
+		vec2 halfResTexelSize = vec2(1.0 / (textureSize(uCocTexture, 0) * 0.5));
+		vec2 centerCoord = vec2(gl_GlobalInvocationID.xy) * halfResTexelSize;
+		
+		sum = texture(uCocTexture, centerCoord).rg * weights[0];
+		
+		for (int i = 0; i < 2; ++i)
+		{
+			sum += texture(uCocTexture, centerCoord + vec2(halfResTexelSize.x, 0.0) * offsets[i]).rg * weights[i + 1];
+			sum += texture(uCocTexture, centerCoord - vec2(halfResTexelSize.x, 0.0) * offsets[i]).rg * weights[i + 1];
+		}
+	}
+	else
+	{
+		vec2 halfResTexelSize = vec2(1.0 / (textureSize(uCocTexture, 0)));
+		vec2 centerCoord = vec2(gl_GlobalInvocationID.xy) * halfResTexelSize;
+		
+		sum = texture(uCocTexture, centerCoord).rg * weights[0];
+		
+		for (int i = 0; i < 2; ++i)
+		{
+			sum += texture(uCocTexture, centerCoord + vec2(0.0, halfResTexelSize.y) * offsets[i]).rg * weights[i + 1];
+			sum += texture(uCocTexture, centerCoord - vec2(0.0, halfResTexelSize.y) * offsets[i]).rg * weights[i + 1];
+		}
+	}
+	
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(sum, 0.0, 0.0));
+}

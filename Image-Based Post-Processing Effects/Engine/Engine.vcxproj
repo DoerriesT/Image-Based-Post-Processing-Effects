@@ -188,6 +188,10 @@
     <None Include="..\Application\Resources\Shaders\Environment\reflectance.frag" />
     <None Include="..\Application\Resources\Shaders\Gui\gui.frag" />
     <None Include="..\Application\Resources\Shaders\Gui\gui.vert" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\coc.comp" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\cocBlur.comp" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\dofBlur.comp" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\dofFill.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\downsample.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\fxaa.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\hdr.frag" />

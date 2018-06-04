@@ -702,5 +702,17 @@
     <None Include="..\Application\Resources\Shaders\Renderer\brdf.comp">
       <Filter>Resources\Shaders\Renderer</Filter>
     </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\coc.comp">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\dofBlur.comp">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\dofFill.comp">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\cocBlur.comp">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
   </ItemGroup>
 </Project>

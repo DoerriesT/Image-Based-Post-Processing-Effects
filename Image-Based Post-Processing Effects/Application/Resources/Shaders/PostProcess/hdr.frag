@@ -11,10 +11,13 @@ uniform sampler2D uDepthTexture;
 uniform sampler2D uLensFlareTex; // input from the blur stage
 uniform sampler2D uLensDirtTex; // full resolution dirt texture
 uniform sampler2D uLensStarTex; // diffraction starburst texture
+uniform sampler2D uDofNearTexture;
+uniform sampler2D uDofFarTexture;
 uniform float uStarburstOffset; // transforms texcoords
 uniform bool uLensFlares;
 uniform bool uBloom;
 uniform bool uLensDirt = false;
+uniform bool uDof = true;
 uniform int uMotionBlur;
 uniform float uBloomStrength = 0.1;
 uniform float uBloomDirtStrength = 0.5;
@@ -218,6 +221,14 @@ void main()
 
 			color = result / totalWeight;
 		}
+	}
+
+	if (uDof)
+	{
+		vec4 dofNear = texture(uDofNearTexture, vTexCoord);
+		vec4 dofFar = texture(uDofFarTexture, vTexCoord);
+		color = mix(color, dofFar.rgb, min(5.0 * dofFar.a, 0.5) * 2.0);
+		color = mix(color, dofNear.rgb, min(5.0 * dofNear.a, 0.5) * 2.0);
 	}
 
 

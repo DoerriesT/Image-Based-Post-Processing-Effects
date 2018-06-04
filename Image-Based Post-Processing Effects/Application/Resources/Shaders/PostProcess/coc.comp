@@ -1,0 +1,32 @@
+#version 450 core
+
+layout(local_size_x = 32, local_size_y = 32, local_size_z= 1) in;
+
+layout(rg16f, binding = 0) uniform image2D uImgOut;
+
+uniform sampler2D uDepthTexture;
+uniform float uFocusDistance;
+uniform float uFocalLength;
+
+const float Z_NEAR = 0.1;
+const float Z_FAR = 3000.0;
+
+float linearDepth(float depth)
+{
+    float z_n = 2.0 * depth - 1.0;
+    return 2.0 * Z_NEAR * Z_FAR / (Z_FAR + Z_NEAR - z_n * (Z_FAR - Z_NEAR));
+}
+
+void main()
+{	
+	float depth = linearDepth(texelFetch(uDepthTexture, ivec2(gl_GlobalInvocationID.xy), 0).x);
+	float centerDepth = linearDepth(texture(uDepthTexture, vec2(0.5)).x);
+
+    float signedDist = depth - centerDepth;
+    float magnitude = smoothstep(0.0, uFocalLength, abs(signedDist));
+    float CoC = magnitude;
+	
+	vec4 cocData = vec4(step(signedDist, 0.0) * CoC, step(0.0, signedDist) * CoC, 0.0, 0.0);
+	
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), cocData);
+}
