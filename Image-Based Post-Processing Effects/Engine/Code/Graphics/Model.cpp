@@ -145,6 +145,10 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 		}
 
 		submeshMaterialPairs.push_back({ mesh->getSubMesh(i), material });
+		if (material.getAlbedo().a != 1.0 && !material.getAlbedoMap())
+		{
+			transparentSubmeshes.push_back(mesh->getSubMesh(i));
+		}
 	}
 }
 
@@ -169,4 +173,9 @@ std::size_t Model::size() const
 bool Model::isValid() const
 {
 	return mesh->isValid();
+}
+
+const std::vector<std::shared_ptr<SubMesh>>& Model::getTransparentSubmeshes()
+{
+	return transparentSubmeshes;
 }

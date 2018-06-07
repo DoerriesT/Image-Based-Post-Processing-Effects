@@ -781,7 +781,6 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		// skip this iteration if its supposed to be rendered with another method or does not have sufficient components
 		if (entityRenderData->customOpaqueShaderComponent ||
 			entityRenderData->customTransparencyShaderComponent ||
-			entityRenderData->transparencyComponent ||
 			!entityRenderData->modelComponent ||
 			!entityRenderData->transformationComponent)
 		{
@@ -792,6 +791,12 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		{
 			currentMesh = entityRenderData->mesh;
 			enabledMesh = false;
+		}
+
+		// skip this mesh if its transparent
+		if (entityRenderData->transparencyComponent && contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
+		{
+			continue;
 		}
 
 		// skip this iteration if the mesh is not yet valid
@@ -1111,6 +1116,12 @@ void SceneRenderer::renderTransparentGeometry(const RenderData &_renderData, con
 		{
 			currentMesh = entityRenderData->mesh;
 			enabledMesh = false;
+		}
+
+		// skip this mesh if its not transparent
+		if (entityRenderData->transparencyComponent && !contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
+		{
+			continue;
 		}
 
 		// skip this iteration if the mesh is not yet valid

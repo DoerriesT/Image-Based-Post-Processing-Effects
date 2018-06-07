@@ -90,7 +90,15 @@ std::shared_ptr<Level> App::loadLevel()
 		entityManager.addComponent<TransformationComponent>(planeEntity, glm::vec3(), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(0.1f));
 		entityManager.addComponent<RenderableComponent>(planeEntity);
 
-		for (int i = 0; i < 10; ++i)
+		const Entity *carEntity = entityManager.createEntity();
+		level->entityMap["car"] = carEntity;
+		Model lamboModel("Resources/Models/lambo.meshmat", true);
+		entityManager.addComponent<ModelComponent>(carEntity, lamboModel);
+		entityManager.addComponent<TransformationComponent>(carEntity, glm::vec3(), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(5.0f));
+		entityManager.addComponent<TransparencyComponent>(carEntity, lamboModel.getTransparentSubmeshes());
+		entityManager.addComponent<RenderableComponent>(carEntity);
+
+		/*for (int i = 0; i < 10; ++i)
 		{
 			for (int j = 0; j < 10; ++j)
 			{
@@ -108,7 +116,7 @@ std::shared_ptr<Level> App::loadLevel()
 				entityManager.addComponent<TransformationComponent>(teapotEntity, position, glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(1.0f));
 				entityManager.addComponent<RenderableComponent>(teapotEntity);
 			}
-		}
+		}*/
 
 		/*{
 			const Entity *teapotEntity = entityManager.createEntity();

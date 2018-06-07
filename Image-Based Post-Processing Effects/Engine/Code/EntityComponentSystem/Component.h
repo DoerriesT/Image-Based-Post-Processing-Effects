@@ -265,5 +265,8 @@ struct TransformationComponent : public Component<TransformationComponent>
 
 struct TransparencyComponent : public Component<TransparencyComponent>
 {
+	explicit TransparencyComponent(const std::vector<std::shared_ptr<SubMesh>> &_transparentSubMeshes)
+		:transparentSubMeshes(_transparentSubMeshes) { };
+	std::vector<std::shared_ptr<SubMesh>> transparentSubMeshes;
 	static const std::uint64_t FAMILY_ID;
 };
