@@ -17,7 +17,7 @@ uniform float uStarburstOffset; // transforms texcoords
 uniform bool uLensFlares;
 uniform bool uBloom;
 uniform bool uLensDirt = false;
-uniform bool uDof = true;
+uniform bool uDof = false;
 uniform int uMotionBlur;
 uniform float uBloomStrength = 0.1;
 uniform float uBloomDirtStrength = 0.5;
