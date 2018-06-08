@@ -10,6 +10,7 @@ struct Effects;
 struct Level;
 class ShaderProgram;
 struct RenderData;
+struct AxisAlignedBoundingBox;
 
 class SceneRenderer
 {
@@ -307,5 +308,6 @@ private:
 	void renderWater(const RenderData &_renderData, const std::shared_ptr<Level> &_level);
 	void createWaterPlane(const glm::vec2 &_dimensions, GLuint &_VBO, GLuint &_VAO, GLuint &_EBO);
 	void createBrdfLUT();
+	bool cullAABB(const glm::mat4 &_mvp, const AxisAlignedBoundingBox &_aabb);
 };
 

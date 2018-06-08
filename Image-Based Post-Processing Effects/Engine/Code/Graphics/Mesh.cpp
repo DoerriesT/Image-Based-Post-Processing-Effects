@@ -53,6 +53,11 @@ bool Mesh::isValid() const
 	return valid;
 }
 
+AxisAlignedBoundingBox Mesh::getAABB() const
+{
+	return aabb;
+}
+
 Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instantLoading)
 	:filepath(_filepath), valid(false)
 {
@@ -91,6 +96,11 @@ Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instan
 		// read all sub mesh data
 		for (unsigned int i = 0; i < numSubMeshes; ++i)
 		{
+			// read aabb
+			AxisAlignedBoundingBox meshAabb = *(AxisAlignedBoundingBox *)&rawData[currentOffset];
+			// skip past aabb
+			currentOffset += sizeof(AxisAlignedBoundingBox);
+
 			// read buffer size
 			std::uint32_t vertexBufferSize = *(std::uint32_t *)&rawData[currentOffset];
 			// skip past bufferSize
@@ -112,14 +122,15 @@ Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instan
 			if (_reserveCount)
 			{
 				assert(_reserveCount == numSubMeshes);
-				subMeshes[i]->setData(vertexBufferSize, vertexBuffer, indexBufferSize, indexBuffer);
+				subMeshes[i]->setData(vertexBufferSize, vertexBuffer, indexBufferSize, indexBuffer, meshAabb);
 			}
 			else
 			{
-				subMeshes.push_back(SubMesh::createSubMesh(vertexBufferSize, vertexBuffer, indexBufferSize, indexBuffer));
+				subMeshes.push_back(SubMesh::createSubMesh(vertexBufferSize, vertexBuffer, indexBufferSize, indexBuffer, meshAabb));
 			}
 		}
 
+		aabb = *(AxisAlignedBoundingBox *)&rawData[currentOffset];
 
 		// set flag that mesh can be used
 		valid = true;
@@ -150,9 +161,9 @@ std::shared_ptr<SubMesh> SubMesh::createSubMesh()
 	return std::shared_ptr<SubMesh>(new SubMesh());
 }
 
-std::shared_ptr<SubMesh> SubMesh::createSubMesh(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize, char *_indices)
+std::shared_ptr<SubMesh> SubMesh::createSubMesh(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize, char *_indices, const AxisAlignedBoundingBox &_aabb)
 {
-	return std::shared_ptr<SubMesh>(new SubMesh(_vertexBufferSize, _vertices, _indexBufferSize, _indices));
+	return std::shared_ptr<SubMesh>(new SubMesh(_vertexBufferSize, _vertices, _indexBufferSize, _indices, _aabb));
 }
 
 SubMesh::SubMesh()
@@ -160,17 +171,18 @@ SubMesh::SubMesh()
 {
 }
 
-SubMesh::SubMesh(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize, char *_indices)
+SubMesh::SubMesh(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize, char *_indices, const AxisAlignedBoundingBox &_aabb)
 	: valid(false), dataIsSet(false)
 {
-	setData(_vertexBufferSize, _vertices, _indexBufferSize, _indices);
+	setData(_vertexBufferSize, _vertices, _indexBufferSize, _indices, _aabb);
 }
 
-void SubMesh::setData(std::uint32_t _vertexBufferSize, char * _vertices, std::uint32_t _indexBufferSize, char * _indices)
+void SubMesh::setData(std::uint32_t _vertexBufferSize, char * _vertices, std::uint32_t _indexBufferSize, char * _indices, const AxisAlignedBoundingBox &_aabb)
 {
 	assert(!dataIsSet);
 	dataIsSet = true;
 	indexCount = _indexBufferSize / sizeof(std::uint32_t);
+	aabb = _aabb;
 
 	// create buffers/arrays
 	glGenVertexArrays(1, &VAO);
@@ -243,4 +255,9 @@ void SubMesh::render() const
 #ifdef _DEBUG
 	glErrorCheck("AFTER");
 #endif // DEBUG	
+}
+
+AxisAlignedBoundingBox SubMesh::getAABB() const
+{
+	return aabb;
 }

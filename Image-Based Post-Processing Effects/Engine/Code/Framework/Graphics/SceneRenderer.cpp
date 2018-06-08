@@ -805,16 +805,6 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 			continue;
 		}
 
-		if (!enabledMesh)
-		{
-			enabledMesh = true;
-			currentMesh->enableVertexAttribArrays();
-		}
-
-		// we're good to go: render this mesh-entity instance
-		uMaterialG.set(entityRenderData->material);
-		entityRenderData->material->bindTextures();
-
 		glm::mat4 modelMatrix = glm::translate(entityRenderData->transformationComponent->position)
 			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
 			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale));
@@ -836,6 +826,11 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		glm::mat4 mvpTransformation = _renderData.viewProjectionMatrix * modelMatrix;
 		glm::mat4 prevTransformation = glm::mix(_renderData.viewProjectionMatrix, _renderData.prevViewProjectionMatrix, 0.15f) * entityRenderData->transformationComponent->prevTransformation;
 
+		if (cullAABB(mvpTransformation, currentMesh->getAABB()))
+		{
+			continue;
+		}
+
 		uAtlasDataG.set(glm::vec4(columns, rows, textureOffset));
 		uModelViewMatrixG.set(glm::mat3(_renderData.viewMatrix * modelMatrix));
 		uModelViewProjectionMatrixG.set(mvpTransformation);
@@ -850,6 +845,16 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 			glStencilMask(0xFF);
 		}
+
+		if (!enabledMesh)
+		{
+			enabledMesh = true;
+			currentMesh->enableVertexAttribArrays();
+		}
+
+		// we're good to go: render this mesh-entity instance
+		uMaterialG.set(entityRenderData->material);
+		entityRenderData->material->bindTextures();
 
 		currentMesh->render();
 
@@ -1749,6 +1754,67 @@ void SceneRenderer::createBrdfLUT()
 	glBindImageTexture(0, brdfLUT, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
 	glDispatchCompute(512, 512, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+bool SceneRenderer::cullAABB(const glm::mat4 &_mvp, const AxisAlignedBoundingBox &_aabb)
+{
+	return false;
+	// TODO: properly implement this
+
+
+	glm::vec4 points[8] =
+	{
+		glm::vec4(_aabb.min, 1.0), // xyz
+		glm::vec4(_aabb.max.x, _aabb.min.y, _aabb.min.z, 1.0), // Xyz
+		glm::vec4(_aabb.min.x, _aabb.max.y, _aabb.min.z, 1.0), // xYz
+		glm::vec4(_aabb.max.x, _aabb.max.y, _aabb.min.z, 1.0),// XYz
+		glm::vec4(_aabb.min.x, _aabb.min.y, _aabb.max.z, 1.0), // xyZ
+		glm::vec4(_aabb.max.x, _aabb.min.y, _aabb.max.z, 1.0), // XyZ
+		glm::vec4(_aabb.min.x, _aabb.max.y, _aabb.max.z, 1.0), // xYZ
+		glm::vec4(_aabb.max, 1.0) // XYZ
+	};
+
+	// transform to clipspace and normalize
+	for (size_t i = 0; i < 8; ++i)
+	{
+		points[i] = _mvp * points[i];
+		points[i] /= points[i].w;
+	}
+
+	// check each side
+	for (size_t i = 0; i < 6; ++i)
+	{
+		bool inside = false;
+
+		// check each point
+		for (size_t j = 0; j < 8; ++j)
+		{
+			// first half of sides is positive, second half is negative
+			if (i < 3)
+			{
+				if (points[j][i % 3] <= 1.0)
+				{
+					inside = true;
+					break;
+				}
+			}
+			else
+			{
+				if (points[j][i % 3] >= -1.0)
+				{
+					inside = true;
+					break;
+				}
+			}
+		}
+
+		if (!inside)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 #ifdef SPHERES

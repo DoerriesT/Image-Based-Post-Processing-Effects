@@ -17,6 +17,12 @@ struct Vertex
 	glm::vec3 tangent;
 };
 
+struct AxisAlignedBoundingBox
+{
+	glm::vec3 min;
+	glm::vec3 max;
+};
+
 class Mesh
 {
 public:
@@ -31,6 +37,7 @@ public:
 	const std::vector<std::shared_ptr<SubMesh>> getSubMeshes() const;
 	std::size_t size() const;
 	bool isValid() const;
+	AxisAlignedBoundingBox getAABB() const;
 
 private:
 	static std::map<std::string, std::weak_ptr<Mesh>> meshMap;
@@ -38,6 +45,7 @@ private:
 	bool valid;
 	JobManager::SharedJob dataJob;
 	std::vector<std::shared_ptr<SubMesh>> subMeshes;
+	AxisAlignedBoundingBox aabb;
 
 	explicit Mesh(const std::string &_filepath, std::size_t _reserveCount = 0, bool _instantLoading = false);
 };
@@ -47,7 +55,7 @@ class SubMesh
 	friend Mesh;
 public:
 	static std::shared_ptr<SubMesh> createSubMesh();
-	static std::shared_ptr<SubMesh> createSubMesh(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize,  char *_indices);
+	static std::shared_ptr<SubMesh> createSubMesh(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize,  char *_indices, const AxisAlignedBoundingBox &_aabb);
 
 	SubMesh(const SubMesh &) = delete;
 	SubMesh(const SubMesh &&) = delete;
@@ -57,6 +65,7 @@ public:
 	bool isValid() const;
 	void enableVertexAttribArrays() const;
 	void render() const;
+	AxisAlignedBoundingBox getAABB() const;
 
 private:
 	GLuint VAO;
@@ -65,10 +74,11 @@ private:
 	std::size_t indexCount;
 	bool valid;
 	bool dataIsSet;
+	AxisAlignedBoundingBox aabb;
 
 
 	explicit SubMesh();
-	explicit SubMesh(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize, char *_indices);
+	explicit SubMesh(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize, char *_indices, const AxisAlignedBoundingBox &_aabb);
 
-	void setData(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize, char *_indices);
+	void setData(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize, char *_indices, const AxisAlignedBoundingBox &_aabb);
 };

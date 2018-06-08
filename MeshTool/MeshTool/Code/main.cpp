@@ -9,6 +9,7 @@
 #include <glm\vec2.hpp>
 #include <glm\geometric.hpp>
 #include <fstream>
+#include <limits>
 
 struct Vertex
 {
@@ -87,6 +88,9 @@ int main()
 	// write referenced mesh file
 	dstMatFile << MESH_FILE_STRING + dstFileName + "\n\n";
 
+	glm::vec3 minModelCorner = glm::vec3(std::numeric_limits<float>::max());
+	glm::vec3 maxModelCorner = glm::vec3(std::numeric_limits<float>::min());
+
 	for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 	{
 		std::cout << "Processing mesh #" << i << std::endl;
@@ -102,6 +106,8 @@ int main()
 		// prepare vertex and index lists
 		std::vector<Vertex> vertices;
 		std::vector<std::uint32_t> indices;
+		glm::vec3 minMeshCorner = glm::vec3(std::numeric_limits<float>::max());
+		glm::vec3 maxMeshCorner = glm::vec3(std::numeric_limits<float>::min());
 
 		for (std::uint32_t j = 0; j < mesh->mNumVertices; ++j)
 		{
@@ -114,6 +120,10 @@ int main()
 				vec.y = mesh->mVertices[j].y;
 				vec.z = mesh->mVertices[j].z;
 				vertex.position = vec;
+				minMeshCorner = glm::min(minMeshCorner, vec);
+				maxMeshCorner = glm::max(maxMeshCorner, vec);
+				minModelCorner = glm::min(minModelCorner, vec);
+				maxModelCorner = glm::max(maxModelCorner, vec);
 			}
 
 			// texCoord
@@ -150,6 +160,12 @@ int main()
 			}
 
 			vertices.push_back(vertex);
+		}
+
+		// write AABB
+		{
+			dstMeshFile.write((char *)&minMeshCorner, sizeof(glm::vec3));
+			dstMeshFile.write((char *)&maxMeshCorner, sizeof(glm::vec3));
 		}
 
 		// write vertex buffer
@@ -230,6 +246,10 @@ int main()
 			dstMatFile << EMISSIVE_PATH_STRING + emissivePath + "\n\n";
 		}
 	}
+
+	// write model AABB
+	dstMeshFile.write((char *)&minModelCorner, sizeof(glm::vec3));
+	dstMeshFile.write((char *)&maxModelCorner, sizeof(glm::vec3));
 
 	dstMeshFile.close();
 	dstMatFile.close();
