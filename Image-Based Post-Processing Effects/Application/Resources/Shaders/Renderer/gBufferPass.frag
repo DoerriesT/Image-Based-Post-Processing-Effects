@@ -113,17 +113,7 @@ void main()
 	vec2 a = (vCurrentPos.xy / vCurrentPos.w);
     vec2 b = (vPrevPos.xy / vPrevPos.w);
 	vec2 v = abs(a - b);
-	//v = uVel;
-	float mag = length(v);
-	float nom = max(min(mag * uExposureTime, uTileSize), uHalfPixelWidth);
-	float denom = (mag + 0.00001);
-	v = (v / (2 * uTileSize)) * (nom / denom + uHalfPixelWidth);
-	v = min(v, uTileSize);
-
-	//v = v * 0.5 * uExposureTime * uFps;
-	//v = uVel;
-	//float velocityMagnitude = length(v);
-	//v *= clamp(velocityMagnitude, uHalfFragmentDimension, MAX_VELOCITY);
-	//v /= velocityMagnitude + 0.000001;
+	v *= uExposureTime;
+	v = uVel;
 	oVelocity = vec4(v, 0.0, 0.0);
 }

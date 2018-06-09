@@ -34,7 +34,7 @@ void main()
 	vec2 maxVelocity = vec2(0.0);
 	float maxMagnitude = 0.0;
 	
-	for(int i = 0; i < uTileSize; ++i)
+	for(int i = uTileSize / -2; i < uTileSize / 2; ++i)
 	{
 		vMax(texture(uVelocityTexture, vTexCoord + i * texelSize).rg, maxVelocity, maxMagnitude);
 	}

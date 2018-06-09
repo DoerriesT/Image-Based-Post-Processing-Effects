@@ -541,7 +541,7 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 
 	glGenTextures(1, &gVelocityTexture);
 	glBindTexture(GL_TEXTURE_2D, gVelocityTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, _resolution.first, _resolution.second, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution.first, _resolution.second, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -571,7 +571,7 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 
 	glGenTextures(1, &gDepthStencilTexture);
 	glBindTexture(GL_TEXTURE_2D, gDepthStencilTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, _resolution.first, _resolution.second, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, _resolution.first, _resolution.second, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -835,8 +835,8 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		uModelViewMatrixG.set(glm::mat3(_renderData.viewMatrix * modelMatrix));
 		uModelViewProjectionMatrixG.set(mvpTransformation);
 		uPrevTransformG.set(prevTransformation);
-		uVelG.set(entityRenderData->transformationComponent->vel);
-		uExposureTimeG.set(0.001f /* Engine::getCurrentFps()*/ * 60.0f);
+		uVelG.set(entityRenderData->transformationComponent->vel / glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
+		uExposureTimeG.set(2.0f * (float(Engine::getCurrentFps()) / 60.0f));
 
 		entityRenderData->transformationComponent->prevTransformation = modelMatrix;
 
