@@ -114,6 +114,6 @@ void main()
     vec2 b = (vPrevPos.xy / vPrevPos.w);
 	vec2 v = abs(a - b);
 	v *= uExposureTime;
-	v = uVel;
+	//v = uVel;
 	oVelocity = vec4(v, 0.0, 0.0);
 }

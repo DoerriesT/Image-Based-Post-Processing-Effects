@@ -207,6 +207,7 @@ void main()
 			float weight = numSamples / (TILE_SIZE * max(centerVelocityMag, 0.5));
 			vec3 sum = color * weight;
 
+			// TODO: this is always 0.0
 			float centerDirDotNeighborMaxDir = clamp(dot(centerDir, neighborMaxDir), 0.0, 1.0);
 
 			// walk along the sampling vectors, take samples and weight them

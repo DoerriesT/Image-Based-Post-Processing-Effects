@@ -89,7 +89,7 @@ int main()
 	dstMatFile << MESH_FILE_STRING + dstFileName + "\n\n";
 
 	glm::vec3 minModelCorner = glm::vec3(std::numeric_limits<float>::max());
-	glm::vec3 maxModelCorner = glm::vec3(std::numeric_limits<float>::min());
+	glm::vec3 maxModelCorner = glm::vec3(std::numeric_limits<float>::lowest());
 
 	for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 	{
@@ -107,7 +107,7 @@ int main()
 		std::vector<Vertex> vertices;
 		std::vector<std::uint32_t> indices;
 		glm::vec3 minMeshCorner = glm::vec3(std::numeric_limits<float>::max());
-		glm::vec3 maxMeshCorner = glm::vec3(std::numeric_limits<float>::min());
+		glm::vec3 maxMeshCorner = glm::vec3(std::numeric_limits<float>::lowest());
 
 		for (std::uint32_t j = 0; j < mesh->mNumVertices; ++j)
 		{
