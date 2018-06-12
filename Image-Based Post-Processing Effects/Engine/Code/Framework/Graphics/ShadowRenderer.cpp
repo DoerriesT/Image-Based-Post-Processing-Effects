@@ -56,7 +56,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 		return;
 	}
 
-	glm::mat4 cameraProjection = glm::perspective(glm::radians(_renderData.fov), _renderData.resolution.first / (float)_renderData.resolution.second, 0.01f, 25.0f);
+	glm::mat4 cameraProjection = glm::perspective(glm::radians(_renderData.fov), _renderData.resolution.first / (float)_renderData.resolution.second, 0.01f, 100.0f);
 	glm::mat4 invProjectionViewMatrix = glm::inverse(cameraProjection * _renderData.viewMatrix);
 
 	// generate cube corners and transform them into worldspace and make them match view frustum corners

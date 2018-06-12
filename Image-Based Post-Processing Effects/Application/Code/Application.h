@@ -3,6 +3,8 @@
 #include <memory>
 #include "CameraController.h"
 #include <Gui\Gui.h>
+#include <btBulletDynamicsCommon.h>
+//#include <btBroadphaseInterface.h>
 
 struct Level;
 
@@ -45,6 +47,9 @@ namespace App
 		std::shared_ptr<Setting<double>> hbaoRadius;
 		std::shared_ptr<Setting<double>> hbaoMaxRadiusPixels;
 		std::shared_ptr<Setting<double>> hbaoAngleBias;
+
+		btRigidBody *fallRigidBody[2000];
+		btDiscreteDynamicsWorld *dynamicsWorld;
 
 		void initGuiData();
 	};

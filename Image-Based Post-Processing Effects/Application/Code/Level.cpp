@@ -17,7 +17,7 @@ std::shared_ptr<Level> App::loadLevel()
 	std::shared_ptr<Level> level = std::make_shared<Level>();
 
 	// filepath
-	level->filepath = "Resources/Levels/sponza/";
+	level->filepath = "Resources/Levels/default/";
 
 	// camera(s)
 	std::shared_ptr<Camera> camera0 = std::make_shared<Camera>(glm::vec3(0.0f, 7.5f, 11.0f), glm::quat(glm::vec3(glm::radians(35.0f), 0.0f, 0.0f)));
@@ -86,17 +86,42 @@ std::shared_ptr<Level> App::loadLevel()
 	{
 		const Entity *planeEntity = entityManager.createEntity();
 		level->entityMap["plane"] = planeEntity;
-		entityManager.addComponent<ModelComponent>(planeEntity, Model("Resources/Models/sponza_wo_flag.meshmat", true));
-		entityManager.addComponent<TransformationComponent>(planeEntity, glm::vec3(), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(0.1f));
+		entityManager.addComponent<ModelComponent>(planeEntity, Model("Resources/Models/plane.meshmat", true));
+		entityManager.addComponent<TransformationComponent>(planeEntity, glm::vec3(), glm::quat(glm::vec3(glm::radians(180.0f), 0.0f, 0.0f)), glm::vec3(1000.0f));
 		entityManager.addComponent<RenderableComponent>(planeEntity);
 
-		const Entity *carEntity = entityManager.createEntity();
+		std::default_random_engine e;
+		std::uniform_real_distribution<float> d(-0.5, 0.5);
+
+		int c = 0;
+
+		for (int l = 0; l < 2; ++l)
+		for (int i = 0; i < 10; ++i)
+		{
+			for (int j = 0; j < 10; ++j)
+			{
+				for (int k = 0; k < 10; ++k)
+				{
+					const Entity *sphereEntity = entityManager.createEntity();
+					level->entityMap["sphere" + std::to_string(c++)] = sphereEntity;
+					Model sphereModel("Resources/Models/sphere.meshmat", true);
+					sphereModel[0].second.setAlbedo(glm::vec4(1.0, 0.0, 0.0, 1.0));
+					entityManager.addComponent<ModelComponent>(sphereEntity, sphereModel);
+					entityManager.addComponent<TransformationComponent>(sphereEntity, glm::vec3(i * 2 - 5, 50.0 + j * 2 + l * 10 * 4, k - 5 * 2), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(1.0f));
+					entityManager.addComponent<RenderableComponent>(sphereEntity);
+				}
+			}
+			
+		}
+
+
+		/*const Entity *carEntity = entityManager.createEntity();
 		level->entityMap["car"] = carEntity;
 		Model lamboModel("Resources/Models/lambo.meshmat", true);
 		entityManager.addComponent<ModelComponent>(carEntity, lamboModel);
 		entityManager.addComponent<TransformationComponent>(carEntity, glm::vec3(), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(5.0f));
 		entityManager.addComponent<TransparencyComponent>(carEntity, lamboModel.getTransparentSubmeshes());
-		entityManager.addComponent<RenderableComponent>(carEntity);
+		entityManager.addComponent<RenderableComponent>(carEntity);*/
 
 		/*for (int i = 0; i < 10; ++i)
 		{
@@ -131,7 +156,7 @@ std::shared_ptr<Level> App::loadLevel()
 
 			tc->vel = glm::vec2(40.0, 0.0);
 		}
-		
+
 		{
 			const Entity *teapotEntity = entityManager.createEntity();
 			level->entityMap["teapot"] = teapotEntity;
