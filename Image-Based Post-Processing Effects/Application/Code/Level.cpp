@@ -79,6 +79,28 @@ std::shared_ptr<Level> App::loadDefaultLevel()
 		entityManager.addComponent<ModelComponent>(planeEntity, Model("Resources/Models/plane.meshmat", true));
 		entityManager.addComponent<TransformationComponent>(planeEntity, glm::vec3(), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(100.0f));
 		entityManager.addComponent<RenderableComponent>(planeEntity);
+		entityManager.addComponent<PhysicsComponent>(planeEntity, 0.0f, 1.0f, false);
+
+		int c = 0;
+		std::default_random_engine e;
+		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+		for (int i = 0; i < 10; ++i)
+		{
+			for (int j = 0; j < 10; ++j)
+			{
+				for (int k = 0; k < 10; ++k)
+				{
+					const Entity *sphereEntity = entityManager.createEntity();
+					level->entityMap["sphere" + std::to_string(c++)] = sphereEntity;
+					Model sphereModel("Resources/Models/sphere.meshmat", true);
+					sphereModel[0].second.setAlbedo(glm::vec4(dist(e), dist(e), dist(e), 1.0));
+					entityManager.addComponent<ModelComponent>(sphereEntity, sphereModel);
+					entityManager.addComponent<TransformationComponent>(sphereEntity, glm::vec3(i - 5.0, 20.0 + k, j - 5.0) * 0.1f, glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(0.2f));
+					entityManager.addComponent<RenderableComponent>(sphereEntity);
+					entityManager.addComponent<PhysicsComponent>(sphereEntity, 1.0f, 0.9f, true);
+				}
+			}
+		}
 
 		/*for (int i = 0; i < 10; ++i)
 		{
@@ -205,6 +227,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 		entityManager.addComponent<ModelComponent>(sponzaEntity, Model("Resources/Models/sponza.meshmat", true));
 		entityManager.addComponent<TransformationComponent>(sponzaEntity);
 		entityManager.addComponent<RenderableComponent>(sponzaEntity);
+		entityManager.addComponent<PhysicsComponent>(sponzaEntity, 0.0f, 1.0f, false);
 
 		const Entity *carEntity = entityManager.createEntity();
 		level->entityMap["car"] = carEntity;
@@ -213,6 +236,27 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 		entityManager.addComponent<TransformationComponent>(carEntity, glm::vec3(), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(1.0f));
 		entityManager.addComponent<TransparencyComponent>(carEntity, lamboModel.getTransparentSubmeshes());
 		entityManager.addComponent<RenderableComponent>(carEntity);
+		entityManager.addComponent<PhysicsComponent>(carEntity, 0.0f, 1.0f, false);
+
+		int c = 0;
+		std::default_random_engine e;
+		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+		for (int i = 0; i < 10; ++i)
+		{
+			for (int j = 0; j < 50; ++j)
+			{
+					const Entity *sphereEntity = entityManager.createEntity();
+					level->entityMap["sphere" + std::to_string(c++)] = sphereEntity;
+					Model sphereModel("Resources/Models/sphere.meshmat", true);
+					sphereModel[0].second.setAlbedo(glm::vec4(dist(e), dist(e), dist(e), 1.0));
+					sphereModel[0].second.setRoughness(0.1f);
+					sphereModel[0].second.setMetallic(1.0f);
+					entityManager.addComponent<ModelComponent>(sphereEntity, sphereModel);
+					entityManager.addComponent<TransformationComponent>(sphereEntity, glm::vec3(i* 0.5f, 15.0 + j * 0.5, 0.0), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(0.4f));
+					entityManager.addComponent<RenderableComponent>(sphereEntity);
+					entityManager.addComponent<PhysicsComponent>(sphereEntity, 1.f, 0.8f, true);
+			}
+		}
 
 		/*for (int i = 0; i < 10; ++i)
 		{

@@ -34,6 +34,7 @@
     <ClInclude Include="Code\EntityComponentSystem\Systems\MovementPathSystem.h" />
     <ClInclude Include="Code\EntityComponentSystem\Systems\MovementSystem.h" />
     <ClInclude Include="Code\EntityComponentSystem\Systems\PerpetualRotationSystem.h" />
+    <ClInclude Include="Code\EntityComponentSystem\Systems\PhysicsSystem.h" />
     <ClInclude Include="Code\EntityComponentSystem\Systems\RenderSystem.h" />
     <ClInclude Include="Code\EntityComponentSystem\Systems\RotationSystem.h" />
     <ClInclude Include="Code\EntityComponentSystem\Systems\SoundSystem.h" />
@@ -117,6 +118,7 @@
     <ClCompile Include="Code\EntityComponentSystem\Systems\MovementPathSystem.cpp" />
     <ClCompile Include="Code\EntityComponentSystem\Systems\MovementSystem.cpp" />
     <ClCompile Include="Code\EntityComponentSystem\Systems\PerpetualRotationSystem.cpp" />
+    <ClCompile Include="Code\EntityComponentSystem\Systems\PhysicsSystem.cpp" />
     <ClCompile Include="Code\EntityComponentSystem\Systems\RenderSystem.cpp" />
     <ClCompile Include="Code\EntityComponentSystem\Systems\RotationSystem.cpp" />
     <ClCompile Include="Code\EntityComponentSystem\Systems\SoundSystem.cpp" />

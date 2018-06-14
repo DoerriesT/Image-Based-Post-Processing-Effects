@@ -21,3 +21,4 @@ const std::uint64_t TransparencyComponent::FAMILY_ID = TRANSPARENCY_FAMILY;
 const std::uint64_t MovementPathComponent::FAMILY_ID = MOVEMENT_FAMILY; 
 const std::uint64_t CustomTransparencyShaderComponent::FAMILY_ID = TRANSPARENCY_SHADER_FAMILY;
 const std::uint64_t CustomOpaqueShaderComponent::FAMILY_ID = OPAQUE_SHADER_FAMILY;
+const std::uint64_t PhysicsComponent::FAMILY_ID = PHYSICS_FAMILY;

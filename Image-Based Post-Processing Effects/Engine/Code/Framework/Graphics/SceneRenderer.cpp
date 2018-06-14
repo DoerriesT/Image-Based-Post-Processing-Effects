@@ -836,7 +836,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		uModelViewProjectionMatrixG.set(mvpTransformation);
 		uPrevTransformG.set(prevTransformation);
 		uVelG.set(entityRenderData->transformationComponent->vel / glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
-		uExposureTimeG.set(2.0f * (float(Engine::getCurrentFps()) / 60.0f));
+		uExposureTimeG.set((float(Engine::getCurrentFps()) / 60.0f));
 
 		entityRenderData->transformationComponent->prevTransformation = modelMatrix;
 

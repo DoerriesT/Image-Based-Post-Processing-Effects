@@ -66,6 +66,8 @@ public:
 	void enableVertexAttribArrays() const;
 	void render() const;
 	AxisAlignedBoundingBox getAABB() const;
+	const std::vector<glm::vec3> &getVertices() const;
+	const std::vector<std::uint32_t> &getIndices() const;
 
 private:
 	GLuint VAO;
@@ -75,6 +77,8 @@ private:
 	bool valid;
 	bool dataIsSet;
 	AxisAlignedBoundingBox aabb;
+	std::vector<glm::vec3> vertices;
+	std::vector<std::uint32_t> indices;
 
 
 	explicit SubMesh();

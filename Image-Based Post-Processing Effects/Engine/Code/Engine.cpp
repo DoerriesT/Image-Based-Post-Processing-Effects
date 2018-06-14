@@ -11,6 +11,7 @@
 #include "EntityComponentSystem\Systems\SoundSystem.h"
 #include "EntityComponentSystem\Systems\PerpetualRotationSystem.h"
 #include "EntityComponentSystem\Systems\MovementPathSystem.h"
+#include "EntityComponentSystem\Systems\PhysicsSystem.h"
 #include "IGameLogic.h"
 #include "Window.h"
 #include "EntityComponentSystem\SystemManager.h"
@@ -41,6 +42,7 @@ void Engine::start()
 	systemManager.addSystem<RotationSystem>();
 	systemManager.addSystem<PerpetualRotationSystem>();
 	systemManager.addSystem<RenderSystem>(window);
+	systemManager.addSystem<PhysicsSystem>();
 	systemManager.addSystem<GrabbingSystem>(window);
 	systemManager.addSystem<SoundSystem>();
 	systemManager.init();

@@ -13,6 +13,9 @@ class Scene;
 class ShaderProgram;
 class SubMesh;
 class Material;
+class btCollisionShape;
+class btRigidBody;
+class btMotionState;
 struct Entity;
 struct Level;
 struct EntityRenderData;
@@ -73,8 +76,9 @@ const std::uint64_t TRANSFORMATION_FAMILY = 1ui64 << 8ui64;
 const std::uint64_t TRANSPARENCY_FAMILY = 1ui64 << 9ui64;
 const std::uint64_t TRANSPARENCY_SHADER_FAMILY = 1ui64 << 10ui64;
 const std::uint64_t OPAQUE_SHADER_FAMILY = 1ui64 << 11ui64;
+const std::uint64_t PHYSICS_FAMILY = 1ui64 << 12ui64;
 
-const std::uint64_t MAX_FAMILY_ID = OPAQUE_SHADER_FAMILY;
+const std::uint64_t MAX_FAMILY_ID = PHYSICS_FAMILY;
 
 
 // default components
@@ -197,6 +201,20 @@ struct PerpetualRotationComponent : public Component<PerpetualRotationComponent>
 	explicit PerpetualRotationComponent(const glm::vec3 &_rotationIncrement)
 		:rotationIncrement(_rotationIncrement) { };
 	glm::vec3 rotationIncrement;
+
+	static const std::uint64_t FAMILY_ID;
+};
+
+struct PhysicsComponent : public Component<PhysicsComponent>
+{
+	explicit PhysicsComponent(float _mass, float _restitution, bool _dynamic)
+		:mass(_mass), restitution(_restitution), dynamic(_dynamic) { };
+	float mass;
+	float restitution;
+	bool dynamic;
+	btMotionState *motionState;
+	btCollisionShape *collisionShape;
+	btRigidBody *rigidBody;
 
 	static const std::uint64_t FAMILY_ID;
 };

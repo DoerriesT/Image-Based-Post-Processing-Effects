@@ -177,12 +177,25 @@ SubMesh::SubMesh(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t
 	setData(_vertexBufferSize, _vertices, _indexBufferSize, _indices, _aabb);
 }
 
-void SubMesh::setData(std::uint32_t _vertexBufferSize, char * _vertices, std::uint32_t _indexBufferSize, char * _indices, const AxisAlignedBoundingBox &_aabb)
+void SubMesh::setData(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize, char *_indices, const AxisAlignedBoundingBox &_aabb)
 {
 	assert(!dataIsSet);
 	dataIsSet = true;
 	indexCount = _indexBufferSize / sizeof(std::uint32_t);
 	aabb = _aabb;
+
+	// create vertex data for physics
+	{
+		for (std::size_t i = 0; i < _vertexBufferSize/sizeof(Vertex); ++i)
+		{
+			vertices.push_back(((Vertex *)_vertices)[i].position);
+		}
+
+		for (std::size_t i = 0; i <indexCount; ++i)
+		{
+			indices.push_back(((std::uint32_t *)_indices)[i]);
+		}
+	}
 
 	// create buffers/arrays
 	glGenVertexArrays(1, &VAO);
@@ -260,4 +273,14 @@ void SubMesh::render() const
 AxisAlignedBoundingBox SubMesh::getAABB() const
 {
 	return aabb;
+}
+
+const std::vector<glm::vec3>& SubMesh::getVertices() const
+{
+	return vertices;
+}
+
+const std::vector<std::uint32_t>& SubMesh::getIndices() const
+{
+	return indices;
 }

@@ -580,7 +580,7 @@ void PostProcessRenderer::calculateCoc(GLuint _depthTexture)
 
 	uDepthTextureCOC.set(0);
 	uFocusDistanceCOC.set(50.0f);
-	uFocalLengthCOC.set(30.0f);
+	uFocalLengthCOC.set(10.0f);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _depthTexture);

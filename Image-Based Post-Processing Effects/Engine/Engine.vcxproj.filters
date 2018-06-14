@@ -335,6 +335,9 @@
     <ClInclude Include="Code\Graphics\Mesh.h">
       <Filter>Code\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Code\EntityComponentSystem\Systems\PhysicsSystem.h">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Window.cpp">
@@ -534,6 +537,9 @@
     </ClCompile>
     <ClCompile Include="Code\Graphics\Model.cpp">
       <Filter>Code\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EntityComponentSystem\Systems\PhysicsSystem.cpp">
+      <Filter>Code\EntityComponentSystem\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
