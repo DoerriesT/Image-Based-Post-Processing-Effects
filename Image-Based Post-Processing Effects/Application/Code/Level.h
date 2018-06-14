@@ -3,5 +3,6 @@
 
 namespace App
 {
-	std::shared_ptr<Level> loadLevel();
+	std::shared_ptr<Level> loadDefaultLevel();
+	std::shared_ptr<Level> loadSponzaLevel();
 }

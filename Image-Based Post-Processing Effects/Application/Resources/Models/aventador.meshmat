@@ -1,0 +1,363 @@
+material count: 30
+mesh file: aventador.mesh
+
+name: brake_disk
+albedo: 0.7/0.7/0.7/1.0
+metallic: 1.0
+roughness: 0.2
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: brake
+albedo: 0.7/0.0/0.0/1.0
+metallic: 1.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: hull
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.25
+roughness: 0.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: engine_bar
+albedo: 1.0/1.0/1.0/1.0
+metallic: 1.0
+roughness: 0.4
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: engine_cross
+albedo: 1.0/1.0/1.0/1.0
+metallic: 1.0
+roughness: 0.4
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: rims
+albedo: 0.0/0.0/0.0/1.0
+metallic: 1.0
+roughness: 0.4
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: logo0
+albedo: 0.0/0.0/0.0/1.0
+metallic: 0.0
+roughness: 0.7
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: windows
+albedo: 0.0/0.0/0.0/0.2
+metallic: 0.0
+roughness: 0.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: lights_front
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 0.0
+emissive: 50.0/50.0/50.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: lights_back
+albedo: 1.0/0.0/0.0/1.0
+metallic: 0.0
+roughness: 0.0
+emissive: 50.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: lights_side
+albedo: 1.0/0.0/0.0/1.0
+metallic: 0.0
+roughness: 0.0
+emissive: 10.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: lights_front_1
+albedo: 1.0/1.0/1.0/1.0
+metallic: 1.0
+roughness: 0.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: license_plate_light_and_fill
+albedo: 0.0/0.0/0.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: logo1
+albedo: 0.0/0.0/0.0/1.0
+metallic: 1.0
+roughness: 1.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: logo2
+albedo: 0.0/0.0/0.0/1.0
+metallic: 1.0
+roughness: 1.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: engine0
+albedo: 1.0/1.0/1.0/1.0
+metallic: 1.0
+roughness: 0.4
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: interior_mirrors
+albedo: 1.0/1.0/1.0/1.0
+metallic: 1.0
+roughness: 0.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: wheels
+albedo: 0.0/0.0/0.0/1.0
+metallic: 0.0
+roughness: 1.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: hull1
+albedo: 0.0/0.0/0.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: back_deco
+albedo: 1.0/1.0/1.0/1.0
+metallic: 1.0
+roughness: 0.01
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: mirrors
+albedo: 1.0/1.0/1.0/1.0
+metallic: 1.0
+roughness: 0.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: 
+albedo: 0.0/0.0/0.0/1.0
+metallic: 0.0
+roughness: 0.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: light_glass
+albedo: 0.0/0.0/0.0/0.8
+metallic: 0.0
+roughness: 0.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: hull2
+albedo: 0.0/0.0/0.0/1.0
+metallic: 0.0
+roughness: 0.5
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: hull3
+albedo: 0.0/0.0/0.0/1.0
+metallic: 0.0
+roughness: 1.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: interior0
+albedo: 0.0/0.0/0.0/1.0
+metallic: 0.0
+roughness: 1.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: dial_back_light
+albedo: 0.0/0.0/1.0/1.0
+metallic: 0.0
+roughness: 1.0
+emissive: 0.0/0.0/3.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: interior1
+albedo: 0.0/0.0/0.0/1.0
+metallic: 0.0
+roughness: 1.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: dials0
+albedo: 0.0/0.0/0.0/1.0
+metallic: 0.0
+roughness: 1.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+
+name: dials1
+albedo: 0.0/0.0/0.0/1.0
+metallic: 0.0
+roughness: 1.0
+emissive: 0.0/0.0/0.0
+albedoPath: 
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+

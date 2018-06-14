@@ -33,7 +33,7 @@ void main()
 	viewToWorld[2] = mix(viewToWorld[2], -uView[1].xyz, int(frontDotUpAxis > 0.75f));
 
 	// displace grid forward, scale it and transform it to worldspace
-	vec3 worldSpacePos = (-200.0 * vec3(viewSpacePos.x, 0.0, viewSpacePos.y + 0.7)) * viewToWorld;
+	vec3 worldSpacePos = (-25.0 * vec3(viewSpacePos.x, 0.0, viewSpacePos.y + 0.7)) * viewToWorld;
 
 	float cameraDistance = length(worldSpacePos);
 	worldSpacePos /= cameraDistance;
@@ -47,7 +47,7 @@ void main()
 
 	// snap grid in increments to camera position
 	vec2 positionOffset = uCamPos.xz;
-	positionOffset.xy -= fract(positionOffset.xy / uPositionSnapDistance) * uPositionSnapDistance;
+	//positionOffset.xy -= fract(positionOffset.xy / uPositionSnapDistance) * uPositionSnapDistance;
 
 	worldSpacePos *= cameraDistance;
 	worldSpacePos.xz += positionOffset;
@@ -55,14 +55,14 @@ void main()
 	// add some height near horizon to hide artifacts
 	worldSpacePos.y = uWaterLevel + (4.5 * int(attenuation > 0.98));
 
-	vTexCoord = worldSpacePos.xz * 0.01;
+	vTexCoord = worldSpacePos.xz * 0.1;
 
 	float fDisplaceAtten = clamp(0.0, 1.0, cameraDistance * 0.001 );
 	fDisplaceAtten *= fDisplaceAtten;
 
 	vec3 displacement = texture(uDisplacementTexture, vTexCoord).xyz;
 
-	worldSpacePos += (1.0 - attenuation * attenuation) * displacement * 12.0;
+	worldSpacePos += (1.0 - attenuation * attenuation) * displacement;
 	vWorldPos = worldSpacePos;
 
 	gl_Position = uProjection * uView * vec4(worldSpacePos, 1.0);

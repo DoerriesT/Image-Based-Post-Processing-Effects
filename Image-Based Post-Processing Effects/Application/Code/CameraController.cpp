@@ -50,22 +50,22 @@ namespace App
 		}
 		if (userInput.isKeyPressed(INPUT_KEY_W))
 		{
-			cameraTranslation.z = mod  * -10.0f * (float)_timeDelta;
+			cameraTranslation.z = mod  * -5.0f * (float)_timeDelta;
 			pressed = true;
 		}
 		if (userInput.isKeyPressed(INPUT_KEY_S))
 		{
-			cameraTranslation.z = mod  * 10.0f * (float)_timeDelta;
+			cameraTranslation.z = mod  * 5.0f * (float)_timeDelta;
 			pressed = true;
 		}
 		if (userInput.isKeyPressed(INPUT_KEY_A))
 		{
-			cameraTranslation.x = mod  * -10.0f * (float)_timeDelta;
+			cameraTranslation.x = mod  * -5.0f * (float)_timeDelta;
 			pressed = true;
 		}
 		if (userInput.isKeyPressed(INPUT_KEY_D))
 		{
-			cameraTranslation.x = mod  * 10.0f * (float)_timeDelta;
+			cameraTranslation.x = mod  * 5.0f * (float)_timeDelta;
 			pressed = true;
 		}
 		if (pressed)

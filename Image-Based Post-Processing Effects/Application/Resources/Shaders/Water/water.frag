@@ -35,7 +35,7 @@ void main()
 	vec3 N = normalize(decode(texture(uNormalTexture, vTexCoord).rg));
 
 	// only the crests of water waves generate double refracted light
-	float scatterFactor = smoothstep(0.0, 1.0, 2.5 * max(0.0, (vWorldPos.y - uWaterLevel) * 0.1));
+	float scatterFactor = smoothstep(0.0, 1.0, 2.5 * max(0.0, (vWorldPos.y - uWaterLevel)));
 
 	// the waves that lie between camera and light projection on water plane generate maximal amount of double refracted light 
 	float tmp = max(0.0, dot(normalize(vec3(L.x, 0.0, L.z)), -V));
@@ -46,7 +46,7 @@ void main()
 	scatterFactor *= ((tmp * tmp) * (tmp * tmp)) * ((tmp * tmp) * (tmp * tmp));
 	
 	// water crests gather more light than lobes, so more light is scattered under the crests
-	scatterFactor += 1.5 * 0.2 * max(0, (vWorldPos.y - uWaterLevel)+1)
+	scatterFactor += 1.5 * max(0, (vWorldPos.y - uWaterLevel) * 2.0 + 1.0)
 	// the scattered light is best seen if observing direction is normal to slope surface
 	* max(0.0, dot(V, N))
 	// fading scattered light out at distance and if viewing direction is vertical to avoid unnatural look

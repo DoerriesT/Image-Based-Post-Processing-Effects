@@ -420,7 +420,6 @@ void unloadLevel(Level &_level)
 		entityManager.destroyEntity(_level.environment.skyboxEntity);
 	}
 	_level.environment.environmentMap.reset();
-	_level.environment.brdfMap.reset();
 	_level.environment.environmentProbe.reset();
 	for (auto &v : _level.lights.directionalLights)
 	{
