@@ -233,10 +233,27 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 		level->entityMap["car"] = carEntity;
 		Model lamboModel("Resources/Models/aventador.meshmat", true);
 		entityManager.addComponent<ModelComponent>(carEntity, lamboModel);
-		entityManager.addComponent<TransformationComponent>(carEntity, glm::vec3(), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(1.0f));
+		entityManager.addComponent<TransformationComponent>(carEntity, glm::vec3(-9.0, 0.0, 0.0), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(1.0f));
 		entityManager.addComponent<TransparencyComponent>(carEntity, lamboModel.getTransparentSubmeshes());
 		entityManager.addComponent<RenderableComponent>(carEntity);
-		entityManager.addComponent<PhysicsComponent>(carEntity, 0.0f, 1.0f, false);
+		entityManager.addComponent<PhysicsComponent>(carEntity, 0.0f, 1.0f, false, true);
+
+		std::vector<PathSegment> pathSegments;
+		pathSegments.push_back(PathSegment(
+			glm::vec3(-9.0, 0.0, 0.0),	// start pos
+			glm::vec3(9.0, 0.0, 0.0),	// end pos
+			glm::vec3(0.0f, 1.0f, 0.0f),						// start tangent
+			glm::vec3(0.0f, 1.0f, 0.0f),						// end tangent
+			5.0,														// duration
+			cubicEasingInOut));													// easing function
+		pathSegments.push_back(PathSegment(
+			glm::vec3(9.0, 0.0, 0.0),
+			glm::vec3(-9.0, 0.0, 0.0),
+			glm::vec3(0.0f, -1.0f, 0.0),
+			glm::vec3(0.0f, -1.0f, 0.0),
+			5.0,
+			cubicEasingInOut));
+		entityManager.addComponent<MovementPathComponent>(carEntity, pathSegments, Engine::getCurrentTime(), true);
 
 		int c = 0;
 		std::default_random_engine e;
@@ -254,7 +271,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 					entityManager.addComponent<ModelComponent>(sphereEntity, sphereModel);
 					entityManager.addComponent<TransformationComponent>(sphereEntity, glm::vec3(i* 0.5f, 15.0 + j * 0.5, 0.0), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(0.4f));
 					entityManager.addComponent<RenderableComponent>(sphereEntity);
-					entityManager.addComponent<PhysicsComponent>(sphereEntity, 1.f, 0.8f, true);
+					entityManager.addComponent<PhysicsComponent>(sphereEntity, 1.f, 0.8f, true, false, true);
 			}
 		}
 

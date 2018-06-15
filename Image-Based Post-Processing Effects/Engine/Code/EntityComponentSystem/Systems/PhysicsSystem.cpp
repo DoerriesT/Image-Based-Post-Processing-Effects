@@ -93,7 +93,28 @@ void PhysicsSystem::update(double _currentTime, double _timeDelta)
 
 		if (pc->dynamic)
 		{
-			pc->collisionShape = new btSphereShape(tc->scale.x);
+			if (pc->sphere)
+			{
+				pc->collisionShape = new btSphereShape(tc->scale.x);
+			}
+			else
+			{
+				btConvexHullShape *hull = new btConvexHullShape();
+
+				for (std::size_t i = 0; i < mc->model.size(); ++i)
+				{
+					const std::vector<glm::vec3> &vertices = mc->model[i].first->getVertices();
+
+					for (std::size_t j = 0; j < vertices.size(); ++j)
+					{
+						const glm::vec3 &v = vertices[j];
+						hull->addPoint(btVector3(v.x, v.y, v.z), false);
+					}
+				}
+				hull->recalcLocalAabb();
+				pc->collisionShape = hull;
+			}
+
 		}
 		else
 		{
@@ -115,16 +136,22 @@ void PhysicsSystem::update(double _currentTime, double _timeDelta)
 				triArr->addIndexedMesh(indexedMesh);
 			}
 
-			
+
 			btBvhTriangleMeshShape *triShape = new btBvhTriangleMeshShape(triArr, false);
 			pc->collisionShape = new btScaledBvhTriangleMeshShape(triShape, btVector3(tc->scale.x, tc->scale.y, tc->scale.z));
 		}
-		
+
 
 		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(pc->dynamic ? pc->mass : 0.0f, pc->motionState, pc->collisionShape);
 		btRigidBody *rigidBody = new btRigidBody(rigidBodyInfo);
 		rigidBody->setRestitution(pc->restitution);
 		rigidBody->setFriction(0.1f);
+
+		if (pc->kinematic)
+		{
+			rigidBody->setCollisionFlags(rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+			rigidBody->setActivationState(DISABLE_DEACTIVATION);
+		}
 
 		pc->rigidBody = rigidBody;
 

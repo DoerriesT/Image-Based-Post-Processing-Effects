@@ -207,11 +207,13 @@ struct PerpetualRotationComponent : public Component<PerpetualRotationComponent>
 
 struct PhysicsComponent : public Component<PhysicsComponent>
 {
-	explicit PhysicsComponent(float _mass, float _restitution, bool _dynamic)
-		:mass(_mass), restitution(_restitution), dynamic(_dynamic) { };
+	explicit PhysicsComponent(float _mass, float _restitution, bool _dynamic, bool _kinematic = false, bool _sphere = false)
+		:mass(_mass), restitution(_restitution), dynamic(_dynamic), kinematic(_kinematic), sphere(_sphere)  { };
 	float mass;
 	float restitution;
 	bool dynamic;
+	bool kinematic;
+	bool sphere;
 	btMotionState *motionState;
 	btCollisionShape *collisionShape;
 	btRigidBody *rigidBody;

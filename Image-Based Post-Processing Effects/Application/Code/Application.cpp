@@ -70,83 +70,6 @@ namespace App
 		initGuiData();
 
 		optionsGui->getElementById<GuiWindow>("settings_window")->setFlag(NK_WINDOW_MINIMIZABLE, true);
-
-		// physics
-		//{
-		//	btBroadphaseInterface* broadphase = new btDbvtBroadphase();
-
-		//	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-		//	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
-
-		//	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-
-		//	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-
-		//	dynamicsWorld->setGravity(btVector3(0, -10, 0));
-
-
-		//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
-
-		//	btCollisionShape* fallShape = new btSphereShape(1);
-
-		//	// ground
-		//	{
-		//		btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
-		//		btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, new btStaticPlaneShape(btVector3(0, 1, 0), 0), btVector3(0, 0, 0));
-		//		btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
-		//		groundRigidBody->setRestitution(1.0);
-		//		dynamicsWorld->addRigidBody(groundRigidBody);
-		//	}
-		//	// left
-		//	{
-		//		btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
-		//		btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, new btStaticPlaneShape(btVector3(1, 0, 0), -50), btVector3(0, 0, 0));
-		//		btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
-		//		groundRigidBody->setRestitution(1.0);
-		//		dynamicsWorld->addRigidBody(groundRigidBody);
-		//	}
-		//	// right
-		//	{
-		//		btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
-		//		btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, new btStaticPlaneShape(btVector3(-1, 0, 0), -50), btVector3(0, 0, 0));
-		//		btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
-		//		groundRigidBody->setRestitution(1.0);
-		//		dynamicsWorld->addRigidBody(groundRigidBody);
-		//	}
-		//	// front
-		//	{
-		//		btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
-		//		btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, new btStaticPlaneShape(btVector3(0, 0, -1), -50), btVector3(0, 0, 0));
-		//		btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
-		//		groundRigidBody->setRestitution(1.0);
-		//		dynamicsWorld->addRigidBody(groundRigidBody);
-		//	}
-		//	// back
-		//	{
-		//		btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
-		//		btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, new btStaticPlaneShape(btVector3(0, 0, 1), -50), btVector3(0, 0, 0));
-		//		btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
-		//		groundRigidBody->setRestitution(1.0);
-		//		dynamicsWorld->addRigidBody(groundRigidBody);
-		//	}
-		//	
-
-		//	for (int i = 0; i < 2000; ++i)
-		//	{
-		//		const Entity *sphere = level->entityMap["sphere" + std::to_string(i)];
-		//		glm::vec3 pos = EntityManager::getInstance().getComponent<TransformationComponent>(sphere)->position;
-		//		btDefaultMotionState* fallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(pos.x, pos.y, pos.z)));
-		//		btScalar mass = 100;
-		//		btVector3 fallInertia(0, 0, 0);
-		//		fallShape->calculateLocalInertia(mass, fallInertia);
-		//		btRigidBody::btRigidBodyConstructionInfo fallRigidBodyCI(mass, fallMotionState, fallShape, fallInertia);
-
-		//		fallRigidBody[i] = new btRigidBody(fallRigidBodyCI);
-		//		fallRigidBody[i]->setRestitution(1.0);
-		//		dynamicsWorld->addRigidBody(fallRigidBody[i]);
-		//	}
-
-		//}
 	}
 
 	void Application::input(double currentTime, double timeDelta)
@@ -157,17 +80,6 @@ namespace App
 
 	void Application::update(double currentTime, double timeDelta)
 	{
-		/*dynamicsWorld->stepSimulation(timeDelta);
-
-		btTransform trans;
-		for (int i = 0; i < 2000; ++i)
-		{
-			fallRigidBody[i]->getMotionState()->getWorldTransform(trans);
-			const Entity *sphere = level->entityMap["sphere"+std::to_string(i)];
-			auto *tc = EntityManager::getInstance().getComponent<TransformationComponent>(sphere);
-			tc->position = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ());
-			tc->rotation = glm::quat(trans.getRotation().getW(), trans.getRotation().getX(), trans.getRotation().getY(), trans.getRotation().getZ());
-		}*/
 		
 	}
 
