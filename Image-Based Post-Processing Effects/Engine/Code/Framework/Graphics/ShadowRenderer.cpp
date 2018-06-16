@@ -70,7 +70,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 	{
 		if (directionalLight->isRenderShadows())
 		{
-			directionalLight->setViewProjectionMatrix(calculateLightViewProjection(_renderData, sceneAABB, directionalLight->getDirection(), 0.1f, 15.0f, true));
+			directionalLight->setViewProjectionMatrix(calculateLightViewProjection(_renderData, sceneAABB, directionalLight->getDirection(), 0.1f, 20.0f, true));
 
 			glDrawBuffer(GL_COLOR_ATTACHMENT0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

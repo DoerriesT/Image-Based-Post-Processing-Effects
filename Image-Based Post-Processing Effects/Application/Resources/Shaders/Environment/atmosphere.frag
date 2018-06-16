@@ -100,6 +100,6 @@ void main()
 	mieCollected = (mieCollected * camExtinction *  pow(camDepth, uMieCollectionPower)) / float(uStepCount);
 
 	vec3 color = vec3(spot * mieCollected + mieFactor * mieCollected + rayleighFactor * rayleighCollected);	
-	oFragColor = vec4(color * 0.2, 1.0);
+	oFragColor = vec4(color, 1.0);
 }
 

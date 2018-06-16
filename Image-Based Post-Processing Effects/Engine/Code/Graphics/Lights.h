@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-const unsigned int SHADOW_MAP_RESOLUTION = 2048;
+const unsigned int SHADOW_MAP_RESOLUTION = 4096;
 const unsigned int SHADOW_CASCADES = 4;
 
 class DirectionalLight

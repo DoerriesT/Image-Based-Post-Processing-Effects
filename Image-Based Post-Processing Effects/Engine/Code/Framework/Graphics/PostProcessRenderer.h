@@ -36,6 +36,8 @@ private:
 	std::shared_ptr<ShaderProgram> cocBlurShader;
 	std::shared_ptr<ShaderProgram> dofBlurShader;
 	std::shared_ptr<ShaderProgram> dofFillShader;
+	std::shared_ptr<ShaderProgram> luminanceGenShader;
+	std::shared_ptr<ShaderProgram> luminanceAdaptionShader;
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Texture> lensColorTexture;
@@ -45,6 +47,10 @@ private:
 	std::shared_ptr<Mesh> fullscreenTriangle;
 
 	GLuint finishedTexture;
+
+	GLuint luminanceTempTexture;
+	GLuint luminanceTexture[2];
+	bool currentLuminanceTexture;
 
 	GLuint fullResolutionFbo;
 	GLuint fullResolutionTextureA;
@@ -95,7 +101,7 @@ private:
 	Uniform<GLboolean> uFilmGrainS = Uniform<GLboolean>("uFilmGrain");
 	Uniform<GLboolean> uChromaticAberrationS = Uniform<GLboolean>("uChromaticAberration");
 	Uniform<GLfloat> uChromAbOffsetMultiplierS = Uniform<GLfloat>("uChromAbOffsetMultiplier");
-	
+
 	// hdr uniform
 	Uniform<GLint> uScreenTextureH = Uniform<GLint>("uScreenTexture"); // full resolution source texture
 	Uniform<GLint> uBloomTextureH = Uniform<GLint>("uBloomTexture");
@@ -115,7 +121,8 @@ private:
 	Uniform<GLfloat> uVelocityScaleH = Uniform<GLfloat>("uVelocityScale");
 	Uniform<GLint> uDofNearTextureH = Uniform<GLint>("uDofNearTexture");
 	Uniform<GLint> uDofFarTextureH = Uniform<GLint>("uDofFarTexture");
-	
+	Uniform<GLint> uLuminanceTextureH = Uniform<GLint>("uLuminanceTexture");
+
 	// fxaa uniforms
 	Uniform<GLint> uScreenTextureF = Uniform<GLint>("uScreenTexture");
 	Uniform<glm::vec2> uInverseResolutionF = Uniform<glm::vec2>("uInverseResolution");
@@ -175,6 +182,15 @@ private:
 	std::vector<GLint> uSampleCoordsDOFF;
 	Uniform<GLfloat> uBokehScaleDOFF = Uniform<GLfloat>("uBokehScale");
 
+	// luminance gen
+	Uniform<GLint> uColorTextureLG = Uniform<GLint>("uColorTexture");
+
+	// luminance adaption
+	Uniform<GLint> uPrevLuminanceTextureLA = Uniform<GLint>("uPrevLuminanceTexture");
+	Uniform<GLint> uCurrentLuminanceTextureLA = Uniform<GLint>("uCurrentLuminanceTexture");
+	Uniform<GLfloat> uTimeDeltaLA = Uniform<GLfloat>("uTimeDelta");
+	Uniform<GLfloat> uTauLA = Uniform<GLfloat>("uTau");
+
 
 	void fxaa(float _subPixelAA, float _edgeThreshold, float _edgeThresholdMin);
 	void singlePassEffects(const Effects &_effects);
@@ -183,6 +199,7 @@ private:
 	void generateFlares(const Effects &_effects);
 	void calculateCoc(GLuint _depthTexture);
 	void simpleDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
+	void calculateLuminance(GLuint _colorTexture);
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
-	
+
 };

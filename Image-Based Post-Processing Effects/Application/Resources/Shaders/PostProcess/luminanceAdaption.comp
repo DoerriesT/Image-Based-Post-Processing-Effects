@@ -1,0 +1,21 @@
+#version 450 core
+
+layout(local_size_x = 1, local_size_y = 1, local_size_z= 1) in;
+
+layout(r16f, binding = 0) uniform image2D uImgOut;
+
+uniform sampler2D uPrevLuminanceTexture;
+uniform sampler2D uCurrentLuminanceTexture;
+uniform float uTimeDelta;
+uniform float uTau;
+
+void main()
+{	
+	float lastLum = texelFetch(uPrevLuminanceTexture, ivec2(0, 0), 0).x;
+    float currentLum = exp(textureLod(uCurrentLuminanceTexture, vec2(0.5f, 0.5f), 10.0f).x);
+
+    // Adapt the luminance using Pattanaik's technique
+    float adaptedLum = lastLum + (currentLum - lastLum) * (1.0 - exp(-uTimeDelta * uTau));
+
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(adaptedLum, 0.0, 0.0, 0.0));
+}

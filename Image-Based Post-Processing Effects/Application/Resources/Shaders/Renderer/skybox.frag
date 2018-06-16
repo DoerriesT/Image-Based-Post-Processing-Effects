@@ -16,7 +16,7 @@ void main()
     if (uHasAlbedoMap)
     {	
         vec3 sample = texture(uAlbedoMap, normalize(ray)).rgb;
-		oAlbedo = vec4(sample * 0.1, 1.0);
+		oAlbedo = vec4(sample, 1.0);
     }
     else
     {

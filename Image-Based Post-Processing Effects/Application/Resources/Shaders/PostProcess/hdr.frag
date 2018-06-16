@@ -13,6 +13,7 @@ uniform sampler2D uLensDirtTex; // full resolution dirt texture
 uniform sampler2D uLensStarTex; // diffraction starburst texture
 uniform sampler2D uDofNearTexture;
 uniform sampler2D uDofFarTexture;
+uniform sampler2D uLuminanceTexture;
 uniform float uStarburstOffset; // transforms texcoords
 uniform bool uLensFlares;
 uniform bool uBloom;
@@ -24,6 +25,8 @@ uniform float uBloomDirtStrength = 0.5;
 uniform float uExposure = 1.0;
 uniform float uVelocityScale;
 uniform float uHalfPixelWidth = 0.0003125;
+uniform float uKeyValue = 0.18;
+uniform bool uAutoExposure = true;
 
 const float MAX_SAMPLES = 32.0;
 const float SOFT_Z_EXTENT = 1.0;
@@ -85,6 +88,15 @@ vec2 jitteredNeighborMax()
 {
 	// TODO: do some actual jittering
 	return texture(uVelocityNeighborMaxTexture, vTexCoord).rg;
+}
+
+vec3 calculateExposedColor(vec3 color, float avgLuminance)
+{
+	// Use geometric mean
+	avgLuminance = max(avgLuminance, 0.001f);
+	float linearExposure = (uKeyValue / avgLuminance);
+	float exposure = log2(max(linearExposure, 0.0001f));
+    return exp2(exposure) * color;
 }
 
 void main()
@@ -287,9 +299,19 @@ void main()
 	}
 	
 	// HDR tonemapping
-	float exposureBias = 2.0;
-	//float exposure = 0.18/max((clamp(adaptedLum, -14.0, 16.0) - exposureBias), 0.00001);
-	color *= uExposure;
+	float exposureBias = 1.0;
+
+	if (uAutoExposure)
+	{
+		float avgLuminance = texelFetch(uLuminanceTexture, ivec2(0, 0), 0).x;
+		color = calculateExposedColor(color, avgLuminance);
+	}
+    else
+	{
+		color *= uExposure;
+	}
+
+	
 	
 	color = uncharted2Tonemap(exposureBias * color);
 	vec3 whiteScale = 1.0/uncharted2Tonemap(W);

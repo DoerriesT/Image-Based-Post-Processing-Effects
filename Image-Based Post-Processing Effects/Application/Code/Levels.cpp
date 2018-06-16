@@ -174,14 +174,14 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	level->activeCameraIndex = 0;
 
 	// exposure
-	level->exposure = 16.0f;
+	level->exposure = 1.0f;
 
 	// water
 	level->water.enabled = false;
 	level->water.level = 1.0;
 
 	// sun
-	level->sun.direction = glm::normalize(glm::vec3(0.0f, 10.0f, -1.0f));
+	level->sun.direction = glm::normalize(glm::vec3(0.0f, 2.0f, -1.0f));
 
 	/*- set skybox entity and environment maps*/
 	const Entity *skyboxEntity = entityManager.createEntity();
@@ -217,7 +217,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	level->environment.atmosphereParams = params;
 
 	/*- set the lights in the scene*/
-	level->lights.directionalLights.push_back(DirectionalLight::createDirectionalLight(params.intensity, level->sun.direction, true));
+	level->lights.directionalLights.push_back(DirectionalLight::createDirectionalLight(params.intensity * 32.0f, level->sun.direction, true));
 
 
 	// objects
