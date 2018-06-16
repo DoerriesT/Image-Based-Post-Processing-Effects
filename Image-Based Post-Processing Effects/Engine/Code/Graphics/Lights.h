@@ -4,11 +4,8 @@
 #include <vector>
 #include <memory>
 
-const unsigned int MAX_POINT_LIGHTS = 3;
-
-const unsigned int MAX_SPOT_LIGHTS = 3;
-
-const unsigned int MAX_DIRECTIONAL_LIGHTS = 1;
+const unsigned int SHADOW_MAP_RESOLUTION = 2048;
+const unsigned int SHADOW_CASCADES = 4;
 
 class DirectionalLight
 {

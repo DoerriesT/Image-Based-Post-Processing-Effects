@@ -17,11 +17,12 @@
 #include ".\..\..\Graphics\EntityRenderData.h"
 
 ShadowRenderer::ShadowRenderer()
+	:splits{ 0.05f, 0.15f, 0.5f, 1.0f }
 {
 }
 
 ShadowRenderer::~ShadowRenderer()
-{	
+{
 	deleteAttachments();
 	deleteFbos();
 }
@@ -44,52 +45,18 @@ void ShadowRenderer::init()
 
 	// create FBO
 	glGenFramebuffers(1, &shadowFbo);
-	createFboAttachments(std::make_pair(1024u, 1024u));
+	createFboAttachments(std::make_pair(SHADOW_MAP_RESOLUTION, SHADOW_MAP_RESOLUTION));
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
+
+void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects, const std::shared_ptr<Camera> &_camera)
 {
-	if (_effects.shadowQuality == ShadowQuality::OFF)
-	{
-		return;
-	}
-
-	glm::mat4 cameraProjection = glm::perspective(glm::radians(_renderData.fov), _renderData.resolution.first / (float)_renderData.resolution.second, 0.01f, 100.0f);
-	glm::mat4 invProjectionViewMatrix = glm::inverse(cameraProjection * _renderData.viewMatrix);
-
-	// generate cube corners and transform them into worldspace and make them match view frustum corners
-	glm::vec4 frustumCorners[8];
-	frustumCorners[0] = glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f); // xyz
-	frustumCorners[1] = glm::vec4(1.0f, -1.0f, -1.0f, 1.0f); // Xyz
-	frustumCorners[2] = glm::vec4(-1.0f, 1.0f, -1.0f, 1.0f); // xYz
-	frustumCorners[3] = glm::vec4(1.0f, 1.0f, -1.0f, 1.0f); // XYz
-	frustumCorners[4] = glm::vec4(-1.0f, -1.0f, 1.0f, 1.0f); // xyZ
-	frustumCorners[5] = glm::vec4(1.0f, -1.0f, 1.0f, 1.0f); // XyZ
-	frustumCorners[6] = glm::vec4(-1.0f, 1.0f, 1.0f, 1.0f); // xYZ
-	frustumCorners[7] = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // XYZ
-
-	// calculate frustum center and frustum length
-	glm::vec3 centroid;
-	float maxZ = -999999999999.0f;
-	float minZ = 999999999999.0f;
-	for (glm::vec4 &corner : frustumCorners)
-	{
-		corner = invProjectionViewMatrix * corner;
-		corner /= corner.w;
-		glm::vec3 corner3 = glm::vec3(corner);
-		centroid += corner3;
-		minZ = std::min(minZ, corner3.z);
-		maxZ = std::max(maxZ, corner3.z);
-	}
-	centroid /= 8.0f;
-	float distance = maxZ - minZ;
-
 	// bind shadow shader
 	shadowShader->bind();
 
-	glViewport(0, 0, 1024, 1024);
+	glViewport(0, 0, SHADOW_MAP_RESOLUTION, SHADOW_MAP_RESOLUTION);
 
 	// render shadowmaps for all light sources that cast shadows
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
@@ -97,42 +64,13 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
 
+	AxisAlignedBoundingBox sceneAABB = calculateSceneAABB(_scene);
+
 	for (const std::shared_ptr<DirectionalLight> &directionalLight : _level->lights.directionalLights)
 	{
 		if (directionalLight->isRenderShadows())
 		{
-			glm::vec3 lightDir = directionalLight->getDirection();
-			glm::vec3 lightPos = lightDir * distance + centroid;
-			glm::vec3 upDir(0.0f, 1.0f, 0.0f);
-
-			if (abs(lightDir.x) < 0.001 && abs(lightDir.z) < 0.001)
-			{
-				upDir = glm::vec3(1.0f, 1.0f, 0.0f);
-			}
-
-			glm::mat4 lightView = glm::lookAt(lightPos, centroid, upDir);
-
-			float minX = 999999999999.0f;
-			float maxX = -999999999999.0f;
-			float minY = 999999999999.0f;
-			float maxY = -999999999999.0f;
-			minZ = 999999999999.0f;
-			maxZ = -999999999999.0f;
-			for (glm::vec4 corner : frustumCorners)
-			{
-				corner = lightView * corner;
-				corner /= corner.w;
-				glm::vec3 corner3 = glm::vec3(corner);
-				minX = std::min(corner3.x, minX);
-				maxX = std::max(corner3.x, maxX);
-				minY = std::min(corner3.y, minY);
-				maxY = std::max(corner3.y, maxY);
-				minZ = std::min(corner3.z, minZ);
-				maxZ = std::max(corner3.z, maxZ);
-			}
-			float distz = maxZ - minZ;
-			directionalLight->setViewProjectionMatrix(glm::ortho(minX, maxX, minY, maxY, 0.0f, distz + distance) * lightView);
-			
+			directionalLight->setViewProjectionMatrix(calculateLightViewProjection(_renderData, sceneAABB, directionalLight->getDirection(), 0.1f, 15.0f, true));
 
 			glDrawBuffer(GL_COLOR_ATTACHMENT0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -170,7 +108,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
-	
+
 	if (_effects.shadowQuality < ShadowQuality::HIGH)
 	{
 		return;
@@ -179,8 +117,8 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 	// blur all shadowmaps
 	shadowBlurShader->bind();
 	shadowBlurShader->setUniform(uShadowMap, 0);
-	shadowBlurShader->setUniform(uHeight, 1024);
-	shadowBlurShader->setUniform(uWidth, 1024);
+	shadowBlurShader->setUniform(uHeight, (int)SHADOW_MAP_RESOLUTION);
+	shadowBlurShader->setUniform(uWidth, (int)SHADOW_MAP_RESOLUTION);
 
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
@@ -224,9 +162,8 @@ void ShadowRenderer::render(const glm::mat4 &_viewProjectionMatrix, const Scene 
 		const std::unique_ptr<EntityRenderData> &entityRenderData = data[i];
 
 		// skip this iteration if its supposed to be rendered with another method or does not have sufficient components
-		if (!entityRenderData->modelComponent 
+		if (!entityRenderData->modelComponent
 			|| !entityRenderData->transformationComponent
-			|| entityRenderData->transparencyComponent
 			|| entityRenderData->customTransparencyShaderComponent
 			|| entityRenderData->customOpaqueShaderComponent)
 		{
@@ -239,25 +176,32 @@ void ShadowRenderer::render(const glm::mat4 &_viewProjectionMatrix, const Scene 
 			enabledMesh = false;
 		}
 
+
+		// skip this mesh if its transparent
+		if (entityRenderData->transparencyComponent && contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
+		{
+			continue;
+		}
+
 		// skip this iteration if the mesh is not yet valid
 		if (!currentMesh || !currentMesh->isValid())
 		{
 			continue;
 		}
 
+		// we're good to go: render this mesh-entity instance
+		glm::mat4 modelMatrix;
+		modelMatrix = glm::translate(modelMatrix, entityRenderData->transformationComponent->position)
+			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
+			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale));
+
+		shadowShader->setUniform(uModelViewProjectionMatrix, _viewProjectionMatrix * modelMatrix);
+
 		if (!enabledMesh)
 		{
 			enabledMesh = true;
 			currentMesh->enableVertexAttribArrays();
 		}
-
-		// we're good to go: render this mesh-entity instance
-		glm::mat4 modelMatrix;
-		modelMatrix = glm::translate(modelMatrix, entityRenderData->transformationComponent->position) 
-			* glm::mat4_cast(entityRenderData->transformationComponent->rotation) 
-			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale));
-
-		shadowShader->setUniform(uModelViewProjectionMatrix, _viewProjectionMatrix * modelMatrix);
 
 		currentMesh->render();
 	}
@@ -307,7 +251,7 @@ void ShadowRenderer::blur(GLuint _textureToBlur)
 	glDrawBuffer(GL_COLOR_ATTACHMENT1);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _textureToBlur);
-		
+
 	shadowBlurShader->setUniform(uDirection, false);
 	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -353,4 +297,215 @@ void ShadowRenderer::blit(GLuint targetTexture)
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
+}
+
+glm::mat4 ShadowRenderer::calculateLightViewProjection(const RenderData &_renderData, const std::shared_ptr<Camera> &_camera, const glm::vec3 &_lightDir, float _nearPlane, float _farPlane)
+{
+	glm::vec3 frustumMin(std::numeric_limits<float>::max());
+	glm::vec3 frustumMax(std::numeric_limits<float>::lowest());
+
+	const float aspectRatio = static_cast<float>(_renderData.resolution.first) / _renderData.resolution.second;
+	const float heightScale = 2.0f * tan(glm::radians(_renderData.fov) * 0.5f);
+	const float nearHeight = heightScale * _nearPlane;
+	const float nearWidth = nearHeight * aspectRatio;
+	const float farHeight = heightScale * _farPlane;
+	const float farWidth = farHeight * aspectRatio;
+	const glm::vec3 camPos = _renderData.cameraPosition;
+	const glm::vec3 camForward = _camera->getForwardDirection();
+	const glm::vec3 camUp = _camera->getUpDirection();
+	const glm::vec3 camRight = glm::cross(camForward, camUp);
+	const glm::vec3 nc = camPos + camForward * _nearPlane; // near center
+	const glm::vec3 fc = camPos + camForward * _farPlane; // far center
+
+	// Vertices in a world space.
+	glm::vec3 vertices[8] =
+	{
+		nc - camUp * nearHeight * 0.5f - camRight * nearWidth * 0.5f, // nbl (near, bottom, left)
+		nc - camUp * nearHeight * 0.5f + camRight * nearWidth * 0.5f, // nbr
+		nc + camUp * nearHeight * 0.5f + camRight * nearWidth * 0.5f, // ntr
+		nc + camUp * nearHeight * 0.5f - camRight * nearWidth * 0.5f, // ntl
+		fc - camUp * farHeight  * 0.5f - camRight * farWidth * 0.5f, // fbl (far, bottom, left)
+		fc - camUp * farHeight  * 0.5f + camRight * farWidth * 0.5f, // fbr
+		fc + camUp * farHeight  * 0.5f + camRight * farWidth * 0.5f, // ftr
+		fc + camUp * farHeight  * 0.5f - camRight * farWidth * 0.5f, // ftl
+	};
+
+	// center of frustum in world space
+	glm::vec3 center(0.0f);
+	for (size_t i = 0; i < 8; ++i)
+	{
+		center += vertices[i];
+	}
+	center /= 8.0f;
+
+	const float distance = -10.0f;
+
+	glm::mat4 lightView = glm::lookAt(center + _lightDir * distance, center, glm::abs(_lightDir) != glm::vec3(0.0, 1.0, 0.0) ? glm::vec3(0.0, 1.0, 0.0) : glm::vec3(0.0, 1.0, 1.0));
+
+	glm::mat3 rotMat(lightView);
+	glm::vec3 d(lightView[3]);
+
+	glm::vec3 retVec = (-d * rotMat) / distance;
+
+	for (size_t i = 0; i < 8; ++i)
+	{
+		// transform to light space
+		glm::vec4 v = lightView * glm::vec4(vertices[i], 1.0);
+		v /= v.w;
+		vertices[i] = v;
+
+		// Update bounding box.
+		frustumMin = glm::min(frustumMin, vertices[i]);
+		frustumMax = glm::max(frustumMax, vertices[i]);
+	}
+
+	glm::mat4 lightProjection = glm::ortho(frustumMin.x, frustumMax.x, frustumMin.y, frustumMax.y, 0.0f, frustumMin.z);
+
+	return lightProjection * lightView;
+}
+
+glm::mat4 ShadowRenderer::calculateLightViewProjection(const RenderData & _renderData, const AxisAlignedBoundingBox &_sceneAABB, const glm::vec3 &_lightDir, float _nearPlane, float _farPlane, bool _useAABB)
+{
+	glm::mat4 cameraProjection = glm::perspective(glm::radians(_renderData.fov), _renderData.resolution.first / (float)_renderData.resolution.second, _nearPlane, _farPlane);
+	glm::mat4 invProjectionViewMatrix = glm::inverse(cameraProjection * _renderData.viewMatrix);
+
+	// generate cube corners and transform them into worldspace and make them match view frustum corners
+	glm::vec4 frustumCorners[8];
+	frustumCorners[0] = glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f); // xyz
+	frustumCorners[1] = glm::vec4(1.0f, -1.0f, -1.0f, 1.0f); // Xyz
+	frustumCorners[2] = glm::vec4(-1.0f, 1.0f, -1.0f, 1.0f); // xYz
+	frustumCorners[3] = glm::vec4(1.0f, 1.0f, -1.0f, 1.0f); // XYz
+	frustumCorners[4] = glm::vec4(-1.0f, -1.0f, 1.0f, 1.0f); // xyZ
+	frustumCorners[5] = glm::vec4(1.0f, -1.0f, 1.0f, 1.0f); // XyZ
+	frustumCorners[6] = glm::vec4(-1.0f, 1.0f, 1.0f, 1.0f); // xYZ
+	frustumCorners[7] = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // XYZ
+
+	// transform corners to world space and calculate frustum center
+	glm::vec3 frustumCenter;
+	for (glm::vec4 &corner : frustumCorners)
+	{
+		corner = invProjectionViewMatrix * corner;
+		corner /= corner.w;
+		frustumCenter += glm::vec3(corner);
+	}
+	frustumCenter /= 8.0f;
+	float distance = glm::distance(frustumCorners[0], frustumCorners[7]);
+
+	glm::vec3 lightPos = _lightDir * distance + frustumCenter;
+	glm::vec3 upDir(0.0f, 1.0f, 0.0f);
+
+	// choose different up vector if light direction would be linearly dependent otherwise
+	if (abs(_lightDir.x) < 0.001 && abs(_lightDir.z) < 0.001)
+	{
+		upDir = glm::vec3(1.0f, 1.0f, 0.0f);
+	}
+
+	glm::mat4 lightView = glm::lookAt(lightPos, frustumCenter, upDir);
+
+	glm::vec3 minCorner(std::numeric_limits<float>::max());
+	glm::vec3 maxCorner(std::numeric_limits<float>::lowest());
+	for (glm::vec4 corner : frustumCorners)
+	{
+		corner = lightView * corner;
+		corner /= corner.w;
+		glm::vec3 corner3 = glm::vec3(corner);
+		minCorner = glm::min(corner3, minCorner);
+		maxCorner = glm::max(corner3, maxCorner);
+	}
+
+	if (_useAABB)
+	{
+		glm::vec4 viewAABBMin = glm::vec4(_sceneAABB.min, 1.0f);
+		glm::vec4 viewAABBMax = glm::vec4(_sceneAABB.max, 1.0f);
+		viewAABBMin = lightView * viewAABBMin;
+		viewAABBMax = lightView * viewAABBMax;
+		viewAABBMin /= viewAABBMin.w;
+		viewAABBMax /= viewAABBMax.w;
+
+		viewAABBMin = glm::min(viewAABBMin, viewAABBMax);
+		viewAABBMax = glm::max(viewAABBMin, viewAABBMax);
+
+		if (viewAABBMin.x > minCorner.x && viewAABBMin.x < maxCorner.x)
+		{
+			minCorner.x = viewAABBMin.x;
+		}
+		if (viewAABBMin.y > minCorner.y && viewAABBMin.y < maxCorner.y)
+		{
+			minCorner.y = viewAABBMin.y;
+		}
+		if (viewAABBMax.z < maxCorner.z && viewAABBMax.z > minCorner.z)
+		{
+			maxCorner.z = viewAABBMax.z;
+		}
+
+		if (viewAABBMax.x < maxCorner.x && viewAABBMax.x > minCorner.x)
+		{
+			maxCorner.x = viewAABBMax.x;
+		}
+		if (viewAABBMax.y < maxCorner.y && viewAABBMax.y > minCorner.y)
+		{
+			maxCorner.y = viewAABBMax.y;
+		}
+		/*if (viewAABBMax.z < maxCorner.z && viewAABBMax.z > minCorner.z)
+		{
+			maxCorner.z = viewAABBMax.z;
+		}*/
+	}
+
+	float distz = maxCorner.z - minCorner.z;
+	float projFarPlane = distz + distance;
+	return glm::ortho(minCorner.x, maxCorner.x, minCorner.y, maxCorner.y, 0.0f, projFarPlane) * lightView;
+}
+
+AxisAlignedBoundingBox ShadowRenderer::calculateSceneAABB(const Scene &_scene)
+{
+	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
+
+	glm::vec3 minCorner(std::numeric_limits<float>::max());
+	glm::vec3 maxCorner(std::numeric_limits<float>::lowest());
+
+	for (size_t i = 0; i < data.size(); ++i)
+	{
+		const std::unique_ptr<EntityRenderData> &entityRenderData = data[i];
+
+		// skip this iteration if its supposed to be rendered with another method or does not have sufficient components
+		if (entityRenderData->customTransparencyShaderComponent ||
+			!entityRenderData->modelComponent ||
+			!entityRenderData->transformationComponent)
+		{
+			continue;
+		}
+
+		std::shared_ptr<SubMesh> &currentMesh = entityRenderData->mesh;
+
+		// skip this mesh if its transparent
+		if (entityRenderData->transparencyComponent && contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
+		{
+			continue;
+		}
+
+		// skip this iteration if the mesh is not yet valid
+		if (!currentMesh->isValid())
+		{
+			continue;
+		}
+
+		glm::mat4 modelMatrix = glm::translate(entityRenderData->transformationComponent->position)
+			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
+			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale));
+
+		AxisAlignedBoundingBox meshAABB = currentMesh->getAABB();
+		glm::vec4 meshAABBMin = glm::vec4(meshAABB.min, 1.0);
+		glm::vec4 meshAABBMax = glm::vec4(meshAABB.max, 1.0);
+
+		meshAABBMin = modelMatrix * meshAABBMin;
+		meshAABBMin /= meshAABBMin.w;
+		meshAABBMax = modelMatrix * meshAABBMax;
+		meshAABBMax /= meshAABBMax.w;
+
+		minCorner = glm::min(glm::vec3(meshAABBMin), minCorner);
+		maxCorner = glm::max(glm::vec3(meshAABBMax), maxCorner);
+	}
+
+	return { minCorner , maxCorner };
 }

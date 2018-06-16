@@ -338,6 +338,9 @@
     <ClInclude Include="Code\EntityComponentSystem\Systems\PhysicsSystem.h">
       <Filter>Code\EntityComponentSystem\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\AxisAlignedBoundingBox.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Window.cpp">

@@ -12,10 +12,10 @@
     <ClCompile Include="Code\Application.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Level.cpp">
+    <ClCompile Include="Code\CameraController.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Code\CameraController.cpp">
+    <ClCompile Include="Code\Levels.cpp">
       <Filter>Code</Filter>
     </ClCompile>
   </ItemGroup>
@@ -23,10 +23,10 @@
     <ClInclude Include="Code\Application.h">
       <Filter>Code</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Level.h">
+    <ClInclude Include="Code\CameraController.h">
       <Filter>Code</Filter>
     </ClInclude>
-    <ClInclude Include="Code\CameraController.h">
+    <ClInclude Include="Code\Levels.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>

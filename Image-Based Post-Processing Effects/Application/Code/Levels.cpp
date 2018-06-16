@@ -1,4 +1,4 @@
-#include "Level.h"
+#include "Levels.h"
 #include "EntityComponentSystem\EntityManager.h"
 #include <glm\ext.hpp>
 #include <Graphics\Mesh.h>
@@ -168,7 +168,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	level->filepath = "Resources/Levels/sponza/";
 
 	// camera(s)
-	std::shared_ptr<Camera> camera0 = std::make_shared<Camera>(glm::vec3(0.0f, 1.5f, 2.0f), glm::quat(glm::vec3(glm::radians(35.0f), 0.0f, 0.0f)));
+	std::shared_ptr<Camera> camera0 = std::make_shared<Camera>(glm::vec3(0.0f, 1.5f, 2.0f), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)));
 
 	level->cameras.push_back(camera0);
 	level->activeCameraIndex = 0;
@@ -181,7 +181,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	level->water.level = 1.0;
 
 	// sun
-	level->sun.direction = glm::normalize(glm::vec3(1.0f, 1.0f, -1.0f));
+	level->sun.direction = glm::normalize(glm::vec3(0.0f, 10.0f, -1.0f));
 
 	/*- set skybox entity and environment maps*/
 	const Entity *skyboxEntity = entityManager.createEntity();
@@ -227,16 +227,16 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 		entityManager.addComponent<ModelComponent>(sponzaEntity, Model("Resources/Models/sponza.meshmat", true));
 		entityManager.addComponent<TransformationComponent>(sponzaEntity);
 		entityManager.addComponent<RenderableComponent>(sponzaEntity);
-		entityManager.addComponent<PhysicsComponent>(sponzaEntity, 0.0f, 1.0f, false);
+		//entityManager.addComponent<PhysicsComponent>(sponzaEntity, 0.0f, 1.0f, false);
 
 		const Entity *carEntity = entityManager.createEntity();
 		level->entityMap["car"] = carEntity;
 		Model lamboModel("Resources/Models/aventador.meshmat", true);
 		entityManager.addComponent<ModelComponent>(carEntity, lamboModel);
-		entityManager.addComponent<TransformationComponent>(carEntity, glm::vec3(-9.0, 0.0, 0.0), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(1.0f));
+		entityManager.addComponent<TransformationComponent>(carEntity, glm::vec3(0.0, 0.0, 0.0), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(1.0f));
 		entityManager.addComponent<TransparencyComponent>(carEntity, lamboModel.getTransparentSubmeshes());
 		entityManager.addComponent<RenderableComponent>(carEntity);
-		entityManager.addComponent<PhysicsComponent>(carEntity, 0.0f, 1.0f, false, true);
+		//entityManager.addComponent<PhysicsComponent>(carEntity, 0.0f, 1.0f, false, true);
 
 		std::vector<PathSegment> pathSegments;
 		pathSegments.push_back(PathSegment(
@@ -253,9 +253,9 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 			glm::vec3(0.0f, -1.0f, 0.0),
 			5.0,
 			cubicEasingInOut));
-		entityManager.addComponent<MovementPathComponent>(carEntity, pathSegments, Engine::getCurrentTime(), true);
+		//entityManager.addComponent<MovementPathComponent>(carEntity, pathSegments, Engine::getCurrentTime(), true);
 
-		int c = 0;
+		/*int c = 0;
 		std::default_random_engine e;
 		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 		for (int i = 0; i < 10; ++i)
@@ -273,7 +273,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 					entityManager.addComponent<RenderableComponent>(sphereEntity);
 					entityManager.addComponent<PhysicsComponent>(sphereEntity, 1.f, 0.8f, true, false, true);
 			}
-		}
+		}*/
 
 		/*for (int i = 0; i < 10; ++i)
 		{

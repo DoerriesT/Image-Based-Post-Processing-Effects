@@ -54,6 +54,7 @@
     <ClInclude Include="Code\Framework\Window\IInputListener.h" />
     <ClInclude Include="Code\Framework\Window\IWindowResizeListener.h" />
     <ClInclude Include="Code\Framework\Window\WindowFramework.h" />
+    <ClInclude Include="Code\Graphics\AxisAlignedBoundingBox.h" />
     <ClInclude Include="Code\Graphics\CameraPath.h" />
     <ClInclude Include="Code\Graphics\EnvironmentProbe.h" />
     <ClInclude Include="Code\Graphics\Effects.h" />

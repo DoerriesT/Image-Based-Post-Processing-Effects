@@ -6,6 +6,7 @@
 #include <map>
 #include <glad\glad.h>
 #include "..\JobManager.h"
+#include "AxisAlignedBoundingBox.h"
 
 class SubMesh;
 
@@ -15,12 +16,6 @@ struct Vertex
 	glm::vec2 texCoord;
 	glm::vec3 normal;
 	glm::vec3 tangent;
-};
-
-struct AxisAlignedBoundingBox
-{
-	glm::vec3 min;
-	glm::vec3 max;
 };
 
 class Mesh
