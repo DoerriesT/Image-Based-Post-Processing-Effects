@@ -8,12 +8,29 @@
 #include ".\..\..\Graphics\Lights.h"
 
 
-ShaderProgram::ShaderProgram(const char *_vertexShaderPath, const char *_fragmentShaderPath, const char *_geometryShaderPath)
+ShaderProgram::ShaderProgram(const char *_vertexShaderPath,
+	const char *_fragmentShaderPath,
+	const char *_tesselationControlShaderPath,
+	const char *_tesselationEvaluationShaderPath,
+	const char *_geometryShaderPath)
 {
 	GLuint vertexShader = createShader(GL_VERTEX_SHADER, _vertexShaderPath);
 	GLuint fragmentShader = createShader(GL_FRAGMENT_SHADER, _fragmentShaderPath);
+	GLuint tessControlShader = 0;
+	GLuint tessEvalShader = 0;
 	GLuint geometryShader = 0;
 
+	// make sure we dont try to create a program with only control shader
+	assert(_tesselationEvaluationShaderPath ? true : !bool(_tesselationControlShaderPath));
+
+	if (_tesselationControlShaderPath)
+	{
+		tessControlShader = createShader(GL_TESS_CONTROL_SHADER, _tesselationControlShaderPath);
+	}
+	if (_tesselationEvaluationShaderPath)
+	{
+		tessEvalShader = createShader(GL_TESS_EVALUATION_SHADER, _tesselationEvaluationShaderPath);
+	}
 	if (_geometryShaderPath)
 	{
 		geometryShader = createShader(GL_GEOMETRY_SHADER, _geometryShaderPath);
@@ -23,6 +40,14 @@ ShaderProgram::ShaderProgram(const char *_vertexShaderPath, const char *_fragmen
 	programId = glCreateProgram();
 	glAttachShader(programId, vertexShader);
 	glAttachShader(programId, fragmentShader);
+	if (_tesselationControlShaderPath)
+	{
+		glAttachShader(programId, tessControlShader);
+	}
+	if (_tesselationEvaluationShaderPath)
+	{
+		glAttachShader(programId, tessEvalShader);
+	}
 	if (_geometryShaderPath)
 	{
 		glAttachShader(programId, geometryShader);
@@ -34,6 +59,16 @@ ShaderProgram::ShaderProgram(const char *_vertexShaderPath, const char *_fragmen
 	// delete the shaders as they're linked into our program now and no longer necessery
 	glDetachShader(programId, vertexShader);
 	glDetachShader(programId, fragmentShader);
+	if (_tesselationControlShaderPath)
+	{
+		glDetachShader(programId, tessControlShader);
+		glDeleteShader(tessControlShader);
+	}
+	if (_tesselationEvaluationShaderPath)
+	{
+		glDetachShader(programId, tessEvalShader);
+		glDeleteShader(tessEvalShader);
+	}
 	if (_geometryShaderPath)
 	{
 		glDetachShader(programId, geometryShader);
@@ -113,9 +148,13 @@ void ShaderProgram::statusCheck(GLenum _type)
 	}
 }
 
-std::shared_ptr<ShaderProgram> ShaderProgram::createShaderProgram(const char *_vertexShaderPath, const char *_fragmentShaderPath, const char *_geometryShaderPath)
+std::shared_ptr<ShaderProgram> ShaderProgram::createShaderProgram(const char *_vertexShaderPath,
+	const char *_fragmentShaderPath,
+	const char *_tesselationControlShaderPath,
+	const char *_tesselationEvaluationShaderPath,
+	const char *_geometryShaderPath)
 {
-	return std::shared_ptr<ShaderProgram>(new ShaderProgram(_vertexShaderPath, _fragmentShaderPath, _geometryShaderPath));
+	return std::shared_ptr<ShaderProgram>(new ShaderProgram(_vertexShaderPath, _fragmentShaderPath, _tesselationControlShaderPath, _tesselationEvaluationShaderPath, _geometryShaderPath));
 }
 
 std::shared_ptr<ShaderProgram> ShaderProgram::createShaderProgram(const char *_computeShaderPath)

@@ -27,8 +27,8 @@ emissivePath:
 
 name: hull
 albedo: 1.0/1.0/1.0/1.0
-metallic: 0.25
-roughness: 0.0
+metallic: 1.0
+roughness: 0.4
 emissive: 0.0/0.0/0.0
 albedoPath: 
 normalPath: 
@@ -113,7 +113,7 @@ name: lights_back
 albedo: 1.0/0.0/0.0/1.0
 metallic: 0.0
 roughness: 0.0
-emissive: 50.0/0.0/0.0
+emissive: 100.0/0.0/0.0
 albedoPath: 
 normalPath: 
 metallicPath: 

@@ -14,6 +14,7 @@ struct RenderData
 	glm::mat4 invViewProjectionMatrix;
 	glm::mat4 prevViewProjectionMatrix;
 	glm::vec3 cameraPosition;
+	glm::vec3 viewDirection;
 	float time;
 	bool shadows;
 	float fov;

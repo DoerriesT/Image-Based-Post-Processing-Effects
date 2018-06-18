@@ -17,7 +17,7 @@ uniform sampler2D uLuminanceTexture;
 uniform float uStarburstOffset; // transforms texcoords
 uniform bool uLensFlares;
 uniform bool uBloom;
-uniform bool uLensDirt = false;
+uniform bool uLensDirt = true;
 uniform bool uDof = false;
 uniform int uMotionBlur;
 uniform float uBloomStrength = 0.1;
@@ -25,8 +25,8 @@ uniform float uBloomDirtStrength = 0.5;
 uniform float uExposure = 1.0;
 uniform float uVelocityScale;
 uniform float uHalfPixelWidth = 0.0003125;
-uniform float uKeyValue = 0.18;
-uniform bool uAutoExposure = true;
+uniform float uKeyValue = 0.28;
+uniform bool uAutoExposure = false;
 
 const float MAX_SAMPLES = 32.0;
 const float SOFT_Z_EXTENT = 1.0;
@@ -268,13 +268,14 @@ void main()
 		color = mix(color, dofNear.rgb, min(5.0 * dofNear.a, 0.5) * 2.0);
 	}
 
+	vec3 additions = vec3(0.0);
 
 	if (uBloom)
 	{
 		vec3 lensMod = texture(uLensDirtTex, vTexCoord).rgb;
 		vec3 bloom = texture(uBloomTexture, vTexCoord).rgb * uBloomStrength;
 		//bloom = mix(bloom, bloom * (vec3(1.0) + lensMod), uBloomDirtStrength);
-		color += bloom;
+		additions += bloom;
 	}
 
 	if (uLensFlares)
@@ -288,15 +289,16 @@ void main()
 		mask = clamp(mask + (1.0 - smoothstep(0.0, 0.3, d)), 0.0, 1.0);
 
 		vec3 lensFlare = texture(uLensFlareTex, vTexCoord).rgb * mask;
-		color.rgb += vec3(1.0) - exp(-lensFlare * 0.15 * dot(lensFlare, vec3(0.299, 0.587, 0.114)));
+		additions += lensFlare;//vec3(1.0) - exp(-lensFlare * 0.15 * dot(lensFlare, vec3(0.299, 0.587, 0.114)));
 	}
 
 	if (uLensDirt)
 	{
-		float brightness = dot(color.rgb, vec3(0.299, 0.587, 0.114));
 		vec3 dirt = texture(uLensDirtTex, vTexCoord).rgb;
-		color.rgb += (dirt + vec3(1.0)) * clamp(brightness / 5.0, 0.0, 1.0);
+		additions += additions * 4 * dirt;
 	}
+
+	color.rgb += additions;
 	
 	// HDR tonemapping
 	float exposureBias = 1.0;

@@ -63,6 +63,7 @@ public:
 	AxisAlignedBoundingBox getAABB() const;
 	const std::vector<glm::vec3> &getVertices() const;
 	const std::vector<std::uint32_t> &getIndices() const;
+	std::size_t getIndexCount() const;
 
 private:
 	GLuint VAO;

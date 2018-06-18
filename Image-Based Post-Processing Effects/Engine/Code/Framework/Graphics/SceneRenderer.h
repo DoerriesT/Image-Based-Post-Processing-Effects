@@ -6,6 +6,7 @@ class Camera;
 class Window;
 class Scene;
 class Mesh;
+class TileRing;
 struct Effects;
 struct Level;
 class ShaderProgram;
@@ -50,12 +51,15 @@ private:
 	std::shared_ptr<ShaderProgram> inversePermuteShader;
 	std::shared_ptr<ShaderProgram> waterNormalShader;
 	std::shared_ptr<ShaderProgram> waterShader;
+	std::shared_ptr<ShaderProgram> waterTessShader;
 
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Mesh> pointLightMesh;
 	std::shared_ptr<Mesh> spotLightMesh;
 	std::shared_ptr<Mesh> fullscreenTriangle;
+
+	TileRing *tileRings[6];
 
 	GLuint brdfLUT;
 
@@ -289,6 +293,25 @@ private:
 	// water normal
 	Uniform<GLint> uDisplacementTextureN = Uniform<GLint>("uDisplacementTexture");
 	Uniform<GLfloat> uNormalStrengthN = Uniform<GLfloat>("uNormalStrength");
+
+	// water tesselated
+	Uniform<GLint> uNormalTextureWT = Uniform<GLint>("uNormalTexture");
+	Uniform<GLint> uDisplacementTextureWT = Uniform<GLint>("uDisplacementTexture");
+	Uniform<GLint> uFoamTextureWT = Uniform<GLint>("uFoamTexture");
+	Uniform<GLint> uEnvironmentTextureWT = Uniform<GLint>("uEnvironmentTexture");
+	Uniform<glm::mat4> uViewProjectionWT = Uniform<glm::mat4>("uViewProjection");
+	Uniform<glm::mat4> uProjectionWT = Uniform<glm::mat4>("uProjection");
+	Uniform<glm::mat4> uViewWT = Uniform<glm::mat4>("uView");
+	Uniform<glm::vec3> uCamPosWT = Uniform<glm::vec3>("uCamPos");
+	Uniform<glm::vec2> uTexCoordShiftWT = Uniform<glm::vec2>("uTexCoordShift");
+	Uniform<bool> uUseEnvironmentWT = Uniform<bool>("uUseEnvironment");
+	Uniform<float> uWaterLevelWT = Uniform<float>("uVerticalDisplacement");
+	Uniform<glm::vec3> uLightDirWT = Uniform<glm::vec3>("uLightDir");
+	Uniform<glm::vec3> uLightColorWT = Uniform<glm::vec3>("uLightColor");
+	Uniform<GLfloat> uTileSizeWT = Uniform<GLfloat>("uTileSize");
+	Uniform<glm::vec3> uViewDirWT = Uniform<glm::vec3>("uViewDir");
+	Uniform<glm::vec2> uScreenSizeWT = Uniform<glm::vec2>("uScreenSize");
+	Uniform<GLint> uTesselatedTriWidthWT = Uniform<GLint>("uTesselatedTriWidth");
 
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
 	void createWaterAttachments();

@@ -99,6 +99,7 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 	renderData.shadows = _effects.shadowQuality != ShadowQuality::OFF;
 	renderData.time = (float)Engine::getCurrentTime();
 	renderData.cameraPosition = _camera->getPosition();
+	renderData.viewDirection = _camera->getForwardDirection();
 	renderData.fov = window->getFieldOfView();
 
 	prevViewProjectionMatrix = renderData.viewProjectionMatrix;

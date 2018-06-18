@@ -19,7 +19,11 @@ const int SHADOW_MAP_TEXTURE_UNIT_BEGIN = 16;
 class ShaderProgram
 {
 public:
-	static std::shared_ptr<ShaderProgram> createShaderProgram(const char *_vertexShaderPath, const char *_fragmentShaderPath, const char *_geometryShaderPath = nullptr);
+	static std::shared_ptr<ShaderProgram> createShaderProgram(const char *_vertexShaderPath,
+		const char *_fragmentShaderPath,
+		const char *_tesselationControlShaderPath = nullptr,
+		const char *_tesselationEvaluationShaderPath = nullptr,
+		const char *_geometryShaderPath = nullptr);
 	static std::shared_ptr<ShaderProgram> createShaderProgram(const char *_computeShaderPath);
 
 	ShaderProgram(const ShaderProgram &) = delete;
@@ -56,7 +60,11 @@ private:
 	mutable std::map<const std::string, GLint> uniforms;
 #endif // DEBUG
 
-	explicit ShaderProgram(const char *_vertexShaderPath, const char *_fragmentShaderPath, const char *_geometryShaderPath = nullptr);
+	explicit ShaderProgram(const char *_vertexShaderPath,
+		const char *_fragmentShaderPath,
+		const char *_tesselationControlShaderPath = nullptr,
+		const char *_tesselationEvaluationShaderPath = nullptr,
+		const char *_geometryShaderPath = nullptr);
 	explicit ShaderProgram(const char *_computeShaderPath);
 	GLuint createShader(GLenum _type, const char *_shaderPath);
 	void statusCheck(GLenum _type);

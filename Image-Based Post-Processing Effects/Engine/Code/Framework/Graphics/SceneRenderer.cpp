@@ -22,6 +22,7 @@
 #include ".\..\..\Graphics\Scene.h"
 #include ".\..\..\Graphics\Effects.h"
 #include ".\..\..\Graphics\Texture.h"
+#include ".\..\..\Graphics\Terrain\TileRing.h"
 
 //#define SPHERES
 
@@ -61,6 +62,11 @@ SceneRenderer::~SceneRenderer()
 
 	GLuint textures[] = { gAlbedoTexture, gNormalTexture, gMRASTexture, gDepthStencilTexture, gLightColorTextures[0], gLightColorTextures[1], gVelocityTexture, brdfLUT };
 	glDeleteTextures(sizeof(textures) / sizeof(GLuint), textures);
+
+	for (int i = 0; i < 6; ++i)
+	{
+		delete tileRings[i];
+	}
 }
 
 void SceneRenderer::init()
@@ -85,6 +91,7 @@ void SceneRenderer::init()
 	inversePermuteShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/inversePermute.frag");
 	waterNormalShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/normal.frag");
 	waterShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/water.vert", "Resources/Shaders/Water/Water.frag");
+	waterTessShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/terrain.vert", "Resources/Shaders/Water/water.frag", "Resources/Shaders/Shared/terrain.tessc", "Resources/Shaders/Shared/terrain.tesse");
 
 	// create uniforms
 
@@ -277,6 +284,36 @@ void SceneRenderer::init()
 	// water normal
 	uDisplacementTextureN.create(waterNormalShader);
 	uNormalStrengthN.create(waterNormalShader);
+
+	// water tesselated
+	uNormalTextureWT.create(waterTessShader);
+	uDisplacementTextureWT.create(waterTessShader);
+	uFoamTextureWT.create(waterTessShader);
+	uEnvironmentTextureWT.create(waterTessShader);
+	uViewProjectionWT.create(waterTessShader);
+	uProjectionWT.create(waterTessShader);
+	uViewWT.create(waterTessShader);
+	uCamPosWT.create(waterTessShader);
+	uTexCoordShiftWT.create(waterTessShader);
+	uUseEnvironmentWT.create(waterTessShader);
+	uWaterLevelWT.create(waterTessShader);
+	uLightDirWT.create(waterTessShader);
+	uLightColorWT.create(waterTessShader);
+	uTileSizeWT.create(waterTessShader);
+	uViewDirWT.create(waterTessShader);
+	uScreenSizeWT.create(waterTessShader);
+	uTesselatedTriWidthWT.create(waterTessShader);
+
+	// init terrain tile rings
+	float tileWidth = 16.0f;
+	int ringWidth = 16;
+	for (int i = 0; i < 6; ++i)
+	{
+		int innerWidth = (i == 0) ? 0 : ringWidth / 2;
+		int outerWidth = ringWidth;
+		tileRings[i] = new TileRing(innerWidth, outerWidth, tileWidth);
+		tileWidth *= 2.0f;
+	}
 
 	// create FBO
 	glGenFramebuffers(1, &gBufferFBO);
@@ -1656,43 +1693,96 @@ void SceneRenderer::computeFft()
 void SceneRenderer::renderWater(const RenderData &_renderData, const std::shared_ptr<Level> &_level)
 {
 	static std::shared_ptr<Texture> foamTexture = Texture::createTexture("Resources/Textures/foam.dds", true);
+	static bool useTesselation = true;
 
-	waterShader->bind();
-	uNormalTextureW.set(0);
-	uDisplacementTextureW.set(1);
-	uFoamTextureW.set(2);
-	uEnvironmentTextureW.set(3);
-	uProjectionW.set(_renderData.projectionMatrix);
-	uViewW.set(_renderData.viewMatrix);
-	uCamPosW.set(_renderData.cameraPosition);
-	uTexCoordShiftW.set(glm::vec2(-1.5, 0.75) * _renderData.time * 0.25);
-	uUseEnvironmentW.set(_level->environment.environmentProbe->isValid());
-	uWaterLevelW.set(_level->water.level);
-	if (_level->lights.directionalLights.empty())
+	if (useTesselation)
 	{
-		uLightDirW.set(glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
-		uLightColorW.set(glm::vec3(1.5f, 0.575f, 0.5f));
+		waterTessShader->bind();
+		uNormalTextureWT.set(0);
+		uDisplacementTextureWT.set(1);
+		uFoamTextureWT.set(2);
+		uEnvironmentTextureWT.set(3);
+		uViewProjectionWT.set(_renderData.viewProjectionMatrix);
+		uProjectionWT.set(_renderData.projectionMatrix);
+		uViewWT.set(_renderData.viewMatrix);
+		uCamPosWT.set(_renderData.cameraPosition);
+		uTexCoordShiftWT.set(glm::vec2(-1.5, 0.75) * _renderData.time * 0.25);
+		uUseEnvironmentWT.set(_level->environment.environmentProbe->isValid());
+		uWaterLevelWT.set(_level->water.level);
+		if (_level->lights.directionalLights.empty())
+		{
+			uLightDirWT.set(glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
+			uLightColorWT.set(glm::vec3(1.5f, 0.575f, 0.5f));
+		}
+		else
+		{
+			uLightDirWT.set(_level->lights.directionalLights[0]->getDirection());
+			uLightColorWT.set(_level->lights.directionalLights[0]->getColor());
+		}
+		
+		uViewDirWT.set(_renderData.viewDirection);
+		uScreenSizeWT.set(glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
+		uTesselatedTriWidthWT.set(20);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, waterNormalTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, foamTexture->getId());
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getReflectanceMap()->getId());
+
+		uTileSizeWT.set(1.0f);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		
+		for (int i = 0; i < 6; ++i)
+		{
+			uTileSizeWT.set(tileRings[i]->getTileSize());
+			tileRings[i]->render();
+		}
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	else
 	{
-		uLightDirW.set(_level->lights.directionalLights[0]->getDirection());
-		uLightColorW.set(_level->lights.directionalLights[0]->getColor());
+		waterShader->bind();
+		uNormalTextureW.set(0);
+		uDisplacementTextureW.set(1);
+		uFoamTextureW.set(2);
+		uEnvironmentTextureW.set(3);
+		uProjectionW.set(_renderData.projectionMatrix);
+		uViewW.set(_renderData.viewMatrix);
+		uCamPosW.set(_renderData.cameraPosition);
+		uTexCoordShiftW.set(glm::vec2(-1.5, 0.75) * _renderData.time * 0.25);
+		uUseEnvironmentW.set(_level->environment.environmentProbe->isValid());
+		uWaterLevelW.set(_level->water.level);
+		if (_level->lights.directionalLights.empty())
+		{
+			uLightDirW.set(glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
+			uLightColorW.set(glm::vec3(1.5f, 0.575f, 0.5f));
+		}
+		else
+		{
+			uLightDirW.set(_level->lights.directionalLights[0]->getDirection());
+			uLightColorW.set(_level->lights.directionalLights[0]->getColor());
+		}
+
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, waterNormalTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, foamTexture->getId());
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getReflectanceMap()->getId());
+
+		glBindVertexArray(waterVAO);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDrawElements(GL_TRIANGLES, (GLsizei)(waterGridDimensions.x * waterGridDimensions.y * 6), GL_UNSIGNED_INT, 0);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, waterNormalTexture);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, foamTexture->getId());
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getReflectanceMap()->getId());
-
-	glBindVertexArray(waterVAO);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glDrawElements(GL_TRIANGLES, (GLsizei)(waterGridDimensions.x * waterGridDimensions.y * 6), GL_UNSIGNED_INT, 0);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void SceneRenderer::createWaterPlane(const glm::vec2 &_dimensions, GLuint &_VBO, GLuint &_VAO, GLuint &_EBO)

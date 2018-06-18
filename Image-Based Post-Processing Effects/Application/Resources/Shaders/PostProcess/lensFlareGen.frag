@@ -15,8 +15,8 @@ uniform float uHaloRadius;
 uniform float uHaloThickness = 0.1;
 uniform float uDistortion;
 uniform float uAspectRatio = (1600.0 / 900.0);
-uniform vec4 uScale = vec4(vec3(2.0), 1.0);
-uniform vec4 uBias = vec4(-6.0);
+uniform vec4 uScale = vec4(vec3(0.5), 1.0);
+uniform vec4 uBias = vec4(-32.0);
 
 /*
 vec3 textureDistorted(in sampler2D tex, in vec2 texCoord, in vec2 direction, in vec3 distortion) 

@@ -61,6 +61,7 @@
     <ClInclude Include="Code\Graphics\EntityRenderData.h" />
     <ClInclude Include="Code\Graphics\Model.h" />
     <ClInclude Include="Code\Graphics\Scene.h" />
+    <ClInclude Include="Code\Graphics\Terrain\TileRing.h" />
     <ClInclude Include="Code\Gui\Elements\GuiElement.h" />
     <ClInclude Include="Code\Gui\Elements\GuiRow.h" />
     <ClInclude Include="Code\Gui\Elements\GuiWindow.h" />
@@ -147,6 +148,7 @@
     <ClCompile Include="Code\Graphics\Scene.cpp" />
     <ClCompile Include="Code\Graphics\stb_image.cpp" />
     <ClCompile Include="Code\Graphics\stb_image_resize.cpp" />
+    <ClCompile Include="Code\Graphics\Terrain\TileRing.cpp" />
     <ClCompile Include="Code\Graphics\Texture.cpp" />
     <ClCompile Include="Code\Gui\Elements\GuiElement.cpp" />
     <ClCompile Include="Code\Gui\Elements\GuiRow.cpp" />

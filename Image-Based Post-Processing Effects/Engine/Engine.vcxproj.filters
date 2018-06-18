@@ -75,6 +75,9 @@
     <Filter Include="Resources\Shaders\Custom">
       <UniqueIdentifier>{7d9e075f-bc31-497f-9c83-a2e6a359f951}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Graphics\Terrain">
+      <UniqueIdentifier>{7d40a98d-94e9-4b3d-baf0-dc0bfa2804ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Window.h">
@@ -341,6 +344,9 @@
     <ClInclude Include="Code\Graphics\AxisAlignedBoundingBox.h">
       <Filter>Code\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\Terrain\TileRing.h">
+      <Filter>Code\Graphics\Terrain</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Window.cpp">
@@ -543,6 +549,9 @@
     </ClCompile>
     <ClCompile Include="Code\EntityComponentSystem\Systems\PhysicsSystem.cpp">
       <Filter>Code\EntityComponentSystem\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\Terrain\TileRing.cpp">
+      <Filter>Code\Graphics\Terrain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

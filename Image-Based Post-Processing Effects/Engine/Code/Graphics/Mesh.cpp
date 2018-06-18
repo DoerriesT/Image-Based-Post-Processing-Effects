@@ -284,3 +284,8 @@ const std::vector<std::uint32_t>& SubMesh::getIndices() const
 {
 	return indices;
 }
+
+std::size_t SubMesh::getIndexCount() const
+{
+	return indexCount;
+}

@@ -433,10 +433,10 @@ glm::mat4 ShadowRenderer::calculateLightViewProjection(const RenderData & _rende
 		{
 			minCorner.y = viewAABBMin.y;
 		}
-		if (viewAABBMax.z < maxCorner.z && viewAABBMax.z > minCorner.z)
+		/*if (viewAABBMax.z < maxCorner.z && viewAABBMax.z > minCorner.z)
 		{
 			maxCorner.z = viewAABBMax.z;
-		}
+		}*/
 
 		if (viewAABBMax.x < maxCorner.x && viewAABBMax.x > minCorner.x)
 		{

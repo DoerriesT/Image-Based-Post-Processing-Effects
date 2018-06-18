@@ -1,0 +1,239 @@
+#version 450 core
+
+layout(vertices = 4) out;
+
+in vec3 vPosition[];
+in vec4 vNeighborData[];
+out vec3 tcPosition[];
+
+// aNeighborData:
+// float neighborMinusX;
+// float neighborMinusY;
+// float neighborPlusX;
+// float neighborPlusY;
+
+uniform mat4 uViewProjection;
+uniform mat4 uView;
+uniform mat4 uProjection;
+uniform vec3 uCamPos;
+uniform vec3 uViewDir;
+uniform vec2 uScreenSize;
+uniform int uTesselatedTriWidth;
+
+const int VTX_PER_TILE_EDGE = 9;
+const int PATCHES_PER_TILE_EDGE = VTX_PER_TILE_EDGE - 1;
+
+float ClipToScreenSpaceTessellation(vec4 clip0, vec4 clip1)
+{
+	clip0 /= clip0.w;
+	clip1 /= clip1.w;
+
+	clip0.xy *= uScreenSize;
+	clip1.xy *= uScreenSize;
+
+	const float d = distance(clip0, clip1);
+
+	// uTesselatedTriWidth is desired pixels per tri edge
+	return clamp(d / uTesselatedTriWidth, 1.0 , 64.0);
+}
+
+// Project a sphere into clip space and return the number of triangles that are required to fit across the 
+// screenspace diameter.  (For convenience of the caller, we expect two edge end points and use the mid point as centre.)
+float SphereToScreenSpaceTessellation(vec3 p0, vec3 p1, float diameter)
+{
+	vec3 center = 0.5 * (p0 + p1);
+	vec4 view0 = uView * vec4(center, 1.0);
+	view0 /= view0.w;
+	vec4 view1 = view0;
+	view1.x += diameter;
+
+	vec4 clip0 = uProjection * view0;
+	vec4 clip1 = uProjection * view1;
+	return ClipToScreenSpaceTessellation(clip0, clip1);
+}
+
+// The adjacency calculations ensure that neighbours have tessellations that agree.
+// However, only power of two sizes *seem* to get correctly tessellated with no cracks.
+float SmallerNeighborAdjacencyClamp(float tess)
+{
+	// Clamp to the nearest larger power of two.  Any power of two works; larger means that we don't lose detail.
+	// Output is [4,64].
+	float logTess = ceil(log2(tess));
+	float t = pow(2, logTess);
+
+	// Our smaller neighbor's min tessellation is pow(2,1) = 2.  As we are twice its size, we can't go below 4.
+	return max(4, t);
+}
+
+float LargerNeighborAdjacencyClamp(float tess)
+{
+	// Clamp to the nearest larger power of two.  Any power of two works; larger means that we don't lose detail.
+	float logTess = ceil(log2(tess));
+	float t = pow(2, logTess);
+
+	// Our larger neighbor's max tessellation is 64; as we are half its size, our tessellation must max out
+	// at 32, otherwise we could be over-tessellated relative to the neighbor.  Output is [2,32].
+	return clamp(t, 2,32);
+}
+
+void MakeVertexHeightsAgree(inout vec3 p0, inout vec3 p1)
+{
+	// This ought to work: if the adjacency has repositioned a vertex in XZ, we need to re-acquire its height.
+	// However, causes an internal fxc error.  Again! :-(
+	//float h0 = SampleHeightForVS(g_CoarseHeightMap, SamplerClampLinear, p0.xz);
+	//float h1 = SampleHeightForVS(g_CoarseHeightMap, SamplerClampLinear, p0.xz);
+	//p0.y = h0;
+	//p1.y = h1;
+
+	// Instead set both vertex heights to zero.  It's the only way I can think to agree with the neighbors
+	// when sampling is broken in fxc.
+	p0.y = p1.y = 0;
+}
+
+float SmallerNeighborAdjacencyFix(vec3 p0, vec3 p1, float diameter)
+{
+	MakeVertexHeightsAgree(p0, p1);
+	float t = SphereToScreenSpaceTessellation(p0, p1, diameter);
+	return SmallerNeighborAdjacencyClamp(t);
+}
+
+float LargerNeighborAdjacencyFix(vec3 p0, vec3 p1, int patchIdx, float diameter)
+{
+	// We move one of the corner vertices in 2D (x,z) to match where the corner vertex is 
+	// on our larger neighbor.  We move p0 or p1 depending on the even/odd patch index.
+	//
+	// Larger neighbor
+	// +-------------------+
+	// +---------+
+	// p0   Us   p1 ---->  +		Move p1
+	// |    0    |    1    |		patchIdx % 2 
+	//
+	//           +---------+
+	// +  <----  p0   Us   p1		Move p0
+	// |    0    |    1    |		patchIdx % 2 
+	//
+	if (patchIdx % 2)
+		p0 += (p0 - p1);
+	else
+		p1 += (p1 - p0);
+
+	// Having moved the vertex in (x,z), its height is no longer correct.
+	MakeVertexHeightsAgree(p0, p1);
+
+	// Half the tessellation because the edge is twice as long.
+	float t = 0.5 * SphereToScreenSpaceTessellation(p0, p1, 2*diameter);
+	return LargerNeighborAdjacencyClamp(t);
+}	
+
+bool inFrustum(const vec3 pt, const vec3 eyePos, const vec3 viewDir, float margin)
+{
+	// conservative frustum culling
+	vec3 eyeToPt = pt - eyePos;
+	vec3 patch_to_camera_direction_vector = viewDir * dot(eyeToPt, viewDir) - eyeToPt;
+	vec3 patch_center_realigned = pt + normalize(patch_to_camera_direction_vector) * min(margin, length(patch_to_camera_direction_vector));
+	vec4 patch_screenspace_center = uViewProjection * vec4(patch_center_realigned, 1.0);
+
+	if(((patch_screenspace_center.x/patch_screenspace_center.w > -1.0) && (patch_screenspace_center.x/patch_screenspace_center.w < 1.0) &&
+		(patch_screenspace_center.y/patch_screenspace_center.w > -1.0) && (patch_screenspace_center.y/patch_screenspace_center.w < 1.0) &&
+		(patch_screenspace_center.w>0)) || (length(pt - eyePos) < margin))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+
+void main()
+{
+    tcPosition[gl_InvocationID] = vPosition[gl_InvocationID];
+    if (gl_InvocationID == 0) 
+	{
+		const vec3 center = 0.25 * (vPosition[0] + vPosition[1] + vPosition[2] + vPosition[3]);
+		const float sideLength = max(abs(vPosition[1].x - vPosition[0].x), abs(vPosition[1].x - vPosition[2].x));		// assume square & uniform
+		const float diagLength = sqrt(2.0 * sideLength * sideLength);
+		
+		if (!inFrustum(center, uCamPos, uViewDir, diagLength))
+		{
+			// discard patch
+			gl_TessLevelInner[0] = 0.0;
+			gl_TessLevelInner[1] = 0.0;
+			gl_TessLevelOuter[0] = 0.0;
+			gl_TessLevelOuter[1] = 0.0;
+			gl_TessLevelOuter[2] = 0.0;
+			gl_TessLevelOuter[3] = 0.0;
+		}
+		else
+		{
+			// Alternatively: project a sphere centered on the patch edge mid-point (not patch bounding sphere - that
+			// wouldn't work with adjacency fixes, etc).  This is independent of patch orientation and doesn't suffer 
+			// from edges getting projected to zero size.  The flip side is that it over-tessellates flat, boring areas 
+			// and uses more polygons overall.
+			gl_TessLevelOuter[1] = SphereToScreenSpaceTessellation(vPosition[0], vPosition[1], sideLength);
+			gl_TessLevelOuter[2] = SphereToScreenSpaceTessellation(vPosition[1], vPosition[2], sideLength);
+			gl_TessLevelOuter[3] = SphereToScreenSpaceTessellation(vPosition[2], vPosition[3], sideLength);
+			gl_TessLevelOuter[0] = SphereToScreenSpaceTessellation(vPosition[3], vPosition[0], sideLength);
+	
+			// Edges that need adjacency adjustment are identified by the per-instance ip[0].adjacency 
+			// scalars, in *conjunction* with a patch ID that puts them on the edge of a tile.
+			ivec2 patchXY;
+			patchXY.y = gl_PrimitiveID / PATCHES_PER_TILE_EDGE;
+			patchXY.x = gl_PrimitiveID - patchXY.y * PATCHES_PER_TILE_EDGE;
+	
+			// Identify patch edges that are adjacent to a patch of a different size.  The size difference
+			// is encoded in ip[n].adjacency, either 0.5, 1.0 or 2.0.
+			// neighborMinusX refers to our adjacent neighbor in the direction of -ve x.  The value 
+			// is the neighbor's size relative to ours.  Similarly for plus and Y, etc.  You really
+			// need a diagram to make sense of the adjacency conditions in the if statements. :-(
+			// These four ifs deal with neighbors that are smaller.
+			if (vNeighborData[0].x < 0.55 && patchXY.x == 0)
+			{
+				gl_TessLevelOuter[0] = SmallerNeighborAdjacencyFix(vPosition[3], vPosition[0], sideLength);
+			}
+			if (vNeighborData[0].y < 0.55 && patchXY.y == 0)
+			{
+				gl_TessLevelOuter[1] = SmallerNeighborAdjacencyFix(vPosition[0], vPosition[1], sideLength);
+			}
+			if (vNeighborData[0].z < 0.55 && patchXY.x == PATCHES_PER_TILE_EDGE - 1)
+			{
+				gl_TessLevelOuter[2] = SmallerNeighborAdjacencyFix(vPosition[1], vPosition[2], sideLength);
+			}
+			if (vNeighborData[0].w < 0.55 && patchXY.y == PATCHES_PER_TILE_EDGE - 1)
+			{
+				gl_TessLevelOuter[3] = SmallerNeighborAdjacencyFix(vPosition[2], vPosition[3], sideLength);
+			}	
+	
+			// Deal with neighbors that are larger than us.
+			if (vNeighborData[0].x > 1.0 && patchXY.x == 0)
+			{
+				gl_TessLevelOuter[0] = LargerNeighborAdjacencyFix(vPosition[0], vPosition[3], patchXY.y, sideLength);
+			}
+			if (vNeighborData[0].y > 1.0 && patchXY.y == 0)
+			{
+				gl_TessLevelOuter[1] = LargerNeighborAdjacencyFix(vPosition[0], vPosition[1], patchXY.x, sideLength);	// NB: irregular index pattern - it's correct.
+			}	
+			if (vNeighborData[0].z > 1.0 && patchXY.x == PATCHES_PER_TILE_EDGE-1)
+			{
+				gl_TessLevelOuter[2] = LargerNeighborAdjacencyFix(vPosition[1], vPosition[2], patchXY.y, sideLength);
+			}
+			if (vNeighborData[0].w > 1.0 && patchXY.y == PATCHES_PER_TILE_EDGE-1)
+			{
+				gl_TessLevelOuter[3] = LargerNeighborAdjacencyFix(vPosition[3], vPosition[2], patchXY.x, sideLength);	// NB: irregular index pattern - it's correct.
+			}
+	
+			// Use average of edge points for interior - visually looks OK.  
+			// fxc bug if we assign different complex expressions to Inside[0] and [1].
+			gl_TessLevelInner[1] = 0.5 * (gl_TessLevelOuter[0] + gl_TessLevelOuter[2]);
+			gl_TessLevelInner[0] = 0.5 * (gl_TessLevelOuter[1] + gl_TessLevelOuter[3]);
+		}
+		
+		/*
+        gl_TessLevelInner[0] = 1.0;
+		gl_TessLevelInner[1] = 1.0;
+        gl_TessLevelOuter[0] = 1.0;
+        gl_TessLevelOuter[1] = 1.0;
+        gl_TessLevelOuter[2] = 1.0;
+		gl_TessLevelOuter[3] = 1.0;
+		*/
+    }
+}
