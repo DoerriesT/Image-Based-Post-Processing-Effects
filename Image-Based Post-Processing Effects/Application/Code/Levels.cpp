@@ -177,11 +177,11 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	level->exposure = 1.0f;
 
 	// water
-	level->water.enabled = false;
-	level->water.level = 1.0;
+	level->water.enabled = true;
+	level->water.level = 0.0;
 
 	// sun
-	level->sun.direction = glm::normalize(glm::vec3(0.0f, 2.0f, -1.0f));
+	level->sun.direction = glm::normalize(glm::vec3(0.0f, 1.0f, -5.0f));
 
 	/*- set skybox entity and environment maps*/
 	const Entity *skyboxEntity = entityManager.createEntity();
@@ -226,7 +226,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 		level->entityMap["sponza"] = sponzaEntity;
 		entityManager.addComponent<ModelComponent>(sponzaEntity, Model("Resources/Models/sponza.meshmat", true));
 		entityManager.addComponent<TransformationComponent>(sponzaEntity);
-		entityManager.addComponent<RenderableComponent>(sponzaEntity);
+		//entityManager.addComponent<RenderableComponent>(sponzaEntity);
 		//entityManager.addComponent<PhysicsComponent>(sponzaEntity, 0.0f, 1.0f, false);
 
 		const Entity *carEntity = entityManager.createEntity();
@@ -235,7 +235,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 		entityManager.addComponent<ModelComponent>(carEntity, lamboModel);
 		entityManager.addComponent<TransformationComponent>(carEntity, glm::vec3(0.0, 0.0, 0.0), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(1.0f));
 		entityManager.addComponent<TransparencyComponent>(carEntity, lamboModel.getTransparentSubmeshes());
-		entityManager.addComponent<RenderableComponent>(carEntity);
+		//entityManager.addComponent<RenderableComponent>(carEntity);
 		//entityManager.addComponent<PhysicsComponent>(carEntity, 0.0f, 1.0f, false, true);
 
 		std::vector<PathSegment> pathSegments;

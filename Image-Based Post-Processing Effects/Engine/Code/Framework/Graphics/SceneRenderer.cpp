@@ -1735,14 +1735,14 @@ void SceneRenderer::renderWater(const RenderData &_renderData, const std::shared
 
 		uTileSizeWT.set(1.0f);
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		
 		for (int i = 0; i < 6; ++i)
 		{
 			uTileSizeWT.set(tileRings[i]->getTileSize());
 			tileRings[i]->render();
 		}
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	else
 	{

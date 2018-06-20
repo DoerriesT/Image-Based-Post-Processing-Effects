@@ -77,21 +77,19 @@ const glm::vec3 &Camera::getPosition() const
 	return position;
 }
 
-const glm::quat & Camera::getRotation() const
+const glm::quat &Camera::getRotation() const
 {
 	return rotation;
 }
 
 glm::vec3 Camera::getForwardDirection()
 {
-	glm::vec3 dir(glm::normalize(getViewMatrix()[2]));
-	dir.z = -dir.z;
-	return dir;
+	return -glm::transpose(getViewMatrix())[2];
 }
 
 glm::vec3 Camera::getUpDirection()
 {
-	return glm::normalize(getViewMatrix()[1]);;
+	return glm::transpose(getViewMatrix())[1];
 }
 
 float Camera::getZoom() const
