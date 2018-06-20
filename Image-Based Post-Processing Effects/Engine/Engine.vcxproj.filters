@@ -750,5 +750,17 @@
     <None Include="..\Application\Resources\Shaders\Water\tildeHkt.comp">
       <Filter>Resources\Shaders\Water</Filter>
     </None>
+    <None Include="..\Application\Resources\Shaders\Shared\terrain.frag">
+      <Filter>Resources\Shaders\Shared</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Shared\terrain.tessc">
+      <Filter>Resources\Shaders\Shared</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Shared\terrain.tesse">
+      <Filter>Resources\Shaders\Shared</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Shared\terrain.vert">
+      <Filter>Resources\Shaders\Shared</Filter>
+    </None>
   </ItemGroup>
 </Project>

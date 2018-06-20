@@ -19,14 +19,15 @@ struct Water
 {
 	bool enabled;
 	float level;
-	int simulatedSize;
-	int worldSize;
-	float tileSize;
+	unsigned int simulationResolution;
+	unsigned int worldSize;
 	float waveAmplitude;
 	float waveSuppressionExponent;
 	float waveChoppiness;
-	glm::vec2 normalizedWindDirection;
 	float windSpeed;
+	float timeScale;
+	float normalStrength;
+	glm::vec2 normalizedWindDirection;
 };
 
 struct Sun

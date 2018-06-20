@@ -12,6 +12,7 @@ struct Level;
 class ShaderProgram;
 struct RenderData;
 struct AxisAlignedBoundingBox;
+struct Water;
 
 class SceneRenderer
 {
@@ -247,9 +248,9 @@ private:
 	Uniform<GLint> uNoiseI0TextureH0 = Uniform<GLint>("uNoiseI0Texture");
 	Uniform<GLint> uNoiseR1TextureH0 = Uniform<GLint>("uNoiseR1Texture");
 	Uniform<GLint> uNoiseI1TextureH0 = Uniform<GLint>("uNoiseI1Texture");
-	Uniform<GLint> uNH0 = Uniform<GLint>("uN");
-	Uniform<GLint> uLH0 = Uniform<GLint>("uL");
-	Uniform<GLfloat> uAH0 = Uniform<GLfloat>("uA");
+	Uniform<GLint> uSimulationResolutionH0 = Uniform<GLint>("uN");
+	Uniform<GLint> uWorldSizeH0 = Uniform<GLint>("uL");
+	Uniform<GLfloat> uWaveAmplitudeH0 = Uniform<GLfloat>("uA");
 	Uniform<glm::vec2> uWindDirectionH0 = Uniform<glm::vec2>("uWindDirection");
 	Uniform<GLfloat> uWindSpeedH0 = Uniform<GLfloat>("uWindSpeed");
 	Uniform<GLfloat> uWaveSuppressionExpH0 = Uniform<GLfloat>("uWaveSuppressionExp");
@@ -257,20 +258,20 @@ private:
 	// tildehkt
 	Uniform<GLint> uTildeH0kTextureHT = Uniform<GLint>("uTildeH0kTexture");
 	Uniform<GLint> uTildeH0minusKTextureHT = Uniform<GLint>("uTildeH0minusKTexture");
-	Uniform<GLint> uNHT = Uniform<GLint>("uN");
-	Uniform<GLint> uLHT = Uniform<GLint>("uL");
+	Uniform<GLint> uSimulationResolutionHT = Uniform<GLint>("uN");
+	Uniform<GLint> uWorldSizeHT = Uniform<GLint>("uL");
 	Uniform<GLfloat> uTimeHT = Uniform<GLfloat>("uTime");
 
 	// butterflyPrecompute
 	std::vector<GLint> uJBP;
-	Uniform<GLint> uNBP = Uniform<GLint>("uN");
+	Uniform<GLint> uSimulationResolutionBP = Uniform<GLint>("uN");
 
 	// butterflyCompute
 	Uniform<GLint> uButterflyTextureBC = Uniform<GLint>("uButterflyTexture");
 	Uniform<GLint> uInputXTextureBC = Uniform<GLint>("uInputXTexture");
 	Uniform<GLint> uInputYTextureBC = Uniform<GLint>("uInputYTexture");
 	Uniform<GLint> uInputZTextureBC = Uniform<GLint>("uInputZTexture");
-	Uniform<GLint> uNBC = Uniform<GLint>("uN");
+	Uniform<GLint> uSimulationResolutionBC = Uniform<GLint>("uN");
 	Uniform<GLint> uStageBC = Uniform<GLint>("uStage");
 	Uniform<GLint> uStagesBC = Uniform<GLint>("uStages");
 	Uniform<GLint> uDirectionBC = Uniform<GLint>("uDirection");
@@ -279,7 +280,7 @@ private:
 	Uniform<GLint> uInputXTextureIP = Uniform<GLint>("uInputXTexture");
 	Uniform<GLint> uInputYTextureIP = Uniform<GLint>("uInputYTexture");
 	Uniform<GLint> uInputZTextureIP = Uniform<GLint>("uInputZTexture");
-	Uniform<GLint> uNIP = Uniform<GLint>("uN");
+	Uniform<GLint> uSimulationResolutionIP = Uniform<GLint>("uN");
 	Uniform<GLfloat> uChoppinessIP = Uniform<GLfloat>("uChoppiness");
 
 	// water
@@ -319,6 +320,8 @@ private:
 	Uniform<glm::vec3> uViewDirWT = Uniform<glm::vec3>("uViewDir");
 	Uniform<glm::vec2> uScreenSizeWT = Uniform<glm::vec2>("uScreenSize");
 	Uniform<GLint> uTesselatedTriWidthWT = Uniform<GLint>("uTesselatedTriWidth");
+	Uniform<GLfloat> uTexCoordScaleWT = Uniform<GLfloat>("uTexCoordScale");
+	Uniform<GLfloat> uDisplacementScaleWT = Uniform<GLfloat>("uDisplacementScale");
 
 
 	// tildeh0k compute
@@ -326,21 +329,21 @@ private:
 	Uniform<GLint> uNoiseI0TextureH0C = Uniform<GLint>("uNoiseI0Texture");
 	Uniform<GLint> uNoiseR1TextureH0C = Uniform<GLint>("uNoiseR1Texture");
 	Uniform<GLint> uNoiseI1TextureH0C = Uniform<GLint>("uNoiseI1Texture");
-	Uniform<GLint> uNH0C = Uniform<GLint>("uN");
-	Uniform<GLint> uLH0C = Uniform<GLint>("uL");
-	Uniform<GLfloat> uAH0C = Uniform<GLfloat>("uA");
+	Uniform<GLint> uSimulationResolutionH0C = Uniform<GLint>("uN");
+	Uniform<GLint> uWorldSizeH0C = Uniform<GLint>("uL");
+	Uniform<GLfloat> uWaveAmplitudeH0C = Uniform<GLfloat>("uA");
 	Uniform<glm::vec2> uWindDirectionH0C = Uniform<glm::vec2>("uWindDirection");
 	Uniform<GLfloat> uWindSpeedH0C = Uniform<GLfloat>("uWindSpeed");
 	Uniform<GLfloat> uWaveSuppressionExpH0C = Uniform<GLfloat>("uWaveSuppressionExp");
 
 	// tildehkt compute
-	Uniform<GLint> uNHTC = Uniform<GLint>("uN");
-	Uniform<GLint> uLHTC = Uniform<GLint>("uL");
+	Uniform<GLint> uSimulationResolutionHTC = Uniform<GLint>("uN");
+	Uniform<GLint> uWorldSizeHTC = Uniform<GLint>("uL");
 	Uniform<GLfloat> uTimeHTC = Uniform<GLfloat>("uTime");
 
 	// butterflyPrecompute compute
 	std::vector<GLint> uJBPC;
-	Uniform<GLint> uNBPC = Uniform<GLint>("uN");
+	Uniform<GLint> uSimulationResolutionBPC = Uniform<GLint>("uN");
 
 	// butterflyCompute compute
 	Uniform<GLint> uStageBCC = Uniform<GLint>("uStage");
@@ -348,7 +351,7 @@ private:
 	Uniform<GLint> uPingPongBCC = Uniform<GLint>("uPingPong");
 
 	// inverse/permute compute
-	Uniform<GLint> uNIPC = Uniform<GLint>("uN");
+	Uniform<GLint> uSimulationResolutionIPC = Uniform<GLint>("uN");
 	Uniform<GLint> uPingPongIPC = Uniform<GLint>("uPingPong");
 	Uniform<GLfloat> uChoppinessIPC = Uniform<GLfloat>("uChoppiness");
 
@@ -356,7 +359,7 @@ private:
 	Uniform<GLfloat> uNormalStrengthNC = Uniform<GLfloat>("uNormalStrength");
 
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
-	void createWaterAttachments();
+	void createWaterAttachments(unsigned int _resolution);
 	void createSsaoAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
 	void renderGeometry(const RenderData &_renderData, const Scene &_scene);
 	void renderSkybox(const RenderData &_renderData, const std::shared_ptr<Level> &_level);
@@ -368,8 +371,8 @@ private:
 	void renderOutlines(const RenderData &_renderData, const Scene &_scene);
 	void renderCustomGeometry(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Scene &_scene, bool _opaque);
 	void renderSsaoTexture(const RenderData &_renderData, const glm::mat4 &_inverseProjection, const Effects &_postEffects);
-	void precomputeFftTextures();
-	void computeFft();
+	void precomputeFftTextures(const Water &_water);
+	void computeFft(const Water &_water);
 	void renderWater(const RenderData &_renderData, const std::shared_ptr<Level> &_level);
 	void createWaterPlane(const glm::vec2 &_dimensions, GLuint &_VBO, GLuint &_VAO, GLuint &_EBO);
 	void createBrdfLUT();

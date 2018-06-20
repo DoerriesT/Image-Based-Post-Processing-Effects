@@ -3,12 +3,13 @@
 layout(quads, fractional_even_spacing, cw) in;
 
 in vec3 tcPosition[];
-in vec3 tcColor[];
 out vec2 vTexCoord;
 out vec3 vWorldPos;
 
 uniform mat4 uViewProjection;
 uniform sampler2D uDisplacementTexture;
+uniform float uTexCoordScale = 1.0;
+uniform float uDisplacementScale = 1.0;
 
 // A very simple, regular procedural terrain for debugging cracks etc.
 float debugSineHills(vec2 uv)
@@ -31,11 +32,11 @@ void main()
 	
 	position = mix(a, b, v);
 	
-	vTexCoord = position.xz * 0.1;
+	vTexCoord = position.xz * uTexCoordScale;
 	
 	vec3 displacement = texture(uDisplacementTexture, vTexCoord).xyz;
 	
-	position += displacement;
+	position += displacement * uDisplacementScale;
 	
 	//position.y += debugSineHills(vTexCoord);
 	

@@ -272,6 +272,49 @@ namespace App
 			hbaoAngleBias->set(slider->getValue());
 			optionsGui->getElementById<GuiLabel>("hbao_angle_bias_label")->setText(std::to_string(hbaoAngleBias->get()));
 		}
+		if (optionsGui->getElementById("hbao_angle_bias_slider", slider) && _event.source == slider)
+		{
+			hbaoAngleBias->set(slider->getValue());
+			optionsGui->getElementById<GuiLabel>("hbao_angle_bias_label")->setText(std::to_string(hbaoAngleBias->get()));
+		}
+		if (optionsGui->getElementById("water_enabled_checkbox", checkbox) && _event.source == checkbox)
+		{
+			level->water.enabled = checkbox->isChecked();
+		}
+		if (optionsGui->getElementById("water_wind_dir_x_slider", slider) && _event.source == slider)
+		{
+			level->water.normalizedWindDirection.x = slider->getValue();
+			level->water.normalizedWindDirection = glm::normalize(level->water.normalizedWindDirection);
+		}
+		if (optionsGui->getElementById("water_wind_dir_y_slider", slider) && _event.source == slider)
+		{
+			level->water.normalizedWindDirection.y = slider->getValue();
+			level->water.normalizedWindDirection = glm::normalize(level->water.normalizedWindDirection);
+		}
+		if (optionsGui->getElementById("water_amplitude", slider) && _event.source == slider)
+		{
+			level->water.waveAmplitude = slider->getValue();
+		}
+		if (optionsGui->getElementById("water_choppiness", slider) && _event.source == slider)
+		{
+			level->water.waveChoppiness = slider->getValue();
+		}
+		if (optionsGui->getElementById("water_wave_suppression", slider) && _event.source == slider)
+		{
+			level->water.waveSuppressionExponent = slider->getValue();
+		}
+		if (optionsGui->getElementById("water_wind_speed", slider) && _event.source == slider)
+		{
+			level->water.windSpeed = slider->getValue();
+		}
+		if (optionsGui->getElementById("water_world_size", slider) && _event.source == slider)
+		{
+			level->water.worldSize = slider->getValue();
+		}
+		if (optionsGui->getElementById("water_high_res", checkbox) && _event.source == checkbox)
+		{
+			level->water.simulationResolution = checkbox->isChecked() ? 512 : 256;
+		}
 
 		settingsManager.saveToIni();
 	}
