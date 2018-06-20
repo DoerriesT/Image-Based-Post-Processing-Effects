@@ -1544,7 +1544,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 	}
 }
 
-static bool waterCompute = false;
+static bool waterCompute = true;
 
 void SceneRenderer::precomputeFftTextures()
 {
@@ -1600,7 +1600,7 @@ void SceneRenderer::precomputeFftTextures()
 
 			glBindImageTexture(0, tildeH0kTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
 			glBindImageTexture(1, tildeH0minusKTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
-			glDispatchCompute(N / 32, N / 32, 1);
+			glDispatchCompute(N / 8, N / 8, 1);
 			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 		}
 
@@ -1623,7 +1623,7 @@ void SceneRenderer::precomputeFftTextures()
 			}
 
 			glBindImageTexture(0, twiddleIndicesTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-			glDispatchCompute(log2N, N / 32, 1);
+			glDispatchCompute(log2N, N / 8, 1);
 			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 		}
 	}
@@ -1708,7 +1708,7 @@ void SceneRenderer::computeFft()
 			glBindImageTexture(2, tildeHktDzTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG16F);
 			glBindImageTexture(3, tildeH0kTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG16F);
 			glBindImageTexture(4, tildeH0minusKTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG16F);
-			glDispatchCompute(N / 32, N / 32, 1);
+			glDispatchCompute(N / 8, N / 8, 1);
 			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 		}
 
@@ -1733,7 +1733,7 @@ void SceneRenderer::computeFft()
 					uStageBCC.set(j);
 					uPingPongBCC.set(pingpong);
 
-					glDispatchCompute(N / 32, N / 32, 1);
+					glDispatchCompute(N / 8, N / 8, 1);
 					glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 					pingpong = 1 - pingpong;
@@ -1749,7 +1749,7 @@ void SceneRenderer::computeFft()
 
 				glBindImageTexture(6, waterDisplacementFoldingTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F);
 
-				glDispatchCompute(N / 32, N / 32, 1);
+				glDispatchCompute(N / 8, N / 8, 1);
 				glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 				// generate mips
@@ -1766,7 +1766,7 @@ void SceneRenderer::computeFft()
 
 				glBindImageTexture(0, waterNormalTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
 
-				glDispatchCompute(N / 32, N / 32, 1);
+				glDispatchCompute(N / 8, N / 8, 1);
 				glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 				// generate mips

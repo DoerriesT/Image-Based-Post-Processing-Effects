@@ -732,5 +732,23 @@
     <None Include="..\Application\Resources\Shaders\PostProcess\cocBlur.comp">
       <Filter>Resources\Shaders\PostProcess</Filter>
     </None>
+    <None Include="..\Application\Resources\Shaders\Water\butterflyCompute.comp">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Water\butterflyPrecompute.comp">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Water\inversePermute.comp">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Water\normal.comp">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Water\tildeH0k.comp">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Water\tildeHkt.comp">
+      <Filter>Resources\Shaders\Water</Filter>
+    </None>
   </ItemGroup>
 </Project>

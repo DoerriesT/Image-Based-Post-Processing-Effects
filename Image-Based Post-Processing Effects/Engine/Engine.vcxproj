@@ -230,11 +230,17 @@
     <None Include="..\Application\Resources\Shaders\Shadows\shadowBlur.frag" />
     <None Include="..\Application\Resources\Shaders\Shared\blit.frag" />
     <None Include="..\Application\Resources\Shaders\Shared\fullscreenTriangle.vert" />
+    <None Include="..\Application\Resources\Shaders\Water\butterflyCompute.comp" />
     <None Include="..\Application\Resources\Shaders\Water\butterflyCompute.frag" />
+    <None Include="..\Application\Resources\Shaders\Water\butterflyPrecompute.comp" />
     <None Include="..\Application\Resources\Shaders\Water\butterflyPrecompute.frag" />
+    <None Include="..\Application\Resources\Shaders\Water\inversePermute.comp" />
     <None Include="..\Application\Resources\Shaders\Water\inversePermute.frag" />
+    <None Include="..\Application\Resources\Shaders\Water\normal.comp" />
     <None Include="..\Application\Resources\Shaders\Water\normal.frag" />
+    <None Include="..\Application\Resources\Shaders\Water\tildeH0k.comp" />
     <None Include="..\Application\Resources\Shaders\Water\tildeH0k.frag" />
+    <None Include="..\Application\Resources\Shaders\Water\tildeHkt.comp" />
     <None Include="..\Application\Resources\Shaders\Water\tildeHkt.frag" />
     <None Include="..\Application\Resources\Shaders\Water\water.frag" />
     <None Include="..\Application\Resources\Shaders\Water\water.geom" />
