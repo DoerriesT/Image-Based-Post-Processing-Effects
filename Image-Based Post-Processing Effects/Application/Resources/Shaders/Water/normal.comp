@@ -1,0 +1,58 @@
+#version 450 core
+
+layout(local_size_x = 32, local_size_y = 32, local_size_z= 1) in;
+
+layout(rgba16f, binding = 6) uniform readonly image2D uDisplacementTexture;
+layout(rg16f, binding = 0) uniform writeonly image2D uNormal;
+
+uniform float uNormalStrength = 2.5;
+
+vec2 encode (vec3 n)
+{
+    float f = sqrt(8.0 * n.z + 8.0);
+    return n.xy / f + 0.5;
+}
+
+void main()
+{
+	// 02 -- 12 -- 22
+	// |	 |     |
+	// 01 -- c  -- 21
+	// |     |     |
+	// 00 -- 10 -- 20
+	
+	ivec2 texCoord = ivec2(gl_GlobalInvocationID.xy);
+	
+	ivec2 texSize = imageSize(uDisplacementTexture);
+	
+	float s02 = imageLoad(uDisplacementTexture, (texCoord + ivec2(-1, 1)) % texSize).y;
+	vec3 s12 = 	imageLoad(uDisplacementTexture, (texCoord + ivec2(0, 1)) % texSize).xyz;
+	float s22 = imageLoad(uDisplacementTexture, (texCoord + ivec2(1, 1)) % texSize).y;
+	float s01 = imageLoad(uDisplacementTexture, (texCoord + ivec2(-1, 0)) % texSize).y;
+	vec3 s21 = 	imageLoad(uDisplacementTexture, (texCoord + ivec2(1, 0)) % texSize).xyz;
+	float s00 = imageLoad(uDisplacementTexture, (texCoord + ivec2(-1, -1)) % texSize).y;
+	float s10 = imageLoad(uDisplacementTexture, (texCoord + ivec2(0, -1)) % texSize).y;
+	float s20 = imageLoad(uDisplacementTexture, (texCoord + ivec2(1, -1)) % texSize).y;
+
+
+	
+	// The Sobel X kernel is:
+	//
+	// [ 1.0  0.0  -1.0 ]
+	// [ 2.0  0.0  -2.0 ]
+	// [ 1.0  0.0  -1.0 ]
+	
+	float x = s00 - s20 + 2.0f * s01 - 2.0f * s21.y + s02 - s22;
+				
+	// The Sobel Y kernel is:
+	//
+	// [  1.0    2.0    1.0 ]
+	// [  0.0    0.0    0.0 ]
+	// [ -1.0   -2.0   -1.0 ]
+	
+	float y = s00 + 2.0f * s10 + s20 - s02 - 2.0f * s12.y - s22;
+
+	vec3 N = normalize(vec3(x, 1.0/uNormalStrength, y));
+	
+	imageStore(uNormal, ivec2(gl_GlobalInvocationID.xy), vec4(encode(N), 0.0 , 1.0));
+}

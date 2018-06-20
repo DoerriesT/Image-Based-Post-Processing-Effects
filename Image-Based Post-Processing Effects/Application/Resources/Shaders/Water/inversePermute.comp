@@ -1,0 +1,55 @@
+#version 450 core
+
+#define M_PI 3.1415926535897932384626433832795
+
+layout(local_size_x = 32, local_size_y = 32, local_size_z= 1) in;
+
+layout(rg16f, binding = 0) uniform readonly image2D uPingPongX0;
+layout(rg16f, binding = 1) uniform readonly image2D uPingPongY0;
+layout(rg16f, binding = 2) uniform readonly image2D uPingPongZ0;
+layout(rg16f, binding = 3) uniform readonly image2D uPingPongX1;
+layout(rg16f, binding = 4) uniform readonly image2D uPingPongY1;
+layout(rg16f, binding = 5) uniform readonly image2D uPingPongZ1;
+layout(rgba16f, binding = 6) uniform writeonly image2D uDisplacement;
+
+uniform int uN;
+uniform int uPingPong;
+uniform float uChoppiness = -0.65;
+
+void main() 
+{
+	ivec2 x = ivec2(gl_GlobalInvocationID.xy);
+	float perms[2] = float[]( 1.0, -1.0 );
+	int index = int(mod((int(x.x + x.y)), 2.0));
+	float perm = perms[index];
+	
+	if (uPingPong == 0)
+	{
+		float hX = imageLoad(uPingPongX0, x).r;
+		float hY = imageLoad(uPingPongY0, x).r;
+		float hZ = imageLoad(uPingPongZ0, x).r;
+	
+		vec3 h = vec3(hX, hY, hZ);
+		h = perm * (h / float(uN * uN));
+	
+		// choppiness
+		h.xz *= uChoppiness;
+		
+		imageStore(uDisplacement, x, vec4(h, 1.0));
+	}
+	else
+	{
+		float hX = imageLoad(uPingPongX1, x).r;
+		float hY = imageLoad(uPingPongY1, x).r;
+		float hZ = imageLoad(uPingPongZ1, x).r;
+	
+		vec3 h = vec3(hX, hY, hZ);
+		h = perm * (h / float(uN * uN));
+	
+		// choppiness
+		h.xz *= uChoppiness;
+		
+		imageStore(uDisplacement, x, vec4(h, 1.0));
+	}
+}
+

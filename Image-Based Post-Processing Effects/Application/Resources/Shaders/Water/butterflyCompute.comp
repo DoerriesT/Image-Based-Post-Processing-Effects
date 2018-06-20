@@ -1,0 +1,183 @@
+#version 450 core
+
+#define M_PI 3.1415926535897932384626433832795
+
+layout(local_size_x = 32, local_size_y = 32, local_size_z= 1) in;
+
+layout(rg16f, binding = 0) uniform image2D uPingPongX0;
+layout(rg16f, binding = 1) uniform image2D uPingPongY0;
+layout(rg16f, binding = 2) uniform image2D uPingPongZ0;
+layout(rg16f, binding = 3) uniform image2D uPingPongX1;
+layout(rg16f, binding = 4) uniform image2D uPingPongY1;
+layout(rg16f, binding = 5) uniform image2D uPingPongZ1;
+layout(rgba16f, binding = 6) uniform readonly image2D uButterflyTexture;
+
+uniform int uStage;
+uniform int uDirection;
+uniform int uPingPong;
+
+const float g = 9.81;
+
+struct Complex
+{
+	float real;
+	float im;
+};
+
+Complex mul(Complex c0, Complex c1)
+{
+	Complex c;
+	c.real = c0.real * c1.real - c0.im * c1.im;
+	c.im = c0.real * c1.im + c0.im * c1.real;
+	return c;
+}
+
+Complex add(Complex c0, Complex c1)
+{
+	Complex c;
+	c.real = c0.real + c1.real;
+	c.im = c0.im + c1.im;
+	return c;
+}
+
+Complex conj(Complex c)
+{
+	Complex cConj = Complex(c.real, -c.im);
+	return cConj;
+}
+
+void horizontalButterflies()
+{
+	ivec2 x = ivec2(gl_GlobalInvocationID.xy);
+	vec4 data = imageLoad(uButterflyTexture, ivec2(uStage, x.x)).rgba;
+	
+	if (uPingPong == 0)
+	{
+		vec2 pX_ = imageLoad(uPingPongX0, ivec2(data.z, x.y)).rg;
+		vec2 qX_ = imageLoad(uPingPongX0, ivec2(data.w, x.y)).rg;
+		vec2 pY_ = imageLoad(uPingPongY0, ivec2(data.z, x.y)).rg;
+		vec2 qY_ = imageLoad(uPingPongY0, ivec2(data.w, x.y)).rg;
+		vec2 pZ_ = imageLoad(uPingPongZ0, ivec2(data.z, x.y)).rg;
+		vec2 qZ_ = imageLoad(uPingPongZ0, ivec2(data.w, x.y)).rg;
+		vec2 w_ = data.xy;
+		
+		Complex pX = Complex(pX_.x, pX_.y);
+		Complex qX = Complex(qX_.x, qX_.y);
+		Complex pY = Complex(pY_.x, pY_.y);
+		Complex qY = Complex(qY_.x, qY_.y);
+		Complex pZ = Complex(pZ_.x, pZ_.y);
+		Complex qZ = Complex(qZ_.x, qZ_.y);
+		Complex w = Complex(w_.x, w_.y);
+		
+		Complex HX = add(pX, mul(w, qX));
+		imageStore(uPingPongX1, x, vec4(HX.real, HX.im, 0.0, 1.0));
+	
+		Complex HY = add(pY, mul(w, qY));
+		imageStore(uPingPongY1, x, vec4(HY.real, HY.im, 0.0, 1.0));
+	
+		Complex HZ = add(pZ, mul(w, qZ));
+		imageStore(uPingPongZ1, x, vec4(HZ.real, HZ.im, 0.0, 1.0));
+	}
+	else
+	{
+		vec2 pX_ = imageLoad(uPingPongX1, ivec2(data.z, x.y)).rg;
+		vec2 qX_ = imageLoad(uPingPongX1, ivec2(data.w, x.y)).rg;
+		vec2 pY_ = imageLoad(uPingPongY1, ivec2(data.z, x.y)).rg;
+		vec2 qY_ = imageLoad(uPingPongY1, ivec2(data.w, x.y)).rg;
+		vec2 pZ_ = imageLoad(uPingPongZ1, ivec2(data.z, x.y)).rg;
+		vec2 qZ_ = imageLoad(uPingPongZ1, ivec2(data.w, x.y)).rg;
+		vec2 w_ = data.xy;
+		
+		Complex pX = Complex(pX_.x, pX_.y);
+		Complex qX = Complex(qX_.x, qX_.y);
+		Complex pY = Complex(pY_.x, pY_.y);
+		Complex qY = Complex(qY_.x, qY_.y);
+		Complex pZ = Complex(pZ_.x, pZ_.y);
+		Complex qZ = Complex(qZ_.x, qZ_.y);
+		Complex w = Complex(w_.x, w_.y);
+		
+		Complex HX = add(pX, mul(w, qX));
+		imageStore(uPingPongX0, x, vec4(HX.real, HX.im, 0.0, 1.0));
+	
+		Complex HY = add(pY, mul(w, qY));
+		imageStore(uPingPongY0, x, vec4(HY.real, HY.im, 0.0, 1.0));
+	
+		Complex HZ = add(pZ, mul(w, qZ));
+		imageStore(uPingPongZ0, x, vec4(HZ.real, HZ.im, 0.0, 1.0));
+	}
+	
+}
+
+void verticalButterflies()
+{
+	ivec2 x = ivec2(gl_GlobalInvocationID.xy);
+	vec4 data = imageLoad(uButterflyTexture, ivec2(uStage, x.y)).rgba;
+	
+	if (uPingPong == 0)
+	{
+		vec2 pX_ = imageLoad(uPingPongX0, ivec2(x.x, data.z)).rg;
+		vec2 qX_ = imageLoad(uPingPongX0, ivec2(x.x, data.w)).rg;
+		vec2 pY_ = imageLoad(uPingPongY0, ivec2(x.x, data.z)).rg;
+		vec2 qY_ = imageLoad(uPingPongY0, ivec2(x.x, data.w)).rg;
+		vec2 pZ_ = imageLoad(uPingPongZ0, ivec2(x.x, data.z)).rg;
+		vec2 qZ_ = imageLoad(uPingPongZ0, ivec2(x.x, data.w)).rg;
+		vec2 w_ = data.xy;
+		
+		Complex pX = Complex(pX_.x, pX_.y);
+		Complex qX = Complex(qX_.x, qX_.y);
+		Complex pY = Complex(pY_.x, pY_.y);
+		Complex qY = Complex(qY_.x, qY_.y);
+		Complex pZ = Complex(pZ_.x, pZ_.y);
+		Complex qZ = Complex(qZ_.x, qZ_.y);
+		Complex w = Complex(w_.x, w_.y);
+		
+		Complex HX = add(pX, mul(w, qX));
+		imageStore(uPingPongX1, x, vec4(HX.real, HX.im, 0.0, 1.0));
+	
+		Complex HY = add(pY, mul(w, qY));
+		imageStore(uPingPongY1, x, vec4(HY.real, HY.im, 0.0, 1.0));
+	
+		Complex HZ = add(pZ, mul(w, qZ));
+		imageStore(uPingPongZ1, x, vec4(HZ.real, HZ.im, 0.0, 1.0));
+	}
+	else
+	{
+		vec2 pX_ = imageLoad(uPingPongX1, ivec2(x.x, data.z)).rg;
+		vec2 qX_ = imageLoad(uPingPongX1, ivec2(x.x, data.w)).rg;
+		vec2 pY_ = imageLoad(uPingPongY1, ivec2(x.x, data.z)).rg;
+		vec2 qY_ = imageLoad(uPingPongY1, ivec2(x.x, data.w)).rg;
+		vec2 pZ_ = imageLoad(uPingPongZ1, ivec2(x.x, data.z)).rg;
+		vec2 qZ_ = imageLoad(uPingPongZ1, ivec2(x.x, data.w)).rg;
+		vec2 w_ = data.xy;
+		
+		Complex pX = Complex(pX_.x, pX_.y);
+		Complex qX = Complex(qX_.x, qX_.y);
+		Complex pY = Complex(pY_.x, pY_.y);
+		Complex qY = Complex(qY_.x, qY_.y);
+		Complex pZ = Complex(pZ_.x, pZ_.y);
+		Complex qZ = Complex(qZ_.x, qZ_.y);
+		Complex w = Complex(w_.x, w_.y);
+		
+		Complex HX = add(pX, mul(w, qX));
+		imageStore(uPingPongX0, x, vec4(HX.real, HX.im, 0.0, 1.0));
+	
+		Complex HY = add(pY, mul(w, qY));
+		imageStore(uPingPongY0, x, vec4(HY.real, HY.im, 0.0, 1.0));
+	
+		Complex HZ = add(pZ, mul(w, qZ));
+		imageStore(uPingPongZ0, x, vec4(HZ.real, HZ.im, 0.0, 1.0));
+	}
+}
+
+void main() 
+{
+	if (uDirection == 0)
+	{
+		horizontalButterflies();
+	}
+	else
+	{
+		verticalButterflies();
+	}
+}
+

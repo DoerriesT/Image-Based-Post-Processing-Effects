@@ -53,6 +53,13 @@ private:
 	std::shared_ptr<ShaderProgram> waterShader;
 	std::shared_ptr<ShaderProgram> waterTessShader;
 
+	std::shared_ptr<ShaderProgram> butterflyPrecomputeCompShader;
+	std::shared_ptr<ShaderProgram> tildeH0kCompShader;
+	std::shared_ptr<ShaderProgram> tildeHktCompShader;
+	std::shared_ptr<ShaderProgram> butterflyComputeCompShader;
+	std::shared_ptr<ShaderProgram> inversePermuteCompShader;
+	std::shared_ptr<ShaderProgram> waterNormalCompShader;
+
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Mesh> pointLightMesh;
@@ -312,6 +319,41 @@ private:
 	Uniform<glm::vec3> uViewDirWT = Uniform<glm::vec3>("uViewDir");
 	Uniform<glm::vec2> uScreenSizeWT = Uniform<glm::vec2>("uScreenSize");
 	Uniform<GLint> uTesselatedTriWidthWT = Uniform<GLint>("uTesselatedTriWidth");
+
+
+	// tildeh0k compute
+	Uniform<GLint> uNoiseR0TextureH0C = Uniform<GLint>("uNoiseR0Texture");
+	Uniform<GLint> uNoiseI0TextureH0C = Uniform<GLint>("uNoiseI0Texture");
+	Uniform<GLint> uNoiseR1TextureH0C = Uniform<GLint>("uNoiseR1Texture");
+	Uniform<GLint> uNoiseI1TextureH0C = Uniform<GLint>("uNoiseI1Texture");
+	Uniform<GLint> uNH0C = Uniform<GLint>("uN");
+	Uniform<GLint> uLH0C = Uniform<GLint>("uL");
+	Uniform<GLfloat> uAH0C = Uniform<GLfloat>("uA");
+	Uniform<glm::vec2> uWindDirectionH0C = Uniform<glm::vec2>("uWindDirection");
+	Uniform<GLfloat> uWindSpeedH0C = Uniform<GLfloat>("uWindSpeed");
+	Uniform<GLfloat> uWaveSuppressionExpH0C = Uniform<GLfloat>("uWaveSuppressionExp");
+
+	// tildehkt compute
+	Uniform<GLint> uNHTC = Uniform<GLint>("uN");
+	Uniform<GLint> uLHTC = Uniform<GLint>("uL");
+	Uniform<GLfloat> uTimeHTC = Uniform<GLfloat>("uTime");
+
+	// butterflyPrecompute compute
+	std::vector<GLint> uJBPC;
+	Uniform<GLint> uNBPC = Uniform<GLint>("uN");
+
+	// butterflyCompute compute
+	Uniform<GLint> uStageBCC = Uniform<GLint>("uStage");
+	Uniform<GLint> uDirectionBCC = Uniform<GLint>("uDirection");
+	Uniform<GLint> uPingPongBCC = Uniform<GLint>("uPingPong");
+
+	// inverse/permute compute
+	Uniform<GLint> uNIPC = Uniform<GLint>("uN");
+	Uniform<GLint> uPingPongIPC = Uniform<GLint>("uPingPong");
+	Uniform<GLfloat> uChoppinessIPC = Uniform<GLfloat>("uChoppiness");
+
+	// water normal compute
+	Uniform<GLfloat> uNormalStrengthNC = Uniform<GLfloat>("uNormalStrength");
 
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
 	void createWaterAttachments();

@@ -7,7 +7,7 @@ layout(location = 0) out vec4 oButterflyTexture;
 layout (pixel_center_integer) in vec4 gl_FragCoord;
 in vec2 vTexCoord;
 
-uniform int uJ[256];
+uniform int uJ[512];
 uniform int uN;
 
 const float g = 9.81;

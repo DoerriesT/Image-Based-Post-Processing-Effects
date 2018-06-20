@@ -93,6 +93,13 @@ void SceneRenderer::init()
 	waterShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/water.vert", "Resources/Shaders/Water/Water.frag");
 	waterTessShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/terrain.vert", "Resources/Shaders/Water/water.frag", "Resources/Shaders/Shared/terrain.tessc", "Resources/Shaders/Shared/terrain.tesse");
 
+	tildeH0kCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/tildeH0k.comp");
+	tildeHktCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/tildeHkt.comp");
+	butterflyPrecomputeCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/butterflyPrecompute.comp");
+	butterflyComputeCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/butterflyCompute.comp");
+	inversePermuteCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/inversePermute.comp");
+	waterNormalCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/normal.comp");
+
 	// create uniforms
 
 	// gBufferPass uniforms
@@ -284,6 +291,43 @@ void SceneRenderer::init()
 	// water normal
 	uDisplacementTextureN.create(waterNormalShader);
 	uNormalStrengthN.create(waterNormalShader);
+
+	// tildeh0k compute
+	uNoiseR0TextureH0C.create(tildeH0kCompShader);
+	uNoiseI0TextureH0C.create(tildeH0kCompShader);
+	uNoiseR1TextureH0C.create(tildeH0kCompShader);
+	uNoiseI1TextureH0C.create(tildeH0kCompShader);
+	uNH0C.create(tildeH0kCompShader);
+	uLH0C.create(tildeH0kCompShader);
+	uAH0C.create(tildeH0kCompShader);
+	uWindDirectionH0C.create(tildeH0kCompShader);
+	uWindSpeedH0C.create(tildeH0kCompShader);
+	uWaveSuppressionExpH0C.create(tildeH0kCompShader);
+
+	// tildehkt compute
+	uNHTC.create(tildeHktCompShader);
+	uLHTC.create(tildeHktCompShader);
+	uTimeHTC.create(tildeHktCompShader);
+
+	// butterflyPrecompute compute
+	for (int i = 0; i < N; ++i)
+	{
+		uJBPC.push_back(butterflyPrecomputeCompShader->createUniform(std::string("uJ") + "[" + std::to_string(i) + "]"));
+	}
+	uNBPC.create(butterflyPrecomputeCompShader);
+
+	// butterflyCompute compute
+	uStageBCC.create(butterflyComputeCompShader);
+	uDirectionBCC.create(butterflyComputeCompShader);
+	uPingPongBCC.create(butterflyComputeCompShader);
+
+	// inverse/permute compute
+	uNIPC.create(inversePermuteCompShader);
+	uPingPongIPC.create(inversePermuteCompShader);
+	uChoppinessIPC.create(inversePermuteCompShader);
+
+	// water normal compute
+	uNormalStrengthNC.create(waterNormalCompShader);
 
 	// water tesselated
 	uNormalTextureWT.create(waterTessShader);
@@ -720,7 +764,7 @@ void SceneRenderer::createWaterAttachments()
 
 	glGenTextures(1, &waterDisplacementFoldingTexture);
 	glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, N, N, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, N, N, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1500,192 +1544,356 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 	}
 }
 
+static bool waterCompute = false;
+
 void SceneRenderer::precomputeFftTextures()
 {
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	std::shared_ptr<Texture> noise0;
+	std::shared_ptr<Texture> noise1;
+	std::shared_ptr<Texture> noise2;
+	std::shared_ptr<Texture> noise3;
 
-	// tildeh0k/minusk
+	switch (N)
 	{
-		tildeH0kShader->bind();
-		uNoiseR0TextureH0.set(0);
-		uNoiseI0TextureH0.set(1);
-		uNoiseR1TextureH0.set(2);
-		uNoiseI1TextureH0.set(3);
-
-		uNH0.set(N);
-		uLH0.set(L);
-		uAH0.set(A);
-		uWindDirectionH0.set(windDirection);
-		uWindSpeedH0.set(windSpeed);
-		uWaveSuppressionExpH0.set(6.0f);
-
-		std::shared_ptr<Texture> noise0 = Texture::createTexture("Resources/Textures/Noise256_0.dds", true);
-		std::shared_ptr<Texture> noise1 = Texture::createTexture("Resources/Textures/Noise256_1.dds", true);
-		std::shared_ptr<Texture> noise2 = Texture::createTexture("Resources/Textures/Noise256_2.dds", true);
-		std::shared_ptr<Texture> noise3 = Texture::createTexture("Resources/Textures/Noise256_3.dds", true);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, noise0->getId());
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, noise1->getId());
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, noise2->getId());
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, noise3->getId());
-
-		glBindFramebuffer(GL_FRAMEBUFFER, fftFbo);
-		glViewport(0, 0, N, N);
-
-		GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-		glDrawBuffers(2, drawBuffers);
-
-		fullscreenTriangle->getSubMesh()->render();
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
+	case 512:
+		noise0 = Texture::createTexture("Resources/Textures/Noise512_0.dds", true);
+		noise1 = Texture::createTexture("Resources/Textures/Noise512_1.dds", true);
+		noise2 = Texture::createTexture("Resources/Textures/Noise512_2.dds", true);
+		noise3 = Texture::createTexture("Resources/Textures/Noise512_3.dds", true);
+		break;
+	case 256:
+	default:
+		noise0 = Texture::createTexture("Resources/Textures/Noise256_0.dds", true);
+		noise1 = Texture::createTexture("Resources/Textures/Noise256_1.dds", true);
+		noise2 = Texture::createTexture("Resources/Textures/Noise256_2.dds", true);
+		noise3 = Texture::createTexture("Resources/Textures/Noise256_3.dds", true);
+		break;
 	}
 
-	// butterfly precompute
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+
+	if (waterCompute)
 	{
-		std::uint32_t bitReversedIndices[N];
-
-		for (std::uint32_t i = 0; i < N; ++i)
+		// tildeh0k/minusk
 		{
-			std::uint32_t x = glm::bitfieldReverse(i);
-			x = glm::bitfieldRotateRight(x, log2N);
-			bitReversedIndices[i] = x;
+			tildeH0kCompShader->bind();
+			uNoiseR0TextureH0C.set(0);
+			uNoiseI0TextureH0C.set(1);
+			uNoiseR1TextureH0C.set(2);
+			uNoiseI1TextureH0C.set(3);
+
+			uNH0C.set(N);
+			uLH0C.set(L);
+			uAH0C.set(A);
+			uWindDirectionH0C.set(windDirection);
+			uWindSpeedH0C.set(windSpeed);
+			uWaveSuppressionExpH0C.set(6.0f);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, noise0->getId());
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, noise1->getId());
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, noise2->getId());
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, noise3->getId());
+
+			glBindImageTexture(0, tildeH0kTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
+			glBindImageTexture(1, tildeH0minusKTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
+			glDispatchCompute(N / 32, N / 32, 1);
+			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 		}
 
-		butterflyPrecomputeShader->bind();
-		uNBP.set(N);
-		for (unsigned int i = 0; i < N; ++i)
+		// butterfly precompute
 		{
-			butterflyPrecomputeShader->setUniform(uJBP[i], (int)bitReversedIndices[i]);
+			std::uint32_t bitReversedIndices[N];
+
+			for (std::uint32_t i = 0; i < N; ++i)
+			{
+				std::uint32_t x = glm::bitfieldReverse(i);
+				x = glm::bitfieldRotateRight(x, log2N);
+				bitReversedIndices[i] = x;
+			}
+
+			butterflyPrecomputeCompShader->bind();
+			uNBPC.set(N);
+			for (unsigned int i = 0; i < N; ++i)
+			{
+				butterflyPrecomputeCompShader->setUniform(uJBPC[i], (int)bitReversedIndices[i]);
+			}
+
+			glBindImageTexture(0, twiddleIndicesTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+			glDispatchCompute(log2N, N / 32, 1);
+			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		}
+	}
+	else
+	{
+		// tildeh0k/minusk
+		{
+			tildeH0kShader->bind();
+			uNoiseR0TextureH0.set(0);
+			uNoiseI0TextureH0.set(1);
+			uNoiseR1TextureH0.set(2);
+			uNoiseI1TextureH0.set(3);
+
+			uNH0.set(N);
+			uLH0.set(L);
+			uAH0.set(A);
+			uWindDirectionH0.set(windDirection);
+			uWindSpeedH0.set(windSpeed);
+			uWaveSuppressionExpH0.set(6.0f);
+
+
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, noise0->getId());
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, noise1->getId());
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, noise2->getId());
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, noise3->getId());
+
+			glBindFramebuffer(GL_FRAMEBUFFER, fftFbo);
+			glViewport(0, 0, N, N);
+
+			GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+			glDrawBuffers(2, drawBuffers);
+
+			fullscreenTriangle->getSubMesh()->render();
+			//glDrawArrays(GL_TRIANGLES, 0, 3);
 		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, twiddleIndicesFbo);
-		glViewport(0, 0, log2N, N);
+		// butterfly precompute
+		{
+			std::uint32_t bitReversedIndices[N];
 
-		fullscreenTriangle->getSubMesh()->render();
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
+			for (std::uint32_t i = 0; i < N; ++i)
+			{
+				std::uint32_t x = glm::bitfieldReverse(i);
+				x = glm::bitfieldRotateRight(x, log2N);
+				bitReversedIndices[i] = x;
+			}
+
+			butterflyPrecomputeShader->bind();
+			uNBP.set(N);
+			for (unsigned int i = 0; i < N; ++i)
+			{
+				butterflyPrecomputeShader->setUniform(uJBP[i], (int)bitReversedIndices[i]);
+			}
+
+			glBindFramebuffer(GL_FRAMEBUFFER, twiddleIndicesFbo);
+			glViewport(0, 0, log2N, N);
+
+			fullscreenTriangle->getSubMesh()->render();
+			//glDrawArrays(GL_TRIANGLES, 0, 3);
+		}
 	}
 }
 
 void SceneRenderer::computeFft()
 {
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-	// tildehkt
+	if (waterCompute)
 	{
-		tildeHktShader->bind();
-		uTildeH0kTextureHT.set(0);
-		uTildeH0minusKTextureHT.set(1);
-		uNHT.set(N);
-		uLHT.set(L);
-		uTimeHT.set((float)Engine::getCurrentTime() * 1.25f);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, tildeH0kTexture);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, tildeH0minusKTexture);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, fftFbo);
-		glViewport(0, 0, N, N);
-
-		GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
-		glDrawBuffers(3, drawBuffers);
-
-		fullscreenTriangle->getSubMesh()->render();
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-	}
-
-	// butterfly computation/ inversion
-	{
-		butterflyComputeShader->bind();
-		uButterflyTextureBC.set(0);
-		uInputXTextureBC.set(1);
-		uInputYTextureBC.set(2);
-		uInputZTextureBC.set(3);
-		uNBC.set(N);
-		uStagesBC.set(log2N);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, twiddleIndicesTexture);
-		glActiveTexture(GL_TEXTURE1);
-
-		GLenum pingPongDrawBuffers[] = { GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7 };
-		GLenum sourceDrawBuffers[] = { GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
-		GLuint pingPongReadBuffers[] = { pingPongTextureA, pingPongTextureB, pingPongTextureC };
-		GLuint sourceReadBuffers[] = { tildeHktDxTexture, tildeHktDyTexture, tildeHktDzTexture };
-
-		GLenum *drawBuffers[] = { pingPongDrawBuffers, sourceDrawBuffers };
-		GLuint *inputTextures[] = { sourceReadBuffers, pingPongReadBuffers };
-		unsigned int drawBuffer = 0;
-
-		for (int i = 0; i < 2; ++i)
+		// tildehkt
 		{
-			uDirectionBC.set(i);
+			tildeHktCompShader->bind();
+			uNHTC.set(N);
+			uLHTC.set(L);
+			uTimeHTC.set((float)Engine::getCurrentTime() * 1.25f);
 
-			for (int j = 0; j < log2N; ++j)
+			glBindImageTexture(0, tildeHktDxTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG16F);
+			glBindImageTexture(1, tildeHktDyTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG16F);
+			glBindImageTexture(2, tildeHktDzTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG16F);
+			glBindImageTexture(3, tildeH0kTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG16F);
+			glBindImageTexture(4, tildeH0minusKTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG16F);
+			glDispatchCompute(N / 32, N / 32, 1);
+			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		}
+
+		// butterfly computation/ inversion
+		{
+			butterflyComputeCompShader->bind();
+
+
+			glBindImageTexture(3, pingPongTextureA, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG16F);
+			glBindImageTexture(4, pingPongTextureB, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG16F);
+			glBindImageTexture(5, pingPongTextureC, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG16F);
+			glBindImageTexture(6, twiddleIndicesTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+
+			int pingpong = 0;
+
+			for (int i = 0; i < 2; ++i)
 			{
-				uStageBC.set(j);
-				glActiveTexture(GL_TEXTURE1);
+				uDirectionBCC.set(i);
+
+				for (int j = 0; j < log2N; ++j)
+				{
+					uStageBCC.set(j);
+					uPingPongBCC.set(pingpong);
+
+					glDispatchCompute(N / 32, N / 32, 1);
+					glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+					pingpong = 1 - pingpong;
+				}
+			}
+
+			// inverse/permute
+			{
+				inversePermuteCompShader->bind();
+				uNIPC.set(N);
+				uPingPongIPC.set(pingpong);
+				uChoppinessIPC.set(-0.65f);
+
+				glBindImageTexture(6, waterDisplacementFoldingTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F);
+
+				glDispatchCompute(N / 32, N / 32, 1);
+				glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+				// generate mips
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
+				glGenerateMipmap(GL_TEXTURE_2D);
+			}
+
+			// normal
+			{
+				waterNormalCompShader->bind();
+				
+				uNormalStrengthNC.set(2.5f);
+
+				glBindImageTexture(0, waterNormalTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
+
+				glDispatchCompute(N / 32, N / 32, 1);
+				glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+				// generate mips
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, waterNormalTexture);
+				glGenerateMipmap(GL_TEXTURE_2D);
+			}
+		}
+	}
+	else
+	{
+		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+		// tildehkt
+		{
+			tildeHktShader->bind();
+			uTildeH0kTextureHT.set(0);
+			uTildeH0minusKTextureHT.set(1);
+			uNHT.set(N);
+			uLHT.set(L);
+			uTimeHT.set((float)Engine::getCurrentTime() * 1.25f);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, tildeH0kTexture);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, tildeH0minusKTexture);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, fftFbo);
+			glViewport(0, 0, N, N);
+
+			GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
+			glDrawBuffers(3, drawBuffers);
+
+			fullscreenTriangle->getSubMesh()->render();
+			//glDrawArrays(GL_TRIANGLES, 0, 3);
+		}
+
+		// butterfly computation/ inversion
+		{
+			butterflyComputeShader->bind();
+			uButterflyTextureBC.set(0);
+			uInputXTextureBC.set(1);
+			uInputYTextureBC.set(2);
+			uInputZTextureBC.set(3);
+			uNBC.set(N);
+			uStagesBC.set(log2N);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, twiddleIndicesTexture);
+			glActiveTexture(GL_TEXTURE1);
+
+			GLenum pingPongDrawBuffers[] = { GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7 };
+			GLenum sourceDrawBuffers[] = { GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
+			GLuint pingPongReadBuffers[] = { pingPongTextureA, pingPongTextureB, pingPongTextureC };
+			GLuint sourceReadBuffers[] = { tildeHktDxTexture, tildeHktDyTexture, tildeHktDzTexture };
+
+			GLenum *drawBuffers[] = { pingPongDrawBuffers, sourceDrawBuffers };
+			GLuint *inputTextures[] = { sourceReadBuffers, pingPongReadBuffers };
+			unsigned int drawBuffer = 0;
+
+			for (int i = 0; i < 2; ++i)
+			{
+				uDirectionBC.set(i);
+
+				for (int j = 0; j < log2N; ++j)
+				{
+					uStageBC.set(j);
+					glActiveTexture(GL_TEXTURE1);
+					glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][0]);
+					glActiveTexture(GL_TEXTURE2);
+					glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][1]);
+					glActiveTexture(GL_TEXTURE3);
+					glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][2]);
+					glDrawBuffers(3, drawBuffers[drawBuffer]);
+
+					fullscreenTriangle->getSubMesh()->render();
+					//glDrawArrays(GL_TRIANGLES, 0, 3);
+					drawBuffer = 1 - drawBuffer;
+				}
+			}
+
+			// inverse/permute
+			{
+				glBindFramebuffer(GL_FRAMEBUFFER, waterFbo);
+				glViewport(0, 0, N, N);
+
+				inversePermuteShader->bind();
+				uInputXTextureIP.set(0);
+				uInputYTextureIP.set(1);
+				uInputZTextureIP.set(2);
+				uNIP.set(N);
+
+				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][0]);
-				glActiveTexture(GL_TEXTURE2);
+				glActiveTexture(GL_TEXTURE1);
 				glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][1]);
-				glActiveTexture(GL_TEXTURE3);
+				glActiveTexture(GL_TEXTURE2);
 				glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][2]);
-				glDrawBuffers(3, drawBuffers[drawBuffer]);
+
+				glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
 				fullscreenTriangle->getSubMesh()->render();
 				//glDrawArrays(GL_TRIANGLES, 0, 3);
-				drawBuffer = 1 - drawBuffer;
+
+				// generate mips
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
+				glGenerateMipmap(GL_TEXTURE_2D);
 			}
-		}
 
-		// inverse/permute
-		{
-			glBindFramebuffer(GL_FRAMEBUFFER, waterFbo);
-			glViewport(0, 0, N, N);
+			// normal
+			{
+				waterNormalShader->bind();
+				uDisplacementTextureN.set(0);
 
-			inversePermuteShader->bind();
-			uInputXTextureIP.set(0);
-			uInputYTextureIP.set(1);
-			uInputZTextureIP.set(2);
-			uNIP.set(N);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
 
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][0]);
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][1]);
-			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][2]);
+				glDrawBuffer(GL_COLOR_ATTACHMENT1);
 
-			glDrawBuffer(GL_COLOR_ATTACHMENT0);
+				fullscreenTriangle->getSubMesh()->render();
+				//glDrawArrays(GL_TRIANGLES, 0, 3);
 
-			fullscreenTriangle->getSubMesh()->render();
-			//glDrawArrays(GL_TRIANGLES, 0, 3);
-
-			// generate mips
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
-			glGenerateMipmap(GL_TEXTURE_2D);
-		}
-
-		// normal
-		{
-			waterNormalShader->bind();
-			uDisplacementTextureN.set(0);
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
-
-			glDrawBuffer(GL_COLOR_ATTACHMENT1);
-
-			fullscreenTriangle->getSubMesh()->render();
-			//glDrawArrays(GL_TRIANGLES, 0, 3);
-
-			// generate mips
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, waterNormalTexture);
-			glGenerateMipmap(GL_TEXTURE_2D);
+				// generate mips
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, waterNormalTexture);
+				glGenerateMipmap(GL_TEXTURE_2D);
+			}
 		}
 	}
 }
@@ -1719,7 +1927,7 @@ void SceneRenderer::renderWater(const RenderData &_renderData, const std::shared
 			uLightDirWT.set(_level->lights.directionalLights[0]->getDirection());
 			uLightColorWT.set(_level->lights.directionalLights[0]->getColor());
 		}
-		
+
 		uViewDirWT.set(_renderData.viewDirection);
 		uScreenSizeWT.set(glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
 		uTesselatedTriWidthWT.set(20);
@@ -1736,7 +1944,7 @@ void SceneRenderer::renderWater(const RenderData &_renderData, const std::shared
 		uTileSizeWT.set(1.0f);
 
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		
+
 		for (int i = 0; i < 6; ++i)
 		{
 			uTileSizeWT.set(tileRings[i]->getTileSize());
