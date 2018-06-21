@@ -40,6 +40,7 @@
     <ClInclude Include="Code\EntityComponentSystem\Systems\SoundSystem.h" />
     <ClInclude Include="Code\Framework\Graphics\EnvironmentRenderer.h" />
     <ClInclude Include="Code\Framework\Graphics\GraphicsFramework.h" />
+    <ClInclude Include="Code\Framework\Graphics\MediumDescription.h" />
     <ClInclude Include="Code\Framework\Graphics\PostProcessRenderer.h" />
     <ClInclude Include="Code\Framework\Graphics\RenderData.h" />
     <ClInclude Include="Code\Framework\Graphics\SceneRenderer.h" />

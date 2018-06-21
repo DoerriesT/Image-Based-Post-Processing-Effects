@@ -347,6 +347,9 @@
     <ClInclude Include="Code\Graphics\Terrain\TileRing.h">
       <Filter>Code\Graphics\Terrain</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Framework\Graphics\MediumDescription.h">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Window.cpp">

@@ -23,12 +23,15 @@
 #include ".\..\..\Graphics\Effects.h"
 #include ".\..\..\Graphics\Texture.h"
 #include ".\..\..\Graphics\Terrain\TileRing.h"
+#include "MediumDescription.h"
 
 //#define SPHERES
 
 #ifdef SPHERES
 void renderSphere();
 #endif // SPHERES
+
+MediumDescription mediumDescrp;
 
 float calculateLightScale(const glm::vec3 &_color)
 {
@@ -91,6 +94,8 @@ void SceneRenderer::init()
 	waterNormalShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/normal.frag");
 	waterShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/water.vert", "Resources/Shaders/Water/Water.frag");
 	waterTessShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/terrain.vert", "Resources/Shaders/Water/water.frag", "Resources/Shaders/Shared/terrain.tessc", "Resources/Shaders/Shared/terrain.tesse");
+	lightVolumeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/lightVolume.vert", "Resources/Shaders/Renderer/lightVolume.frag", "Resources/Shaders/Renderer/lightVolume.tessc", "Resources/Shaders/Renderer/lightVolume.tesse");
+	phaseLUTShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/phaseLookup.comp");
 
 	tildeH0kCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/tildeH0k.comp");
 	tildeHktCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/tildeHkt.comp");
@@ -349,6 +354,25 @@ void SceneRenderer::init()
 	uTexCoordScaleWT.create(waterTessShader);
 	uDisplacementScaleWT.create(waterTessShader);
 
+	// light volume
+	uDisplacementTextureLV.create(lightVolumeShader);
+	uInvLightViewProjectionLV.create(lightVolumeShader);
+	uViewProjectionLV.create(lightVolumeShader);
+	uPhaseLUTLV.create(lightVolumeShader);
+	uCamPosLV.create(lightVolumeShader);
+	uLightIntensitysLV.create(lightVolumeShader);
+	uSigmaExtinctionLV.create(lightVolumeShader);
+	uScatterPowerLV.create(lightVolumeShader);
+	uLightDirLV.create(lightVolumeShader);
+
+	// phase lookup
+	uNumPhaseTermsPL.create(phaseLUTShader);
+	for (int i = 0; i < 4; ++i)
+	{
+		uPhaseParamsPL.push_back(phaseLUTShader->createUniform(std::string("uPhaseParams") + "[" + std::to_string(i) + "]"));
+		uPhaseFuncPL.push_back(phaseLUTShader->createUniform(std::string("uPhaseFunc") + "[" + std::to_string(i) + "]"));
+	}
+
 	// init terrain tile rings
 	float tileWidth = 16.0f;
 	int ringWidth = 16;
@@ -376,7 +400,9 @@ void SceneRenderer::init()
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 
 	createWaterPlane(waterGridDimensions, waterVBO, waterVAO, waterEBO);
+	createLightVolumeMesh(64, lightVolumeVBO, lightVolumeVAO, lightVolumeEBO);
 	createBrdfLUT();
+	computePhaseLUT();
 }
 
 void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
@@ -384,8 +410,8 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	// switch current result texture
 	currentLightColorTexture = (currentLightColorTexture + 1) % 2;
 
-	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 , lightColorAttachments[currentLightColorTexture] };
-	const GLenum secondPassDrawBuffers[] = { lightColorAttachments[currentLightColorTexture], GL_COLOR_ATTACHMENT3 };
+	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 , lightColorAttachments[currentLightColorTexture], GL_COLOR_ATTACHMENT6 };
+	const GLenum secondPassDrawBuffers[] = { lightColorAttachments[currentLightColorTexture], GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT6 };
 	glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
 
 	// bind g-buffer
@@ -542,6 +568,12 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 
 	glEnable(GL_DEPTH_TEST);
 
+	glDepthMask(GL_FALSE);
+	glDisable(GL_CULL_FACE);
+	renderLightVolume(_renderData, _level);
+	glEnable(GL_CULL_FACE);
+	glDepthMask(GL_TRUE);
+
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
@@ -668,10 +700,19 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, gLightColorTextures[1], 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, gLightColorTextures[1], 0); 
 
 	lightColorAttachments[0] = GL_COLOR_ATTACHMENT4;
 	lightColorAttachments[1] = GL_COLOR_ATTACHMENT5;
+
+	glGenTextures(1, &lightVolumeTexture);
+	glBindTexture(GL_TEXTURE_2D, lightVolumeTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, _resolution.first, _resolution.second, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT6, GL_TEXTURE_2D, lightVolumeTexture, 0);
 
 	glGenTextures(1, &gDepthStencilTexture);
 	glBindTexture(GL_TEXTURE_2D, gDepthStencilTexture);
@@ -2066,6 +2107,170 @@ void SceneRenderer::createWaterPlane(const glm::vec2 &_dimensions, GLuint &_VBO,
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(0);
+}
+
+void SceneRenderer::createLightVolumeMesh(unsigned int _size, GLuint & _VBO, GLuint & _VAO, GLuint & _EBO)
+{
+	GLuint *indices = new GLuint[_size * _size * 4];
+	int currentIndex = 0;
+	for (int row = 0; row < _size; ++row)
+	{
+		for (int column = 0; column < _size; ++column)
+		{
+			indices[currentIndex++] = (row * (_size + 1) + column);
+			indices[currentIndex++] = (row * (_size + 1) + column) + 1;
+			indices[currentIndex++] = ((row + 1) * (_size + 1) + column) + 1;
+			indices[currentIndex++] = ((row + 1) * (_size + 1) + column);
+		}
+	}
+
+	glm::vec2 *positions = new glm::vec2[(_size + 1) * (_size + 1)];
+	for (int y = 0; y < _size + 1; ++y)
+	{
+		for (int x = 0; x < _size + 1; ++x)
+		{
+			positions[y * (_size + 1) + x] = glm::vec2(x / float(_size + 1), y / float(_size + 1));
+		}
+	}
+
+	// create buffers/arrays
+	glGenVertexArrays(1, &_VAO);
+	glGenBuffers(1, &_VBO);
+	glGenBuffers(1, &_EBO);
+	glBindVertexArray(_VAO);
+	//glBindBuffer(GL_ARRAY_BUFFER, _VBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * (_size + 1) * (_size + 1), positions, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * _size * _size * 4, indices, GL_STATIC_DRAW);
+
+	// patch position
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+
+	glBindVertexArray(0);
+
+	delete[] indices;
+	delete[] positions;
+}
+
+GLuint tex;
+
+void SceneRenderer::renderLightVolume(const RenderData & _renderData, const std::shared_ptr<Level>& _level)
+{
+	const float SCATTER_EPSILON = 0.000001f;
+	glm::vec3 total_scatter = glm::vec3(SCATTER_EPSILON, SCATTER_EPSILON, SCATTER_EPSILON);
+
+	for (uint32_t p = 0; p < mediumDescrp.uNumPhaseTerms; ++p)
+	{
+		total_scatter += mediumDescrp.phaseTerms[p].vDensity;
+	}
+	glm::vec3 absorption = mediumDescrp.vAbsorption;
+	glm::vec3 vScatterPower;
+	vScatterPower.x = 1.0 - exp(-total_scatter.x);
+	vScatterPower.y = 1.0 - exp(-total_scatter.y);
+	vScatterPower.z = 1.0 - exp(-total_scatter.z);
+	glm::vec3 vSigmaExtinction = total_scatter + absorption;
+
+
+	lightVolumeShader->bind();
+	uDisplacementTextureLV.set(0);
+	uInvLightViewProjectionLV.set(glm::inverse(_level->lights.directionalLights[0]->getViewProjectionMatrix()));
+	uViewProjectionLV.set(_renderData.viewProjectionMatrix);
+
+	uPhaseLUTLV.set(1);
+	uCamPosLV.set(_renderData.cameraPosition);
+	uLightIntensitysLV.set(_level->lights.directionalLights[0]->getColor() * 25000.0);
+	uSigmaExtinctionLV.set(vSigmaExtinction);
+	uScatterPowerLV.set(vScatterPower);
+	uLightDirLV.set(_level->lights.directionalLights[0]->getDirection());
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, _level->lights.directionalLights[0]->getShadowMap());
+
+	tex = _level->lights.directionalLights[0]->getShadowMap();
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, phaseLUT);
+
+	glBindVertexArray(lightVolumeVAO);
+	glPatchParameteri(GL_PATCH_VERTICES, 4);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDrawElements(GL_PATCHES, 64 * 64 * 4, GL_UNSIGNED_INT, NULL);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+
+
+void SceneRenderer::computePhaseLUT()
+{
+	glDeleteTextures(1, &phaseLUT);
+	glGenTextures(1, &phaseLUT);
+
+	glBindTexture(GL_TEXTURE_2D, phaseLUT);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 1, 512, 0, GL_RGBA, GL_HALF_FLOAT, nullptr);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	phaseLUTShader->bind();
+
+	const float SCATTER_PARAM_SCALE = 0.0001f;
+
+	
+
+	uint32_t t = 0;
+
+	mediumDescrp.phaseTerms[t].ePhaseFunc = 1;
+	mediumDescrp.phaseTerms[t].vDensity = (10.00f * SCATTER_PARAM_SCALE * glm::vec3(0.596f, 1.324f, 3.310f));
+	t++;
+
+	int mediumType = 0;
+
+	switch (mediumType)
+	{
+	default:
+	case 0:
+		mediumDescrp.phaseTerms[t].ePhaseFunc = 2;
+		mediumDescrp.phaseTerms[t].vDensity = (10.00f * SCATTER_PARAM_SCALE * glm::vec3(1.00f, 1.00f, 1.00f));
+		mediumDescrp.phaseTerms[t].fEccentricity = 0.85f;
+		t++;
+		mediumDescrp.vAbsorption = (5.0f * SCATTER_PARAM_SCALE * glm::vec3(1, 1, 1));
+		break;
+
+	case 1:
+		mediumDescrp.phaseTerms[t].ePhaseFunc = 2;
+		mediumDescrp.phaseTerms[t].vDensity = (15.00f * SCATTER_PARAM_SCALE * glm::vec3(1.00f, 1.00f, 1.00f));
+		mediumDescrp.phaseTerms[t].fEccentricity = 0.60f;
+		t++;
+		mediumDescrp.vAbsorption = (25.0f * SCATTER_PARAM_SCALE * glm::vec3(1, 1, 1));
+		break;
+
+	case 2:
+		mediumDescrp.phaseTerms[t].ePhaseFunc = 3;
+		mediumDescrp.phaseTerms[t].vDensity = (20.00f * SCATTER_PARAM_SCALE * glm::vec3(1.00f, 1.00f, 1.00f));
+		t++;
+		mediumDescrp.vAbsorption = (25.0f * SCATTER_PARAM_SCALE * glm::vec3(1, 1, 1));
+		break;
+
+	case 3:
+		mediumDescrp.phaseTerms[t].ePhaseFunc = 4;
+		mediumDescrp.phaseTerms[t].vDensity = (30.00f * SCATTER_PARAM_SCALE * glm::vec3(1.00f, 1.00f, 1.00f));
+		t++;
+		mediumDescrp.vAbsorption = (50.0f * SCATTER_PARAM_SCALE * glm::vec3(1, 1, 1));
+		break;
+	}
+
+	uNumPhaseTermsPL.set(t);
+	for (int i = 0; i < t; ++i)
+	{
+		phaseLUTShader->setUniform(uPhaseParamsPL[i], glm::vec4(mediumDescrp.phaseTerms[i].vDensity, mediumDescrp.phaseTerms[i].fEccentricity));
+		phaseLUTShader->setUniform(uPhaseFuncPL[i], mediumDescrp.phaseTerms[i].ePhaseFunc);
+	}
+	
+	glBindImageTexture(0, phaseLUT, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	glDispatchCompute(8, 1, 1);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
 void SceneRenderer::createBrdfLUT()

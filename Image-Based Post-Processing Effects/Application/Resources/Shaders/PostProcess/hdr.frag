@@ -26,7 +26,7 @@ uniform float uExposure = 1.0;
 uniform float uVelocityScale;
 uniform float uHalfPixelWidth = 0.0003125;
 uniform float uKeyValue = 0.28;
-uniform bool uAutoExposure = true;
+uniform bool uAutoExposure = false;
 
 const float MAX_SAMPLES = 32.0;
 const float SOFT_Z_EXTENT = 1.0;

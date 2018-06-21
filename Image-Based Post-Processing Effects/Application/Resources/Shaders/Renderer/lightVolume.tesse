@@ -1,0 +1,39 @@
+#version 450 core
+
+layout(quads, fractional_even_spacing, cw) in;
+
+in vec3 tcPosition[];
+out vec3 teWorldPos;
+
+uniform sampler2D uDisplacementTexture;
+uniform mat4 uInvLightViewProjection;
+uniform mat4 uViewProjection;
+uniform vec3 uCamPos;
+
+const float depthBias = 0.1;
+
+void main()
+{
+    vec3 position = vec3(0.0f);
+
+	float u = gl_TessCoord.x;
+	float v = gl_TessCoord.y;
+	
+	vec3 a = mix(tcPosition[0], tcPosition[1], u);
+	
+	vec3 b = mix(tcPosition[3], tcPosition[2], u);
+	
+	position = mix(a, b, v);
+	
+	float depth = textureLod(uDisplacementTexture, clamp(position.xy, vec2(0.0), vec2(1.0)), 0.0).x;
+	
+	position.z = depth;
+	position.xyz -= 0.5;
+	position.xyz *= 2.0;
+	
+	vec4 worldPos = uInvLightViewProjection * vec4(position, 1.0);
+	teWorldPos = worldPos.xyz / worldPos.w;
+	teWorldPos = uCamPos + (1.0 - depthBias) * (teWorldPos - uCamPos);
+	
+    gl_Position = uViewProjection * vec4(teWorldPos, 1.0);
+}

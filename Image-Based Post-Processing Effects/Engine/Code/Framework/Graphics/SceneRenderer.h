@@ -53,6 +53,8 @@ private:
 	std::shared_ptr<ShaderProgram> waterNormalShader;
 	std::shared_ptr<ShaderProgram> waterShader;
 	std::shared_ptr<ShaderProgram> waterTessShader;
+	std::shared_ptr<ShaderProgram> lightVolumeShader;
+	std::shared_ptr<ShaderProgram> phaseLUTShader;
 
 	std::shared_ptr<ShaderProgram> butterflyPrecomputeCompShader;
 	std::shared_ptr<ShaderProgram> tildeH0kCompShader;
@@ -71,11 +73,18 @@ private:
 
 	GLuint brdfLUT;
 
+	GLuint phaseLUT;
+
 	// water mesh
 	glm::vec2 waterGridDimensions = glm::vec2(300);
 	GLuint waterVBO;
 	GLuint waterVAO;
 	GLuint waterEBO;
+
+	// light volume mesh
+	GLuint lightVolumeVAO;
+	GLuint lightVolumeVBO;
+	GLuint lightVolumeEBO;
 
 	// g-buffer
 	GLuint gBufferFBO;
@@ -108,6 +117,9 @@ private:
 	GLuint pingPongTextureB;
 	GLuint pingPongTextureC;
 
+	// light volume
+	GLuint lightVolumeTexture;
+
 	// fft-twiddle indices fbo
 	GLuint twiddleIndicesFbo;
 	GLuint twiddleIndicesTexture;
@@ -129,7 +141,7 @@ private:
 	Uniform<glm::mat4> uModelViewProjectionMatrixG = Uniform<glm::mat4>("uModelViewProjectionMatrix");
 	Uniform<glm::mat4> uPrevTransformG = Uniform<glm::mat4>("uPrevTransform");
 	Uniform<glm::vec4> uAtlasDataG = Uniform<glm::vec4>("uAtlasData");
-	Uniform<glm::vec2> uVelG = Uniform<glm::vec2>("uVel"); 
+	Uniform<glm::vec2> uVelG = Uniform<glm::vec2>("uVel");
 	Uniform<GLfloat> uExposureTimeG = Uniform<GLfloat>("uExposureTime");
 	UniformMaterial uMaterialG = UniformMaterial("uMaterial");
 
@@ -358,6 +370,22 @@ private:
 	// water normal compute
 	Uniform<GLfloat> uNormalStrengthNC = Uniform<GLfloat>("uNormalStrength");
 
+	// light volume
+	Uniform<GLint> uDisplacementTextureLV = Uniform<GLint>("uDisplacementTexture");
+	Uniform<glm::mat4> uInvLightViewProjectionLV = Uniform<glm::mat4>("uInvLightViewProjection");
+	Uniform<glm::mat4> uViewProjectionLV = Uniform<glm::mat4>("uViewProjection");
+	Uniform<GLint> uPhaseLUTLV = Uniform<GLint>("uPhaseLUT");
+	Uniform<glm::vec3> uCamPosLV = Uniform<glm::vec3>("uCamPos");
+	Uniform<glm::vec3> uLightIntensitysLV = Uniform<glm::vec3>("uLightIntensity");
+	Uniform<glm::vec3> uSigmaExtinctionLV = Uniform<glm::vec3>("uSigmaExtinction");
+	Uniform<glm::vec3> uScatterPowerLV = Uniform<glm::vec3>("uScatterPower");
+	Uniform<glm::vec3> uLightDirLV = Uniform<glm::vec3>("uLightDir");
+
+	// phase lookup
+	Uniform<GLint> uNumPhaseTermsPL = Uniform<GLint>("uNumPhaseTerms");
+	std::vector<GLint> uPhaseParamsPL;
+	std::vector<GLint> uPhaseFuncPL;
+
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
 	void createWaterAttachments(unsigned int _resolution);
 	void createSsaoAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
@@ -375,6 +403,9 @@ private:
 	void computeFft(const Water &_water);
 	void renderWater(const RenderData &_renderData, const std::shared_ptr<Level> &_level);
 	void createWaterPlane(const glm::vec2 &_dimensions, GLuint &_VBO, GLuint &_VAO, GLuint &_EBO);
+	void createLightVolumeMesh(unsigned int _size, GLuint &_VBO, GLuint &_VAO, GLuint &_EBO);
+	void renderLightVolume(const RenderData &_renderData, const std::shared_ptr<Level> &_level);
+	void computePhaseLUT();
 	void createBrdfLUT();
 	bool cullAABB(const glm::mat4 &_mvp, const AxisAlignedBoundingBox &_aabb);
 };
