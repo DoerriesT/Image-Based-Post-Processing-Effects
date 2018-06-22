@@ -1,6 +1,6 @@
 #version 450 core
 
-layout(location = 2) out vec4 oAlbedo;
+layout(location = 0) out vec4 oAlbedo;
 
 in vec3 teWorldPos;
 
