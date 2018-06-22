@@ -1,6 +1,7 @@
 #include "VolumetricLighting.h"
 #include "RenderData.h"
 #include "Level.h"
+#include ".\..\..\Graphics\Mesh.h"
 
 VolumetricLighting::VolumetricLighting(unsigned int _width, unsigned int _height)
 	:width(_width), height(_height)
@@ -18,6 +19,7 @@ VolumetricLighting::~VolumetricLighting()
 void VolumetricLighting::init()
 {
 	lightVolumeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/lightVolume.vert", "Resources/Shaders/Renderer/lightVolume.frag", "Resources/Shaders/Renderer/lightVolume.tessc", "Resources/Shaders/Renderer/lightVolume.tesse");
+	lightVolumeBaseShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/lightVolumeBase.vert", "Resources/Shaders/Renderer/lightVolume.frag");
 	phaseLUTShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/phaseLookup.comp");
 
 	// light volume
@@ -30,6 +32,25 @@ void VolumetricLighting::init()
 	uSigmaExtinctionLV.create(lightVolumeShader);
 	uScatterPowerLV.create(lightVolumeShader);
 	uLightDirLV.create(lightVolumeShader);
+	uInvViewProjectionLV.create(lightVolumeShader);
+	uDepthTextureLV.create(lightVolumeShader);
+	uPassModeLV.create(lightVolumeShader);
+	uZFarLV.create(lightVolumeShader);
+
+	// light volume base
+	uDisplacementTextureLVB.create(lightVolumeBaseShader);
+	uInvLightViewProjectionLVB.create(lightVolumeBaseShader);
+	uViewProjectionLVB.create(lightVolumeBaseShader);
+	uPhaseLUTLVB.create(lightVolumeBaseShader);
+	uCamPosLVB.create(lightVolumeBaseShader);
+	uLightIntensitysLVB.create(lightVolumeBaseShader);
+	uSigmaExtinctionLVB.create(lightVolumeBaseShader);
+	uScatterPowerLVB.create(lightVolumeBaseShader);
+	uLightDirLVB.create(lightVolumeBaseShader);
+	uInvViewProjectionLVB.create(lightVolumeBaseShader);
+	uDepthTextureLVB.create(lightVolumeBaseShader);
+	uPassModeLVB.create(lightVolumeBaseShader);
+	uZFarLVB.create(lightVolumeBaseShader);
 
 	// phase lookup
 	uNumPhaseTermsPL.create(phaseLUTShader);
@@ -44,6 +65,8 @@ void VolumetricLighting::init()
 
 	createAttachments(width, height);
 	computePhaseLUT();
+
+	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 void VolumetricLighting::render(GLuint _depthTexture, const RenderData &_renderData, const std::shared_ptr<Level> &_level)
@@ -72,31 +95,16 @@ void VolumetricLighting::render(GLuint _depthTexture, const RenderData &_renderD
 	glm::vec3 vSigmaExtinction = total_scatter + absorption;
 
 
-	lightVolumeShader->bind();
-	uDisplacementTextureLV.set(0);
-	uInvLightViewProjectionLV.set(glm::inverse(_level->lights.directionalLights[0]->getViewProjectionMatrix()));
-	uViewProjectionLV.set(_renderData.viewProjectionMatrix);
-
-	uPhaseLUTLV.set(1);
-	uCamPosLV.set(_renderData.cameraPosition);
-	uLightIntensitysLV.set(_level->lights.directionalLights[0]->getColor() * 25000.0f);
-	uSigmaExtinctionLV.set(vSigmaExtinction);
-	uScatterPowerLV.set(vScatterPower);
-	uLightDirLV.set(_level->lights.directionalLights[0]->getDirection());
-
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _level->lights.directionalLights[0]->getShadowMap());
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, phaseLUT);
 
-	glEnable(GL_STENCIL_TEST);
-	glStencilFuncSeparate(GL_FRONT, GL_ALWAYS, 0xFF, 0xFF);
-	glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR, GL_KEEP);
-	glStencilFuncSeparate(GL_BACK, GL_ALWAYS, 0xFF, 0xFF);
-	glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR, GL_KEEP);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, _depthTexture);
 
-	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_STENCIL_TEST);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
@@ -104,12 +112,91 @@ void VolumetricLighting::render(GLuint _depthTexture, const RenderData &_renderD
 	glDepthMask(GL_FALSE);
 	glDisable(GL_CULL_FACE);
 
-	glBindVertexArray(lightVolumeVAO);
-	glPatchParameteri(GL_PATCH_VERTICES, 4);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glDrawElements(GL_PATCHES, 64 * 64 * 4, GL_UNSIGNED_INT, NULL);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glFrontFace(GL_CW);
 
+	// volume grid
+	{
+		glStencilFuncSeparate(GL_FRONT, GL_ALWAYS, 0xFF, 0xFF);
+		glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR, GL_KEEP);
+		glStencilFuncSeparate(GL_BACK, GL_ALWAYS, 0xFF, 0xFF);
+		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR, GL_KEEP);
+
+		glEnable(GL_DEPTH_TEST);
+
+		lightVolumeShader->bind();
+		uDisplacementTextureLV.set(0);
+		uInvLightViewProjectionLV.set(glm::inverse(_level->lights.directionalLights[0]->getViewProjectionMatrix()));
+		uViewProjectionLV.set(_renderData.viewProjectionMatrix);
+
+		uPhaseLUTLV.set(1);
+		uCamPosLV.set(_renderData.cameraPosition);
+		uLightIntensitysLV.set(_level->lights.directionalLights[0]->getColor() * 2500.0f);
+		uSigmaExtinctionLV.set(vSigmaExtinction);
+		uScatterPowerLV.set(vScatterPower);
+		uLightDirLV.set(_level->lights.directionalLights[0]->getDirection());
+		uInvViewProjectionLV.set(_renderData.invViewProjectionMatrix);
+		uDepthTextureLV.set(2);
+		uPassModeLV.set(0);
+		uZFarLV.set(3000.0f);
+
+		glBindVertexArray(lightVolumeVAO);
+		glPatchParameteri(GL_PATCH_VERTICES, 4);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDrawElements(GL_PATCHES, 64 * 64 * 4, GL_UNSIGNED_INT, NULL);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+	// volume base
+	{
+		lightVolumeBaseShader->bind();
+
+		uDisplacementTextureLVB.set(0);
+		uInvLightViewProjectionLVB.set(glm::inverse(_level->lights.directionalLights[0]->getViewProjectionMatrix()));
+		uViewProjectionLVB.set(_renderData.viewProjectionMatrix);
+
+		uPhaseLUTLVB.set(1);
+		uCamPosLVB.set(_renderData.cameraPosition);
+		uLightIntensitysLVB.set(_level->lights.directionalLights[0]->getColor() * 2500.0f);
+		uSigmaExtinctionLVB.set(vSigmaExtinction);
+		uScatterPowerLVB.set(vScatterPower);
+		uLightDirLVB.set(_level->lights.directionalLights[0]->getDirection());
+		uInvViewProjectionLVB.set(_renderData.invViewProjectionMatrix);
+		uDepthTextureLVB.set(2);
+		uPassModeLVB.set(0);
+		uZFarLVB.set(3000.0f);
+
+		glFrontFace(GL_CCW);
+		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+		fullscreenTriangle->getSubMesh()->render();
+		glFrontFace(GL_CW);
+	}
+	// sky
+	{
+		glStencilFuncSeparate(GL_FRONT, GL_NEVER, 0xFF, 0xFF);
+		glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_KEEP);
+		glStencilFuncSeparate(GL_BACK, GL_ALWAYS, 0xFF, 0xFF);
+		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR, GL_KEEP);
+
+		uPassModeLVB.set(1);
+
+		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+		fullscreenTriangle->getSubMesh()->render();
+	}
+	// final
+	{
+		glDisable(GL_DEPTH_TEST);
+
+		glStencilFuncSeparate(GL_FRONT, GL_NEVER, 0xFF, 0xFF);
+		glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_KEEP);
+		glStencilFuncSeparate(GL_BACK, GL_GREATER, 0xFF, 0xFF);
+		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_KEEP);
+
+		uPassModeLVB.set(2);
+
+		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+		fullscreenTriangle->getSubMesh()->render();
+	}
+
+	glFrontFace(GL_CCW);
 	glEnable(GL_CULL_FACE);
 	glDepthMask(GL_TRUE);
 }

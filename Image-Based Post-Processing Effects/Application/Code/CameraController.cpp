@@ -21,7 +21,7 @@ namespace App
 		if (userInput.isMouseButtonPressed(INPUT_MOUSE_BUTTON_RIGHT))
 		{
 			glm::vec2 mouseDelta = userInput.getMousePosDelta();
-			camera->rotate(glm::vec3(mouseDelta.y * 0.002f, mouseDelta.x * 0.002f, 0.0));
+			camera->rotate(glm::vec3(mouseDelta.y * 0.005f, mouseDelta.x * 0.005f, 0.0));
 		}
 		if (userInput.isKeyPressed(INPUT_KEY_UP))
 		{

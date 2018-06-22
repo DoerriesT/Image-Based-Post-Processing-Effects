@@ -517,8 +517,6 @@ void Ocean::precomputeFftTextures(const Water & _water)
 		break;
 	}
 
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-
 	if (useCompute)
 	{
 		// tildeh0k/minusk
@@ -578,6 +576,8 @@ void Ocean::precomputeFftTextures(const Water & _water)
 	}
 	else
 	{
+		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+
 		// tildeh0k/minusk
 		{
 			tildeH0kShader->bind();

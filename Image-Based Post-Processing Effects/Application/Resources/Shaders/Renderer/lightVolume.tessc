@@ -10,11 +10,11 @@ void main()
     tcPosition[gl_InvocationID] = vPosition[gl_InvocationID];
     if (gl_InvocationID == 0) 
 	{
-        gl_TessLevelInner[0] = 8.0;
-		gl_TessLevelInner[1] = 8.0;
-        gl_TessLevelOuter[0] = 8.0;
-        gl_TessLevelOuter[1] = 8.0;
-        gl_TessLevelOuter[2] = 8.0;
-		gl_TessLevelOuter[3] = 8.0;
+        gl_TessLevelInner[0] = 32.0;
+		gl_TessLevelInner[1] = 32.0;
+        gl_TessLevelOuter[0] = 32.0;
+        gl_TessLevelOuter[1] = 32.0;
+        gl_TessLevelOuter[2] = 32.0;
+		gl_TessLevelOuter[3] = 32.0;
     }
 }

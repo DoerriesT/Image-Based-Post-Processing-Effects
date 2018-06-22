@@ -1,6 +1,6 @@
 #version 450 core
 
-layout(quads, fractional_even_spacing, cw) in;
+layout(quads, fractional_even_spacing, ccw) in;
 
 in vec3 tcPosition[];
 out vec3 teWorldPos;
@@ -33,7 +33,7 @@ void main()
 	
 	vec4 worldPos = uInvLightViewProjection * vec4(position, 1.0);
 	teWorldPos = worldPos.xyz / worldPos.w;
-	teWorldPos = uCamPos + (1.0 - depthBias) * (teWorldPos - uCamPos);
+	//teWorldPos = uCamPos + (1.0 - depthBias) * (teWorldPos - uCamPos);
 	
     gl_Position = uViewProjection * vec4(teWorldPos, 1.0);
 }
