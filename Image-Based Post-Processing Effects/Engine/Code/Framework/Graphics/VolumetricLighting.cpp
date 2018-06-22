@@ -164,10 +164,14 @@ void VolumetricLighting::render(GLuint _depthTexture, const RenderData &_renderD
 		uPassModeLVB.set(0);
 		uZFarLVB.set(3000.0f);
 
-		glFrontFace(GL_CCW);
-		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-		fullscreenTriangle->getSubMesh()->render();
-		glFrontFace(GL_CW);
+		//glFrontFace(GL_CCW);
+		//fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+		//fullscreenTriangle->getSubMesh()->render();
+		//glFrontFace(GL_CW);
+
+		GLuint indices[] = { 0, 1, 2, 3, 4, 5 };
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, indices);
 	}
 	// sky
 	{
@@ -178,8 +182,12 @@ void VolumetricLighting::render(GLuint _depthTexture, const RenderData &_renderD
 
 		uPassModeLVB.set(1);
 
-		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-		fullscreenTriangle->getSubMesh()->render();
+		//fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+		//fullscreenTriangle->getSubMesh()->render();
+
+		GLuint indices[] = { 0, 1, 2 };
+
+		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, indices);
 	}
 	// final
 	{
@@ -192,8 +200,12 @@ void VolumetricLighting::render(GLuint _depthTexture, const RenderData &_renderD
 
 		uPassModeLVB.set(2);
 
-		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-		fullscreenTriangle->getSubMesh()->render();
+		//fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+		//fullscreenTriangle->getSubMesh()->render();
+
+		GLuint indices[] = { 0, 1, 2 };
+
+		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, indices);
 	}
 
 	glFrontFace(GL_CCW);
