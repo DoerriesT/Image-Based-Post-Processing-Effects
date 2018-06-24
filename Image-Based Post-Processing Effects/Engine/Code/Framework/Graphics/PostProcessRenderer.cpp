@@ -746,7 +746,7 @@ void PostProcessRenderer::calculateLuminance(GLuint _colorTexture)
 	uPrevLuminanceTextureLA.set(0);
 	uCurrentLuminanceTextureLA.set(1);
 	uTimeDeltaLA.set((float)Engine::getCurrentTimeDelta());
-	uTauLA.set(0.5f);
+	uTauLA.set(2.5f);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, luminanceTexture[!currentLuminanceTexture]);

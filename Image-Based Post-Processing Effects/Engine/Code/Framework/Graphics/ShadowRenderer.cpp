@@ -43,7 +43,6 @@ void ShadowRenderer::init()
 
 void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects, const std::shared_ptr<Camera> &_camera)
 {
-	glErrorCheck("");
 	// bind shadow shader
 	shadowShader->bind();
 
@@ -57,7 +56,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 
 	AxisAlignedBoundingBox sceneAABB = calculateSceneAABB(_scene);
 
-	float splits[4];
+	float splits[SHADOW_CASCADES];
 	float nearPlane = Window::NEAR_PLANE;
 	float farPlane = Window::FAR_PLANE;
 	float blendWeight = 0.98f;
@@ -67,7 +66,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 		float uniSplit = nearPlane + (farPlane - nearPlane) * (i / float(SHADOW_CASCADES));
 		splits[i - 1] = blendWeight * logSplit + (1.0f - blendWeight) * uniSplit;
 	}
-	splits[3] = farPlane;
+	splits[SHADOW_CASCADES - 1] = farPlane;
 
 	for (const std::shared_ptr<DirectionalLight> &directionalLight : _level->lights.directionalLights)
 	{
@@ -76,7 +75,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 			glm::mat4 lightViewProjections[SHADOW_CASCADES];
 			for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 			{
-				lightViewProjections[i] = calculateLightViewProjection(_renderData, sceneAABB, directionalLight->getDirection(), i == 0 ? 0.05f : splits[i - 1], splits[i], false);
+				lightViewProjections[i] = calculateLightViewProjection(_renderData, sceneAABB, directionalLight->getDirection(), i == 0 ? 0.05f : splits[i - 1], splits[i], true);
 			}
 			directionalLight->setViewProjectionMatrices(lightViewProjections);
 			directionalLight->setSplits(splits);
@@ -120,7 +119,6 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
-	glErrorCheck("");
 }
 
 void ShadowRenderer::render(const glm::mat4 *_viewProjectionMatrix, unsigned int _count, const Scene &_scene)

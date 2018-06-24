@@ -38,8 +38,7 @@ struct Material
 
 uniform Material uMaterial;
 uniform float uExposureTime = 0.5;
-uniform float uTileSize = 40.0 * 0.000625;
-uniform float uHalfPixelWidth = 0.0003125;
+uniform float uMaxVelocityMag;
 uniform vec2 uVel;
 
 const float MAX_VELOCITY = 25 * 0.000625; // tilesize * pixel width
@@ -115,5 +114,10 @@ void main()
 	vec2 v = abs(a - b);
 	v *= uExposureTime;
 	//v = uVel;
+
+	// clamp to maximum length
+	float originalLength = length(v);
+	v *= min(uMaxVelocityMag / originalLength, 1.0);
+
 	oVelocity = vec4(v, 0.0, 0.0);
 }

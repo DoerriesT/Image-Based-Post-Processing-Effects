@@ -92,6 +92,7 @@ private:
 	Uniform<glm::vec4> uAtlasDataG = Uniform<glm::vec4>("uAtlasData");
 	Uniform<glm::vec2> uVelG = Uniform<glm::vec2>("uVel");
 	Uniform<GLfloat> uExposureTimeG = Uniform<GLfloat>("uExposureTime");
+	Uniform<GLfloat> uMaxVelocityMagG = Uniform<GLfloat>("uMaxVelocityMag");
 	UniformMaterial uMaterialG = UniformMaterial("uMaterial");
 
 	// outline uniforms
