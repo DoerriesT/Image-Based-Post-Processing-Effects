@@ -36,9 +36,6 @@ public:
 	std::vector<GLint> createPointLightUniform(const std::string &_name) const;
 	std::vector<GLint> createSpotLightUniform(const std::string &_name) const;
 	std::vector<GLint> createDirectionalLightUniform(const std::string &_name) const;
-	std::vector<GLint> createPointLightUniformArray(const std::string &_name, unsigned int _size) const;
-	std::vector<GLint> createSpotLightUniformArray(const std::string &_name, unsigned int _size) const;
-	std::vector<GLint> createDirectionalLightUniformArray(const std::string &_name, unsigned int _size) const;
 	std::vector<GLint> createMaterialUniform(const std::string &_name) const;
 	void setUniform(const GLint &_location, const GLboolean &_value) const;
 	void setUniform(const GLint &_location, const GLint &_value) const;

@@ -265,14 +265,23 @@ std::vector<GLint> ShaderProgram::createDirectionalLightUniform(const std::strin
 	std::string directionalLightDirection = _name + ".direction";
 	std::string directionalLightRenderShadows = _name + ".renderShadows";
 	std::string directionalLightShadowMap = _name + ".shadowMap";
-	std::string directionalLightViewProjectionMatrix = _name + ".viewProjectionMatrix";
+	std::string directionalLightViewProjectionMatrix = _name + ".viewProjectionMatrices";
+	std::string directionalLightSplits = _name + ".splits";
 
 	std::vector<GLint> ids;
 	ids.push_back(glGetUniformLocation(programId, directionalLightColor.c_str()));
 	ids.push_back(glGetUniformLocation(programId, directionalLightDirection.c_str()));
 	ids.push_back(glGetUniformLocation(programId, directionalLightRenderShadows.c_str()));
 	ids.push_back(glGetUniformLocation(programId, directionalLightShadowMap.c_str()));
-	ids.push_back(glGetUniformLocation(programId, directionalLightViewProjectionMatrix.c_str()));
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		ids.push_back(glGetUniformLocation(programId, (directionalLightViewProjectionMatrix + "["+std::to_string(i) + "]").c_str()));
+	}
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		ids.push_back(glGetUniformLocation(programId, (directionalLightSplits + "[" + std::to_string(i) + "]").c_str()));
+	}
+	
 
 #ifdef _DEBUG
 	// make sure we have not already created these uniforms
@@ -281,51 +290,27 @@ std::vector<GLint> ShaderProgram::createDirectionalLightUniform(const std::strin
 	assert(uniforms.find(directionalLightRenderShadows) == uniforms.end());
 	assert(uniforms.find(directionalLightShadowMap) == uniforms.end());
 	assert(uniforms.find(directionalLightViewProjectionMatrix) == uniforms.end());
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		assert(uniforms.find(directionalLightViewProjectionMatrix + "[" + std::to_string(i) + "]") == uniforms.end());
+		assert(uniforms.find(directionalLightSplits + "[" + std::to_string(i) + "]") == uniforms.end());
+	}
 
 	uniforms[directionalLightColor] = ids[0];
 	uniforms[directionalLightDirection] = ids[1];
 	uniforms[directionalLightRenderShadows] = ids[2];
 	uniforms[directionalLightShadowMap] = ids[3];
-	uniforms[directionalLightViewProjectionMatrix] = ids[4];
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		uniforms[directionalLightViewProjectionMatrix + "[" + std::to_string(i) + "]"] = ids[3 + i];
+	}
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		uniforms[directionalLightSplits + "[" + std::to_string(i) + "]"] = ids[3 + SHADOW_CASCADES + i];
+	}
 #endif // DEBUG
 
 	return ids;
-}
-
-std::vector<GLint> ShaderProgram::createPointLightUniformArray(const std::string &_name, unsigned int _size) const
-{
-	std::vector<GLint> locations;
-	locations.reserve(_size * 5);
-	for (unsigned int i = 0; i < _size; ++i)
-	{
-		std::vector<GLint> pointLightLocations = createPointLightUniform(_name + "[" + std::to_string(i) + "]");
-		locations.insert(locations.end(), pointLightLocations.begin(), pointLightLocations.end());
-	}
-	return locations;
-}
-
-std::vector<GLint> ShaderProgram::createSpotLightUniformArray(const std::string &_name, unsigned int _size) const
-{
-	std::vector<GLint> locations;
-	locations.reserve(_size * 7);
-	for (unsigned int i = 0; i < _size; ++i)
-	{
-		std::vector<GLint> spotLightLocations = createSpotLightUniform(_name + "[" + std::to_string(i) + "]");
-		locations.insert(locations.end(), spotLightLocations.begin(), spotLightLocations.end());
-	}
-	return locations;
-}
-
-std::vector<GLint> ShaderProgram::createDirectionalLightUniformArray(const std::string &_name, unsigned int _size) const
-{
-	std::vector<GLint> locations;
-	locations.reserve(_size * 5);
-	for (unsigned int i = 0; i < _size; ++i)
-	{
-		std::vector<GLint> directionalLightLocations = createDirectionalLightUniform(_name + "[" + std::to_string(i) + "]");
-		locations.insert(locations.end(), directionalLightLocations.begin(), directionalLightLocations.end());
-	}
-	return locations;
 }
 
 std::vector<GLint> ShaderProgram::createMaterialUniform(const std::string &_name) const
@@ -448,12 +433,19 @@ void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared
 	setUniform(_locations[1], _value->getViewDirection());
 	setUniform(_locations[2], _value->isRenderShadows());
 	setUniform(_locations[3], _shadowMapTextureUnit);
-	setUniform(_locations[4], _value->getViewProjectionMatrix());
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		setUniform(_locations[4 + i], _value->getViewProjectionMatrices()[i]);
+	}
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		setUniform(_locations[4 + SHADOW_CASCADES + i], _value->getSplits()[i]);
+	}
 }
 
 void ShaderProgram::setUniform(const std::vector<GLint> &_locations, const Material *_value) const
 {
-	setUniform(_locations[0], glm::pow(_value->getAlbedo(), glm::vec4(glm::vec3(1.0 / 2.2), 1.0)));
+	setUniform(_locations[0], glm::pow(_value->getAlbedo(), glm::vec4(glm::vec3(1.0f / 2.2f), 1.0f)));
 	setUniform(_locations[1], _value->getMetallic());
 	setUniform(_locations[2], _value->getRoughness());
 	setUniform(_locations[3], 1.0f);

@@ -4,6 +4,7 @@
 #include <memory>
 #include <glad\glad.h>
 #include ".\..\..\Graphics\AxisAlignedBoundingBox.h"
+#include ".\..\..\Graphics\Lights.h"
 
 class ShaderProgram;
 class Camera;
@@ -28,37 +29,16 @@ public:
 
 private:
 	std::shared_ptr<ShaderProgram> shadowShader;
-	std::shared_ptr<ShaderProgram> shadowBlurShader;
-	std::shared_ptr<ShaderProgram> blitShader;
-
-	std::shared_ptr<Mesh> fullscreenTriangle;
 
 	// fbo
 	GLuint shadowFbo;
-	GLuint shadowTextureA;
-	GLuint shadowTextureB;
-	GLuint depthRenderBuffer;
 
-	GLint uModelViewProjectionMatrix;
-	GLint uModelMatrix;
-	GLint uCamPos;
-	GLint uShadowMap;
-	GLint uDirection;
-	GLint uWidth;
-	GLint uHeight;
-
-	// blit
-	GLuint uScreenTextureB;
+	GLint uModelViewProjectionMatrix[SHADOW_CASCADES];
 
 	float splits[4];
 
-	void render(const glm::mat4 &_viewProjectionMatrix, const Scene &_scene);
-	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
-	void blur(GLuint _textureToBlur);
-	void deleteAttachments();
+	void render(const glm::mat4 *_viewProjectionMatrix, unsigned int _count, const Scene &_scene);
 	void deleteFbos();
-	void blit(GLuint targetTexture);
-	glm::mat4 calculateLightViewProjection(const RenderData & _renderData, const std::shared_ptr<Camera>& _camera, const glm::vec3 & _lightDir, float _nearPlane, float _farPlane);
 	glm::mat4 calculateLightViewProjection(const RenderData &_renderData, const AxisAlignedBoundingBox &_sceneAABB, const glm::vec3 &_lightDir, float _nearPlane, float _farPlane, bool _useAABB);
 	AxisAlignedBoundingBox calculateSceneAABB(const Scene &_scene);
 };

@@ -2,6 +2,7 @@
 #include <glad\glad.h>
 #include <glm\trigonometric.hpp>
 #include <glm\gtc\matrix_transform.hpp>
+#include ".\..\Utilities\Utility.h"
 
 DirectionalLight::DirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows)
 	:color(_color), direction(glm::normalize(_direction)), renderShadows(false)
@@ -31,13 +32,19 @@ void DirectionalLight::setRenderShadows(bool _renderShadows)
 		if (renderShadows)
 		{
 			glGenTextures(1, &shadowMap);
-			glBindTexture(GL_TEXTURE_2D, shadowMap);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, SHADOW_MAP_RESOLUTION, SHADOW_MAP_RESOLUTION, 0, GL_RG, GL_FLOAT, NULL);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-			float borderColor[] = { 1.0f, 1.0f };
+			glBindTexture(GL_TEXTURE_2D_ARRAY, shadowMap);
+			//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, SHADOW_MAP_RESOLUTION, SHADOW_MAP_RESOLUTION, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+			glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_DEPTH_COMPONENT32F, SHADOW_MAP_RESOLUTION, SHADOW_MAP_RESOLUTION, SHADOW_CASCADES);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LEVEL, 0);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_FUNC, GL_GREATER);
+			float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 		}
 		else
@@ -57,9 +64,20 @@ void DirectionalLight::setDirection(const glm::vec3 &_direction)
 	direction = glm::normalize(_direction);
 }
 
-void DirectionalLight::setViewProjectionMatrix(const glm::mat4 &_viewProjectionMatrix)
+void DirectionalLight::setViewProjectionMatrices(glm::mat4 *_viewProjectionMatrices)
 {
-	viewProjectionMatrix = _viewProjectionMatrix;
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		viewProjectionMatrices[i] = _viewProjectionMatrices[i];
+	}
+}
+
+void DirectionalLight::setSplits(float *_splits)
+{
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		splits[i] = _splits[i];
+	}
 }
 
 void DirectionalLight::updateViewValues(const glm::mat4 &_viewMatrix)
@@ -87,9 +105,14 @@ glm::vec3 DirectionalLight::getViewDirection() const
 	return viewDirection;
 }
 
-glm::mat4 DirectionalLight::getViewProjectionMatrix() const
+const glm::mat4 *DirectionalLight::getViewProjectionMatrices() const
 {
-	return viewProjectionMatrix;
+	return viewProjectionMatrices;
+}
+
+const float * DirectionalLight::getSplits() const
+{
+	return splits;
 }
 
 unsigned int DirectionalLight::getShadowMap() const

@@ -236,8 +236,8 @@
     <None Include="..\Application\Resources\Shaders\Renderer\transparencyForward.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\transparencyForward.vert" />
     <None Include="..\Application\Resources\Shaders\Shadows\shadow.frag" />
+    <None Include="..\Application\Resources\Shaders\Shadows\shadow.geom" />
     <None Include="..\Application\Resources\Shaders\Shadows\shadow.vert" />
-    <None Include="..\Application\Resources\Shaders\Shadows\shadowBlur.frag" />
     <None Include="..\Application\Resources\Shaders\Shared\blit.frag" />
     <None Include="..\Application\Resources\Shaders\Shared\fullscreenTriangle.vert" />
     <None Include="..\Application\Resources\Shaders\Shared\terrain.frag" />

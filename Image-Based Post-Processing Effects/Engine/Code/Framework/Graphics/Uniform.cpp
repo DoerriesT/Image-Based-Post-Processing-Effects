@@ -23,11 +23,16 @@ bool operator==(const std::shared_ptr<SpotLight> &_lhv, const std::shared_ptr<Sp
 
 bool operator==(const std::shared_ptr<DirectionalLight> &_lhv, const std::shared_ptr<DirectionalLight> &_rhv)
 {
+	bool equalMatrices = true;
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		equalMatrices &= _lhv->getViewProjectionMatrices()[i] == _rhv->getViewProjectionMatrices()[i];
+	}
 	return _lhv->getColor() == _rhv->getColor() &&
 		_lhv->getViewDirection() == _rhv->getViewDirection() &&
 		_lhv->isRenderShadows() == _rhv->isRenderShadows() &&
 		_lhv->getShadowMap() == _rhv->getShadowMap() &&
-		_lhv->getViewProjectionMatrix() == _rhv->getViewProjectionMatrix();
+		equalMatrices;
 }
 
 bool operator==(Material &_lhv, Material &_rhv)

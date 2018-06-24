@@ -20,13 +20,15 @@ public:
 	void setRenderShadows(bool _renderShadows);
 	void setColor(const glm::vec3 &_color);
 	void setDirection(const glm::vec3 &_direction);
-	void setViewProjectionMatrix(const glm::mat4 &_viewProjectionMatrix);
+	void setViewProjectionMatrices(glm::mat4 *_viewProjectionMatrix);
+	void setSplits(float *_splits);
 	void updateViewValues(const glm::mat4 &_viewMatrix);
 	bool isRenderShadows() const;
 	glm::vec3 getColor() const;
 	glm::vec3 getDirection() const;
 	glm::vec3 getViewDirection() const;
-	glm::mat4 getViewProjectionMatrix() const;
+	const glm::mat4 *getViewProjectionMatrices() const;
+	const float *getSplits() const;
 	unsigned int getShadowMap() const;
 
 private:
@@ -35,7 +37,8 @@ private:
 	glm::vec3 viewDirection;
 	bool renderShadows;
 	unsigned int shadowMap;
-	glm::mat4 viewProjectionMatrix;
+	glm::mat4 viewProjectionMatrices[SHADOW_CASCADES];
+	float splits[SHADOW_CASCADES];
 
 	explicit DirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows = false);
 };

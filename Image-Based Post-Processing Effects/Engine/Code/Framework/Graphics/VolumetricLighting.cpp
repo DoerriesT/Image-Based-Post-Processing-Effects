@@ -117,15 +117,15 @@ void VolumetricLighting::render(GLuint _depthTexture, const RenderData &_renderD
 	// volume grid
 	{
 		glStencilFuncSeparate(GL_FRONT, GL_ALWAYS, 0xFF, 0xFF);
-		glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR, GL_KEEP);
+		glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
 		glStencilFuncSeparate(GL_BACK, GL_ALWAYS, 0xFF, 0xFF);
-		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR, GL_KEEP);
+		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 
 		glEnable(GL_DEPTH_TEST);
 
 		lightVolumeShader->bind();
 		uDisplacementTextureLV.set(0);
-		uInvLightViewProjectionLV.set(glm::inverse(_level->lights.directionalLights[0]->getViewProjectionMatrix()));
+		uInvLightViewProjectionLV.set(glm::inverse(_level->lights.directionalLights[0]->getViewProjectionMatrices()[0]));
 		uViewProjectionLV.set(_renderData.viewProjectionMatrix);
 
 		uPhaseLUTLV.set(1);
@@ -150,7 +150,7 @@ void VolumetricLighting::render(GLuint _depthTexture, const RenderData &_renderD
 		lightVolumeBaseShader->bind();
 
 		uDisplacementTextureLVB.set(0);
-		uInvLightViewProjectionLVB.set(glm::inverse(_level->lights.directionalLights[0]->getViewProjectionMatrix()));
+		uInvLightViewProjectionLVB.set(glm::inverse(_level->lights.directionalLights[0]->getViewProjectionMatrices()[0]));
 		uViewProjectionLVB.set(_renderData.viewProjectionMatrix);
 
 		uPhaseLUTLVB.set(1);
@@ -178,16 +178,16 @@ void VolumetricLighting::render(GLuint _depthTexture, const RenderData &_renderD
 		glStencilFuncSeparate(GL_FRONT, GL_NEVER, 0xFF, 0xFF);
 		glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_KEEP);
 		glStencilFuncSeparate(GL_BACK, GL_ALWAYS, 0xFF, 0xFF);
-		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR, GL_KEEP);
+		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 
 		uPassModeLVB.set(1);
 
-		//fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-		//fullscreenTriangle->getSubMesh()->render();
+		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+		fullscreenTriangle->getSubMesh()->render();
 
-		GLuint indices[] = { 0, 1, 2 };
+		/*GLuint indices[] = { 0, 1, 2 };
 
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, indices);
+		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, indices);*/
 	}
 	// final
 	{
@@ -200,12 +200,11 @@ void VolumetricLighting::render(GLuint _depthTexture, const RenderData &_renderD
 
 		uPassModeLVB.set(2);
 
-		//fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 		//fullscreenTriangle->getSubMesh()->render();
 
-		GLuint indices[] = { 0, 1, 2 };
+		/*GLuint indices[] = { 0, 1, 2 };
 
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, indices);
+		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, indices);*/
 	}
 
 	glFrontFace(GL_CCW);

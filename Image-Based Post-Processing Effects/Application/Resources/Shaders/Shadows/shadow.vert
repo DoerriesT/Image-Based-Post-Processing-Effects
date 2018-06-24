@@ -1,17 +1,15 @@
-#version 330 core
+#version 450 core
 
-layout (location = 0) in vec3 aPosition;  
-  
-out vec4 vPosition;
+layout (location = 0) in vec3 aPosition;
 
-uniform mat4 uModelViewProjectionMatrix;
-uniform mat4 uModelMatrix;
+const int SHADOW_CASCADES = 4;
+
+uniform mat4 uModelViewProjectionMatrix[SHADOW_CASCADES];
+
+out int vInstance;
 
 void main()
 {
-	vec4 position = vec4(aPosition, 1.0);
-    //vWorldPos = vec3(uModelMatrix * position);
-
-	gl_Position = uModelViewProjectionMatrix * position;
-	vPosition = gl_Position;
+	vInstance = gl_InstanceID;
+	gl_Position = uModelViewProjectionMatrix[gl_InstanceID] * vec4(aPosition, 1.0);
 }

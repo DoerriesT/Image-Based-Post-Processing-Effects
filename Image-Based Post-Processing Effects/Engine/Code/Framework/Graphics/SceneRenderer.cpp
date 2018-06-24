@@ -344,7 +344,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 
 	glEnable(GL_DEPTH_TEST);
 
-	volumetricLighting.render(gDepthStencilTexture, _renderData, _level);
+	//volumetricLighting.render(gDepthStencilTexture, _renderData, _level);
 
 	// rebind fbo since VolumetricLighting uses its own
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
@@ -750,7 +750,7 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 		if (directionalLight->isRenderShadows())
 		{
 			glActiveTexture(GL_TEXTURE5);
-			glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap());
+			glBindTexture(GL_TEXTURE_2D_ARRAY, directionalLight->getShadowMap());
 		}
 		uDirectionalLightE.set(directionalLight, 5);
 		uRenderDirectionalLightE.set(true);
@@ -786,7 +786,7 @@ void SceneRenderer::renderDirectionalLights(const RenderData &_renderData, const
 		if (directionalLight->isRenderShadows())
 		{
 			glActiveTexture(GL_TEXTURE4);
-			glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap());
+			glBindTexture(GL_TEXTURE_2D_ARRAY, directionalLight->getShadowMap());
 		}
 
 		uDirectionalLightD.set(directionalLight, 4);
@@ -884,7 +884,7 @@ void SceneRenderer::renderTransparentGeometry(const RenderData &_renderData, con
 		if (_level->lights.directionalLights[0]->isRenderShadows())
 		{
 			glActiveTexture(GL_TEXTURE4);
-			glBindTexture(GL_TEXTURE_2D, _level->lights.directionalLights[0]->getShadowMap());
+			glBindTexture(GL_TEXTURE_2D_ARRAY, _level->lights.directionalLights[0]->getShadowMap());
 		}
 		uRenderDirectionalLightT.set(true);
 		uDirectionalLightT.set(_level->lights.directionalLights[0], 4);

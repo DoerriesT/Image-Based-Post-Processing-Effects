@@ -93,12 +93,13 @@ void WindowFramework::init()
 		int width = vidModes[i].width;
 		int height = vidModes[i].height;
 
-		// we only support resolutions of 800x600 and higher
-		if (width < 800 || height < 600)
+		// we only support resolutions of 800x600 and higher (also they must be evenly divisible by 8)
+		if (width < 800 || height < 600 || width % 8 != 0 || height % 8 != 0)
 		{
 			continue;
 		}
 		// make sure we do not already have this resolution in our list
+		addToList = true;
 		for (std::pair<unsigned int, unsigned int> &resolution : supportedResolutions)
 		{
 			if (resolution.first == width && resolution.second == height)
@@ -109,10 +110,6 @@ void WindowFramework::init()
 		if (addToList)
 		{
 			supportedResolutions.push_back(std::make_pair(width, height));
-		}
-		else
-		{
-			addToList = true;
 		}
 	}
 

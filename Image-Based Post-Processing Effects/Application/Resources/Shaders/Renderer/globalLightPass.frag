@@ -7,13 +7,16 @@ layout(location = 0) out vec4 oFragColor;
 
 in vec2 vTexCoord;
 
+const int SHADOW_CASCADES = 4;
+
 struct DirectionalLight
 {
     vec3 color;
     vec3 direction;
 	bool renderShadows;
-	sampler2D shadowMap;
-	mat4 viewProjectionMatrix;
+	sampler2DArrayShadow shadowMap;
+	mat4 viewProjectionMatrices[SHADOW_CASCADES];
+	float splits[SHADOW_CASCADES];
 };
 
 uniform sampler2D uAlbedoMap;
@@ -217,24 +220,36 @@ void main()
 			float shadow = 0.0;
 			if(uDirectionalLight.renderShadows && uShadowsEnabled)
 			{		
+				float split = SHADOW_CASCADES - 1.0;
+				for (float i = 0.0; i < SHADOW_CASCADES; ++i)
+				{
+					if(-viewSpacePosition.z < uDirectionalLight.splits[int(i)])
+					{
+						split = i;
+						break;
+					}
+				}
+
 				vec4 worldPos4 = uInverseView * viewSpacePosition;
 				worldPos4 /= worldPos4.w;
-				vec4 projCoords4 = uDirectionalLight.viewProjectionMatrix * worldPos4;
+				vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * worldPos4;
 				vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
 				projCoords = projCoords * 0.5 + 0.5; 
-				vec2 moments = texture(uDirectionalLight.shadowMap, projCoords.xy).xy;
-				float currentDepth = projCoords.z;
+				vec2 invShadowMapSize = vec2(1.0 / (textureSize(uDirectionalLight.shadowMap, 0).xy));
 
-				float p = (currentDepth <= moments.x) ? 1.0 : 0.0;
-				float variance = moments.y - (moments.x * moments.x);
-				variance = max(variance, 0.00002);
-				float d = currentDepth - moments.x;
-				float p_max = variance / (variance + d * d);
-				shadow = 1.0 - max(p, p_max);
-				if(projCoords.z > 1.0)
+				float count = 0.0;
+				float radius = 2.0;
+				for(float row = -radius; row <= radius; ++row)
 				{
-					shadow = 0.0;
+					for(float col = -radius; col <= radius; ++col)
+					{
+						++count;
+						shadow += texture(uDirectionalLight.shadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.001)).x;
+					}
 				}
+				shadow *= 1.0 / count;
+				// clamp to border seems not to work with texture_2d_array
+				shadow *= float(projCoords.x <= 1.0 && projCoords.x >= 0.0 && projCoords.y <= 1.0 && projCoords.y >= 0.0);
 			}
 
 			vec3 L = normalize(uDirectionalLight.direction);
