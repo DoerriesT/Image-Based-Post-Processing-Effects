@@ -59,7 +59,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 	float splits[SHADOW_CASCADES];
 	float nearPlane = Window::NEAR_PLANE;
 	float farPlane = Window::FAR_PLANE;
-	float blendWeight = 0.98f;
+	float blendWeight = 0.9975f;
 	for (unsigned int i = 1; i < SHADOW_CASCADES; ++i)
 	{
 		float logSplit = nearPlane * pow(farPlane / nearPlane, i / float(SHADOW_CASCADES));
@@ -212,7 +212,7 @@ glm::mat4 ShadowRenderer::calculateLightViewProjection(const RenderData & _rende
 		frustumCenter += glm::vec3(corner);
 	}
 	frustumCenter /= 8.0f;
-	float distance = glm::distance(frustumCorners[0], frustumCorners[7]);
+	float distance = 100.0f;//glm::distance(frustumCorners[0], frustumCorners[7]);
 
 	glm::vec3 lightPos = _lightDir * distance + frustumCenter;
 	glm::vec3 upDir(0.0f, 1.0f, 0.0f);
