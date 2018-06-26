@@ -207,6 +207,8 @@
     <None Include="..\Application\Resources\Shaders\PostProcess\hdr.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\lensFlareBlur.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\lensFlareGen.frag" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\luminanceAdaption.comp" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\luminanceGen.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\singlePassEffects.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\upsample.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\velocityNeighborTileMax.frag" />

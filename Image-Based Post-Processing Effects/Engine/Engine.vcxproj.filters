@@ -789,5 +789,11 @@
     <None Include="..\Application\Resources\Shaders\Shadows\shadow.geom">
       <Filter>Resources\Shaders\Shadows</Filter>
     </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\luminanceAdaption.comp">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\luminanceGen.comp">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
   </ItemGroup>
 </Project>
