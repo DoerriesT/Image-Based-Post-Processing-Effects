@@ -231,8 +231,8 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	level->lights.directionalLights.push_back(DirectionalLight::createDirectionalLight(params.intensity * 16.0f, level->sun.direction, true));
 	float angle = 20.0f;
 	float range = 25.0f;
-	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f, 0.7f, -0.8f), glm::vec3(-1.0f, -0.25f, 0.0f), angle, range, true));
-	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f, 0.7f, 0.8f), glm::vec3(-1.0f, -0.25f, 0.0f), angle, range, true));
+	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f, 0.7f, -0.8f), glm::vec3(-1.0f, -0.25f, -0.1f), angle, range, true));
+	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f, 0.7f, 0.8f), glm::vec3(-1.0f, -0.25f, 0.1f), angle, range, true));
 
 
 	// objects

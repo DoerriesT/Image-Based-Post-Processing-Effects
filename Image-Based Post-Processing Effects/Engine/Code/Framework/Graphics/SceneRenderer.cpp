@@ -23,12 +23,6 @@
 #include ".\..\..\Graphics\Effects.h"
 #include ".\..\..\Graphics\Texture.h"
 
-float calculateLightScale(const glm::vec3 &_color)
-{
-	static const float MIN_THRESHOLD = 1.0f / 256.0f;
-	float maxColor = glm::max(_color.r, glm::max(_color.g, _color.b));
-	return sqrt(maxColor / MIN_THRESHOLD);
-}
 
 SceneRenderer::SceneRenderer(std::shared_ptr<Window> _window)
 	:window(_window), ocean(false, true), volumetricLighting(window->getWidth(), window->getHeight())
