@@ -25,7 +25,7 @@ uniform float uBloomDirtStrength = 0.5;
 uniform float uExposure = 1.0;
 uniform float uVelocityScale;
 uniform float uHalfPixelWidth = 0.0003125;
-uniform float uKeyValue = 0.28;
+uniform float uKeyValue = 0.12;
 uniform bool uAutoExposure = true;
 
 const float MAX_SAMPLES = 32.0;

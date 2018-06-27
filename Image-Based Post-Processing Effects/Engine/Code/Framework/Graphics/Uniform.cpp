@@ -96,7 +96,7 @@ void UniformSpotLight::create(const std::shared_ptr<ShaderProgram> &_shaderProgr
 void UniformSpotLight::set(const std::shared_ptr<SpotLight> &_value, const GLint &_shadowMapTextureUnit)
 {
 	auto p = std::make_pair(_value, _shadowMapTextureUnit);
-	if (firstTime || value != p)
+	//if (firstTime || value != p)
 	{
 		firstTime = false;
 		value = p;

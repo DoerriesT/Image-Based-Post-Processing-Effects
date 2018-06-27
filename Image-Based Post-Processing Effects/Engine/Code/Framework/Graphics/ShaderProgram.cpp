@@ -201,6 +201,7 @@ std::vector<GLint> ShaderProgram::createSpotLightUniform(const std::string &_nam
 	std::string spotLightPosition = _name + ".position";
 	std::string spotLightDirection = _name + ".direction";
 	std::string spotLightAngle = _name + ".angle";
+	std::string spotLightRadius = _name + ".radius";
 	std::string spotLightRenderShadows = _name + ".renderShadows";
 	std::string spotLightShadowMap = _name + ".shadowMap";
 	std::string spotLightViewProjectionMatrix = _name + ".viewProjectionMatrix";
@@ -210,6 +211,7 @@ std::vector<GLint> ShaderProgram::createSpotLightUniform(const std::string &_nam
 	ids.push_back(glGetUniformLocation(programId, spotLightPosition.c_str()));
 	ids.push_back(glGetUniformLocation(programId, spotLightDirection.c_str()));
 	ids.push_back(glGetUniformLocation(programId, spotLightAngle.c_str()));
+	ids.push_back(glGetUniformLocation(programId, spotLightRadius.c_str()));
 	ids.push_back(glGetUniformLocation(programId, spotLightRenderShadows.c_str()));
 	ids.push_back(glGetUniformLocation(programId, spotLightShadowMap.c_str()));
 	ids.push_back(glGetUniformLocation(programId, spotLightViewProjectionMatrix.c_str()));
@@ -335,10 +337,11 @@ void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared
 	setUniform(_locations[0], _value->getColor());
 	setUniform(_locations[1], _value->getViewPosition());
 	setUniform(_locations[2], _value->getViewDirection());
-	setUniform(_locations[3], _value->getAngle());
-	setUniform(_locations[4], _value->isRenderShadows());
-	setUniform(_locations[5], _shadowMapTextureUnit);
-	setUniform(_locations[6], _value->getViewProjectionMatrix());
+	setUniform(_locations[3], _value->getAngleCos());
+	setUniform(_locations[4], _value->getRadius());
+	setUniform(_locations[5], _value->isRenderShadows());
+	setUniform(_locations[6], _shadowMapTextureUnit);
+	setUniform(_locations[7], _value->getViewProjectionMatrix());
 }
 
 void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<DirectionalLight> _value, int _shadowMapTextureUnit) const

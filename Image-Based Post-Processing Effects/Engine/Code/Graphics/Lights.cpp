@@ -289,8 +289,11 @@ unsigned int PointLight::getShadowMapResolution() const
 	return shadowMapResolution;
 }
 
-SpotLight::SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _angle, bool _renderShadows)
-	:color(_color), position(_position), direction(glm::normalize(_direction)), angle(glm::cos(glm::radians(_angle))), renderShadows(false)
+
+const unsigned int SpotLight::DEFAULT_SHADOW_MAP_RESOLUTION = 1024;
+
+SpotLight::SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _angle, float _radius, bool _renderShadows, unsigned int _shadowMapResolution)
+	:color(_color), position(_position), direction(glm::normalize(_direction)), angle(glm::radians(_angle)), angleCos(glm::cos(angle)), renderShadows(false), radius(_radius), shadowMapResolution(_shadowMapResolution)
 {
 	setRenderShadows(_renderShadows);
 	updateViewProjectionMatrix();
@@ -305,9 +308,27 @@ void SpotLight::updateViewProjectionMatrix()
 	viewProjectionMatrix  = glm::perspective(glm::acos(angle) * 2.0f, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE) * glm::lookAt(position, position + direction, upDir);
 }
 
-std::shared_ptr<SpotLight> SpotLight::createSpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _angle, bool _renderShadows)
+void SpotLight::createShadowMap()
 {
-	return std::shared_ptr<SpotLight>(new SpotLight(_color, _position, _direction, _angle, _renderShadows));
+	glGenTextures(1, &shadowMap);
+	glBindTexture(GL_TEXTURE_2D, shadowMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, shadowMapResolution, shadowMapResolution, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_GREATER);
+	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	glErrorCheck("");
+}
+
+std::shared_ptr<SpotLight> SpotLight::createSpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _angle, float _radius, bool _renderShadows, unsigned int _shadowMapResolution)
+{
+	return std::shared_ptr<SpotLight>(new SpotLight(_color, _position, _direction, _angle, _radius, _renderShadows, _shadowMapResolution));
 }
 
 SpotLight::~SpotLight()
@@ -326,15 +347,7 @@ void SpotLight::setRenderShadows(bool _renderShadows)
 
 		if (renderShadows)
 		{
-			glGenTextures(1, &shadowMap);
-			glBindTexture(GL_TEXTURE_2D, shadowMap);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, 1024, 1024, 0, GL_RG, GL_FLOAT, NULL);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-			float borderColor[] = { 1.0f, 1.0f };
-			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+			createShadowMap();
 		}
 		else
 		{
@@ -362,8 +375,24 @@ void SpotLight::setDirection(const glm::vec3 &_direction)
 
 void SpotLight::setAngle(float _angle)
 {
-	angle = glm::cos(glm::radians(_angle));
+	angle = glm::radians(_angle);
+	angleCos = glm::cos(angle);
 	updateViewProjectionMatrix();
+}
+
+void SpotLight::setRadius(float _radius)
+{
+	radius = _radius;
+}
+
+void SpotLight::setShadowMapResolution(unsigned int _resolution)
+{
+	shadowMapResolution = _resolution;
+	if (renderShadows)
+	{
+		glDeleteTextures(1, &shadowMap);
+		createShadowMap();
+	}
 }
 
 void SpotLight::setViewProjectionMatrix(const glm::mat4 &_viewProjectionMatrix)
@@ -413,6 +442,16 @@ float SpotLight::getAngle() const
 	return angle;
 }
 
+float SpotLight::getAngleCos() const
+{
+	return angleCos;
+}
+
+float SpotLight::getRadius() const
+{
+	return radius;
+}
+
 glm::mat4 SpotLight::getViewProjectionMatrix() const
 {
 	return viewProjectionMatrix;
@@ -421,4 +460,9 @@ glm::mat4 SpotLight::getViewProjectionMatrix() const
 unsigned int SpotLight::getShadowMap() const
 {
 	return shadowMap;
+}
+
+unsigned int SpotLight::getShadowMapResolution() const
+{
+	return shadowMapResolution;
 }

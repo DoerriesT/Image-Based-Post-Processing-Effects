@@ -122,8 +122,6 @@ void main()
 				}
 			}
 			shadow *= 1.0 / count;
-			// clamp to border seems not to work with texture_2d_array
-			shadow *= float(projCoords.x <= 1.0 && projCoords.x >= 0.0 && projCoords.y <= 1.0 && projCoords.y >= 0.0);
 		}
 
 		vec3 V = -normalize(viewSpacePosition.xyz);

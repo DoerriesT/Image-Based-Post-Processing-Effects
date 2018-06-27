@@ -856,20 +856,15 @@ void SceneRenderer::renderSpotLights(const RenderData &_renderData, const std::s
 			glBindTexture(GL_TEXTURE_2D, spotLight->getShadowMap());
 		}
 
-		glm::vec3 position = spotLight->getPosition();
-		glm::vec3 direction = spotLight->getDirection();
-		glm::vec3 up = (abs(direction.x) < 0.0001 && abs(direction.z) < 0.0001) ? glm::vec3(0.0f, 1.0f, 1.0f) : glm::vec3(0.0f, 1.0f, 0.0f);
-		glm::mat4 lightView = glm::lookAt(position, position + direction, up);
+		// scale a bit larger to correct for proxy geometry not being exactly round
+		float scale = (glm::tan(spotLight->getAngle()) + 0.1f) * spotLight->getRadius();
 
-		float a = glm::angle(glm::vec3(0.0f, 0.0f, 1.0f), direction);
-		float ad = glm::degrees(a);
-		glm::mat4 rot = glm::rotate(a, glm::vec3(0.0f, 1.0f, 0.0f));
-		a = glm::angle(glm::vec3(0.0f, 1.0f, 0.0f), direction);
-		ad = glm::degrees(a);
-		rot *= glm::rotate(a, glm::vec3(1.0f, 0.0f, 0.0f));
-		//rot *= glm::rotate(glm::angle(glm::vec3(0.0f, 0.0f, 1.0f), direction), glm::vec3(0.0f, 0.0f, 1.0f));
+		const glm::vec3 defaultDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 
-		uModelViewProjectionS.set(_renderData.viewProjectionMatrix * glm::translate(position) * rot * glm::scale(glm::vec3(calculateLightScale(spotLight->getColor()))));
+		uModelViewProjectionS.set(_renderData.viewProjectionMatrix
+			* glm::translate(spotLight->getPosition())
+			* glm::mat4_cast(glm::rotation(defaultDirection, spotLight->getDirection()))
+			* glm::scale(glm::vec3(scale, spotLight->getRadius(), scale)));
 		uSpotLightS.set(spotLight, 4);
 		spotLightMesh->getSubMesh()->render();
 	}

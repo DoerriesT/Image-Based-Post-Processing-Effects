@@ -12,8 +12,9 @@ struct SpotLight
     vec3 position;
 	vec3 direction;
 	float angle;
+	float radius;
 	bool renderShadows;
-	sampler2D shadowMap;
+	sampler2DShadow shadowMap;
 	mat4 viewProjectionMatrix;
 };
 
@@ -110,25 +111,28 @@ void main()
 		{
 			vec4 worldPos4 = uInverseView * viewSpacePosition;
 			vec4 projCoords4 = uSpotLight.viewProjectionMatrix * worldPos4;
-			vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
+			vec3 projCoords = projCoords4.xyz / projCoords4.w;
 			projCoords = projCoords * 0.5 + 0.5; 
-			vec2 moments = texture(uSpotLight.shadowMap, projCoords.xy).xy;
-			float currentDepth = projCoords.z;
+			vec2 invShadowMapSize = vec2(1.0 / (textureSize(uSpotLight.shadowMap, 0).xy));
 
-			float p = (currentDepth <= moments.x) ? 1.0 : 0.0;
-			float variance = moments.y - (moments.x * moments.x);
-			variance = max(variance, 0.00001);
-			float d = currentDepth - moments.x;
-			float p_max = variance / (variance + d * d);
-			shadow = 1.0 - max(p, p_max);
-			if(projCoords.z > 1.0)
+			float count = 0.0;
+			float radius = 2.0;
+			for(float row = -radius; row <= radius; ++row)
 			{
-				shadow = 0.0;
+				for(float col = -radius; col <= radius; ++col)
+				{
+					++count;
+					shadow += texture(uSpotLight.shadowMap, vec3(projCoords.xy + vec2(col, row) * invShadowMapSize, projCoords.z - 0.01)).x;
+				}
 			}
+			shadow *= 1.0 / count;
 		}
 
 
-		float attenuation = 1.0 / (distance * distance);
+		float distancePercentage = distance / uSpotLight.radius;
+		float attenuation = clamp(1.0 - (distancePercentage * distancePercentage * distancePercentage * distancePercentage), 0.0, 1.0);
+		attenuation *= attenuation;
+		attenuation /= distance * distance + 1.0;
 		vec3 radiance = uSpotLight.color * attenuation;
 
 		// Cook-Torrance BRDF

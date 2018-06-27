@@ -90,18 +90,21 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 		}
 	}
 
-	//for (const std::shared_ptr<SpotLight> &spotLight : _level->lights.spotLights)
-	//{
-	//	if (spotLight->isRenderShadows())
-	//	{
-	//		// render into multisampled framebuffer
-	//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//		render(spotLight->getViewProjectionMatrix(), _scene);
+	for (const std::shared_ptr<SpotLight> &spotLight : _level->lights.spotLights)
+	{
+		if (spotLight->isRenderShadows())
+		{
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, spotLight->getShadowMap(), 0);
+			unsigned int shadowMapResolution = spotLight->getShadowMapResolution();
+			glViewport(0, 0, shadowMapResolution, shadowMapResolution);
+			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			glClear(GL_DEPTH_BUFFER_BIT);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	//		// blit into texture
-	//		blit(spotLight->getShadowMap());
-	//	}
-	//}
+			glm::mat4 viewProj = spotLight->getViewProjectionMatrix();
+			render(&viewProj, 1, _scene);
+		}
+	}
 
 	for (const std::shared_ptr<PointLight> &pointLight : _level->lights.pointLights)
 	{
