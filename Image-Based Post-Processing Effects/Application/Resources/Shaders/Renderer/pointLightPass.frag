@@ -8,11 +8,12 @@ struct PointLight
 {
     vec3 color;
     vec3 position;
+	float radius;
 	bool renderShadows;
-	sampler2D shadowMap;
-	mat4 viewProjectionMatrix;
+	samplerCubeShadow shadowMap;
 };
 
+const float SHADOW_NEAR_Z = 0.1;
 
 uniform sampler2D uAlbedoMap;
 uniform sampler2D uNormalMap;
@@ -69,6 +70,18 @@ vec3 fresnelSchlick(float HdotV, vec3 F0)
 	return F0 + (1.0 - F0) * fresnel;
 }
 
+float vectorToDepth (vec3 vec)
+{
+    vec3 absVec = abs(vec);
+    float localZComp = max(absVec.x, max(absVec.y, absVec.z));
+	
+    float f = uPointLight.radius;
+    float n = SHADOW_NEAR_Z;
+	
+    float normZComp = (f+n) / (f-n) - (2*f*n)/(f-n)/localZComp;
+    return (normZComp + 1.0) * 0.5;
+}
+
 void main()
 {
 	vec2 texCoord = gl_FragCoord.xy /  textureSize(uAlbedoMap, 0);
@@ -102,27 +115,17 @@ void main()
 		float shadow = 0.0;
 		if(uPointLight.renderShadows && uShadowsEnabled)
 		{
-			vec4 worldPos4 = uInverseView * viewSpacePosition;
-			vec4 projCoords4 = uPointLight.viewProjectionMatrix * worldPos4;
-			vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
-			projCoords = projCoords * 0.5 + 0.5; 
-			vec2 moments = texture(uPointLight.shadowMap, projCoords.xy).xy;
-			float currentDepth = projCoords.z;
-
-			float p = (currentDepth <= moments.x) ? 1.0 : 0.0;
-			float variance = moments.y - (moments.x * moments.x);
-			variance = max(variance, 0.00001);
-			float d = currentDepth - moments.x;
-			float p_max = variance / (variance + d * d);
-			shadow = 1.0 - max(p, p_max);
-			if(projCoords.z > 1.0)
-			{
-				shadow = 0.0;
-			}
+			vec3 lightToFrag = viewSpacePosition.xyz - uPointLight.position;
+			lightToFrag = (uInverseView * vec4(lightToFrag, 0.0)).xyz;
+			//lightToFrag -= normalize(lightToFrag) * 0.01;
+			float fragDepth = vectorToDepth(lightToFrag);
+			shadow = texture(uPointLight.shadowMap, vec4(lightToFrag, fragDepth - 0.001)).x;
 		}
 
-
-		float attenuation = 1.0 / (distance * distance);
+		float distancePercentage = distance / uPointLight.radius;
+		float attenuation = clamp(1.0 - (distancePercentage * distancePercentage * distancePercentage * distancePercentage), 0.0, 1.0);
+		attenuation *= attenuation;
+		attenuation /= distance * distance + 1.0;
 		vec3 radiance = uPointLight.color * attenuation;
 
 		// Cook-Torrance BRDF

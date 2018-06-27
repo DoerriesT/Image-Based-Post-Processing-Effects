@@ -4,13 +4,14 @@
 #include <vector>
 #include <memory>
 
-const unsigned int SHADOW_MAP_RESOLUTION = 4096;
 const unsigned int SHADOW_CASCADES = 4;
 
 class DirectionalLight
 {
 public:
-	static std::shared_ptr<DirectionalLight> createDirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows = false);
+	static const unsigned int DEFAULT_SHADOW_MAP_RESOLUTION;
+
+	static std::shared_ptr<DirectionalLight> createDirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION);
 
 	DirectionalLight(const DirectionalLight &) = delete;
 	DirectionalLight(const DirectionalLight &&) = delete;
@@ -22,6 +23,7 @@ public:
 	void setDirection(const glm::vec3 &_direction);
 	void setViewProjectionMatrices(glm::mat4 *_viewProjectionMatrix);
 	void setSplits(float *_splits);
+	void setShadowMapResolution(unsigned int _resolution);
 	void updateViewValues(const glm::mat4 &_viewMatrix);
 	bool isRenderShadows() const;
 	glm::vec3 getColor() const;
@@ -30,6 +32,7 @@ public:
 	const glm::mat4 *getViewProjectionMatrices() const;
 	const float *getSplits() const;
 	unsigned int getShadowMap() const;
+	unsigned int getShadowMapResolution() const;
 
 private:
 	glm::vec3 color;
@@ -37,16 +40,20 @@ private:
 	glm::vec3 viewDirection;
 	bool renderShadows;
 	unsigned int shadowMap;
+	unsigned int shadowMapResolution;
 	glm::mat4 viewProjectionMatrices[SHADOW_CASCADES];
 	float splits[SHADOW_CASCADES];
 
-	explicit DirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows = false);
+	explicit DirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION);
+	void createShadowMap();
 };
 
 class PointLight
 {
 public:
-	static std::shared_ptr<PointLight> createPointLight(const glm::vec3 &_color, const glm::vec3 &_position, bool _renderShadows = false);
+	static const unsigned int DEFAULT_SHADOW_MAP_RESOLUTION;
+
+	static std::shared_ptr<PointLight> createPointLight(const glm::vec3 &_color, const glm::vec3 &_position, float _radius, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION);
 
 	PointLight(const PointLight &) = delete;
 	PointLight(const PointLight &&) = delete;
@@ -56,25 +63,31 @@ public:
 	void setRenderShadows(bool _renderShadows);
 	void setColor(const glm::vec3 &_color);
 	void setPosition(const glm::vec3 &_position);
-	void setViewProjectionMatrix(const glm::mat4 &_viewProjectionMatrix);
+	void setRadius(float _radius);
+	void setShadowMapResolution(unsigned int _resolution);
 	void updateViewValues(const glm::mat4 &_viewMatrix);
 	bool isRenderShadows() const;
 	glm::vec3 getColor() const;
 	glm::vec3 getPosition() const;
 	glm::vec3 getViewPosition() const;
-	glm::mat4 getViewProjectionMatrix() const;
+	float getRadius() const;
+	const glm::mat4 *getViewProjectionMatrices() const;
 	unsigned int getShadowMap() const;
+	unsigned int getShadowMapResolution() const;
 
 private:
 	glm::vec3 color;
 	glm::vec3 position;
 	glm::vec3 viewPosition;
+	float radius;
 	bool renderShadows;
 	unsigned int shadowMap;
-	glm::mat4 viewProjectionMatrix;
+	unsigned int shadowMapResolution;
+	glm::mat4 viewProjectionMatrices[6];
 
-	explicit PointLight(const glm::vec3 &_color, const glm::vec3 &_position, bool _renderShadows = false);
-	void updateViewProjectionMatrix();
+	explicit PointLight(const glm::vec3 &_color, const glm::vec3 &_position, float _radius, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION);
+	void updateViewProjectionMatrices();
+	void createShadowMap();
 };
 
 class SpotLight

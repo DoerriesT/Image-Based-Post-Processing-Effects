@@ -53,9 +53,6 @@ public:
 
 private:
 	GLuint programId;
-#ifdef _DEBUG
-	mutable std::map<const std::string, GLint> uniforms;
-#endif // DEBUG
 
 	explicit ShaderProgram(const char *_vertexShaderPath,
 		const char *_fragmentShaderPath,

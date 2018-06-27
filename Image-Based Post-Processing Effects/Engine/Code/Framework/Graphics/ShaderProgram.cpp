@@ -174,46 +174,23 @@ void ShaderProgram::bind()
 
 const GLint ShaderProgram::createUniform(const std::string &_name) const
 {
-	const GLint id = glGetUniformLocation(programId, _name.c_str());
-
-#ifdef _DEBUG
-	// make sure we have not already created this uniform
-	assert(uniforms.find(_name) == uniforms.end());
-	uniforms[_name] = id;
-#endif // DEBUG
-
-	return id;
+	return glGetUniformLocation(programId, _name.c_str());
 }
 
 std::vector< GLint> ShaderProgram::createPointLightUniform(const std::string &_name) const
 {
 	std::string pointLightColor = _name + ".color";
 	std::string pointLightPosition = _name + ".position";
+	std::string pointLightRadius = _name + ".radius";
 	std::string pointLightRenderShadows = _name + ".renderShadows";
 	std::string pointLightShadowMap = _name + ".shadowMap";
-	std::string pointLightViewProjectionMatrix = _name + ".viewProjectionMatrix";
 
 	std::vector<GLint> ids;
 	ids.push_back(glGetUniformLocation(programId, pointLightColor.c_str()));
 	ids.push_back(glGetUniformLocation(programId, pointLightPosition.c_str()));
+	ids.push_back(glGetUniformLocation(programId, pointLightRadius.c_str()));
 	ids.push_back(glGetUniformLocation(programId, pointLightRenderShadows.c_str()));
 	ids.push_back(glGetUniformLocation(programId, pointLightShadowMap.c_str()));
-	ids.push_back(glGetUniformLocation(programId, pointLightViewProjectionMatrix.c_str()));
-
-#ifdef _DEBUG
-	// make sure we have not already created these uniforms
-	assert(uniforms.find(pointLightColor) == uniforms.end());
-	assert(uniforms.find(pointLightPosition) == uniforms.end());
-	assert(uniforms.find(pointLightRenderShadows) == uniforms.end());
-	assert(uniforms.find(pointLightShadowMap) == uniforms.end());
-	assert(uniforms.find(pointLightViewProjectionMatrix) == uniforms.end());
-
-	uniforms[pointLightColor] = ids[0];
-	uniforms[pointLightPosition] = ids[1];
-	uniforms[pointLightRenderShadows] = ids[2];
-	uniforms[pointLightShadowMap] = ids[3];
-	uniforms[pointLightViewProjectionMatrix] = ids[4];
-#endif // DEBUG
 
 	return ids;
 }
@@ -236,25 +213,6 @@ std::vector<GLint> ShaderProgram::createSpotLightUniform(const std::string &_nam
 	ids.push_back(glGetUniformLocation(programId, spotLightRenderShadows.c_str()));
 	ids.push_back(glGetUniformLocation(programId, spotLightShadowMap.c_str()));
 	ids.push_back(glGetUniformLocation(programId, spotLightViewProjectionMatrix.c_str()));
-
-#ifdef _DEBUG
-	// make sure we have not already created these uniforms
-	assert(uniforms.find(spotLightColor) == uniforms.end());
-	assert(uniforms.find(spotLightPosition) == uniforms.end());
-	assert(uniforms.find(spotLightDirection) == uniforms.end());
-	assert(uniforms.find(spotLightAngle) == uniforms.end());
-	assert(uniforms.find(spotLightRenderShadows) == uniforms.end());
-	assert(uniforms.find(spotLightShadowMap) == uniforms.end());
-	assert(uniforms.find(spotLightViewProjectionMatrix) == uniforms.end());
-
-	uniforms[spotLightColor] = ids[0];
-	uniforms[spotLightPosition] = ids[1];
-	uniforms[spotLightDirection] = ids[2];
-	uniforms[spotLightAngle] = ids[3];
-	uniforms[spotLightRenderShadows] = ids[4];
-	uniforms[spotLightShadowMap] = ids[5];
-	uniforms[spotLightViewProjectionMatrix] = ids[6];
-#endif // DEBUG
 
 	return ids;
 }
@@ -282,34 +240,6 @@ std::vector<GLint> ShaderProgram::createDirectionalLightUniform(const std::strin
 		ids.push_back(glGetUniformLocation(programId, (directionalLightSplits + "[" + std::to_string(i) + "]").c_str()));
 	}
 	
-
-#ifdef _DEBUG
-	// make sure we have not already created these uniforms
-	assert(uniforms.find(directionalLightColor) == uniforms.end());
-	assert(uniforms.find(directionalLightDirection) == uniforms.end());
-	assert(uniforms.find(directionalLightRenderShadows) == uniforms.end());
-	assert(uniforms.find(directionalLightShadowMap) == uniforms.end());
-	assert(uniforms.find(directionalLightViewProjectionMatrix) == uniforms.end());
-	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
-	{
-		assert(uniforms.find(directionalLightViewProjectionMatrix + "[" + std::to_string(i) + "]") == uniforms.end());
-		assert(uniforms.find(directionalLightSplits + "[" + std::to_string(i) + "]") == uniforms.end());
-	}
-
-	uniforms[directionalLightColor] = ids[0];
-	uniforms[directionalLightDirection] = ids[1];
-	uniforms[directionalLightRenderShadows] = ids[2];
-	uniforms[directionalLightShadowMap] = ids[3];
-	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
-	{
-		uniforms[directionalLightViewProjectionMatrix + "[" + std::to_string(i) + "]"] = ids[3 + i];
-	}
-	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
-	{
-		uniforms[directionalLightSplits + "[" + std::to_string(i) + "]"] = ids[3 + SHADOW_CASCADES + i];
-	}
-#endif // DEBUG
-
 	return ids;
 }
 
@@ -327,22 +257,6 @@ std::vector<GLint> ShaderProgram::createMaterialUniform(const std::string &_name
 	std::string roughnessMap = _name + ".roughnessMap";
 	std::string aoMap = _name + ".aoMap";
 	std::string emissiveMap = _name + ".emissiveMap";
-
-#ifdef _DEBUG
-	// make sure we have not already created these uniforms
-	assert(uniforms.find(albedo) == uniforms.end());
-	assert(uniforms.find(metallic) == uniforms.end());
-	assert(uniforms.find(roughness) == uniforms.end());
-	assert(uniforms.find(ao) == uniforms.end());
-	assert(uniforms.find(emissive) == uniforms.end());
-	assert(uniforms.find(mapBitField) == uniforms.end());
-	assert(uniforms.find(albedoMap) == uniforms.end());
-	assert(uniforms.find(normalMap) == uniforms.end());
-	assert(uniforms.find(metallicMap) == uniforms.end());
-	assert(uniforms.find(roughnessMap) == uniforms.end());
-	assert(uniforms.find(aoMap) == uniforms.end());
-	assert(uniforms.find(emissiveMap) == uniforms.end());
-#endif // DEBUG
 
 	std::vector<GLint> locations;
 
@@ -411,9 +325,9 @@ void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared
 {
 	setUniform(_locations[0], _value->getColor());
 	setUniform(_locations[1], _value->getViewPosition());
-	setUniform(_locations[2], _value->isRenderShadows());
-	setUniform(_locations[3], _shadowMapTextureUnit);
-	setUniform(_locations[4], _value->getViewProjectionMatrix());
+	setUniform(_locations[2], _value->getRadius());
+	setUniform(_locations[3], _value->isRenderShadows());
+	setUniform(_locations[4], _shadowMapTextureUnit);
 }
 
 void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<SpotLight> _value, int _shadowMapTextureUnit) const

@@ -33,9 +33,7 @@ private:
 	// fbo
 	GLuint shadowFbo;
 
-	GLint uModelViewProjectionMatrix[SHADOW_CASCADES];
-
-	float splits[4];
+	GLint uModelViewProjectionMatrix[6];
 
 	void render(const glm::mat4 *_viewProjectionMatrix, unsigned int _count, const Scene &_scene);
 	void deleteFbos();

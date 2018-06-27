@@ -822,10 +822,10 @@ void SceneRenderer::renderPointLights(const RenderData &_renderData, const std::
 		if (pointLight->isRenderShadows())
 		{
 			glActiveTexture(GL_TEXTURE4);
-			glBindTexture(GL_TEXTURE_2D, pointLight->getShadowMap());
+			glBindTexture(GL_TEXTURE_CUBE_MAP, pointLight->getShadowMap());
 		}
 
-		uModelViewProjectionP.set(_renderData.viewProjectionMatrix * glm::translate(pointLight->getPosition()) * glm::scale(glm::vec3(calculateLightScale(pointLight->getColor()))));
+		uModelViewProjectionP.set(_renderData.viewProjectionMatrix * glm::translate(pointLight->getPosition()) * glm::scale(glm::vec3(pointLight->getRadius())));
 		uPointLightP.set(pointLight, 4);
 		pointLightMesh->getSubMesh()->render();
 	}

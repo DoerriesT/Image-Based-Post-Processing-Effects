@@ -31,7 +31,7 @@ void ShadowRenderer::init()
 	shadowShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shadows/shadow.vert", "Resources/Shaders/Shadows/shadow.frag", nullptr, nullptr, "Resources/Shaders/Shadows/shadow.geom");
 
 	// create uniforms
-	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	for (unsigned int i = 0; i < 6; ++i)
 	{
 		uModelViewProjectionMatrix[i] = shadowShader->createUniform("uModelViewProjectionMatrix[" + std::to_string(i) + "]");
 	}
@@ -46,7 +46,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 	// bind shadow shader
 	shadowShader->bind();
 
-	glViewport(0, 0, SHADOW_MAP_RESOLUTION, SHADOW_MAP_RESOLUTION);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
 
 	// render shadowmaps for all light sources that cast shadows
 	glEnable(GL_DEPTH_TEST);
@@ -80,9 +80,9 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 			directionalLight->setViewProjectionMatrices(lightViewProjections);
 			directionalLight->setSplits(splits);
 
-			glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, directionalLight->getShadowMap(), 0);
-
+			unsigned int shadowMapResolution = directionalLight->getShadowMapResolution();
+			glViewport(0, 0, shadowMapResolution, shadowMapResolution);
 			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 			glClear(GL_DEPTH_BUFFER_BIT);
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -103,18 +103,19 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 	//	}
 	//}
 
-	//for (const std::shared_ptr<PointLight> &pointLight : _level->lights.pointLights)
-	//{
-	//	if (pointLight->isRenderShadows())
-	//	{
-	//		// render into multisampled framebuffer
-	//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//		render(pointLight->getViewProjectionMatrix(), _scene);
-
-	//		// blit into texture
-	//		blit(pointLight->getShadowMap());
-	//	}
-	//}
+	for (const std::shared_ptr<PointLight> &pointLight : _level->lights.pointLights)
+	{
+		if (pointLight->isRenderShadows())
+		{
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pointLight->getShadowMap(), 0);
+			unsigned int shadowMapResolution = pointLight->getShadowMapResolution();
+			glViewport(0, 0, shadowMapResolution, shadowMapResolution);
+			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			glClear(GL_DEPTH_BUFFER_BIT);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			render(pointLight->getViewProjectionMatrices(), 6, _scene);
+		}
+	}
 
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDisable(GL_DEPTH_TEST);

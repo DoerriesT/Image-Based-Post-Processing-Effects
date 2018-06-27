@@ -3,11 +3,16 @@
 
 bool operator==(const std::shared_ptr<PointLight> &_lhv, const std::shared_ptr<PointLight> &_rhv)
 {
+	bool equalMatrices = true;
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		equalMatrices &= _lhv->getViewProjectionMatrices()[i] == _rhv->getViewProjectionMatrices()[i];
+	}
 	return _lhv->getColor() == _rhv->getColor() &&
 		_lhv->getViewPosition() == _rhv->getViewPosition() &&
 		_lhv->isRenderShadows() == _rhv->isRenderShadows() &&
 		_lhv->getShadowMap() == _rhv->getShadowMap() &&
-		_lhv->getViewProjectionMatrix() == _rhv->getViewProjectionMatrix();
+		equalMatrices;
 }
 
 bool operator==(const std::shared_ptr<SpotLight> &_lhv, const std::shared_ptr<SpotLight> &_rhv)
@@ -64,7 +69,7 @@ void UniformPointLight::create(const std::shared_ptr<ShaderProgram> &_shaderProg
 void UniformPointLight::set(const std::shared_ptr<PointLight> &_value, const GLint &_shadowMapTextureUnit)
 {
 	auto p = std::make_pair(_value, _shadowMapTextureUnit);
-	if (firstTime || value != p)
+	//if (firstTime || value != p)
 	{
 		firstTime = false;
 		value = p;
