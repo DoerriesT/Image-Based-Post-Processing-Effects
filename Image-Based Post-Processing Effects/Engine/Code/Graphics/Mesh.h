@@ -59,6 +59,7 @@ public:
 	~SubMesh();
 	bool isValid() const;
 	void enableVertexAttribArrays() const;
+	void enableVertexAttribArraysPositionOnly() const;
 	void render() const;
 	AxisAlignedBoundingBox getAABB() const;
 	const std::vector<glm::vec3> &getVertices() const;
@@ -69,6 +70,8 @@ private:
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
+	GLuint positionVAO;
+	GLuint positionVBO;
 	std::size_t indexCount;
 	bool valid;
 	bool dataIsSet;

@@ -225,6 +225,20 @@ void SubMesh::setData(std::uint32_t _vertexBufferSize, char *_vertices, std::uin
 
 	glBindVertexArray(0);
 
+	// create buffers/arrays
+	glGenVertexArrays(1, &positionVAO);
+	glGenBuffers(1, &positionVBO);
+	glBindVertexArray(positionVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	// vertex positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+
+	glBindVertexArray(0);
+
 	valid = true;
 }
 
@@ -239,6 +253,15 @@ SubMesh::~SubMesh()
 
 	glBindVertexArray(0);
 	glDeleteVertexArrays(1, &VAO);
+
+	glBindVertexArray(positionVAO);
+	glDisableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glDeleteBuffers(1, &positionVBO);
+
+	glBindVertexArray(0);
+	glDeleteVertexArrays(1, &positionVAO);
 }
 
 bool SubMesh::isValid() const
@@ -255,6 +278,13 @@ void SubMesh::enableVertexAttribArrays() const
 	glEnableVertexAttribArray(2);
 	glEnableVertexAttribArray(3);
 	glEnableVertexAttribArray(4);
+}
+
+void SubMesh::enableVertexAttribArraysPositionOnly() const
+{
+	assert(positionVAO);
+	glBindVertexArray(positionVAO);
+	glEnableVertexAttribArray(0);
 }
 
 void SubMesh::render() const

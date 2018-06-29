@@ -178,7 +178,7 @@ void ShadowRenderer::render(const glm::mat4 *_viewProjectionMatrix, unsigned int
 		if (!enabledMesh)
 		{
 			enabledMesh = true;
-			currentMesh->enableVertexAttribArrays();
+			currentMesh->enableVertexAttribArraysPositionOnly();
 		}
 		//currentMesh->render();
 		glDrawElementsInstanced(GL_TRIANGLES, currentMesh->getIndices().size(), GL_UNSIGNED_INT, NULL, _count);
