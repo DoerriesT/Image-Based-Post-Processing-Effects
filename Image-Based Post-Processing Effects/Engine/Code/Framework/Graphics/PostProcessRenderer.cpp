@@ -70,6 +70,7 @@ void PostProcessRenderer::init()
 	cocBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/cocBlur.comp");
 	dofBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/dofBlur.comp");
 	dofFillShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/dofFill.comp");
+	dofCompositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/dofComposite.comp");
 	luminanceGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/luminanceGen.comp");
 	luminanceAdaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/luminanceAdaption.comp");
 
@@ -101,8 +102,6 @@ void PostProcessRenderer::init()
 	uMotionBlurH.create(hdrShader);
 	uVelocityNeighborMaxTextureH.create(hdrShader);
 	uDepthTextureH.create(hdrShader);
-	uDofNearTextureH.create(hdrShader);
-	uDofFarTextureH.create(hdrShader);
 	uLuminanceTextureH.create(hdrShader);
 
 	// fxaa
@@ -170,6 +169,11 @@ void PostProcessRenderer::init()
 	}
 	uBokehScaleDOFF.create(dofFillShader);
 
+	// dof composite
+	uNearTextureDOFC.create(dofCompositeShader);
+	uFarTextureDOFC.create(dofCompositeShader);
+	uColorTextureDOFC.create(dofCompositeShader);
+
 	// luminance gen
 	uColorTextureLG.create(luminanceGenShader);
 
@@ -199,6 +203,7 @@ void PostProcessRenderer::init()
 }
 
 unsigned int tileSize = 40;
+bool dof = false;
 
 void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {
@@ -270,7 +275,10 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 
 	}
 
-	//simpleDepthOfField(_colorTexture, _depthTexture);
+	if (dof)
+	{
+		simpleDepthOfField(_colorTexture, _depthTexture);
+	}
 	calculateLuminance(_colorTexture);
 
 	// combine and tonemap
@@ -279,7 +287,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, _colorTexture);
+	glBindTexture(GL_TEXTURE_2D, dof ? fullResolutionHdrTexture : _colorTexture);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, halfResolutionHdrTexB);
 	glActiveTexture(GL_TEXTURE2);
@@ -294,10 +302,6 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	glBindTexture(GL_TEXTURE_2D, velocityNeighborMaxTex);
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_2D, _depthTexture);
-	glActiveTexture(GL_TEXTURE8);
-	glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexC);
-	glActiveTexture(GL_TEXTURE9);
-	glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexD);
 	glActiveTexture(GL_TEXTURE10);
 	glBindTexture(GL_TEXTURE_2D, luminanceTexture[currentLuminanceTexture]);
 
@@ -310,8 +314,6 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	uVelocityTextureH.set(5);
 	uVelocityNeighborMaxTextureH.set(6);
 	uDepthTextureH.set(7);
-	uDofNearTextureH.set(8);
-	uDofFarTextureH.set(9);
 	uLuminanceTextureH.set(10);
 
 	uStarburstOffsetH.set(glm::dot(glm::vec3(1.0), _camera->getForwardDirection()));
@@ -602,7 +604,7 @@ void PostProcessRenderer::calculateCoc(GLuint _depthTexture)
 	glBindTexture(GL_TEXTURE_2D, _depthTexture);
 
 	glBindImageTexture(0, fullResolutionCocTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
-	glDispatchCompute(width / 32 + (width % 32 ? 1 : 0), height / 32 + (height % 32 ? 1 : 0), 1);
+	glDispatchCompute(width / 8, height / 8, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
@@ -625,7 +627,7 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 		glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
 
 		glBindImageTexture(0, halfResolutionCocTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
-		glDispatchCompute(halfWidth / 32 + (halfWidth % 32 ? 1 : 0), halfHeight / 32 + (halfHeight % 32 ? 1 : 0), 1);
+		glDispatchCompute(halfWidth / 8, halfHeight / 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 		glBindTexture(GL_TEXTURE_2D, halfResolutionCocTexA);
@@ -633,7 +635,7 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 		uDirectionCOCB.set(true);
 
 		glBindImageTexture(0, halfResolutionCocTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
-		glDispatchCompute(halfWidth / 32 + (halfWidth % 32 ? 1 : 0), halfHeight / 32 + (halfHeight % 32 ? 1 : 0), 1);
+		glDispatchCompute(halfWidth / 8, halfHeight / 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 
@@ -694,7 +696,7 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 
 		glBindImageTexture(0, halfResolutionDofTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 		glBindImageTexture(1, halfResolutionDofTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glDispatchCompute(halfWidth / 32 + (halfWidth % 32 ? 1 : 0), halfHeight / 32 + (halfHeight % 32 ? 1 : 0), 1);
+		glDispatchCompute(halfWidth / 8, halfHeight / 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 
@@ -721,9 +723,29 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 
 		glBindImageTexture(0, halfResolutionDofTexC, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 		glBindImageTexture(1, halfResolutionDofTexD, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glDispatchCompute(halfWidth / 32 + (halfWidth % 32 ? 1 : 0), halfHeight / 32 + (halfHeight % 32 ? 1 : 0), 1);
+		glDispatchCompute(halfWidth / 8, halfHeight / 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
+	}
+
+	// composite
+	{
+		dofCompositeShader->bind();
+
+		uNearTextureDOFC.set(0);
+		uFarTextureDOFC.set(1);
+		uColorTextureDOFC.set(2);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexC);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexD);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, _colorTexture);
+
+		glBindImageTexture(0, fullResolutionHdrTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		glDispatchCompute(width / 8, height / 8, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 }
 
@@ -737,7 +759,7 @@ void PostProcessRenderer::calculateLuminance(GLuint _colorTexture)
 	glBindTexture(GL_TEXTURE_2D, _colorTexture);
 
 	glBindImageTexture(0, luminanceTempTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);
-	glDispatchCompute(32, 32, 1);
+	glDispatchCompute(1024 / 8, 1024 / 8, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	glBindTexture(GL_TEXTURE_2D, luminanceTempTexture);
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -781,6 +803,15 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, fullResolutionTextureB, 0);
+
+		glGenTextures(1, &fullResolutionHdrTexture);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionHdrTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _resolution.first, _resolution.second, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, fullResolutionHdrTexture, 0);
 
 		glGenTextures(1, &fullResolutionCocTexture);
 		glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);

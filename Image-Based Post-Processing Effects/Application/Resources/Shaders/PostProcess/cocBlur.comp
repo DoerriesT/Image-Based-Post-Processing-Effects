@@ -1,6 +1,6 @@
 #version 450 core
 
-layout(local_size_x = 32, local_size_y = 32, local_size_z= 1) in;
+layout(local_size_x = 8, local_size_y = 8, local_size_z= 1) in;
 
 layout(rg16f, binding = 0) uniform image2D uImgOut;
 
@@ -18,7 +18,7 @@ void main()
 	if (!uDirection)
 	{
 		vec2 halfResTexelSize = vec2(1.0 / (textureSize(uCocTexture, 0) * 0.5));
-		vec2 centerCoord = vec2(gl_GlobalInvocationID.xy) * halfResTexelSize;
+		vec2 centerCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * halfResTexelSize;
 		
 		sum = texture(uCocTexture, centerCoord).rg * weights[0];
 		
@@ -31,7 +31,7 @@ void main()
 	else
 	{
 		vec2 halfResTexelSize = vec2(1.0 / (textureSize(uCocTexture, 0)));
-		vec2 centerCoord = vec2(gl_GlobalInvocationID.xy) * halfResTexelSize;
+		vec2 centerCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * halfResTexelSize;
 		
 		sum = texture(uCocTexture, centerCoord).rg * weights[0];
 		

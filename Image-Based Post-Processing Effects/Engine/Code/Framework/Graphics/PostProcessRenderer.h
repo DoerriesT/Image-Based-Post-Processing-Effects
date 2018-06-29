@@ -36,6 +36,7 @@ private:
 	std::shared_ptr<ShaderProgram> cocBlurShader;
 	std::shared_ptr<ShaderProgram> dofBlurShader;
 	std::shared_ptr<ShaderProgram> dofFillShader;
+	std::shared_ptr<ShaderProgram> dofCompositeShader;
 	std::shared_ptr<ShaderProgram> luminanceGenShader;
 	std::shared_ptr<ShaderProgram> luminanceAdaptionShader;
 	std::shared_ptr<Window> window;
@@ -55,6 +56,7 @@ private:
 	GLuint fullResolutionFbo;
 	GLuint fullResolutionTextureA;
 	GLuint fullResolutionTextureB;
+	GLuint fullResolutionHdrTexture;
 	GLuint fullResolutionCocTexture;
 
 	GLuint halfResolutionFbo;
@@ -119,8 +121,6 @@ private:
 	Uniform<GLint> uVelocityNeighborMaxTextureH = Uniform<GLint>("uVelocityNeighborMaxTexture");
 	Uniform<GLint> uDepthTextureH = Uniform<GLint>("uDepthTexture");
 	Uniform<GLfloat> uVelocityScaleH = Uniform<GLfloat>("uVelocityScale");
-	Uniform<GLint> uDofNearTextureH = Uniform<GLint>("uDofNearTexture");
-	Uniform<GLint> uDofFarTextureH = Uniform<GLint>("uDofFarTexture");
 	Uniform<GLint> uLuminanceTextureH = Uniform<GLint>("uLuminanceTexture");
 
 	// fxaa uniforms
@@ -181,6 +181,11 @@ private:
 	Uniform<GLint> uColorFarTextureDOFF = Uniform<GLint>("uColorFarTexture");
 	std::vector<GLint> uSampleCoordsDOFF;
 	Uniform<GLfloat> uBokehScaleDOFF = Uniform<GLfloat>("uBokehScale");
+
+	// dof composite
+	Uniform<GLint> uNearTextureDOFC = Uniform<GLint>("uNearTexture");
+	Uniform<GLint> uFarTextureDOFC = Uniform<GLint>("uFarTexture");
+	Uniform<GLint> uColorTextureDOFC = Uniform<GLint>("uColorTexture");
 
 	// luminance gen
 	Uniform<GLint> uColorTextureLG = Uniform<GLint>("uColorTexture");
