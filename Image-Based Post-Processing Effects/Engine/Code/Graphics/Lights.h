@@ -95,7 +95,7 @@ class SpotLight
 public:
 	static const unsigned int DEFAULT_SHADOW_MAP_RESOLUTION;
 
-	static std::shared_ptr<SpotLight> createSpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _angle, float _radius, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION);
+	static std::shared_ptr<SpotLight> createSpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _outerAngle, float _innerAngle, float _radius, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION);
 
 	SpotLight(const SpotLight &) = delete;
 	SpotLight(const SpotLight &&) = delete;
@@ -106,10 +106,10 @@ public:
 	void setColor(const glm::vec3 &_color);
 	void setPosition(const glm::vec3 &_position);
 	void setDirection(const glm::vec3 &_direction);
-	void setAngle(float _angle);
+	void setInnerAngle(float _angle);
+	void setOuterAngle(float _angle);
 	void setRadius(float _radius);
 	void setShadowMapResolution(unsigned int _resolution);
-	void setViewProjectionMatrix(const glm::mat4 &_viewProjectionMatrix);
 	void updateViewValues(const glm::mat4 &_viewMatrix);
 	bool isRenderShadows() const;
 	glm::vec3 getColor() const;
@@ -117,8 +117,10 @@ public:
 	glm::vec3 getDirection() const;
 	glm::vec3 getViewPosition() const;
 	glm::vec3 getViewDirection() const;
-	float getAngle() const;
-	float getAngleCos() const;
+	float getInnerAngle() const;
+	float getInnerAngleCos() const;
+	float getOuterAngle() const;
+	float getOuterAngleCos() const;
 	float getRadius() const;
 	glm::mat4 getViewProjectionMatrix() const;
 	unsigned int getShadowMap() const;
@@ -130,15 +132,17 @@ private:
 	glm::vec3 direction;
 	glm::vec3 viewPosition;
 	glm::vec3 viewDirection;
-	float angle;
-	float angleCos;
+	float outerAngle;
+	float outerAngleCos;
+	float innerAngle;
+	float innerAngleCos;
 	float radius;
 	bool renderShadows;
 	unsigned int shadowMap;
 	unsigned int shadowMapResolution;
 	glm::mat4 viewProjectionMatrix;
 
-	explicit SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _angle, float _radius, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION);
+	explicit SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _outerAngle, float _innerAngle, float _radius, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION);
 	void updateViewProjectionMatrix();
 	void createShadowMap();
 };

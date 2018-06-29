@@ -11,7 +11,8 @@ struct SpotLight
     vec3 color;
     vec3 position;
 	vec3 direction;
-	float angle;
+	float outerAngle;
+	float innerAngle;
 	float radius;
 	bool renderShadows;
 	sampler2DShadow shadowMap;
@@ -91,7 +92,7 @@ void main()
 	float distance = length(L);
 	L /= distance;
     
-    if (metallicRoughnessAoShaded.a > 0.0 && dot(-L, uSpotLight.direction) >= uSpotLight.angle)
+    if (metallicRoughnessAoShaded.a > 0.0 && dot(-L, uSpotLight.direction) >= uSpotLight.outerAngle)
     {
 		vec3 N = decode(texture(uNormalMap, texCoord).xy);
 		
@@ -109,7 +110,7 @@ void main()
 		float shadow = 0.0;
 		if(uSpotLight.renderShadows && uShadowsEnabled)
 		{
-			vec4 worldPos4 = uInverseView * viewSpacePosition;
+			vec4 worldPos4 = uInverseView * (viewSpacePosition + 0.1 * vec4(L, 0.0));
 			vec4 projCoords4 = uSpotLight.viewProjectionMatrix * worldPos4;
 			vec3 projCoords = projCoords4.xyz / projCoords4.w;
 			projCoords = projCoords * 0.5 + 0.5; 
@@ -122,7 +123,7 @@ void main()
 				for(float col = -radius; col <= radius; ++col)
 				{
 					++count;
-					shadow += texture(uSpotLight.shadowMap, vec3(projCoords.xy + vec2(col, row) * invShadowMapSize, projCoords.z - 0.01)).x;
+					shadow += texture(uSpotLight.shadowMap, vec3(projCoords.xy + vec2(col, row) * invShadowMapSize, projCoords.z)).x;
 				}
 			}
 			shadow *= 1.0 / count;
@@ -133,6 +134,14 @@ void main()
 		float attenuation = clamp(1.0 - (distancePercentage * distancePercentage * distancePercentage * distancePercentage), 0.0, 1.0);
 		attenuation *= attenuation;
 		attenuation /= distance * distance + 1.0;
+
+		float innerAngle = 1.0 - uSpotLight.innerAngle;
+		float outerAngle = 1.0 - uSpotLight.outerAngle;
+		float angle = 1.0 - dot(-L, uSpotLight.direction);
+		angle = clamp(angle - innerAngle, 0.0, outerAngle - innerAngle);
+		float blendWeight = 1.0 - angle / (outerAngle - innerAngle);
+		attenuation *= smoothstep(0.0, 1.0, isnan(blendWeight) ? 1.0 : blendWeight);
+		
 		vec3 radiance = uSpotLight.color * attenuation;
 
 		// Cook-Torrance BRDF

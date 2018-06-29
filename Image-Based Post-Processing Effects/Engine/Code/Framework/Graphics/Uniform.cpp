@@ -20,7 +20,8 @@ bool operator==(const std::shared_ptr<SpotLight> &_lhv, const std::shared_ptr<Sp
 	return _lhv->getColor() == _rhv->getColor() &&
 		_lhv->getViewPosition() == _rhv->getViewPosition() &&
 		_lhv->getViewDirection() == _rhv->getViewDirection() &&
-		_lhv->getAngle() == _rhv->getAngle() &&
+		_lhv->getOuterAngle() == _rhv->getOuterAngle() &&
+		_lhv->getInnerAngle() == _rhv->getInnerAngle() &&
 		_lhv->isRenderShadows() == _rhv->isRenderShadows() &&
 		_lhv->getShadowMap() == _rhv->getShadowMap() &&
 		_lhv->getViewProjectionMatrix() == _rhv->getViewProjectionMatrix();

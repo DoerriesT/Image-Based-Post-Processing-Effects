@@ -851,7 +851,7 @@ void SceneRenderer::renderSpotLights(const RenderData &_renderData, const std::s
 		}
 
 		// scale a bit larger to correct for proxy geometry not being exactly round
-		float scale = (glm::tan(spotLight->getAngle()) + 0.1f) * spotLight->getRadius();
+		float scale = (glm::tan(spotLight->getOuterAngle()) + 0.1f) * spotLight->getRadius();
 
 		const glm::vec3 defaultDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 
