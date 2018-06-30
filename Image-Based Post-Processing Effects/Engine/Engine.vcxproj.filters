@@ -353,6 +353,9 @@
     <ClInclude Include="Code\Framework\Graphics\VolumetricLighting.h">
       <Filter>Code\Framework\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Framework\Graphics\Buffer.h">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Window.cpp">
@@ -563,6 +566,9 @@
       <Filter>Code\Framework\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Code\Framework\Graphics\VolumetricLighting.cpp">
+      <Filter>Code\Framework\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Framework\Graphics\Buffer.cpp">
       <Filter>Code\Framework\Graphics</Filter>
     </ClCompile>
   </ItemGroup>

@@ -38,6 +38,7 @@
     <ClInclude Include="Code\EntityComponentSystem\Systems\RenderSystem.h" />
     <ClInclude Include="Code\EntityComponentSystem\Systems\RotationSystem.h" />
     <ClInclude Include="Code\EntityComponentSystem\Systems\SoundSystem.h" />
+    <ClInclude Include="Code\Framework\Graphics\Buffer.h" />
     <ClInclude Include="Code\Framework\Graphics\EnvironmentRenderer.h" />
     <ClInclude Include="Code\Framework\Graphics\GraphicsFramework.h" />
     <ClInclude Include="Code\Framework\Graphics\MediumDescription.h" />
@@ -127,6 +128,7 @@
     <ClCompile Include="Code\EntityComponentSystem\Systems\RenderSystem.cpp" />
     <ClCompile Include="Code\EntityComponentSystem\Systems\RotationSystem.cpp" />
     <ClCompile Include="Code\EntityComponentSystem\Systems\SoundSystem.cpp" />
+    <ClCompile Include="Code\Framework\Graphics\Buffer.cpp" />
     <ClCompile Include="Code\Framework\Graphics\EnvironmentRenderer.cpp" />
     <ClCompile Include="Code\Framework\Graphics\glad.c" />
     <ClCompile Include="Code\Framework\Graphics\GraphicsFramework.cpp" />

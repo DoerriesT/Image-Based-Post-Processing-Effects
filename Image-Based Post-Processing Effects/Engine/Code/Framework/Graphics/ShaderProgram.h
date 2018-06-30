@@ -32,6 +32,7 @@ public:
 	ShaderProgram &operator= (const ShaderProgram &&) = delete;
 	~ShaderProgram();
 	void bind();
+	GLuint getId() const;
 	const GLint createUniform(const std::string &_name) const;
 	std::vector<GLint> createPointLightUniform(const std::string &_name) const;
 	std::vector<GLint> createSpotLightUniform(const std::string &_name) const;

@@ -172,6 +172,11 @@ void ShaderProgram::bind()
 	glUseProgram(programId);
 }
 
+GLuint ShaderProgram::getId() const
+{
+	return programId;
+}
+
 const GLint ShaderProgram::createUniform(const std::string &_name) const
 {
 	return glGetUniformLocation(programId, _name.c_str());
