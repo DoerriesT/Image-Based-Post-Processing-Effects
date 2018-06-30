@@ -234,6 +234,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	float range = 25.0f;
 	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f, 0.7f, -0.8f), glm::vec3(-1.0f, -0.25f, -0.1f), outerAngle, innerAngle, range, true));
 	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f, 0.7f, 0.8f), glm::vec3(-1.0f, -0.25f, 0.1f), outerAngle, innerAngle, range, true));
+	//level->lights.pointLights.push_back(PointLight::createPointLight(glm::vec3(100.0f), glm::vec3(0.0, 3.0, 0.0), 15.0f, true));
 
 
 	// objects

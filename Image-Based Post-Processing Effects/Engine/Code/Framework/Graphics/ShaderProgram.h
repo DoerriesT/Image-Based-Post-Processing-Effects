@@ -1,18 +1,9 @@
 #pragma once
 #include <glad\glad.h>
 #include <string>
-#ifdef _DEBUG
-#include <map>
-#endif // DEBUG
 #include <vector>
 #include <glm\mat4x4.hpp>
 #include <memory>
-
-class Material;
-class PointLight;
-class SpotLight;
-class DirectionalLight;
-struct Lights;
 
 class ShaderProgram
 {
@@ -32,10 +23,6 @@ public:
 	void bind();
 	GLuint getId() const;
 	const GLint createUniform(const std::string &_name) const;
-	std::vector<GLint> createPointLightUniform(const std::string &_name) const;
-	std::vector<GLint> createSpotLightUniform(const std::string &_name) const;
-	std::vector<GLint> createDirectionalLightUniform(const std::string &_name) const;
-	std::vector<GLint> createMaterialUniform(const std::string &_name) const;
 	void setUniform(const GLint &_location, const GLboolean &_value) const;
 	void setUniform(const GLint &_location, const GLint &_value) const;
 	void setUniform(const GLint &_location, GLuint _value) const;
@@ -45,10 +32,6 @@ public:
 	void setUniform(const GLint &_location, const glm::vec2 &_value) const;
 	void setUniform(const GLint &_location, const glm::vec3 &_value) const;
 	void setUniform(const GLint &_location, const glm::vec4 &_value) const;
-	void setUniform(const std::vector<GLint> &_locations, std::shared_ptr<PointLight> _value) const;
-	void setUniform(const std::vector<GLint> &_locations, std::shared_ptr<SpotLight> _value) const;
-	void setUniform(const std::vector<GLint> &_locations, std::shared_ptr<DirectionalLight> _value) const;
-	void setUniform(const std::vector<GLint> &_locations, const Material *_value) const;
 
 private:
 	GLuint programId;

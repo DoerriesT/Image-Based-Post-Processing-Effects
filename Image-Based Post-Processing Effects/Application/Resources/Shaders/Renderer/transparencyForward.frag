@@ -26,7 +26,6 @@ struct Material
     vec4 albedo;
     float metallic;
     float roughness;
-    float ao;
 	vec3 emissive;
     int mapBitField;
 };
@@ -148,7 +147,7 @@ void main()
     }
     else
     {
-        ao = uMaterial.ao;
+        ao = 1.0;
     }
 
 	vec3 emissive;

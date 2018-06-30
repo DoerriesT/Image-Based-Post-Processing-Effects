@@ -1,168 +1,181 @@
 #include "Uniform.h"
-#include ".\..\..\Graphics\Lights.h"
-
-bool operator==(const std::shared_ptr<PointLight> &_lhv, const std::shared_ptr<PointLight> &_rhv)
-{
-	bool equalMatrices = true;
-	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
-	{
-		equalMatrices &= _lhv->getViewProjectionMatrices()[i] == _rhv->getViewProjectionMatrices()[i];
-	}
-	return _lhv->getColor() == _rhv->getColor() &&
-		_lhv->getViewPosition() == _rhv->getViewPosition() &&
-		_lhv->isRenderShadows() == _rhv->isRenderShadows() &&
-		_lhv->getShadowMap() == _rhv->getShadowMap() &&
-		equalMatrices;
-}
-
-bool operator==(const std::shared_ptr<SpotLight> &_lhv, const std::shared_ptr<SpotLight> &_rhv)
-{
-	return _lhv->getColor() == _rhv->getColor() &&
-		_lhv->getViewPosition() == _rhv->getViewPosition() &&
-		_lhv->getViewDirection() == _rhv->getViewDirection() &&
-		_lhv->getOuterAngle() == _rhv->getOuterAngle() &&
-		_lhv->getInnerAngle() == _rhv->getInnerAngle() &&
-		_lhv->isRenderShadows() == _rhv->isRenderShadows() &&
-		_lhv->getShadowMap() == _rhv->getShadowMap() &&
-		_lhv->getViewProjectionMatrix() == _rhv->getViewProjectionMatrix();
-}
-
-bool operator==(const std::shared_ptr<DirectionalLight> &_lhv, const std::shared_ptr<DirectionalLight> &_rhv)
-{
-	bool equalMatrices = true;
-	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
-	{
-		equalMatrices &= _lhv->getViewProjectionMatrices()[i] == _rhv->getViewProjectionMatrices()[i];
-	}
-	return _lhv->getColor() == _rhv->getColor() &&
-		_lhv->getViewDirection() == _rhv->getViewDirection() &&
-		_lhv->isRenderShadows() == _rhv->isRenderShadows() &&
-		_lhv->getShadowMap() == _rhv->getShadowMap() &&
-		equalMatrices;
-}
-
-bool operator==(Material &_lhv, Material &_rhv)
-{
-	return _lhv.getAlbedoMap() == _rhv.getAlbedoMap() &&
-		_lhv.getNormalMap() == _rhv.getNormalMap() &&
-		_lhv.getMetallicMap() == _rhv.getMetallicMap() &&
-		_lhv.getRoughnessMap() == _rhv.getRoughnessMap() &&
-		_lhv.getAoMap() == _rhv.getAoMap() &&
-		_lhv.getEmissiveMap() == _rhv.getEmissiveMap() &&
-		_lhv.getMapBitField() == _rhv.getMapBitField() &&
-		_lhv.getAlbedo() == _rhv.getAlbedo() &&
-		_lhv.getMetallic() == _rhv.getMetallic() &&
-		_lhv.getRoughness() == _rhv.getRoughness() &&
-		_lhv.getEmissive() == _rhv.getEmissive();
-}
 
 UniformPointLight::UniformPointLight(const std::string &_name)
-	:locations(), name(_name), firstTime(true)
+	:color(_name + ".color"),
+	viewPosition(_name + ".position"),
+	radius(_name + ".radius"),
+	renderShadows(_name + ".renderShadows"),
+	name(_name),
+	firstTime(true)
 {
 }
 
 void UniformPointLight::create(const std::shared_ptr<ShaderProgram> &_shaderProgram)
 {
 	shaderProgram = _shaderProgram;
-	locations = shaderProgram->createPointLightUniform(name);
+	color.create(shaderProgram);
+	viewPosition.create(shaderProgram);
+	radius.create(shaderProgram);
+	renderShadows.create(shaderProgram);
 }
 
 void UniformPointLight::set(const std::shared_ptr<PointLight> &_value)
 {
-	//if (firstTime || value != p)
-	{
-		firstTime = false;
-		value = _value;
-		shaderProgram->setUniform(locations, value);
-	}
+	color.set(_value->getColor());
+	viewPosition.set(_value->getViewPosition());
+	radius.set(_value->getRadius());
+	renderShadows.set(_value->isRenderShadows());
 }
 
 bool UniformPointLight::isValid()
 {
-	return !locations.empty();
+	return color.isValid() &&
+		viewPosition.isValid() &&
+		radius.isValid() &&
+		renderShadows.isValid();
 }
 
 UniformSpotLight::UniformSpotLight(const std::string &_name)
-	:locations(), name(_name), firstTime(true)
+	:color(_name + ".color"),
+	viewPosition(_name + ".position"),
+	viewDirection(_name + ".direction"),
+	outerAngle(_name + ".outerAngle"),
+	innerAngle(_name + ".innerAngle"),
+	radius(_name + ".radius"),
+	renderShadows(_name + ".renderShadows"),
+	viewProjection(_name + ".viewProjectionMatrix"),
+	name(_name),
+	firstTime(true)
 {
 }
 
 void UniformSpotLight::create(const std::shared_ptr<ShaderProgram> &_shaderProgram)
 {
 	shaderProgram = _shaderProgram;
-	locations = shaderProgram->createSpotLightUniform(name);
+	color.create(shaderProgram);
+	viewPosition.create(shaderProgram);
+	viewDirection.create(shaderProgram);
+	outerAngle.create(shaderProgram);
+	innerAngle.create(shaderProgram);
+	radius.create(shaderProgram);
+	renderShadows.create(shaderProgram);
+	viewProjection.create(shaderProgram);
 }
 
 void UniformSpotLight::set(const std::shared_ptr<SpotLight> &_value)
 {
-	//if (firstTime || value != p)
-	{
-		firstTime = false;
-		value = _value;
-		shaderProgram->setUniform(locations, value);
-	}
+	color.set(_value->getColor());
+	viewPosition.set(_value->getViewPosition());
+	viewDirection.set(_value->getViewDirection());
+	outerAngle.set(_value->getOuterAngleCos());
+	innerAngle.set(_value->getInnerAngleCos());
+	radius.set(_value->getRadius());
+	renderShadows.set(_value->isRenderShadows());
+	viewProjection.set(_value->getViewProjectionMatrix());
 }
 
 bool UniformSpotLight::isValid()
 {
-	return !locations.empty();
+	return viewPosition.isValid() &&
+		viewDirection.isValid() &&
+		outerAngle.isValid() &&
+		innerAngle.isValid() &&
+		radius.isValid() &&
+		renderShadows.isValid() &&
+		viewProjection.isValid();
 }
 
 UniformDirectionalLight::UniformDirectionalLight(const std::string &_name)
-	:locations(), name(_name), firstTime(true)
+	:color(_name + ".color"),
+	viewDirection(_name + ".direction"),
+	renderShadows(_name + ".renderShadows"),
+	name(_name),
+	firstTime(true)
 {
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		viewProjection[i] = Uniform<glm::mat4>(_name + ".viewProjectionMatrices[" + std::to_string(i) + "]");
+		splits[i] = Uniform<GLfloat>(_name + ".splits[" + std::to_string(i) + "]");
+	}
 }
 
 void UniformDirectionalLight::create(const std::shared_ptr<ShaderProgram> &_shaderProgram)
 {
 	shaderProgram = _shaderProgram;
-	locations = shaderProgram->createDirectionalLightUniform(name);
+	color.create(shaderProgram);
+	viewDirection.create(shaderProgram);
+	renderShadows.create(shaderProgram);
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		viewProjection[i].create(shaderProgram);
+		splits[i].create(shaderProgram);
+	}
 }
 
 void UniformDirectionalLight::set(const std::shared_ptr<DirectionalLight> &_value)
 {
-	//if (firstTime || value != p)
+	color.set(_value->getColor());
+	viewDirection.set(_value->getViewDirection());
+	renderShadows.set(_value->isRenderShadows());
+
+	const glm::mat4 *viewProjections = _value->getViewProjectionMatrices();
+	const float *cascadeSplits = _value->getSplits();
+
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 	{
-		firstTime = false;
-		value = _value;
-		shaderProgram->setUniform(locations, value);
+		viewProjection[i].set(viewProjections[i]);
+		splits[i].set(cascadeSplits[i]);
 	}
 }
 
 bool UniformDirectionalLight::isValid()
 {
-	return !locations.empty();
+	bool validArrays = true;
+
+	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
+	{
+		validArrays &= viewProjection[i].isValid();
+		validArrays &= splits[i].isValid();
+	}
+
+	return validArrays && color.isValid() && viewDirection.isValid() && renderShadows.isValid();
 }
 
 UniformMaterial::UniformMaterial(const std::string &_name)
-	:locations(), name(_name), firstTime(true)
+	:albedo(_name + ".albedo"),
+	metallic(_name + ".metallic"),
+	roughness(_name + ".roughness"),
+	emissive(_name + ".emissive"),
+	mapBitField(_name + ".mapBitField"),
+	name(_name),
+	firstTime(true)
 {
 }
 
 void UniformMaterial::create(const std::shared_ptr<ShaderProgram> &_shaderProgram)
 {
 	shaderProgram = _shaderProgram;
-	locations = shaderProgram->createMaterialUniform(name);
+	albedo.create(shaderProgram);
+	metallic.create(shaderProgram);
+	roughness.create(shaderProgram);
+	emissive.create(shaderProgram);
+	mapBitField.create(shaderProgram);
 }
 
 void UniformMaterial::set(const Material *_value)
 {
-	std::uint32_t _mapBitField = _value->getMapBitField();
-	if (firstTime || 
-		mapBitField != _mapBitField ||
-		value.getAlbedo() != _value->getAlbedo() ||
-		value.getMetallic() != _value->getMetallic() ||
-		value.getRoughness() != _value->getRoughness() ||
-		value.getEmissive() != _value->getEmissive())
-	{
-		firstTime = false;
-		value = *_value;
-		mapBitField = _mapBitField;
-		shaderProgram->setUniform(locations, &value);
-	}
+	albedo.set(_value->getAlbedo());
+	metallic.set(_value->getMetallic());
+	roughness.set(_value->getRoughness());
+	emissive.set(_value->getEmissive());
+	mapBitField.set(_value->getMapBitField());
 }
 
 bool UniformMaterial::isValid()
 {
-	return !locations.empty();
+	return albedo.isValid() &&
+		metallic.isValid() &&
+		roughness.isValid() &&
+		emissive.isValid() &&
+		mapBitField.isValid();
 }

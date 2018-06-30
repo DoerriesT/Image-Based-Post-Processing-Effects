@@ -3,72 +3,7 @@
 #include <glad\glad.h>
 #include "ShaderProgram.h"
 #include ".\..\..\Graphics\Material.h"
-
-
-class UniformPointLight
-{
-public:
-	UniformPointLight(const std::string &_name);
-	void create(const std::shared_ptr<ShaderProgram> &_shaderProgram);
-	void set(const std::shared_ptr<PointLight> &_value);
-	bool isValid();
-
-private:
-	std::shared_ptr<ShaderProgram> shaderProgram;
-	std::vector<GLint> locations;
-	std::shared_ptr<PointLight> value;
-	std::string name;
-	bool firstTime;
-};
-
-class UniformSpotLight
-{
-public:
-	UniformSpotLight(const std::string &_name);
-	void create(const std::shared_ptr<ShaderProgram> &_shaderProgram);
-	void set(const std::shared_ptr<SpotLight> &_value);
-	bool isValid();
-
-private:
-	std::shared_ptr<ShaderProgram> shaderProgram;
-	std::vector<GLint> locations;
-	std::shared_ptr<SpotLight> value;
-	std::string name;
-	bool firstTime;
-};
-
-class UniformDirectionalLight
-{
-public:
-	UniformDirectionalLight(const std::string &_name);
-	void create(const std::shared_ptr<ShaderProgram> &_shaderProgram);
-	void set(const std::shared_ptr<DirectionalLight> &_value);
-	bool isValid();
-
-private:
-	std::shared_ptr<ShaderProgram> shaderProgram;
-	std::vector<GLint> locations;
-	std::shared_ptr<DirectionalLight> value;
-	std::string name;
-	bool firstTime;
-};
-
-class UniformMaterial
-{
-public:
-	UniformMaterial(const std::string &_name);
-	void create(const std::shared_ptr<ShaderProgram> &_shaderProgram);
-	void set(const Material *_value);
-	bool isValid();
-
-private:
-	std::shared_ptr<ShaderProgram> shaderProgram;
-	std::vector<GLint> locations;
-	Material value;
-	std::uint32_t mapBitField;
-	std::string name;
-	bool firstTime;
-};
+#include ".\..\..\Graphics\Lights.h"
 
 template<typename Type>
 class Uniform
@@ -76,7 +11,7 @@ class Uniform
 public:
 	typedef Type ValueType;
 	
-	Uniform(const std::string &_name);
+	Uniform(const std::string &_name = "");
 	void create(const std::shared_ptr<ShaderProgram> &_shaderProgram);
 	void set(const Type &_value);
 	bool isValid();
@@ -120,3 +55,81 @@ inline bool Uniform<Type>::isValid()
 {
 	return location != -1;
 }
+
+class UniformPointLight
+{
+public:
+	UniformPointLight(const std::string &_name);
+	void create(const std::shared_ptr<ShaderProgram> &_shaderProgram);
+	void set(const std::shared_ptr<PointLight> &_value);
+	bool isValid();
+
+private:
+	std::shared_ptr<ShaderProgram> shaderProgram;
+	Uniform<glm::vec3> color;
+	Uniform<glm::vec3> viewPosition;
+	Uniform<GLfloat> radius;
+	Uniform<GLboolean> renderShadows;
+	std::string name;
+	bool firstTime;
+};
+
+class UniformSpotLight
+{
+public:
+	UniformSpotLight(const std::string &_name);
+	void create(const std::shared_ptr<ShaderProgram> &_shaderProgram);
+	void set(const std::shared_ptr<SpotLight> &_value);
+	bool isValid();
+
+private:
+	std::shared_ptr<ShaderProgram> shaderProgram;
+	Uniform<glm::vec3> color;
+	Uniform<glm::vec3> viewPosition;
+	Uniform<glm::vec3> viewDirection;
+	Uniform<GLfloat> outerAngle;
+	Uniform<GLfloat> innerAngle;
+	Uniform<GLfloat> radius;
+	Uniform<GLboolean> renderShadows;
+	Uniform<glm::mat4> viewProjection;
+	std::string name;
+	bool firstTime;
+};
+
+class UniformDirectionalLight
+{
+public:
+	UniformDirectionalLight(const std::string &_name);
+	void create(const std::shared_ptr<ShaderProgram> &_shaderProgram);
+	void set(const std::shared_ptr<DirectionalLight> &_value);
+	bool isValid();
+
+private:
+	std::shared_ptr<ShaderProgram> shaderProgram;
+	Uniform<glm::vec3> color;
+	Uniform<glm::vec3> viewDirection;
+	Uniform<GLboolean> renderShadows;
+	Uniform<glm::mat4> viewProjection[SHADOW_CASCADES];
+	Uniform<GLfloat> splits[SHADOW_CASCADES];
+	std::string name;
+	bool firstTime;
+};
+
+class UniformMaterial
+{
+public:
+	UniformMaterial(const std::string &_name);
+	void create(const std::shared_ptr<ShaderProgram> &_shaderProgram);
+	void set(const Material *_value);
+	bool isValid();
+
+private:
+	std::shared_ptr<ShaderProgram> shaderProgram;
+	Uniform<glm::vec4> albedo;
+	Uniform<GLfloat> metallic;
+	Uniform<GLfloat> roughness;
+	Uniform<glm::vec3> emissive;
+	Uniform<GLint> mapBitField;
+	std::string name;
+	bool firstTime;
+};
