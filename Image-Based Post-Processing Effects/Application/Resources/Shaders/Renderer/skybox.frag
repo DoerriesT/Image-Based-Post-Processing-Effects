@@ -1,4 +1,4 @@
-#version 330
+#version 450
 
 layout(location = 0) out vec4 oAlbedo;
 layout(location = 1) out vec4 oVelocity;
@@ -16,8 +16,7 @@ void main()
 	vec3 ray = vRay.xyz / vRay.w;
     if (uHasAlbedoMap)
     {	
-        vec3 sample = texture(uAlbedoMap, normalize(ray)).rgb;
-		oAlbedo = vec4(sample, 1.0);
+		oAlbedo = vec4(texture(uAlbedoMap, normalize(ray)).rgb, 1.0);
     }
     else
     {

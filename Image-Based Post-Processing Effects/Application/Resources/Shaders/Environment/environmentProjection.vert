@@ -1,4 +1,4 @@
-#version 330
+#version 450
 
 out vec3 vNormal;
 

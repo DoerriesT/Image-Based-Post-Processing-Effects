@@ -47,8 +47,6 @@ private:
 	nk_glfw_device ogl_device;
 
 	std::shared_ptr<ShaderProgram> guiShader;
-	Uniform<GLint> uTexture = Uniform<GLint>("uTexture");
-	Uniform<GLint> uBlurTexture = Uniform<GLint>("uBlurTexture");
 	Uniform<GLint> uBlurOn = Uniform<GLint>("uBlurOn");
 	Uniform<glm::mat4> uProjection = Uniform<glm::mat4>("uProjection");
 

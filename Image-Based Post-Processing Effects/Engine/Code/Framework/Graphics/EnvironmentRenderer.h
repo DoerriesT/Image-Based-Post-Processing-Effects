@@ -50,12 +50,10 @@ private:
 	GLint uScreenTextureBlit;
 
 	// irradiance
-	Uniform<GLint> uEnvironmentMapI = Uniform<GLint>("uEnvironmentMap");
 	Uniform<glm::mat3> uRotationI = Uniform<glm::mat3>("uRotation"); 
 	Uniform<glm::mat4> uInverseProjectionI = Uniform<glm::mat4>("uInverseProjection");
 
 	// reflectance
-	Uniform<GLint> uEnvironmentMapR = Uniform<GLint>("uEnvironmentMap");
 	Uniform<GLint> uEnvironmentResolutionR = Uniform<GLint>("uEnvironmentResolution");
 	Uniform<GLfloat> uRoughness = Uniform<GLfloat>("uRoughness");
 	Uniform<glm::mat3> uRotationR = Uniform<glm::mat3>("uRotation");

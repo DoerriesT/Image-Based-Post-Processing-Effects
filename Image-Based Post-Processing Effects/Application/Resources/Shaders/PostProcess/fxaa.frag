@@ -1,4 +1,4 @@
-#version 330
+#version 450
 
 #define FXAA_QUALITY__PS 5
 #define FXAA_QUALITY__P0 1.0

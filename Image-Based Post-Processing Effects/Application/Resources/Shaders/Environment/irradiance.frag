@@ -1,10 +1,10 @@
-#version 330 core
+#version 450 core
 
 out vec4 oFragColor;
 
 in vec3 vNormal;
 
-uniform samplerCube uEnvironmentMap;
+layout(binding = 0) uniform samplerCube uEnvironmentMap;
 
 const float PI = 3.14159265359;
 

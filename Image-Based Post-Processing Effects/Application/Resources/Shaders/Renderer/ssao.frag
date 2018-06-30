@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 
 layout(location = 0) out vec4 oColor;
 
@@ -59,11 +59,11 @@ void main()
     float occlusion = 0.0;
     for(int i = 0; i < uKernelSize; ++i)
     {
-        vec3 sample = TBN * uSamples[i]; // from tangent to view-space
-        sample = sample * uRadius + fragPos; 
+        vec3 samplePos = TBN * uSamples[i]; // from tangent to view-space
+        samplePos = samplePos * uRadius + fragPos; 
         
         // project sample position (to sample texture) (to get position on screen/texture)
-        vec4 offset = vec4(sample, 1.0);
+        vec4 offset = vec4(samplePos, 1.0);
         offset = uProjection * offset; // from view to clip-space
         offset.xyz /= offset.w; // perspective divide
         offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
@@ -77,7 +77,7 @@ void main()
         
         // range check & accumulate
 		float rangeCheck = smoothstep(0.0, 1.0, uRadius / abs(fragPos.z - sampleDepth));
-        occlusion += (sampleDepth >= sample.z + uBias ? 1.0 : 0.0) * rangeCheck;           
+        occlusion += (sampleDepth >= samplePos.z + uBias ? 1.0 : 0.0) * rangeCheck;           
     }
     occlusion = 1.0 - min((occlusion / uKernelSize) * uStrength, 1.0);
     

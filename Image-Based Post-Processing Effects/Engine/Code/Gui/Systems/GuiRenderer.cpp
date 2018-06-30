@@ -43,8 +43,6 @@ void GuiRenderer::init()
 	guiShader = ShaderProgram::createShaderProgram("Resources/Shaders/Gui/gui.vert", "Resources/Shaders/Gui/gui.frag");
 
 	// create uniforms
-	uTexture.create(guiShader);
-	uBlurTexture.create(guiShader);
 	uBlurOn.create(guiShader);
 	uProjection.create(guiShader);
 
@@ -119,8 +117,6 @@ void GuiRenderer::render(nk_context *ctx)
 
 	/* setup program */
 	guiShader->bind();
-	uTexture.set(0);
-	uBlurTexture.set(1);
 	uProjection.set(orthoProj);
 
 	if (blurOn)

@@ -32,11 +32,9 @@ void EnvironmentRenderer::init()
 	// uniforms
 	uScreenTextureBlit = blitShader->createUniform("uScreenTexture");
 
-	uEnvironmentMapI.create(irradianceShader);
 	uRotationI.create(irradianceShader);
 	uInverseProjectionI.create(irradianceShader);
 
-	uEnvironmentMapR.create(reflectanceShader);
 	uEnvironmentResolutionR.create(reflectanceShader);
 	uRoughness.create(reflectanceShader);
 	uRotationR.create(reflectanceShader);
@@ -127,7 +125,6 @@ void EnvironmentRenderer::calculateReflectance(const std::shared_ptr<Environment
 	glBindFramebuffer(GL_FRAMEBUFFER, convolutionFbo);
 
 	reflectanceShader->bind();
-	uEnvironmentMapR.set(0);
 	uEnvironmentResolutionR.set(512);
 
 	unsigned int maxMipLevels = 5;// glm::log2(EnvironmentProbe::REFLECTANCE_RESOLUTION);
@@ -157,7 +154,6 @@ void EnvironmentRenderer::calculateIrradiance(const std::shared_ptr<EnvironmentP
 	glBindFramebuffer(GL_FRAMEBUFFER, convolutionFbo);
 
 	irradianceShader->bind();
-	uEnvironmentMapI.set(0);
 
 	glViewport(0, 0, EnvironmentProbe::IRRADIANCE_RESOLUTION, EnvironmentProbe::IRRADIANCE_RESOLUTION);
 

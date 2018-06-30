@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 
 #define textureThreshold(tex, texCoord) (max(vec4(0.0), texture(tex, texCoord) + uBias) * uScale)
 #define textureDistorted(tex, texCoord, direction, distortion) (vec3(textureThreshold(tex, texCoord + direction * distortion.r).r,textureThreshold(tex, texCoord + direction * distortion.g).g,textureThreshold(tex, texCoord + direction * distortion.b).b))

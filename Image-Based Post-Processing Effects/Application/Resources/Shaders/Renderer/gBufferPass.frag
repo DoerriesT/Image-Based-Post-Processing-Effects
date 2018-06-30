@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 
 const int ALBEDO = 1;
 const int NORMAL = 2;
@@ -54,8 +54,7 @@ void main()
 {
     if((uMaterial.mapBitField & ALBEDO) != 0)
     {
-		vec3 sample = texture(uAlbedoMap, vTexCoord).rgb;
-		oAlbedo = vec4(sample, 1.0);
+		oAlbedo = vec4(texture(uAlbedoMap, vTexCoord).rgb, 1.0);
     }
 	else
 	{

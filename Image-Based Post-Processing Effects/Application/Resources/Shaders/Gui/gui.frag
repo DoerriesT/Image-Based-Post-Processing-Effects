@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 
 out vec4 oColor;
 
@@ -7,8 +7,8 @@ in vec2 vPosition;
 in vec4 vColor;
 flat in int vShouldBlur;
 
-uniform sampler2D uTexture;
-uniform sampler2D uBlurTexture;
+layout(binding = 0) uniform sampler2D uTexture;
+layout(binding = 1) uniform sampler2D uBlurTexture;
 
 void main()
 {
