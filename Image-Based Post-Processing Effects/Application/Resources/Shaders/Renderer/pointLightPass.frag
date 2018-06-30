@@ -116,11 +116,11 @@ void main()
 		float shadow = 0.0;
 		if(uPointLight.renderShadows && uShadowsEnabled)
 		{
-			vec3 lightToFrag = viewSpacePosition.xyz - uPointLight.position;
+			vec3 lightToFrag = viewSpacePosition.xyz + 0.1 * L - uPointLight.position;
 			lightToFrag = (uInverseView * vec4(lightToFrag, 0.0)).xyz;
-			//lightToFrag -= normalize(lightToFrag) * 0.01;
+			//lightToFrag -= normalize(lightToFrag) * 0.1;
 			float fragDepth = vectorToDepth(lightToFrag);
-			shadow = texture(uShadowMap, vec4(lightToFrag, fragDepth - 0.001)).x;
+			shadow = texture(uShadowMap, vec4(lightToFrag, fragDepth)).x;
 		}
 
 		float distancePercentage = distance / uPointLight.radius;
