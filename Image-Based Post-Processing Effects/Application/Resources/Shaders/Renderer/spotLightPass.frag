@@ -15,15 +15,17 @@ struct SpotLight
 	float innerAngle;
 	float radius;
 	bool renderShadows;
-	sampler2DShadow shadowMap;
+	
 	mat4 viewProjectionMatrix;
 };
 
 
-uniform sampler2D uAlbedoMap;
-uniform sampler2D uNormalMap;
-uniform sampler2D uMetallicRoughnessAoMap;
-uniform sampler2D uDepthMap;
+layout(binding = 0) uniform sampler2D uAlbedoMap;
+layout(binding = 1) uniform sampler2D uNormalMap;
+layout(binding = 2) uniform sampler2D uMetallicRoughnessAoMap;
+layout(binding = 3) uniform sampler2D uDepthMap;
+layout(binding = 4) uniform sampler2DShadow uShadowMap;
+
 uniform SpotLight uSpotLight;
 uniform mat4 uInverseView;
 uniform mat4 uInverseProjection;
@@ -114,7 +116,7 @@ void main()
 			vec4 projCoords4 = uSpotLight.viewProjectionMatrix * worldPos4;
 			vec3 projCoords = projCoords4.xyz / projCoords4.w;
 			projCoords = projCoords * 0.5 + 0.5; 
-			vec2 invShadowMapSize = vec2(1.0 / (textureSize(uSpotLight.shadowMap, 0).xy));
+			vec2 invShadowMapSize = vec2(1.0 / (textureSize(uShadowMap, 0).xy));
 
 			float count = 0.0;
 			float radius = 2.0;
@@ -123,7 +125,7 @@ void main()
 				for(float col = -radius; col <= radius; ++col)
 				{
 					++count;
-					shadow += texture(uSpotLight.shadowMap, vec3(projCoords.xy + vec2(col, row) * invShadowMapSize, projCoords.z)).x;
+					shadow += texture(uShadowMap, vec3(projCoords.xy + vec2(col, row) * invShadowMapSize, projCoords.z)).x;
 				}
 			}
 			shadow *= 1.0 / count;

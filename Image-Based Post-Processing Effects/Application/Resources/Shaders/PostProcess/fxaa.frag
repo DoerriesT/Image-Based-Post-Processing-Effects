@@ -10,7 +10,8 @@
 out vec4 oColor;
 in vec2 vTexCoord;
 
-uniform sampler2D uScreenTexture;
+layout(binding = 0) uniform sampler2D uScreenTexture;
+
 uniform vec2 uInverseResolution; // inverse resolution
 // Only used on FXAA Quality.
     // This used to be the FXAA_QUALITY__SUBPIX define.

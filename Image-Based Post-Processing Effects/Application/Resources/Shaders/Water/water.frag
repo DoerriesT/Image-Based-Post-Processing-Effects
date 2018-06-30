@@ -5,10 +5,11 @@ layout(location = 0) out vec4 oAlbedo;
 in vec2 vTexCoord;
 in vec3 vWorldPos;
 
-uniform sampler2D uNormalTexture;
-uniform sampler2D uDisplacementTexture;
-uniform sampler2D uFoamTexture;
-uniform samplerCube uEnvironmentTexture;
+layout(binding = 0) uniform sampler2D uNormalTexture;
+layout(binding = 1) uniform sampler2D uDisplacementTexture;
+layout(binding = 2) uniform sampler2D uFoamTexture;
+layout(binding = 3) uniform samplerCube uEnvironmentTexture;
+
 uniform float uVerticalDisplacement;
 uniform vec3 uCamPos;
 uniform mat4 uView;

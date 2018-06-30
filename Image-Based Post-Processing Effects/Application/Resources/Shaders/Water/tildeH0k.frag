@@ -8,10 +8,10 @@ layout(location = 1) out vec4 oTildeH0minusK;
 layout (pixel_center_integer) in vec4 gl_FragCoord;
 in vec2 vTexCoord;
 
-uniform sampler2D uNoiseR0Texture;
-uniform sampler2D uNoiseI0Texture;
-uniform sampler2D uNoiseR1Texture;
-uniform sampler2D uNoiseI1Texture;
+layout(binding = 0) uniform sampler2D uNoiseR0Texture;
+layout(binding = 1) uniform sampler2D uNoiseI0Texture;
+layout(binding = 2) uniform sampler2D uNoiseR1Texture;
+layout(binding = 3) uniform sampler2D uNoiseI1Texture;
 
 uniform int uN;
 uniform int uL;

@@ -28,13 +28,14 @@ struct Material
     float ao;
 	vec3 emissive;
     int mapBitField;
-	sampler2D albedoMap;
-	sampler2D normalMap;
-	sampler2D metallicMap;
-	sampler2D roughnessMap;
-	sampler2D aoMap;
-	sampler2D emissiveMap;
 };
+
+layout(binding = 0) uniform sampler2D uAlbedoMap;
+layout(binding = 1) uniform sampler2D uNormalMap;
+layout(binding = 2) uniform sampler2D uMetallicMap;
+layout(binding = 3) uniform sampler2D uRoughnessMap;
+layout(binding = 4) uniform sampler2D uAoMap;
+layout(binding = 5) uniform sampler2D uEmissiveMap;
 
 uniform Material uMaterial;
 uniform float uExposureTime = 0.5;
@@ -53,7 +54,7 @@ void main()
 {
     if((uMaterial.mapBitField & ALBEDO) != 0)
     {
-		vec3 sample = texture(uMaterial.albedoMap, vTexCoord).rgb;
+		vec3 sample = texture(uAlbedoMap, vTexCoord).rgb;
 		oAlbedo = vec4(sample, 1.0);
     }
 	else
@@ -65,7 +66,7 @@ void main()
     vec3 N = normalize(vNormal);
     if((uMaterial.mapBitField & NORMAL) != 0)
     {
-        vec3 tangentNormal = texture(uMaterial.normalMap, vTexCoord).xyz * 2.0 - 1.0;
+        vec3 tangentNormal = texture(uNormalMap, vTexCoord).xyz * 2.0 - 1.0;
         N = normalize(mat3(normalize(vTangent), -normalize(vBitangent), N) * tangentNormal);
     }
 	oNormal = vec4(encode(N), 0.0, 0.0);
@@ -73,7 +74,7 @@ void main()
 
     if((uMaterial.mapBitField & METALLIC) != 0)
     {
-        oMetallicRoughnessAo.r  = texture(uMaterial.metallicMap, vTexCoord).r;
+        oMetallicRoughnessAo.r  = texture(uMetallicMap, vTexCoord).r;
     }
     else
     {
@@ -82,7 +83,7 @@ void main()
 
     if((uMaterial.mapBitField & ROUGHNESS) != 0)
     {
-        oMetallicRoughnessAo.g = texture(uMaterial.roughnessMap, vTexCoord).r;
+        oMetallicRoughnessAo.g = texture(uRoughnessMap, vTexCoord).r;
     }
     else
     {
@@ -91,7 +92,7 @@ void main()
 
     if((uMaterial.mapBitField & AO) != 0)
     {
-        oMetallicRoughnessAo.b = texture(uMaterial.aoMap, vTexCoord).r;
+        oMetallicRoughnessAo.b = texture(uAoMap, vTexCoord).r;
     }
     else
     {
@@ -100,7 +101,7 @@ void main()
 
 	if((uMaterial.mapBitField & EMISSIVE) != 0)
     {
-        oEmissive = vec4(uMaterial.emissive * texture(uMaterial.emissiveMap, vTexCoord).rgb, 1.0);
+        oEmissive = vec4(uMaterial.emissive * texture(uEmissiveMap, vTexCoord).rgb, 1.0);
     }
     else
     {

@@ -5,7 +5,8 @@ layout(location = 1) out vec4 oVelocity;
 
 in vec4 vRay;
 
-uniform samplerCube uAlbedoMap;
+layout(binding = 0) uniform samplerCube uAlbedoMap;
+
 uniform vec4 uColor;
 uniform bool uHasAlbedoMap;
 uniform mat4 uCurrentToPrevTransform;

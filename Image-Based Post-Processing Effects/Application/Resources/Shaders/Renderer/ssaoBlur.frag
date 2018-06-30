@@ -4,7 +4,8 @@ layout(location = 0) out vec4 oColor;
 
 in vec2 vTexCoord;
 
-uniform sampler2D uInputTexture;
+layout(binding = 6) uniform sampler2D uInputTexture;
+
 uniform int uBlurSize = 4; // size of noise texture
 
 void main() 

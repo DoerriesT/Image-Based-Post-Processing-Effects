@@ -4,8 +4,9 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z= 1) in;
 
 layout(r16f, binding = 0) uniform image2D uImgOut;
 
-uniform sampler2D uPrevLuminanceTexture;
-uniform sampler2D uCurrentLuminanceTexture;
+layout(binding = 0) uniform sampler2D uPrevLuminanceTexture;
+layout(binding = 1) uniform sampler2D uCurrentLuminanceTexture;
+
 uniform float uTimeDelta;
 uniform float uTau;
 

@@ -60,10 +60,6 @@ void Ocean::init()
 	// fragment uniforms
 	{
 		// tildeh0k
-		uNoiseR0TextureH0.create(tildeH0kShader);
-		uNoiseI0TextureH0.create(tildeH0kShader);
-		uNoiseR1TextureH0.create(tildeH0kShader);
-		uNoiseI1TextureH0.create(tildeH0kShader);
 		uSimulationResolutionH0.create(tildeH0kShader);
 		uWorldSizeH0.create(tildeH0kShader);
 		uWaveAmplitudeH0.create(tildeH0kShader);
@@ -71,8 +67,6 @@ void Ocean::init()
 		uWindSpeedH0.create(tildeH0kShader);
 
 		// tildehkt
-		uTildeH0kTextureHT.create(tildeHktShader);
-		uTildeH0minusKTextureHT.create(tildeHktShader);
 		uSimulationResolutionHT.create(tildeHktShader);
 		uWorldSizeHT.create(tildeHktShader);
 		uTimeHT.create(tildeHktShader);
@@ -85,34 +79,22 @@ void Ocean::init()
 		uSimulationResolutionBP.create(butterflyPrecomputeShader);
 
 		// butterfly compute
-		uButterflyTextureBC.create(butterflyComputeShader);
-		uInputXTextureBC.create(butterflyComputeShader);
-		uInputYTextureBC.create(butterflyComputeShader);
-		uInputZTextureBC.create(butterflyComputeShader);
 		uSimulationResolutionBC.create(butterflyComputeShader);
 		uStageBC.create(butterflyComputeShader);
 		uStagesBC.create(butterflyComputeShader);
 		uDirectionBC.create(butterflyComputeShader);
 
 		// inverse / permute
-		uInputXTextureIP.create(inversePermuteShader);
-		uInputYTextureIP.create(inversePermuteShader);
-		uInputZTextureIP.create(inversePermuteShader);
 		uSimulationResolutionIP.create(inversePermuteShader);
 		uChoppinessIP.create(inversePermuteShader);
 
 		// water normal
-		uDisplacementTextureN.create(waterNormalShader);
 		uNormalStrengthN.create(waterNormalShader);
 	}
 	
 	// compute uniforms
 	{
 		// tildeh0k compute
-		uNoiseR0TextureH0C.create(tildeH0kCompShader);
-		uNoiseI0TextureH0C.create(tildeH0kCompShader);
-		uNoiseR1TextureH0C.create(tildeH0kCompShader);
-		uNoiseI1TextureH0C.create(tildeH0kCompShader);
 		uSimulationResolutionH0C.create(tildeH0kCompShader);
 		uWorldSizeH0C.create(tildeH0kCompShader);
 		uWaveAmplitudeH0C.create(tildeH0kCompShader);
@@ -149,14 +131,10 @@ void Ocean::init()
 	// world space grid
 	{
 		// water
-		uNormalTextureW.create(waterShader);
-		uDisplacementTextureW.create(waterShader);
-		uFoamTextureW.create(waterShader);
 		uProjectionW.create(waterShader);
 		uViewW.create(waterShader);
 		uCamPosW.create(waterShader);
 		uTexCoordShiftW.create(waterShader);
-		uEnvironmentTextureW.create(waterShader);
 		uUseEnvironmentW.create(waterShader);
 		uWaterLevelW.create(waterShader);
 		uLightDirW.create(waterShader);
@@ -166,10 +144,6 @@ void Ocean::init()
 	// tesselated grid
 	{
 		// water tesselated
-		uNormalTextureWT.create(waterTessShader);
-		uDisplacementTextureWT.create(waterTessShader);
-		uFoamTextureWT.create(waterTessShader);
-		uEnvironmentTextureWT.create(waterTessShader);
 		uViewProjectionWT.create(waterTessShader);
 		uProjectionWT.create(waterTessShader);
 		uViewWT.create(waterTessShader);
@@ -240,10 +214,6 @@ void Ocean::render(const RenderData &_renderData, const std::shared_ptr<Level> &
 		}
 
 		waterTessShader->bind();
-		uNormalTextureWT.set(0);
-		uDisplacementTextureWT.set(1);
-		uFoamTextureWT.set(2);
-		uEnvironmentTextureWT.set(3);
 		uViewProjectionWT.set(_renderData.viewProjectionMatrix);
 		uProjectionWT.set(_renderData.projectionMatrix);
 		uViewWT.set(_renderData.viewMatrix);
@@ -303,10 +273,6 @@ void Ocean::render(const RenderData &_renderData, const std::shared_ptr<Level> &
 		}
 
 		waterShader->bind();
-		uNormalTextureW.set(0);
-		uDisplacementTextureW.set(1);
-		uFoamTextureW.set(2);
-		uEnvironmentTextureW.set(3);
 		uProjectionW.set(_renderData.projectionMatrix);
 		uViewW.set(_renderData.viewMatrix);
 		uCamPosW.set(_renderData.cameraPosition);
@@ -522,10 +488,6 @@ void Ocean::precomputeFftTextures(const Water & _water)
 		// tildeh0k/minusk
 		{
 			tildeH0kCompShader->bind();
-			uNoiseR0TextureH0C.set(0);
-			uNoiseI0TextureH0C.set(1);
-			uNoiseR1TextureH0C.set(2);
-			uNoiseI1TextureH0C.set(3);
 
 			uSimulationResolutionH0C.set(_water.simulationResolution);
 			uWorldSizeH0C.set(_water.worldSize);
@@ -581,10 +543,6 @@ void Ocean::precomputeFftTextures(const Water & _water)
 		// tildeh0k/minusk
 		{
 			tildeH0kShader->bind();
-			uNoiseR0TextureH0.set(0);
-			uNoiseI0TextureH0.set(1);
-			uNoiseR1TextureH0.set(2);
-			uNoiseI1TextureH0.set(3);
 
 			uSimulationResolutionH0.set(_water.simulationResolution);
 			uWorldSizeH0.set(_water.worldSize);
@@ -733,8 +691,6 @@ void Ocean::computeFft(const Water & _water)
 		// tildehkt
 		{
 			tildeHktShader->bind();
-			uTildeH0kTextureHT.set(0);
-			uTildeH0minusKTextureHT.set(1);
 			uSimulationResolutionHT.set(_water.simulationResolution);
 			uWorldSizeHT.set(_water.worldSize);
 			uTimeHT.set((float)Engine::getCurrentTime() * _water.timeScale);
@@ -757,10 +713,6 @@ void Ocean::computeFft(const Water & _water)
 		// butterfly computation/ inversion
 		{
 			butterflyComputeShader->bind();
-			uButterflyTextureBC.set(0);
-			uInputXTextureBC.set(1);
-			uInputYTextureBC.set(2);
-			uInputZTextureBC.set(3);
 			uSimulationResolutionBC.set(_water.simulationResolution);
 			uStagesBC.set(glm::log2(_water.simulationResolution));
 
@@ -804,9 +756,6 @@ void Ocean::computeFft(const Water & _water)
 				glViewport(0, 0, _water.simulationResolution, _water.simulationResolution);
 
 				inversePermuteShader->bind();
-				uInputXTextureIP.set(0);
-				uInputYTextureIP.set(1);
-				uInputZTextureIP.set(2);
 				uSimulationResolutionIP.set(_water.simulationResolution);
 
 				glActiveTexture(GL_TEXTURE0);
@@ -830,7 +779,6 @@ void Ocean::computeFft(const Water & _water)
 			// normal
 			{
 				waterNormalShader->bind();
-				uDisplacementTextureN.set(0);
 
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);

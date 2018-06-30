@@ -4,8 +4,9 @@ layout(location = 0) out vec4 oColor;
 
 in vec2 vTexCoord;
 
-uniform sampler2D uUpscaleTexture;
-uniform sampler2D uPreviousBlurredTexture;
+layout(binding = 0) uniform sampler2D uUpscaleTexture;
+layout(binding = 1) uniform sampler2D uPreviousBlurredTexture;
+
 uniform bool uAddPrevious;
 uniform vec2 uRadius;
 

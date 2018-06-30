@@ -67,14 +67,13 @@ void UniformPointLight::create(const std::shared_ptr<ShaderProgram> &_shaderProg
 	locations = shaderProgram->createPointLightUniform(name);
 }
 
-void UniformPointLight::set(const std::shared_ptr<PointLight> &_value, const GLint &_shadowMapTextureUnit)
+void UniformPointLight::set(const std::shared_ptr<PointLight> &_value)
 {
-	auto p = std::make_pair(_value, _shadowMapTextureUnit);
 	//if (firstTime || value != p)
 	{
 		firstTime = false;
-		value = p;
-		shaderProgram->setUniform(locations, value.first, value.second);
+		value = _value;
+		shaderProgram->setUniform(locations, value);
 	}
 }
 
@@ -94,14 +93,13 @@ void UniformSpotLight::create(const std::shared_ptr<ShaderProgram> &_shaderProgr
 	locations = shaderProgram->createSpotLightUniform(name);
 }
 
-void UniformSpotLight::set(const std::shared_ptr<SpotLight> &_value, const GLint &_shadowMapTextureUnit)
+void UniformSpotLight::set(const std::shared_ptr<SpotLight> &_value)
 {
-	auto p = std::make_pair(_value, _shadowMapTextureUnit);
 	//if (firstTime || value != p)
 	{
 		firstTime = false;
-		value = p;
-		shaderProgram->setUniform(locations, value.first, value.second);
+		value = _value;
+		shaderProgram->setUniform(locations, value);
 	}
 }
 
@@ -121,14 +119,13 @@ void UniformDirectionalLight::create(const std::shared_ptr<ShaderProgram> &_shad
 	locations = shaderProgram->createDirectionalLightUniform(name);
 }
 
-void UniformDirectionalLight::set(const std::shared_ptr<DirectionalLight> &_value, const GLint &_shadowMapTextureUnit)
+void UniformDirectionalLight::set(const std::shared_ptr<DirectionalLight> &_value)
 {
-	auto p = std::make_pair(_value, _shadowMapTextureUnit);
 	//if (firstTime || value != p)
 	{
 		firstTime = false;
-		value = p;
-		shaderProgram->setUniform(locations, value.first, value.second);
+		value = _value;
+		shaderProgram->setUniform(locations, value);
 	}
 }
 
@@ -152,12 +149,6 @@ void UniformMaterial::set(const Material *_value)
 {
 	std::uint32_t _mapBitField = _value->getMapBitField();
 	if (firstTime || 
-		value.getAlbedoMap() != _value->getAlbedoMap() ||
-		value.getNormalMap() != _value->getNormalMap() ||
-		value.getMetallicMap() != _value->getMetallicMap() ||
-		value.getRoughnessMap() != _value->getRoughnessMap() ||
-		value.getAoMap() != _value->getAoMap() ||
-		value.getEmissiveMap() != _value->getEmissiveMap() ||
 		mapBitField != _mapBitField ||
 		value.getAlbedo() != _value->getAlbedo() ||
 		value.getMetallic() != _value->getMetallic() ||

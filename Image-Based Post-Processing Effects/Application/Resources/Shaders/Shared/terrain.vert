@@ -15,10 +15,11 @@ out vec4 vNeighborData;
 const float RECIP_CONTROL_VTX_PER_TILE_EDGE = 1.0 / 9;
 const int CONTROL_VTX_PER_TILE_EDGE = 9;
 
+layout(binding = 1) uniform sampler2D uDisplacementMap;
+
 uniform float uTileSize = 1.0;
 uniform mat4 uViewProjection;
 uniform vec3 uCamPos;
-uniform sampler2D uDisplacementMap;
 uniform float uVerticalDisplacement;
 
 void main()

@@ -9,8 +9,9 @@ layout(location = 2) out vec4 oTildeHktDz;
 layout (pixel_center_integer) in vec4 gl_FragCoord;
 in vec2 vTexCoord;
 
-uniform sampler2D uTildeH0kTexture;
-uniform sampler2D uTildeH0minusKTexture;
+layout(binding = 0) uniform sampler2D uTildeH0kTexture;
+layout(binding = 1) uniform sampler2D uTildeH0minusKTexture;
+
 uniform int uN;
 uniform int uL;
 uniform float uTime;

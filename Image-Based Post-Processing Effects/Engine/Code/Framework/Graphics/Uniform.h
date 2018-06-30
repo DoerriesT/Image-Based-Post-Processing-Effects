@@ -10,13 +10,13 @@ class UniformPointLight
 public:
 	UniformPointLight(const std::string &_name);
 	void create(const std::shared_ptr<ShaderProgram> &_shaderProgram);
-	void set(const std::shared_ptr<PointLight> &_value, const GLint &_shadowMapTextureUnit);
+	void set(const std::shared_ptr<PointLight> &_value);
 	bool isValid();
 
 private:
 	std::shared_ptr<ShaderProgram> shaderProgram;
 	std::vector<GLint> locations;
-	std::pair<std::shared_ptr<PointLight>, GLint> value;
+	std::shared_ptr<PointLight> value;
 	std::string name;
 	bool firstTime;
 };
@@ -26,13 +26,13 @@ class UniformSpotLight
 public:
 	UniformSpotLight(const std::string &_name);
 	void create(const std::shared_ptr<ShaderProgram> &_shaderProgram);
-	void set(const std::shared_ptr<SpotLight> &_value, const GLint &_shadowMapTextureUnit);
+	void set(const std::shared_ptr<SpotLight> &_value);
 	bool isValid();
 
 private:
 	std::shared_ptr<ShaderProgram> shaderProgram;
 	std::vector<GLint> locations;
-	std::pair<std::shared_ptr<SpotLight>, GLint> value;
+	std::shared_ptr<SpotLight> value;
 	std::string name;
 	bool firstTime;
 };
@@ -42,13 +42,13 @@ class UniformDirectionalLight
 public:
 	UniformDirectionalLight(const std::string &_name);
 	void create(const std::shared_ptr<ShaderProgram> &_shaderProgram);
-	void set(const std::shared_ptr<DirectionalLight> &_value, const GLint &_shadowMapTextureUnit);
+	void set(const std::shared_ptr<DirectionalLight> &_value);
 	bool isValid();
 
 private:
 	std::shared_ptr<ShaderProgram> shaderProgram;
 	std::vector<GLint> locations;
-	std::pair<std::shared_ptr<DirectionalLight>, GLint> value;
+	std::shared_ptr<DirectionalLight> value;
 	std::string name;
 	bool firstTime;
 };

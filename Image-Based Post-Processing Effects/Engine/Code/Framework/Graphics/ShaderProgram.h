@@ -14,8 +14,6 @@ class SpotLight;
 class DirectionalLight;
 struct Lights;
 
-const int SHADOW_MAP_TEXTURE_UNIT_BEGIN = 16;
-
 class ShaderProgram
 {
 public:
@@ -47,9 +45,9 @@ public:
 	void setUniform(const GLint &_location, const glm::vec2 &_value) const;
 	void setUniform(const GLint &_location, const glm::vec3 &_value) const;
 	void setUniform(const GLint &_location, const glm::vec4 &_value) const;
-	void setUniform(const std::vector<GLint> &_locations, std::shared_ptr<PointLight> _value, int _shadowMapTextureUnit) const;
-	void setUniform(const std::vector<GLint> &_locations, std::shared_ptr<SpotLight> _value, int _shadowMapTextureUnit) const;
-	void setUniform(const std::vector<GLint> &_locations, std::shared_ptr<DirectionalLight> _value, int _shadowMapTextureUnit) const;
+	void setUniform(const std::vector<GLint> &_locations, std::shared_ptr<PointLight> _value) const;
+	void setUniform(const std::vector<GLint> &_locations, std::shared_ptr<SpotLight> _value) const;
+	void setUniform(const std::vector<GLint> &_locations, std::shared_ptr<DirectionalLight> _value) const;
 	void setUniform(const std::vector<GLint> &_locations, const Material *_value) const;
 
 private:

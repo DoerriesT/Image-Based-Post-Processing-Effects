@@ -4,7 +4,7 @@ layout(location = 0) out vec4 oColor;
 
 in vec2 vTexCoord;
 
-uniform sampler2D uVelocityTexture;
+layout(binding = 0) uniform sampler2D uVelocityTexture;
 
 void vMax(vec2 velocity, inout vec2 maxVelocity, inout float maxMagnitude)
 {

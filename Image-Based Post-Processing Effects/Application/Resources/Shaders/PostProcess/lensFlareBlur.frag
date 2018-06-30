@@ -4,7 +4,8 @@ layout(location = 0) out vec4 oFragColor;
 
 in vec2 vTexCoord;
 
-uniform sampler2D uScreenTexture;
+layout(binding = 0) uniform sampler2D uScreenTexture;
+
 uniform bool uDirection;
 
 const float weights[] = float[]( 0.14107424, 0.242395713, 0.132279992, 0.044439883, 0.009181995, 0.00116529 );

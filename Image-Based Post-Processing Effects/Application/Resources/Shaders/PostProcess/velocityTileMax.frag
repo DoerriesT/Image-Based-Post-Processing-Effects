@@ -4,7 +4,8 @@ layout(location = 0) out vec4 oColor;
 
 in vec2 vTexCoord;
 
-uniform sampler2D uVelocityTexture;
+layout(binding = 0) uniform sampler2D uVelocityTexture;
+
 uniform bool uDirection;
 uniform int uTileSize;
 

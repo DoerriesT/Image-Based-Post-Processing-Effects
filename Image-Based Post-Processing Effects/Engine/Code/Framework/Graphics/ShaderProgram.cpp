@@ -188,14 +188,12 @@ std::vector< GLint> ShaderProgram::createPointLightUniform(const std::string &_n
 	std::string pointLightPosition = _name + ".position";
 	std::string pointLightRadius = _name + ".radius";
 	std::string pointLightRenderShadows = _name + ".renderShadows";
-	std::string pointLightShadowMap = _name + ".shadowMap";
 
 	std::vector<GLint> ids;
 	ids.push_back(glGetUniformLocation(programId, pointLightColor.c_str()));
 	ids.push_back(glGetUniformLocation(programId, pointLightPosition.c_str()));
 	ids.push_back(glGetUniformLocation(programId, pointLightRadius.c_str()));
 	ids.push_back(glGetUniformLocation(programId, pointLightRenderShadows.c_str()));
-	ids.push_back(glGetUniformLocation(programId, pointLightShadowMap.c_str()));
 
 	return ids;
 }
@@ -209,7 +207,6 @@ std::vector<GLint> ShaderProgram::createSpotLightUniform(const std::string &_nam
 	std::string spotLightInnerAngle = _name + ".innerAngle";
 	std::string spotLightRadius = _name + ".radius";
 	std::string spotLightRenderShadows = _name + ".renderShadows";
-	std::string spotLightShadowMap = _name + ".shadowMap";
 	std::string spotLightViewProjectionMatrix = _name + ".viewProjectionMatrix";
 
 	std::vector<GLint> ids;
@@ -220,7 +217,6 @@ std::vector<GLint> ShaderProgram::createSpotLightUniform(const std::string &_nam
 	ids.push_back(glGetUniformLocation(programId, spotLightInnerAngle.c_str()));
 	ids.push_back(glGetUniformLocation(programId, spotLightRadius.c_str()));
 	ids.push_back(glGetUniformLocation(programId, spotLightRenderShadows.c_str()));
-	ids.push_back(glGetUniformLocation(programId, spotLightShadowMap.c_str()));
 	ids.push_back(glGetUniformLocation(programId, spotLightViewProjectionMatrix.c_str()));
 
 	return ids;
@@ -231,7 +227,6 @@ std::vector<GLint> ShaderProgram::createDirectionalLightUniform(const std::strin
 	std::string directionalLightColor = _name + ".color";
 	std::string directionalLightDirection = _name + ".direction";
 	std::string directionalLightRenderShadows = _name + ".renderShadows";
-	std::string directionalLightShadowMap = _name + ".shadowMap";
 	std::string directionalLightViewProjectionMatrix = _name + ".viewProjectionMatrices";
 	std::string directionalLightSplits = _name + ".splits";
 
@@ -239,7 +234,6 @@ std::vector<GLint> ShaderProgram::createDirectionalLightUniform(const std::strin
 	ids.push_back(glGetUniformLocation(programId, directionalLightColor.c_str()));
 	ids.push_back(glGetUniformLocation(programId, directionalLightDirection.c_str()));
 	ids.push_back(glGetUniformLocation(programId, directionalLightRenderShadows.c_str()));
-	ids.push_back(glGetUniformLocation(programId, directionalLightShadowMap.c_str()));
 	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 	{
 		ids.push_back(glGetUniformLocation(programId, (directionalLightViewProjectionMatrix + "["+std::to_string(i) + "]").c_str()));
@@ -260,12 +254,6 @@ std::vector<GLint> ShaderProgram::createMaterialUniform(const std::string &_name
 	std::string ao = _name + ".ao";
 	std::string emissive = _name + ".emissive";
 	std::string mapBitField = _name + ".mapBitField";
-	std::string albedoMap = _name + ".albedoMap";
-	std::string normalMap = _name + ".normalMap";
-	std::string metallicMap = _name + ".metallicMap";
-	std::string roughnessMap = _name + ".roughnessMap";
-	std::string aoMap = _name + ".aoMap";
-	std::string emissiveMap = _name + ".emissiveMap";
 
 	std::vector<GLint> locations;
 
@@ -275,12 +263,6 @@ std::vector<GLint> ShaderProgram::createMaterialUniform(const std::string &_name
 	locations.push_back(createUniform(ao));
 	locations.push_back(createUniform(emissive));
 	locations.push_back(createUniform(mapBitField));
-	locations.push_back(createUniform(albedoMap));
-	locations.push_back(createUniform(normalMap));
-	locations.push_back(createUniform(metallicMap));
-	locations.push_back(createUniform(roughnessMap));
-	locations.push_back(createUniform(aoMap));
-	locations.push_back(createUniform(emissiveMap));
 
 	return locations;
 }
@@ -330,16 +312,15 @@ void ShaderProgram::setUniform(const GLint &_location, const glm::vec4 &_value) 
 	glUniform4f(_location, _value.x, _value.y, _value.z, _value.w);
 }
 
-void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<PointLight> _value, int _shadowMapTextureUnit) const
+void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<PointLight> _value) const
 {
 	setUniform(_locations[0], _value->getColor());
 	setUniform(_locations[1], _value->getViewPosition());
 	setUniform(_locations[2], _value->getRadius());
 	setUniform(_locations[3], _value->isRenderShadows());
-	setUniform(_locations[4], _shadowMapTextureUnit);
 }
 
-void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<SpotLight> _value, int _shadowMapTextureUnit) const
+void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<SpotLight> _value) const
 {
 	setUniform(_locations[0], _value->getColor());
 	setUniform(_locations[1], _value->getViewPosition());
@@ -348,23 +329,21 @@ void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared
 	setUniform(_locations[4], _value->getInnerAngleCos());
 	setUniform(_locations[5], _value->getRadius());
 	setUniform(_locations[6], _value->isRenderShadows());
-	setUniform(_locations[7], _shadowMapTextureUnit);
-	setUniform(_locations[8], _value->getViewProjectionMatrix());
+	setUniform(_locations[7], _value->getViewProjectionMatrix());
 }
 
-void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<DirectionalLight> _value, int _shadowMapTextureUnit) const
+void ShaderProgram::setUniform(const std::vector<GLint> &_locations, std::shared_ptr<DirectionalLight> _value) const
 {
 	setUniform(_locations[0], _value->getColor());
 	setUniform(_locations[1], _value->getViewDirection());
 	setUniform(_locations[2], _value->isRenderShadows());
-	setUniform(_locations[3], _shadowMapTextureUnit);
 	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 	{
-		setUniform(_locations[4 + i], _value->getViewProjectionMatrices()[i]);
+		setUniform(_locations[3 + i], _value->getViewProjectionMatrices()[i]);
 	}
 	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 	{
-		setUniform(_locations[4 + SHADOW_CASCADES + i], _value->getSplits()[i]);
+		setUniform(_locations[3 + SHADOW_CASCADES + i], _value->getSplits()[i]);
 	}
 }
 
@@ -376,10 +355,4 @@ void ShaderProgram::setUniform(const std::vector<GLint> &_locations, const Mater
 	setUniform(_locations[3], 1.0f);
 	setUniform(_locations[4], _value->getEmissive());
 	setUniform(_locations[5], (int)_value->getMapBitField());
-	setUniform(_locations[6], 0);
-	setUniform(_locations[7], 1);
-	setUniform(_locations[8], 2);
-	setUniform(_locations[9], 3);
-	setUniform(_locations[10], 4);
-	setUniform(_locations[11], 5);
 }

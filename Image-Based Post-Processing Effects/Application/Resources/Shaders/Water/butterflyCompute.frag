@@ -9,10 +9,11 @@ layout(location = 2) out vec4 oOutputZTexture;
 layout (pixel_center_integer) in vec4 gl_FragCoord;
 in vec2 vTexCoord;
 
-uniform sampler2D uButterflyTexture;
-uniform sampler2D uInputXTexture;
-uniform sampler2D uInputYTexture;
-uniform sampler2D uInputZTexture;
+layout(binding = 0) uniform sampler2D uButterflyTexture;
+layout(binding = 1) uniform sampler2D uInputXTexture;
+layout(binding = 2) uniform sampler2D uInputYTexture;
+layout(binding = 3) uniform sampler2D uInputZTexture;
+
 uniform int uN;
 uniform int uStage;
 uniform int uStages;

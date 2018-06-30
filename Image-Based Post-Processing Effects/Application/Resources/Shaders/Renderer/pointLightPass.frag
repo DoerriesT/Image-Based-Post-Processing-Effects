@@ -10,15 +10,16 @@ struct PointLight
     vec3 position;
 	float radius;
 	bool renderShadows;
-	samplerCubeShadow shadowMap;
 };
 
 const float SHADOW_NEAR_Z = 0.1;
 
-uniform sampler2D uAlbedoMap;
-uniform sampler2D uNormalMap;
-uniform sampler2D uMetallicRoughnessAoMap;
-uniform sampler2D uDepthMap;
+layout(binding = 0) uniform sampler2D uAlbedoMap;
+layout(binding = 1) uniform sampler2D uNormalMap;
+layout(binding = 2) uniform sampler2D uMetallicRoughnessAoMap;
+layout(binding = 3) uniform sampler2D uDepthMap;
+layout(binding = 4) uniform samplerCubeShadow uShadowMap;
+
 uniform PointLight uPointLight;
 uniform mat4 uInverseView;
 uniform mat4 uInverseProjection;
@@ -119,7 +120,7 @@ void main()
 			lightToFrag = (uInverseView * vec4(lightToFrag, 0.0)).xyz;
 			//lightToFrag -= normalize(lightToFrag) * 0.01;
 			float fragDepth = vectorToDepth(lightToFrag);
-			shadow = texture(uPointLight.shadowMap, vec4(lightToFrag, fragDepth - 0.001)).x;
+			shadow = texture(uShadowMap, vec4(lightToFrag, fragDepth - 0.001)).x;
 		}
 
 		float distancePercentage = distance / uPointLight.radius;

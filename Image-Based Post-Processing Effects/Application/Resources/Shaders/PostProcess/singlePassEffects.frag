@@ -5,7 +5,8 @@
 out vec4 oFragColor;
 in vec2 vTexCoord;
 
-uniform sampler2D uScreenTexture;
+layout(binding = 0) uniform sampler2D uScreenTexture;
+
 uniform float uChromAbOffsetMultiplier;
 uniform float uTime;
 uniform float uFilmGrainStrength;

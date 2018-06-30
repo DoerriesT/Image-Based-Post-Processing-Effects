@@ -4,8 +4,8 @@ layout(location = 0) out vec4 oColor;
 
 in vec2 vTexCoord;
 
-uniform sampler2D uDepthTexture;
-uniform sampler2D uNoiseTexture;
+layout(binding = 3) uniform sampler2D uDepthTexture;
+layout(binding = 5) uniform sampler2D uNoiseTexture;
 
 const float Z_NEAR = 0.1;
 const float Z_FAR = 3000.0;

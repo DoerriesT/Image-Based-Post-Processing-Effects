@@ -4,7 +4,8 @@ layout(local_size_x = 8, local_size_y = 8, local_size_z= 1) in;
 
 layout(rg16f, binding = 0) uniform image2D uImgOut;
 
-uniform sampler2D uDepthTexture;
+layout(binding = 0) uniform sampler2D uDepthTexture;
+
 uniform float uFocusDistance;
 uniform float uFocalLength;
 

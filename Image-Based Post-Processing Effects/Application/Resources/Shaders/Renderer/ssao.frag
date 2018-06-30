@@ -4,9 +4,10 @@ layout(location = 0) out vec4 oColor;
 
 in vec2 vTexCoord;
 
-uniform sampler2D uDepthTexture;
-uniform sampler2D uNormalTexture;
-uniform sampler2D uNoiseTexture;
+layout(binding = 3) uniform sampler2D uDepthTexture;
+layout(binding = 1) uniform sampler2D uNormalTexture;
+layout(binding = 5) uniform sampler2D uNoiseTexture;
+
 uniform mat4 uProjection;
 uniform mat4 uInverseProjection;
 uniform vec3 uSamples[64];

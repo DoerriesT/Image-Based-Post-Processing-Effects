@@ -9,7 +9,8 @@ layout (location = 4) in vec3 aBitangent;
 out vec2 vTexCoord;
 out vec3 vWorldPos;
 
-uniform sampler2D uDisplacementTexture;
+layout(binding = 1) uniform sampler2D uDisplacementTexture;
+
 uniform mat4 uProjection;
 uniform mat4 uView;
 uniform vec3 uCamPos;

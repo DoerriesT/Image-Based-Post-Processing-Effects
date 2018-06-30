@@ -4,7 +4,8 @@ layout(location = 0) out vec4 oBlur;
 
 in vec2 vTexCoord;
 
-uniform sampler2D uColorTexture;
+layout(binding = 0) uniform sampler2D uColorTexture;
+
 uniform bool uBlur;
 
 vec4 blur(vec2 pixelSize)

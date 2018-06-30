@@ -711,9 +711,6 @@
     <None Include="..\Application\Resources\Shaders\Water\water.frag">
       <Filter>Resources\Shaders\Water</Filter>
     </None>
-    <None Include="..\Application\Resources\Shaders\Water\water.geom">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
     <None Include="..\Application\Resources\Shaders\Water\water.vert">
       <Filter>Resources\Shaders\Water</Filter>
     </None>
@@ -799,6 +796,9 @@
       <Filter>Resources\Shaders\PostProcess</Filter>
     </None>
     <None Include="..\Application\Resources\Shaders\PostProcess\luminanceGen.comp">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\dofComposite.comp">
       <Filter>Resources\Shaders\PostProcess</Filter>
     </None>
   </ItemGroup>

@@ -4,7 +4,8 @@ layout(location = 0) out vec4 oNormal;
 
 in vec2 vTexCoord;
 
-uniform sampler2D uDisplacementTexture;
+layout(binding = 0) uniform sampler2D uDisplacementTexture;
+
 uniform float uNormalStrength = 2.5;
 
 vec2 encode (vec3 n)

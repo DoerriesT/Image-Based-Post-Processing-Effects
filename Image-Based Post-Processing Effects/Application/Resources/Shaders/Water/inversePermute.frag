@@ -7,9 +7,10 @@ layout(location = 0) out vec4 oDisplacement;
 layout (pixel_center_integer) in vec4 gl_FragCoord;
 in vec2 vTexCoord;
 
-uniform sampler2D uInputXTexture;
-uniform sampler2D uInputYTexture;
-uniform sampler2D uInputZTexture;
+layout(binding = 0) uniform sampler2D uInputXTexture;
+layout(binding = 1) uniform sampler2D uInputYTexture;
+layout(binding = 2) uniform sampler2D uInputZTexture;
+
 uniform int uN;
 uniform float uChoppiness = -0.65;
 

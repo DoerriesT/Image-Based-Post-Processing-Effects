@@ -6,8 +6,9 @@ in vec3 tcPosition[];
 out vec2 vTexCoord;
 out vec3 vWorldPos;
 
+layout(binding = 1) uniform sampler2D uDisplacementTexture;
+
 uniform mat4 uViewProjection;
-uniform sampler2D uDisplacementTexture;
 uniform float uTexCoordScale = 1.0;
 uniform float uDisplacementScale = 1.0;
 

@@ -77,7 +77,6 @@ void PostProcessRenderer::init()
 	// create uniforms
 
 	// single pass
-	uScreenTextureS.create(singlePassEffectsShader);
 	uTimeS.create(singlePassEffectsShader);
 	uFilmGrainStrengthS.create(singlePassEffectsShader);
 	uVignetteS.create(singlePassEffectsShader);
@@ -86,34 +85,21 @@ void PostProcessRenderer::init()
 	uChromAbOffsetMultiplierS.create(singlePassEffectsShader);
 
 	// hdr
-	uScreenTextureH.create(hdrShader);
-	uBloomTextureH.create(hdrShader);
-	uLensFlareTexH.create(hdrShader);
-	uLensDirtTexH.create(hdrShader);
-	uLensStarTexH.create(hdrShader);
 	uStarburstOffsetH.create(hdrShader);
 	uLensFlaresH.create(hdrShader);
 	uBloomH.create(hdrShader);
 	uBloomStrengthH.create(hdrShader);
 	uBloomDirtStrengthH.create(hdrShader);
 	uExposureH.create(hdrShader);
-	uVelocityTextureH.create(hdrShader);
-	uVelocityScaleH.create(hdrShader);
 	uMotionBlurH.create(hdrShader);
-	uVelocityNeighborMaxTextureH.create(hdrShader);
-	uDepthTextureH.create(hdrShader);
-	uLuminanceTextureH.create(hdrShader);
 
 	// fxaa
-	uScreenTextureF.create(fxaaShader);
 	uInverseResolutionF.create(fxaaShader);
 	uSubPixelAAF.create(fxaaShader);
 	uEdgeThresholdF.create(fxaaShader);
 	uEdgeThresholdMinF.create(fxaaShader);
 
 	// lens flare gen uniforms
-	uInputTexLFG.create(lensFlareGenShader);
-	uLensColorLFG.create(lensFlareGenShader);
 	uGhostsLFG.create(lensFlareGenShader);
 	uGhostDispersalLFG.create(lensFlareGenShader);
 	uHaloRadiusLFG.create(lensFlareGenShader);
@@ -122,38 +108,24 @@ void PostProcessRenderer::init()
 	uBiasLFG.create(lensFlareGenShader);
 
 	// lens flare blur shader
-	uInputTexLFB.create(lensFlareBlurShader);
 	uDirectionLFB.create(lensFlareBlurShader);
 
-	// downsample
-	uColorTextureDS2.create(downsampleShader);
-
 	// bloom upscale
-	uUpscaleTextureBU.create(upsampleShader);
-	uPreviousBlurredTextureBU.create(upsampleShader);
 	uAddPreviousBU.create(upsampleShader);
 	uRadiusBU.create(upsampleShader);
 
 	// velocity tile max
-	uVelocityTextureVTM.create(velocityTileMaxShader);
 	uDirectionVTM.create(velocityTileMaxShader);
 	uTileSizeVTM.create(velocityTileMaxShader);
 
-	// velocity neighbor tile max
-	uVelocityTextureVNTM.create(velocityNeighborTileMaxShader);
-
 	// coc
-	uDepthTextureCOC.create(cocShader);
 	uFocusDistanceCOC.create(cocShader);
 	uFocalLengthCOC.create(cocShader);
 
 	// coc blur
-	uCocTextureCOCB.create(cocBlurShader);
 	uDirectionCOCB.create(cocBlurShader);
 
 	// dof blur
-	uColorTextureDOFB.create(dofBlurShader);
-	uCocTextureDOFB.create(dofBlurShader);
 	for (int i = 0; i < 64; ++i)
 	{
 		uSampleCoordsDOFB.push_back(dofBlurShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
@@ -161,25 +133,13 @@ void PostProcessRenderer::init()
 	uBokehScaleDOFB.create(dofBlurShader);
 
 	// dof fill
-	uColorNearTextureDOFF.create(dofFillShader);
-	uColorFarTextureDOFF.create(dofFillShader);
 	for (int i = 0; i < 16; ++i)
 	{
 		uSampleCoordsDOFF.push_back(dofFillShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
 	}
 	uBokehScaleDOFF.create(dofFillShader);
 
-	// dof composite
-	uNearTextureDOFC.create(dofCompositeShader);
-	uFarTextureDOFC.create(dofCompositeShader);
-	uColorTextureDOFC.create(dofCompositeShader);
-
-	// luminance gen
-	uColorTextureLG.create(luminanceGenShader);
-
 	// luminance adaption
-	uPrevLuminanceTextureLA.create(luminanceAdaptionShader);
-	uCurrentLuminanceTextureLA.create(luminanceAdaptionShader);
 	uTimeDeltaLA.create(luminanceAdaptionShader);
 	uTauLA.create(luminanceAdaptionShader);
 
@@ -235,7 +195,6 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 		{
 			velocityTileMaxShader->bind();
 
-			uVelocityTextureVTM.set(0);
 			uTileSizeVTM.set(tileSize);
 
 			// fullscreen to first step
@@ -265,8 +224,6 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 		{
 			velocityNeighborTileMaxShader->bind();
 
-			uVelocityTextureVNTM.set(0);
-
 			glBindTexture(GL_TEXTURE_2D, velocityMaxTex);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityNeighborMaxTex, 0);
 
@@ -289,32 +246,23 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, dof ? fullResolutionHdrTexture : _colorTexture);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, halfResolutionHdrTexB);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, halfResolutionHdrTexA);
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, lensDirtTexture->getId());
-	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, lensStarTexture->getId());
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, _velocityTexture);
-	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_2D, velocityNeighborMaxTex);
-	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_2D, _depthTexture);
-	glActiveTexture(GL_TEXTURE10);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, halfResolutionHdrTexB);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, halfResolutionHdrTexA);
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, lensDirtTexture->getId());
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, lensStarTexture->getId());
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, _velocityTexture);
+	glActiveTexture(GL_TEXTURE7);
+	glBindTexture(GL_TEXTURE_2D, velocityNeighborMaxTex);
+	glActiveTexture(GL_TEXTURE8);
 	glBindTexture(GL_TEXTURE_2D, luminanceTexture[currentLuminanceTexture]);
 
 	hdrShader->bind();
-	uScreenTextureH.set(0);
-	uBloomTextureH.set(1);
-	uLensFlareTexH.set(2);
-	uLensDirtTexH.set(3);
-	uLensStarTexH.set(4);
-	uVelocityTextureH.set(5);
-	uVelocityNeighborMaxTextureH.set(6);
-	uDepthTextureH.set(7);
-	uLuminanceTextureH.set(10);
 
 	uStarburstOffsetH.set(glm::dot(glm::vec3(1.0), _camera->getForwardDirection()));
 	uLensFlaresH.set(_effects.lensFlares.enabled);
@@ -323,7 +271,6 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	uBloomDirtStrengthH.set(_effects.bloom.lensDirtStrength);
 	uExposureH.set(_effects.exposure);
 	uMotionBlurH.set(GLint(_effects.motionBlur));
-	uVelocityScaleH.set((float)Engine::getCurrentFps() / 60.0f);
 
 	fullscreenTriangle->getSubMesh()->render();
 
@@ -382,7 +329,6 @@ void PostProcessRenderer::fxaa(float _subPixelAA, float _edgeThreshold, float _e
 	glBindTexture(GL_TEXTURE_2D, finishedTexture);
 
 	fxaaShader->bind();
-	uScreenTextureF.set(0);
 	uSubPixelAAF.set(_subPixelAA);
 	uEdgeThresholdF.set(_edgeThreshold);
 	uEdgeThresholdMinF.set(_edgeThresholdMin);
@@ -399,7 +345,6 @@ void PostProcessRenderer::singlePassEffects(const Effects &_effects)
 	glBindTexture(GL_TEXTURE_2D, finishedTexture);
 
 	singlePassEffectsShader->bind();
-	uScreenTextureS.set(0);
 	uTimeS.set((float)Engine::getCurrentTime());
 	uFilmGrainStrengthS.set(_effects.filmGrain.strength);
 	uVignetteS.set(_effects.vignette.enabled);
@@ -448,7 +393,6 @@ void PostProcessRenderer::downsample(GLuint _colorTexture)
 	};
 
 	downsampleShader->bind();
-	uColorTextureDS2.set(0);
 
 	for (size_t i = 0; i < 6; ++i)
 	{
@@ -514,8 +458,6 @@ void PostProcessRenderer::upsample()
 	};
 
 	upsampleShader->bind();
-	uUpscaleTextureBU.set(0);
-	uPreviousBlurredTextureBU.set(1);
 	uAddPreviousBU.set(false);
 
 	for (size_t i = 0; i < 6; ++i)
@@ -556,8 +498,6 @@ void PostProcessRenderer::generateFlares(const Effects &_effects)
 	glBindTexture(lensColorTexture->getTarget(), lensColorTexture->getId());
 
 	lensFlareGenShader->bind();
-	uInputTexLFG.set(0);
-	uLensColorLFG.set(1);
 	uGhostsLFG.set(_effects.lensFlares.flareCount);
 	uGhostDispersalLFG.set(_effects.lensFlares.flareSpacing);
 	uHaloRadiusLFG.set(_effects.lensFlares.haloWidth);
@@ -573,7 +513,6 @@ void PostProcessRenderer::generateFlares(const Effects &_effects)
 	glBindTexture(GL_TEXTURE_2D, halfResolutionHdrTexA); // read from A
 
 	lensFlareBlurShader->bind();
-	uInputTexLFB.set(0);
 	uDirectionLFB.set(true);
 
 	fullscreenTriangle->getSubMesh()->render();
@@ -596,7 +535,6 @@ void PostProcessRenderer::calculateCoc(GLuint _depthTexture)
 
 	cocShader->bind();
 
-	uDepthTextureCOC.set(0);
 	uFocusDistanceCOC.set(50.0f);
 	uFocalLengthCOC.set(10.0f);
 
@@ -620,7 +558,6 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 	// blur coc
 	{
 		cocBlurShader->bind();
-		uCocTextureCOCB.set(0);
 		uDirectionCOCB.set(false);
 
 		glActiveTexture(GL_TEXTURE0);
@@ -677,8 +614,6 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 	{
 		dofBlurShader->bind();
 
-		uColorTextureDOFB.set(0);
-		uCocTextureDOFB.set(1);
 		uBokehScaleDOFB.set(5.0f);
 		if (!blurSamplesSet)
 		{
@@ -704,8 +639,6 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 	{
 		dofFillShader->bind();
 
-		uColorNearTextureDOFF.set(0);
-		uColorFarTextureDOFF.set(1);
 		uBokehScaleDOFF.set(5.0f);
 		if (!fillSamplesSet)
 		{
@@ -732,10 +665,6 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 	{
 		dofCompositeShader->bind();
 
-		uNearTextureDOFC.set(0);
-		uFarTextureDOFC.set(1);
-		uColorTextureDOFC.set(2);
-
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexC);
 		glActiveTexture(GL_TEXTURE1);
@@ -754,7 +683,7 @@ void PostProcessRenderer::calculateLuminance(GLuint _colorTexture)
 	currentLuminanceTexture = !currentLuminanceTexture;
 
 	luminanceGenShader->bind();
-	uColorTextureLG.set(0);
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _colorTexture);
 
@@ -765,8 +694,6 @@ void PostProcessRenderer::calculateLuminance(GLuint _colorTexture)
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	luminanceAdaptionShader->bind();
-	uPrevLuminanceTextureLA.set(0);
-	uCurrentLuminanceTextureLA.set(1);
 	uTimeDeltaLA.set((float)Engine::getCurrentTimeDelta());
 	uTauLA.set(2.5f);
 

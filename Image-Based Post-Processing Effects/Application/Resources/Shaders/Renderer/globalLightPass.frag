@@ -14,17 +14,21 @@ struct DirectionalLight
     vec3 color;
     vec3 direction;
 	bool renderShadows;
-	sampler2DArrayShadow shadowMap;
 	mat4 viewProjectionMatrices[SHADOW_CASCADES];
 	float splits[SHADOW_CASCADES];
 };
 
-uniform sampler2D uAlbedoMap;
-uniform sampler2D uNormalMap;
-uniform sampler2D uMetallicRoughnessAoMap;
-uniform sampler2D uDepthMap;
-uniform sampler2D uSsaoMap;
-uniform sampler2D uPrevFrame;
+layout(binding = 0) uniform sampler2D uAlbedoMap;
+layout(binding = 1) uniform sampler2D uNormalMap;
+layout(binding = 2) uniform sampler2D uMetallicRoughnessAoMap;
+layout(binding = 3) uniform sampler2D uDepthMap;
+layout(binding = 4) uniform sampler2D uSsaoMap;
+layout(binding = 5) uniform sampler2DArrayShadow uShadowMap;
+layout(binding = 6) uniform samplerCube uIrradianceMap;
+layout(binding = 7) uniform samplerCube uPrefilterMap;
+layout(binding = 8) uniform sampler2D uBrdfLUT;
+layout(binding = 9) uniform sampler2D uPrevFrame;
+
 uniform mat4 uInverseView;
 uniform mat4 uProjection;
 uniform mat4 uInverseProjection;
@@ -36,9 +40,7 @@ uniform bool uSsao;
 uniform bool uUseSsr;
 
 //IBL
-uniform samplerCube uIrradianceMap;
-uniform samplerCube uPrefilterMap;
-uniform sampler2D uBrdfLUT;
+
 
 const float Z_NEAR = 0.1;
 const float Z_FAR = 3000.0;
@@ -235,7 +237,7 @@ void main()
 				vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * worldPos4;
 				vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
 				projCoords = projCoords * 0.5 + 0.5; 
-				vec2 invShadowMapSize = vec2(1.0 / (textureSize(uDirectionalLight.shadowMap, 0).xy));
+				vec2 invShadowMapSize = vec2(1.0 / (textureSize(uShadowMap, 0).xy));
 
 				float count = 0.0;
 				float radius = 2.0;
@@ -244,7 +246,7 @@ void main()
 					for(float col = -radius; col <= radius; ++col)
 					{
 						++count;
-						shadow += texture(uDirectionalLight.shadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.001)).x;
+						shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.001)).x;
 					}
 				}
 				shadow *= 1.0 / count;

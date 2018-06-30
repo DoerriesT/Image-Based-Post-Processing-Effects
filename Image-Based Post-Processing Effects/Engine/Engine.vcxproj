@@ -203,6 +203,7 @@
     <None Include="..\Application\Resources\Shaders\PostProcess\coc.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\cocBlur.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\dofBlur.comp" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\dofComposite.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\dofFill.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\downsample.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\fxaa.frag" />
@@ -261,7 +262,6 @@
     <None Include="..\Application\Resources\Shaders\Water\tildeHkt.comp" />
     <None Include="..\Application\Resources\Shaders\Water\tildeHkt.frag" />
     <None Include="..\Application\Resources\Shaders\Water\water.frag" />
-    <None Include="..\Application\Resources\Shaders\Water\water.geom" />
     <None Include="..\Application\Resources\Shaders\Water\water.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

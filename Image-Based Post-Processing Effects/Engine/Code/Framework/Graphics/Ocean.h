@@ -90,10 +90,6 @@ private:
 	GLuint waterNormalTexture;
 
 	// tildeh0k
-	Uniform<GLint> uNoiseR0TextureH0 = Uniform<GLint>("uNoiseR0Texture");
-	Uniform<GLint> uNoiseI0TextureH0 = Uniform<GLint>("uNoiseI0Texture");
-	Uniform<GLint> uNoiseR1TextureH0 = Uniform<GLint>("uNoiseR1Texture");
-	Uniform<GLint> uNoiseI1TextureH0 = Uniform<GLint>("uNoiseI1Texture");
 	Uniform<GLint> uSimulationResolutionH0 = Uniform<GLint>("uN");
 	Uniform<GLint> uWorldSizeH0 = Uniform<GLint>("uL");
 	Uniform<GLfloat> uWaveAmplitudeH0 = Uniform<GLfloat>("uA");
@@ -102,8 +98,6 @@ private:
 	Uniform<GLfloat> uWaveSuppressionExpH0 = Uniform<GLfloat>("uWaveSuppressionExp");
 
 	// tildehkt
-	Uniform<GLint> uTildeH0kTextureHT = Uniform<GLint>("uTildeH0kTexture");
-	Uniform<GLint> uTildeH0minusKTextureHT = Uniform<GLint>("uTildeH0minusKTexture");
 	Uniform<GLint> uSimulationResolutionHT = Uniform<GLint>("uN");
 	Uniform<GLint> uWorldSizeHT = Uniform<GLint>("uL");
 	Uniform<GLfloat> uTimeHT = Uniform<GLfloat>("uTime");
@@ -113,31 +107,19 @@ private:
 	Uniform<GLint> uSimulationResolutionBP = Uniform<GLint>("uN");
 
 	// butterflyCompute
-	Uniform<GLint> uButterflyTextureBC = Uniform<GLint>("uButterflyTexture");
-	Uniform<GLint> uInputXTextureBC = Uniform<GLint>("uInputXTexture");
-	Uniform<GLint> uInputYTextureBC = Uniform<GLint>("uInputYTexture");
-	Uniform<GLint> uInputZTextureBC = Uniform<GLint>("uInputZTexture");
 	Uniform<GLint> uSimulationResolutionBC = Uniform<GLint>("uN");
 	Uniform<GLint> uStageBC = Uniform<GLint>("uStage");
 	Uniform<GLint> uStagesBC = Uniform<GLint>("uStages");
 	Uniform<GLint> uDirectionBC = Uniform<GLint>("uDirection");
 
 	// inverse/permute
-	Uniform<GLint> uInputXTextureIP = Uniform<GLint>("uInputXTexture");
-	Uniform<GLint> uInputYTextureIP = Uniform<GLint>("uInputYTexture");
-	Uniform<GLint> uInputZTextureIP = Uniform<GLint>("uInputZTexture");
 	Uniform<GLint> uSimulationResolutionIP = Uniform<GLint>("uN");
 	Uniform<GLfloat> uChoppinessIP = Uniform<GLfloat>("uChoppiness");
 
 	// water normal
-	Uniform<GLint> uDisplacementTextureN = Uniform<GLint>("uDisplacementTexture");
 	Uniform<GLfloat> uNormalStrengthN = Uniform<GLfloat>("uNormalStrength");
 
 	// tildeh0k compute
-	Uniform<GLint> uNoiseR0TextureH0C = Uniform<GLint>("uNoiseR0Texture");
-	Uniform<GLint> uNoiseI0TextureH0C = Uniform<GLint>("uNoiseI0Texture");
-	Uniform<GLint> uNoiseR1TextureH0C = Uniform<GLint>("uNoiseR1Texture");
-	Uniform<GLint> uNoiseI1TextureH0C = Uniform<GLint>("uNoiseI1Texture");
 	Uniform<GLint> uSimulationResolutionH0C = Uniform<GLint>("uN");
 	Uniform<GLint> uWorldSizeH0C = Uniform<GLint>("uL");
 	Uniform<GLfloat> uWaveAmplitudeH0C = Uniform<GLfloat>("uA");
@@ -168,10 +150,6 @@ private:
 	Uniform<GLfloat> uNormalStrengthNC = Uniform<GLfloat>("uNormalStrength");
 
 	// water
-	Uniform<GLint> uNormalTextureW = Uniform<GLint>("uNormalTexture");
-	Uniform<GLint> uDisplacementTextureW = Uniform<GLint>("uDisplacementTexture");
-	Uniform<GLint> uFoamTextureW = Uniform<GLint>("uFoamTexture");
-	Uniform<GLint> uEnvironmentTextureW = Uniform<GLint>("uEnvironmentTexture");
 	Uniform<glm::mat4> uProjectionW = Uniform<glm::mat4>("uProjection");
 	Uniform<glm::mat4> uViewW = Uniform<glm::mat4>("uView");
 	Uniform<glm::vec3> uCamPosW = Uniform<glm::vec3>("uCamPos");
@@ -182,10 +160,6 @@ private:
 	Uniform<glm::vec3> uLightColorW = Uniform<glm::vec3>("uLightColor");
 
 	// water tesselated
-	Uniform<GLint> uNormalTextureWT = Uniform<GLint>("uNormalTexture");
-	Uniform<GLint> uDisplacementTextureWT = Uniform<GLint>("uDisplacementTexture");
-	Uniform<GLint> uFoamTextureWT = Uniform<GLint>("uFoamTexture");
-	Uniform<GLint> uEnvironmentTextureWT = Uniform<GLint>("uEnvironmentTexture");
 	Uniform<glm::mat4> uViewProjectionWT = Uniform<glm::mat4>("uViewProjection");
 	Uniform<glm::mat4> uProjectionWT = Uniform<glm::mat4>("uProjection");
 	Uniform<glm::mat4> uViewWT = Uniform<glm::mat4>("uView");

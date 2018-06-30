@@ -7,8 +7,9 @@ out vec4 oFragColor;
 
 in vec2 vTexCoord;
 
-uniform sampler2D uInputTex;
-uniform sampler2D uLensColor;
+layout(binding = 0) uniform sampler2D uInputTex;
+layout(binding = 1) uniform sampler2D uLensColor;
+
 uniform int uGhosts; // number of ghost samples
 uniform float uGhostDispersal; // dispersion factor
 uniform float uHaloRadius;

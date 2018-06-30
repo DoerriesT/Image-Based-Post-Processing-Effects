@@ -73,21 +73,12 @@ void SceneRenderer::init()
 	uOutlineColorO.create(outlineShader);
 
 	// environmentLightPass uniforms
-	uAlbedoMapE.create(environmentLightPassShader);
-	uNormalMapE.create(environmentLightPassShader);
-	uMetallicRoughnessAoMapE.create(environmentLightPassShader);
-	uDepthMapE.create(environmentLightPassShader);
-	uSsaoMapE.create(environmentLightPassShader);
 	uInverseProjectionE.create(environmentLightPassShader);
 	uInverseViewE.create(environmentLightPassShader);
-	uIrradianceMapE.create(environmentLightPassShader);
-	uPrefilterMapE.create(environmentLightPassShader);
-	uBrdfLUTE.create(environmentLightPassShader);
 	uDirectionalLightE.create(environmentLightPassShader);
 	uShadowsEnabledE.create(environmentLightPassShader);
 	uRenderDirectionalLightE.create(environmentLightPassShader);
 	uSsaoE.create(environmentLightPassShader);
-	uPrevFrameE.create(environmentLightPassShader);
 	uProjectionE.create(environmentLightPassShader);
 	uPrevViewProjectionE.create(environmentLightPassShader);
 	uUseSsrE.create(environmentLightPassShader);
@@ -95,10 +86,6 @@ void SceneRenderer::init()
 
 	// pointLightPass uniforms
 	uModelViewProjectionP.create(pointLightPassShader);
-	uAlbedoMapP.create(pointLightPassShader);
-	uNormalMapP.create(pointLightPassShader);
-	uMetallicRoughnessAoMapP.create(pointLightPassShader);
-	uDepthMapP.create(pointLightPassShader);
 	uPointLightP.create(pointLightPassShader);
 	uInverseProjectionP.create(pointLightPassShader);
 	uInverseViewP.create(pointLightPassShader);
@@ -107,10 +94,6 @@ void SceneRenderer::init()
 
 	// spotLightPass uniforms
 	uModelViewProjectionS.create(spotLightPassShader);
-	uAlbedoMapS.create(spotLightPassShader);
-	uNormalMapS.create(spotLightPassShader);
-	uMetallicRoughnessAoMapS.create(spotLightPassShader);
-	uDepthMapS.create(spotLightPassShader);
 	uSpotLightS.create(spotLightPassShader);
 	uInverseViewS.create(spotLightPassShader);
 	uInverseProjectionS.create(spotLightPassShader);
@@ -118,10 +101,6 @@ void SceneRenderer::init()
 	uViewportSizeS.create(spotLightPassShader);
 
 	// directionalLightPass uniforms
-	uAlbedoMapD.create(directionalLightShader);
-	uNormalMapD.create(directionalLightShader);
-	uMetallicRoughnessAoMapD.create(directionalLightShader);
-	uDepthMapD.create(directionalLightShader);
 	uDirectionalLightD.create(directionalLightShader);
 	uInverseViewD.create(directionalLightShader);
 	uInverseProjectionD.create(directionalLightShader);
@@ -129,12 +108,12 @@ void SceneRenderer::init()
 
 	// skybox uniforms
 	uInverseModelViewProjectionB.create(skyboxShader);
-	uAlbedoMapB.create(skyboxShader);
 	uColorB.create(skyboxShader);
 	uHasAlbedoMapB.create(skyboxShader);
 	uCurrentToPrevTransformB.create(skyboxShader);
 
 	// transparency uniforms
+	uViewMatrixT.create(transparencyShader);
 	uPrevTransformT.create(transparencyShader);
 	uModelViewProjectionMatrixT.create(transparencyShader);
 	uModelMatrixT.create(transparencyShader);
@@ -144,14 +123,8 @@ void SceneRenderer::init()
 	uRenderDirectionalLightT.create(transparencyShader);
 	uCamPosT.create(transparencyShader);
 	uShadowsEnabledT.create(transparencyShader);
-	uIrradianceMapT.create(transparencyShader);
-	uPrefilterMapT.create(transparencyShader);
-	uBrdfLUTT.create(transparencyShader);
 
 	// ssao
-	uDepthTextureAO.create(ssaoShader);
-	uNormalTextureAO.create(ssaoShader);
-	uNoiseTextureAO.create(ssaoShader);
 	uViewAO.create(ssaoShader);
 	uProjectionAO.create(ssaoShader);
 	uInverseProjectionAO.create(ssaoShader);
@@ -164,17 +137,10 @@ void SceneRenderer::init()
 	uBiasAO.create(ssaoShader);
 	uStrengthAO.create(ssaoShader);
 
-	// ssao original
-	uDepthTextureAOO.create(ssaoOriginalShader);
-	uNoiseTextureAOO.create(ssaoOriginalShader);
-
 	// ssao blur
-	uInputTextureAOB.create(ssaoBlurShader);
 	uBlurSizeAOB.create(ssaoBlurShader);
 
 	// hbao
-	uDepthMapHBAO.create(hbaoShader);
-	uNoiseMapHBAO.create(hbaoShader);
 	uFocalLengthHBAO.create(hbaoShader);
 	uInverseProjectionHBAO.create(hbaoShader);
 	uAOResHBAO.create(hbaoShader);
@@ -676,7 +642,6 @@ void SceneRenderer::renderSkybox(const RenderData &_renderData, const std::share
 
 	EntityManager &entityManager = EntityManager::getInstance();
 
-	uAlbedoMapB.set(0);
 	uHasAlbedoMapB.set(_level->environment.environmentMap ? true : false);
 	uColorB.set(DEFAULT_ALBEDO_COLOR);
 
@@ -725,15 +690,6 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 	uInverseViewE.set(_inverseView);
 	uProjectionE.set(_renderData.projectionMatrix);
 	uInverseProjectionE.set(_inverseProjection);
-	uAlbedoMapE.set(0);
-	uNormalMapE.set(1);
-	uMetallicRoughnessAoMapE.set(2);
-	uDepthMapE.set(3);
-	uSsaoMapE.set(4);
-	uIrradianceMapE.set(6);
-	uPrefilterMapE.set(7);
-	uBrdfLUTE.set(8);
-	uPrevFrameE.set(9);
 	uSsaoE.set(_effects.ambientOcclusion != AmbientOcclusion::OFF);
 	uUseSsrE.set(_effects.screenSpaceReflections.enabled);
 
@@ -751,7 +707,7 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 			glActiveTexture(GL_TEXTURE5);
 			glBindTexture(GL_TEXTURE_2D_ARRAY, directionalLight->getShadowMap());
 		}
-		uDirectionalLightE.set(directionalLight, 5);
+		uDirectionalLightE.set(directionalLight);
 		uRenderDirectionalLightE.set(true);
 		uShadowsEnabledE.set(_renderData.shadows);
 	}
@@ -772,10 +728,6 @@ void SceneRenderer::renderDirectionalLights(const RenderData &_renderData, const
 
 	uInverseViewD.set(_inverseView);
 	uInverseProjectionD.set(_inverseProjection);
-	uAlbedoMapD.set(0);
-	uNormalMapD.set(1);
-	uMetallicRoughnessAoMapD.set(2);
-	uDepthMapD.set(3);
 	uShadowsEnabledD.set(_renderData.shadows);
 
 	for (size_t i = _level->environment.skyboxEntity ? 1 : 0; i < _level->lights.directionalLights.size(); ++i)
@@ -788,7 +740,7 @@ void SceneRenderer::renderDirectionalLights(const RenderData &_renderData, const
 			glBindTexture(GL_TEXTURE_2D_ARRAY, directionalLight->getShadowMap());
 		}
 
-		uDirectionalLightD.set(directionalLight, 4);
+		uDirectionalLightD.set(directionalLight);
 		fullscreenTriangle->getSubMesh()->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
@@ -800,10 +752,6 @@ void SceneRenderer::renderPointLights(const RenderData &_renderData, const std::
 
 	pointLightPassShader->bind();
 
-	uAlbedoMapP.set(0);
-	uNormalMapP.set(1);
-	uMetallicRoughnessAoMapP.set(2);
-	uDepthMapP.set(3);
 	uInverseViewP.set(_inverseView);
 	uInverseProjectionP.set(_inverseProjection);
 	uShadowsEnabledP.set(_renderData.shadows);
@@ -820,7 +768,7 @@ void SceneRenderer::renderPointLights(const RenderData &_renderData, const std::
 		}
 
 		uModelViewProjectionP.set(_renderData.viewProjectionMatrix * glm::translate(pointLight->getPosition()) * glm::scale(glm::vec3(pointLight->getRadius())));
-		uPointLightP.set(pointLight, 4);
+		uPointLightP.set(pointLight);
 		pointLightMesh->getSubMesh()->render();
 	}
 }
@@ -831,10 +779,6 @@ void SceneRenderer::renderSpotLights(const RenderData &_renderData, const std::s
 
 	spotLightPassShader->bind();
 
-	uAlbedoMapS.set(0);
-	uNormalMapS.set(1);
-	uMetallicRoughnessAoMapS.set(2);
-	uDepthMapS.set(3);
 	uInverseViewS.set(_inverseView);
 	uInverseProjectionS.set(_inverseProjection);
 	uShadowsEnabledS.set(_renderData.shadows);
@@ -859,7 +803,7 @@ void SceneRenderer::renderSpotLights(const RenderData &_renderData, const std::s
 			* glm::translate(spotLight->getPosition())
 			* glm::mat4_cast(glm::rotation(defaultDirection, spotLight->getDirection()))
 			* glm::scale(glm::vec3(scale, spotLight->getRadius(), scale)));
-		uSpotLightS.set(spotLight, 4);
+		uSpotLightS.set(spotLight);
 		spotLightMesh->getSubMesh()->render();
 	}
 }
@@ -877,21 +821,19 @@ void SceneRenderer::renderTransparentGeometry(const RenderData &_renderData, con
 	{
 		if (_level->lights.directionalLights[0]->isRenderShadows())
 		{
-			glActiveTexture(GL_TEXTURE4);
+			glActiveTexture(GL_TEXTURE9);
 			glBindTexture(GL_TEXTURE_2D_ARRAY, _level->lights.directionalLights[0]->getShadowMap());
 		}
 		uRenderDirectionalLightT.set(true);
-		uDirectionalLightT.set(_level->lights.directionalLights[0], 4);
+		uDirectionalLightT.set(_level->lights.directionalLights[0]);
 	}
 	else
 	{
 		uRenderDirectionalLightT.set(false);
 	}
 	uShadowsEnabledT.set(_renderData.shadows);
-	uIrradianceMapT.set(6);
-	uPrefilterMapT.set(7);
-	uBrdfLUTT.set(8);
 	uCamPosT.set(_renderData.cameraPosition);
+	uViewMatrixT.set(_renderData.viewMatrix);
 
 	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
 
@@ -1114,8 +1056,6 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		glBindTexture(GL_TEXTURE_2D, noiseTexture);
 
 		ssaoOriginalShader->bind();
-		uDepthTextureAOO.set(3);
-		uNoiseTextureAOO.set(5);
 
 		fullscreenTriangle->getSubMesh()->render();
 
@@ -1124,7 +1064,6 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
 
 		ssaoBlurShader->bind();
-		uInputTextureAOB.set(6);
 		uBlurSizeAOB.set(4);
 
 		fullscreenTriangle->getSubMesh()->render();
@@ -1169,9 +1108,6 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		glBindTexture(GL_TEXTURE_2D, noiseTexture);
 
 		ssaoShader->bind();
-		uDepthTextureAO.set(3);
-		uNormalTextureAO.set(1);
-		uNoiseTextureAO.set(5);
 		uViewAO.set(_renderData.viewMatrix);
 		uProjectionAO.set(_renderData.projectionMatrix);
 		uInverseProjectionAO.set(_inverseProjection);
@@ -1196,7 +1132,6 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
 
 		ssaoBlurShader->bind();
-		uInputTextureAOB.set(6);
 		uBlurSizeAOB.set(4);
 
 		fullscreenTriangle->getSubMesh()->render();
@@ -1223,8 +1158,6 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		float radius = 0.3f;
 
 		hbaoShader->bind();
-		uDepthMapHBAO.set(3);
-		uNoiseMapHBAO.set(5);
 		uFocalLengthHBAO.set(focalLength);
 		uInverseProjectionHBAO.set(_renderData.invProjectionMatrix);
 		uAOResHBAO.set(res);
@@ -1246,7 +1179,6 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
 
 		ssaoBlurShader->bind();
-		uInputTextureAOB.set(6);
 		uBlurSizeAOB.set(4);
 
 		fullscreenTriangle->getSubMesh()->render();

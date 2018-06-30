@@ -3,15 +3,16 @@
 out vec4 oFragColor;
 in vec2 vTexCoord;
 
-uniform sampler2D uScreenTexture; // full resolution source texture
-uniform sampler2D uBloomTexture;
-uniform sampler2D uVelocityTexture;
-uniform sampler2D uVelocityNeighborMaxTexture;
-uniform sampler2D uDepthTexture;
-uniform sampler2D uLensFlareTex; // input from the blur stage
-uniform sampler2D uLensDirtTex; // full resolution dirt texture
-uniform sampler2D uLensStarTex; // diffraction starburst texture
-uniform sampler2D uLuminanceTexture;
+layout(binding = 0) uniform sampler2D uScreenTexture; // full resolution source texture
+layout(binding = 1) uniform sampler2D uDepthTexture;
+layout(binding = 2) uniform sampler2D uBloomTexture;
+layout(binding = 3) uniform sampler2D uLensFlareTex; // input from the blur stage
+layout(binding = 4) uniform sampler2D uLensDirtTex; // full resolution dirt texture
+layout(binding = 5) uniform sampler2D uLensStarTex; // diffraction starburst texture
+layout(binding = 6) uniform sampler2D uVelocityTexture;
+layout(binding = 7) uniform sampler2D uVelocityNeighborMaxTexture;
+layout(binding = 8) uniform sampler2D uLuminanceTexture;
+
 uniform float uStarburstOffset; // transforms texcoords
 uniform bool uLensFlares;
 uniform bool uBloom;

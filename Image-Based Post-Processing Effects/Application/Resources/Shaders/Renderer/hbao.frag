@@ -6,8 +6,8 @@ in vec2 vTexCoord;
 
 out vec4 oColor;
 
-uniform sampler2D uDepthMap;
-uniform sampler2D uNoiseMap;
+layout(binding = 3) uniform sampler2D uDepthMap;
+layout(binding = 5) uniform sampler2D uNoiseMap;
 
 uniform vec2 uFocalLength;
 uniform mat4 uInverseProjection;

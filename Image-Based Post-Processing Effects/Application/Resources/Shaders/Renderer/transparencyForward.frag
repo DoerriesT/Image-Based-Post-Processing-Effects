@@ -19,6 +19,8 @@ in vec4 vWorldPos;
 in vec4 vCurrentPos;
 in vec4 vPrevPos;
 
+const int SHADOW_CASCADES = 4;
+
 struct Material
 {
     vec4 albedo;
@@ -27,12 +29,6 @@ struct Material
     float ao;
 	vec3 emissive;
     int mapBitField;
-	sampler2D albedoMap;
-	sampler2D normalMap;
-	sampler2D metallicMap;
-	sampler2D roughnessMap;
-	sampler2D aoMap;
-	sampler2D emissiveMap;
 };
 
 struct DirectionalLight
@@ -40,20 +36,27 @@ struct DirectionalLight
     vec3 color;
     vec3 direction;
 	bool renderShadows;
-	sampler2D shadowMap;
-	mat4 viewProjectionMatrix;
+	mat4 viewProjectionMatrices[SHADOW_CASCADES];
+	float splits[SHADOW_CASCADES];
 };
+
+layout(binding = 0) uniform sampler2D albedoMap;
+layout(binding = 1) uniform sampler2D normalMap;
+layout(binding = 2) uniform sampler2D metallicMap;
+layout(binding = 3) uniform sampler2D roughnessMap;
+layout(binding = 4) uniform sampler2D aoMap;
+layout(binding = 5) uniform sampler2D emissiveMap;
+layout(binding = 9) uniform sampler2DArrayShadow uShadowMap;
+layout(binding = 6) uniform samplerCube uIrradianceMap;
+layout(binding = 7) uniform samplerCube uPrefilterMap;
+layout(binding = 8) uniform sampler2D uBrdfLUT;
 
 uniform Material uMaterial;
 uniform DirectionalLight uDirectionalLight;
 uniform bool uRenderDirectionalLight;
 uniform vec3 uCamPos;
 uniform bool uShadowsEnabled;
-
-//IBL
-uniform samplerCube uIrradianceMap;
-uniform samplerCube uPrefilterMap;
-uniform sampler2D uBrdfLUT;
+uniform mat4 uViewMatrix;
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -102,7 +105,7 @@ void main()
     vec4 albedo;
     if((uMaterial.mapBitField & ALBEDO) == ALBEDO)
     {
-		albedo = texture(uMaterial.albedoMap, vTexCoord).rgba; 
+		albedo = texture(albedoMap, vTexCoord).rgba; 
         albedo.rgb = pow(albedo.rgb, vec3(2.2));
     }
     else
@@ -114,14 +117,14 @@ void main()
     vec3 N = normalize(vNormal);
     if((uMaterial.mapBitField & NORMAL) == NORMAL)
     {
-        vec3 tangentNormal = texture(uMaterial.normalMap, vTexCoord).xyz * 2.0 - 1.0;
+        vec3 tangentNormal = texture(normalMap, vTexCoord).xyz * 2.0 - 1.0;
         N = normalize(mat3(normalize(vTangent), -normalize(vBitangent), N)*tangentNormal);
     }
 
     float metallic;
     if((uMaterial.mapBitField & METALLIC) == METALLIC)
     {
-        metallic  = texture(uMaterial.metallicMap, vTexCoord).r;
+        metallic  = texture(metallicMap, vTexCoord).r;
     }
     else
     {
@@ -131,7 +134,7 @@ void main()
     float roughness;
     if((uMaterial.mapBitField & ROUGHNESS) == ROUGHNESS)
     {
-        roughness = texture(uMaterial.roughnessMap, vTexCoord).r;
+        roughness = texture(roughnessMap, vTexCoord).r;
     }
     else
     {
@@ -141,7 +144,7 @@ void main()
     float ao;
     if((uMaterial.mapBitField & AO) == AO)
     {
-        ao = texture(uMaterial.aoMap, vTexCoord).r;
+        ao = texture(aoMap, vTexCoord).r;
     }
     else
     {
@@ -151,7 +154,7 @@ void main()
 	vec3 emissive;
 	if((uMaterial.mapBitField & EMISSIVE) != 0)
     {
-        emissive = texture(uMaterial.emissiveMap, vTexCoord).rgb;
+        emissive = texture(emissiveMap, vTexCoord).rgb;
     }
     else
     {
@@ -169,23 +172,36 @@ void main()
 		// shadow
 		float shadow = 0.0;
 		if(uDirectionalLight.renderShadows && uShadowsEnabled)
-		{	
-			vec4 projCoords4 = uDirectionalLight.viewProjectionMatrix * vWorldPos;
+		{		
+			vec4 viewSpacePosition = uViewMatrix * vWorldPos;
+			viewSpacePosition.xyz /= viewSpacePosition.w;
+
+			float split = SHADOW_CASCADES - 1.0;
+			for (float i = 0.0; i < SHADOW_CASCADES; ++i)
+			{
+				if(-viewSpacePosition.z < uDirectionalLight.splits[int(i)])
+				{
+					split = i;
+					break;
+				}
+			}
+
+			vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * vWorldPos;
 			vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
 			projCoords = projCoords * 0.5 + 0.5; 
-			vec2 moments = texture(uDirectionalLight.shadowMap, projCoords.xy).xy;
-			float currentDepth = projCoords.z;
+			vec2 invShadowMapSize = vec2(1.0 / (textureSize(uShadowMap, 0).xy));
 
-			float p = (currentDepth <= moments.x) ? 1.0 : 0.0;
-			float variance = moments.y - (moments.x * moments.x);
-			variance = max(variance, 0.00001);
-			float d = currentDepth - moments.x;
-			float p_max = variance / (variance + d * d);
-			shadow = 1.0 - max(p, p_max);
-			if(projCoords.z > 1.0)
+			float count = 0.0;
+			float radius = 2.0;
+			for(float row = -radius; row <= radius; ++row)
 			{
-				shadow = 0.0;
+				for(float col = -radius; col <= radius; ++col)
+				{
+					++count;
+					shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.001)).x;
+				}
 			}
+			shadow *= 1.0 / count;
 		}
 
 		vec3 L = normalize(uDirectionalLight.direction);
