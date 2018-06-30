@@ -116,13 +116,19 @@ namespace App
 		worstFrameTime = glm::max(worstFrameTime, timeDelta);
 		worstFps = glm::min(worstFps, fps);
 
+		std::string fpsStr = std::to_string(fps).substr(0, 6);
+		std::string fpsAvgStr = std::to_string(fpsAvg).substr(0, 6);
+		std::string fpsWorstStr = std::to_string(worstFps).substr(0, 6);
+		std::string frameTimeStr = std::to_string(timeDelta * 1000.0).substr(0, 6);
+		std::string frameTimeAvgStr = std::to_string(frameTimeAvg * 1000.0).substr(0, 6);
+		std::string frameTimeWorstStr = std::to_string(worstFrameTime * 1000.0).substr(0, 6);
 
-		optionsGui->getElementById<GuiLabel>("fps_label")->setText(std::to_string(fps));
-		optionsGui->getElementById<GuiLabel>("fps_avg_label")->setText(std::to_string(fpsAvg));
-		optionsGui->getElementById<GuiLabel>("fps_worst_label")->setText(std::to_string(worstFps));
-		optionsGui->getElementById<GuiLabel>("frame_time_label")->setText(std::to_string(timeDelta * 1000.0));
-		optionsGui->getElementById<GuiLabel>("frame_time_avg_label")->setText(std::to_string(frameTimeAvg * 1000.0));
-		optionsGui->getElementById<GuiLabel>("frame_time_worst_label")->setText(std::to_string(worstFrameTime * 1000.0));
+		optionsGui->getElementById<GuiLabel>("fps_label")->setText(fpsStr);
+		optionsGui->getElementById<GuiLabel>("fps_avg_label")->setText(fpsAvgStr);
+		optionsGui->getElementById<GuiLabel>("fps_worst_label")->setText(fpsWorstStr);
+		optionsGui->getElementById<GuiLabel>("frame_time_label")->setText(frameTimeStr);
+		optionsGui->getElementById<GuiLabel>("frame_time_avg_label")->setText(frameTimeAvgStr);
+		optionsGui->getElementById<GuiLabel>("frame_time_worst_label")->setText(frameTimeWorstStr);
 		gui.render();
 	}
 
