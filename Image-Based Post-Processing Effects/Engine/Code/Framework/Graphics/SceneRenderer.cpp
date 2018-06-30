@@ -600,7 +600,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		uPrevTransformG.set(prevTransformation);
 		uVelG.set(entityRenderData->transformationComponent->vel / glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
 		const float frameRateTarget = 60.0f;
-		uExposureTimeG.set((float(Engine::getCurrentFps()) / frameRateTarget));
+		uExposureTimeG.set((float(Engine::getFps()) / frameRateTarget));
 		const float tileSize = 40.0f;
 		uMaxVelocityMagG.set(glm::length(glm::vec2(1.0f) / glm::vec2(_renderData.resolution.first, _renderData.resolution.second)) * tileSize);
 

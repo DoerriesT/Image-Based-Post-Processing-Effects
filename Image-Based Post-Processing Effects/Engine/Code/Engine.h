@@ -12,31 +12,30 @@ class UserInput;
 class Engine
 {
 public:
+	static Engine *getInstance();
+	static double getTime();
+	static double getTimeDelta();
+	static double getFps();
+	static void runLater(std::function<void()> function);
+	static bool isFunctionQueueEmpty();
+
 	explicit Engine(const std::string &_title, IGameLogic &_gameLogic);
 	~Engine();
 	void start();
 	void shutdown();
-	static double getCurrentTime();
-	static double getCurrentTimeDelta();
-	static double getCurrentFps();
-	static Engine* getInstance();
-	Window* getWindow();
-
-	static void runLater(std::function<void()> function);
-	static bool isFunctionQueueEmpty();
-
+	Window *getWindow();
 	int getMaxAnisotropicFiltering();
 
 private:
+	static Engine *instance;
 	IGameLogic &gameLogic;
 	std::shared_ptr<Window> window;
 	UserInput &userInput;
 	SystemManager &systemManager;
 	std::string title;
-	static double currentTime;
-	static double currentTimeDelta;
-	static Engine *instance;
 	double lastFrame;
+	double time;
+	double timeDelta;
 	bool shouldShutdown = false;
 	double lastFpsMeasure;
 	double fps;

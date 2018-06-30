@@ -610,7 +610,7 @@ void Ocean::computeFft(const Water & _water)
 			tildeHktCompShader->bind();
 			uSimulationResolutionHTC.set(_water.simulationResolution);
 			uWorldSizeHTC.set(_water.worldSize);
-			uTimeHTC.set((float)Engine::getCurrentTime() * _water.timeScale);
+			uTimeHTC.set((float)Engine::getTime() * _water.timeScale);
 
 			glBindImageTexture(0, tildeHktDxTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG16F);
 			glBindImageTexture(1, tildeHktDyTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG16F);
@@ -693,7 +693,7 @@ void Ocean::computeFft(const Water & _water)
 			tildeHktShader->bind();
 			uSimulationResolutionHT.set(_water.simulationResolution);
 			uWorldSizeHT.set(_water.worldSize);
-			uTimeHT.set((float)Engine::getCurrentTime() * _water.timeScale);
+			uTimeHT.set((float)Engine::getTime() * _water.timeScale);
 
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, tildeH0kTexture);

@@ -17,8 +17,6 @@
 #include "EntityComponentSystem\SystemManager.h"
 #include "UserInput.h"
 
-double Engine::currentTime = 0.0;
-double Engine::currentTimeDelta = 0.0;
 Engine* Engine::instance = nullptr;
 
 Engine::Engine(const std::string &_title, IGameLogic & _gameLogic)
@@ -56,27 +54,27 @@ void Engine::shutdown()
 	shouldShutdown = true;
 }
 
-double Engine::getCurrentTime()
+double Engine::getTime()
 {
-	return currentTime;
+	return instance->time;
 }
 
-double Engine::getCurrentTimeDelta()
+double Engine::getTimeDelta()
 {
-	return currentTimeDelta;
+	return instance->timeDelta;
 }
 
-double Engine::getCurrentFps()
+double Engine::getFps()
 {
-	return 1.0 / currentTimeDelta;
+	return 1.0 / instance->timeDelta;
 }
 
-Engine* Engine::getInstance()
+Engine *Engine::getInstance()
 {
 	return instance;
 }
 
-Window* Engine::getWindow()
+Window *Engine::getWindow()
 {
 	return window.get();
 }
@@ -109,20 +107,17 @@ int Engine::getMaxAnisotropicFiltering()
 
 void Engine::gameLoop()
 {
-	//make sure we can use this clock
-	assert(std::chrono::high_resolution_clock::is_steady);
-
-	lastFpsMeasure = currentTime = lastFrame = glfwGetTime();
+	lastFpsMeasure = time = lastFrame = glfwGetTime();
 	while (!shouldShutdown && !window->shouldClose())
 	{
-		currentTime = glfwGetTime();
-		currentTimeDelta = currentTime - lastFrame;
+		time = glfwGetTime();
+		timeDelta = time - lastFrame;
 
-		input(currentTime, currentTimeDelta);
-		update(currentTime, currentTimeDelta);
+		input(time, timeDelta);
+		update(time, timeDelta);
 		render();
 
-		lastFrame = currentTime;
+		lastFrame = time;
 	}
 	window->destroy();
 }
@@ -152,12 +147,12 @@ void Engine::update(double _currentTime, double _timeDelta)
 
 void Engine::render()
 {
-	double difference = currentTime - lastFpsMeasure;
+	double difference = time - lastFpsMeasure;
 	if (difference > 1.0 && showFps->get())
 	{
 		fps /= difference;
 		window->setTitle(title + " - " + std::to_string(fps) + " FPS " + std::to_string(1.0 / fps*1000.0) + " ms");
-		lastFpsMeasure = currentTime;
+		lastFpsMeasure = time;
 		fps = 0;
 	}
 	++fps;

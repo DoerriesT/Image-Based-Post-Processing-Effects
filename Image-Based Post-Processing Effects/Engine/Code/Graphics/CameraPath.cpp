@@ -16,7 +16,7 @@ void CameraPath::start(std::shared_ptr<Camera> _camera, bool _repeat)
 	camera = _camera;
 	repeat = _repeat;
 	started = true;
-	currentStartTime = Engine::getCurrentTime();
+	currentStartTime = Engine::getTime();
 	currentSegmentIndex = 0;
 }
 

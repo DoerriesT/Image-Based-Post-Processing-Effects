@@ -72,21 +72,57 @@ namespace App
 		optionsGui->getElementById<GuiWindow>("settings_window")->setFlag(NK_WINDOW_MINIMIZABLE, true);
 	}
 
-	void Application::input(double currentTime, double timeDelta)
+	void Application::input(double time, double timeDelta)
 	{
-		cameraController.input(currentTime, timeDelta);
+		cameraController.input(time, timeDelta);
 		gui.input();
 	}
 
-	void Application::update(double currentTime, double timeDelta)
+	void Application::update(double time, double timeDelta)
 	{
-		
+
 	}
 
 	void Application::render()
 	{
-		optionsGui->getElementById<GuiLabel>("fps_label")->setText(std::to_string(Engine::getCurrentFps()));
-		optionsGui->getElementById<GuiLabel>("frame_time_label")->setText(std::to_string(Engine::getCurrentTimeDelta() * 1000.0));
+		static double lastMeasure = Engine::getTime();
+		static double frameTimeSum = 0.0;
+		static double fpsSum;
+		static double worstFrameTime = 0.0;
+		static double worstFps = std::numeric_limits<double>::max();
+		static double frameTimeAvg = 0.0;
+		static double fpsAvg = 0.0;
+		static long long countedFrames = 0;
+
+		double time = Engine::getTime();
+		double timeDelta = Engine::getTimeDelta();
+		double fps = Engine::getFps();
+
+		if (time - lastMeasure >= 1.0)
+		{
+			frameTimeAvg = frameTimeSum / countedFrames;
+			fpsAvg = fpsSum / countedFrames;
+			lastMeasure = time;
+			frameTimeSum = 0.0;
+			fpsSum = 0.0;
+			worstFrameTime = 0.0;
+			worstFps = std::numeric_limits<double>::max();
+			countedFrames = 0;
+		}
+
+		++countedFrames;
+		frameTimeSum += timeDelta;
+		fpsSum += fps;
+		worstFrameTime = glm::max(worstFrameTime, timeDelta);
+		worstFps = glm::min(worstFps, fps);
+
+
+		optionsGui->getElementById<GuiLabel>("fps_label")->setText(std::to_string(fps));
+		optionsGui->getElementById<GuiLabel>("fps_avg_label")->setText(std::to_string(fpsAvg));
+		optionsGui->getElementById<GuiLabel>("fps_worst_label")->setText(std::to_string(worstFps));
+		optionsGui->getElementById<GuiLabel>("frame_time_label")->setText(std::to_string(timeDelta * 1000.0));
+		optionsGui->getElementById<GuiLabel>("frame_time_avg_label")->setText(std::to_string(frameTimeAvg * 1000.0));
+		optionsGui->getElementById<GuiLabel>("frame_time_worst_label")->setText(std::to_string(worstFrameTime * 1000.0));
 		gui.render();
 	}
 
@@ -186,7 +222,7 @@ namespace App
 							glm::vec3(0.0f, -1.0f, 0.0),
 							speed,
 							linear));
-						entityManager.addComponent<MovementPathComponent>(entity, pathSegments, Engine::getCurrentTime(), true);
+						entityManager.addComponent<MovementPathComponent>(entity, pathSegments, Engine::getTime(), true);
 						entityManager.addComponent<PerpetualRotationComponent>(entity, glm::vec3(dist(e), dist(e), dist(e)));
 					}
 					else

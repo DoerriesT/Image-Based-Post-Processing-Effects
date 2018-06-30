@@ -97,7 +97,7 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 	renderData.prevViewProjectionMatrix = prevViewProjectionMatrix;
 	renderData.resolution = std::make_pair(window->getWidth(), window->getHeight());
 	renderData.shadows = _effects.shadowQuality != ShadowQuality::OFF;
-	renderData.time = (float)Engine::getCurrentTime();
+	renderData.time = (float)Engine::getTime();
 	renderData.cameraPosition = _camera->getPosition();
 	renderData.viewDirection = _camera->getForwardDirection();
 	renderData.fov = window->getFieldOfView();
@@ -132,7 +132,7 @@ void GraphicsFramework::render(const std::shared_ptr<EnvironmentProbe> &_environ
 	renderData.projectionMatrix = glm::perspective(glm::radians(90.0f), 1.0f, Window::NEAR_PLANE, Window::FAR_PLANE);
 	renderData.resolution = std::make_pair(512, 512);
 	renderData.shadows = _effects.shadowQuality != ShadowQuality::OFF;
-	renderData.time = (float)Engine::getCurrentTime();
+	renderData.time = (float)Engine::getTime();
 	renderData.cameraPosition = position;
 	renderData.fov = window->getFieldOfView();
 
@@ -191,11 +191,11 @@ void GraphicsFramework::blitToScreen()
 	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	static double lastPressed = Engine::getCurrentTime();
+	static double lastPressed = Engine::getTime();
 
-	if (UserInput::getInstance().isKeyPressed(INPUT_KEY_F11) && Engine::getCurrentTime() - lastPressed > 0.5)
+	if (UserInput::getInstance().isKeyPressed(INPUT_KEY_F11) && Engine::getTime() - lastPressed > 0.5)
 	{
-		lastPressed = Engine::getCurrentTime();
+		lastPressed = Engine::getTime();
 		save2DTextureToFile(postProcessRenderer.getFinishedTexture(), window->getWidth(), window->getHeight());
 	}
 }

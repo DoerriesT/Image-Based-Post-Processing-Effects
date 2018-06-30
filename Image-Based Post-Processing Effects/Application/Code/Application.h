@@ -13,8 +13,8 @@ namespace App
 	public:
 		explicit Application();
 		void init();
-		void input(double currentTime, double timeDelta) override;
-		void update(double currentTime, double timeDelta) override;
+		void input(double time, double timeDelta) override;
+		void update(double time, double timeDelta) override;
 		void render() override;
 		void guiEventNotification(struct GuiEvent &_event) override;
 

@@ -12,7 +12,7 @@
     "title": "Options",
     "rows": [
       {
-        "#editor-node-expanded": false,
+        "#editor-node-expanded": true,
         "elements": [
           {
             "multiline": false,
@@ -34,8 +34,48 @@
           }
         ]
       },
+      {"elements": [
+        {
+          "multiline": false,
+          "id": "",
+          "text": "average",
+          "type": "label",
+          "align": "left",
+          "class": "",
+          "font_offset": 0
+        },
+        {
+          "multiline": false,
+          "id": "fps_avg_label",
+          "text": "60",
+          "type": "label",
+          "align": "center",
+          "class": "",
+          "font_offset": 0
+        }
+      ]},
+      {"elements": [
+        {
+          "multiline": false,
+          "id": "",
+          "text": "worst",
+          "type": "label",
+          "align": "left",
+          "class": "",
+          "font_offset": 0
+        },
+        {
+          "multiline": false,
+          "id": "fps_worst_label",
+          "text": "60",
+          "type": "label",
+          "align": "center",
+          "class": "",
+          "font_offset": 0
+        }
+      ]},
       {
-        "#editor-node-expanded": false,
+        "#editor-node-expanded": true,
         "elements": [
           {
             "multiline": false,
@@ -57,6 +97,46 @@
           }
         ]
       },
+      {"elements": [
+        {
+          "multiline": false,
+          "id": "",
+          "text": "average",
+          "type": "label",
+          "align": "left",
+          "class": "",
+          "font_offset": 0
+        },
+        {
+          "multiline": false,
+          "id": "frame_time_avg_label",
+          "text": "16.6",
+          "type": "label",
+          "align": "center",
+          "class": "",
+          "font_offset": 0
+        }
+      ]},
+      {"elements": [
+        {
+          "multiline": false,
+          "id": "",
+          "text": "worst",
+          "type": "label",
+          "align": "left",
+          "class": "",
+          "font_offset": 0
+        },
+        {
+          "multiline": false,
+          "id": "frame_time_worst_label",
+          "text": "16.6",
+          "type": "label",
+          "align": "center",
+          "class": "",
+          "font_offset": 0
+        }
+      ]},
       {
         "#editor-node-expanded": false,
         "elements": [

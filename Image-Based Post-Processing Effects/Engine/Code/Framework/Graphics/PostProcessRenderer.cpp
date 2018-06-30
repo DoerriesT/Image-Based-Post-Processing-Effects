@@ -345,7 +345,7 @@ void PostProcessRenderer::singlePassEffects(const Effects &_effects)
 	glBindTexture(GL_TEXTURE_2D, finishedTexture);
 
 	singlePassEffectsShader->bind();
-	uTimeS.set((float)Engine::getCurrentTime());
+	uTimeS.set((float)Engine::getTime());
 	uFilmGrainStrengthS.set(_effects.filmGrain.strength);
 	uVignetteS.set(_effects.vignette.enabled);
 	uFilmGrainS.set(_effects.filmGrain.enabled);
@@ -694,7 +694,7 @@ void PostProcessRenderer::calculateLuminance(GLuint _colorTexture)
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	luminanceAdaptionShader->bind();
-	uTimeDeltaLA.set((float)Engine::getCurrentTimeDelta());
+	uTimeDeltaLA.set((float)Engine::getTimeDelta());
 	uTauLA.set(2.5f);
 
 	glActiveTexture(GL_TEXTURE0);
