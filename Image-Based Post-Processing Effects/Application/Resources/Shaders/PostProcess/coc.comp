@@ -6,16 +6,14 @@ layout(rg16f, binding = 0) uniform image2D uImgOut;
 
 layout(binding = 0) uniform sampler2D uDepthTexture;
 
-uniform float uFocusDistance;
 uniform float uFocalLength;
-
-const float Z_NEAR = 0.1;
-const float Z_FAR = 3000.0;
+uniform float uApertureSize;
+uniform vec2 uNearFar;
 
 float linearDepth(float depth)
 {
     float z_n = 2.0 * depth - 1.0;
-    return 2.0 * Z_NEAR * Z_FAR / (Z_FAR + Z_NEAR - z_n * (Z_FAR - Z_NEAR));
+    return 2.0 * uNearFar.x * uNearFar.y / (uNearFar.y + uNearFar.x - z_n * (uNearFar.y - uNearFar.x));
 }
 
 void main()
@@ -23,11 +21,11 @@ void main()
 	float depth = linearDepth(texelFetch(uDepthTexture, ivec2(gl_GlobalInvocationID.xy), 0).x);
 	float centerDepth = linearDepth(texture(uDepthTexture, vec2(0.5)).x);
 
-    float signedDist = depth - centerDepth;
-    float magnitude = smoothstep(0.0, uFocalLength, abs(signedDist));
-    float CoC = magnitude;
+	float nominator = uFocalLength * (centerDepth - depth);
+	float denominator = depth * (centerDepth - uFocalLength);
+	float coc = uApertureSize * (nominator / denominator);
 	
-	vec4 cocData = vec4(step(signedDist, 0.0) * CoC, step(0.0, signedDist) * CoC, 0.0, 0.0);
+	vec4 cocData = vec4(abs(step(coc, 0.0) * coc), abs(step(0.0, coc) * coc), 0.0, 0.0);
 	
 	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), cocData);
 }

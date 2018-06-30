@@ -17,8 +17,8 @@ void main()
 	vec4 dofFar = texture(uFarTexture, texCoord);
 	vec3 color = texture(uColorTexture, texCoord).rgb;
 	
-	color = mix(color, dofFar.rgb, min(5.0 * dofFar.a, 0.5) * 2.0);
-	color = mix(color, dofNear.rgb, min(5.0 * dofNear.a, 0.5) * 2.0);
+	color = mix(color, dofFar.rgb, min(dofFar.a, 0.5) * 2.0);
+	color = mix(color, dofNear.rgb, min(dofNear.a, 0.5) * 2.0);
 	
 	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
 }

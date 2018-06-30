@@ -119,8 +119,9 @@ void PostProcessRenderer::init()
 	uTileSizeVTM.create(velocityTileMaxShader);
 
 	// coc
-	uFocusDistanceCOC.create(cocShader);
 	uFocalLengthCOC.create(cocShader);
+	uApertureSizeCOC.create(cocShader);
+	uNearFarCOC.create(cocShader);
 
 	// coc blur
 	uDirectionCOCB.create(cocBlurShader);
@@ -130,14 +131,12 @@ void PostProcessRenderer::init()
 	{
 		uSampleCoordsDOFB.push_back(dofBlurShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
 	}
-	uBokehScaleDOFB.create(dofBlurShader);
 
 	// dof fill
 	for (int i = 0; i < 16; ++i)
 	{
 		uSampleCoordsDOFF.push_back(dofFillShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
 	}
-	uBokehScaleDOFF.create(dofFillShader);
 
 	// luminance adaption
 	uTimeDeltaLA.create(luminanceAdaptionShader);
@@ -163,7 +162,7 @@ void PostProcessRenderer::init()
 }
 
 unsigned int tileSize = 40;
-bool dof = false;
+bool dof = true;
 
 void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {
@@ -534,9 +533,15 @@ void PostProcessRenderer::calculateCoc(GLuint _depthTexture)
 	unsigned int height = window->getHeight();
 
 	cocShader->bind();
+	
+	const float filmWidth = 35.0f;
+	const float apertureSize = 8.0f;
 
-	uFocusDistanceCOC.set(50.0f);
-	uFocalLengthCOC.set(10.0f);
+	float focalLength = (0.5f * filmWidth) / glm::tan(window->getFieldOfView() * 0.5f);
+
+	uFocalLengthCOC.set(focalLength);
+	uApertureSizeCOC.set(8.0f);
+	uNearFarCOC.set(glm::vec2(Window::NEAR_PLANE, Window::FAR_PLANE));
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _depthTexture);
@@ -614,7 +619,6 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 	{
 		dofBlurShader->bind();
 
-		uBokehScaleDOFB.set(5.0f);
 		if (!blurSamplesSet)
 		{
 			blurSamplesSet = true;
@@ -639,7 +643,6 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 	{
 		dofFillShader->bind();
 
-		uBokehScaleDOFF.set(5.0f);
 		if (!fillSamplesSet)
 		{
 			fillSamplesSet = true;

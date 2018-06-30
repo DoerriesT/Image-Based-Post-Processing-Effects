@@ -1205,7 +1205,7 @@ void SceneRenderer::createBrdfLUT()
 
 	brdfShader->bind();
 	glBindImageTexture(0, brdfLUT, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
-	glDispatchCompute(512, 512, 1);
+	glDispatchCompute(512 / 8, 512 / 8, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 

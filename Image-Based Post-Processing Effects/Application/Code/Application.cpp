@@ -351,7 +351,7 @@ namespace App
 		}
 		if (optionsGui->getElementById("water_world_size", slider) && _event.source == slider)
 		{
-			level->water.worldSize = slider->getValue();
+			level->water.worldSize = static_cast<unsigned int>(slider->getValue());
 		}
 		if (optionsGui->getElementById("water_high_res", checkbox) && _event.source == checkbox)
 		{

@@ -138,19 +138,18 @@ private:
 	Uniform<GLint> uTileSizeVTM = Uniform<GLint>("uTileSize");
 
 	// coc
-	Uniform<GLfloat> uFocusDistanceCOC = Uniform<GLfloat>("uFocusDistance");
 	Uniform<GLfloat> uFocalLengthCOC = Uniform<GLfloat>("uFocalLength");
+	Uniform<GLfloat> uApertureSizeCOC = Uniform<GLfloat>("uApertureSize");
+	Uniform<glm::vec2> uNearFarCOC = Uniform<glm::vec2>("uNearFar");
 
 	// coc blur
 	Uniform<GLboolean> uDirectionCOCB = Uniform<GLboolean>("uDirection");
 
 	// dof blur
 	std::vector<GLint> uSampleCoordsDOFB;
-	Uniform<GLfloat> uBokehScaleDOFB = Uniform<GLfloat>("uBokehScale");
 
 	// dof fill
 	std::vector<GLint> uSampleCoordsDOFF;
-	Uniform<GLfloat> uBokehScaleDOFF = Uniform<GLfloat>("uBokehScale");
 
 	// luminance adaption
 	Uniform<GLfloat> uTimeDeltaLA = Uniform<GLfloat>("uTimeDelta");
