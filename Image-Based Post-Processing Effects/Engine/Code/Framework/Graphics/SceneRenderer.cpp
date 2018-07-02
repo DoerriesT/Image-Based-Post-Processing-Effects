@@ -207,10 +207,6 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	// disable stencil testing for now; we will continue writing to the stencil when we do transparency
 	glDisable(GL_STENCIL_TEST);
 
-	// calculate matrix inputs for lighting shaders
-	glm::mat4 invView = glm::inverse(_renderData.viewMatrix);
-	glm::mat4 invProj = glm::inverse(_renderData.projectionMatrix);
-
 	// ocean
 	if (_level->water.enabled)
 	{
@@ -241,7 +237,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	if (_effects.ambientOcclusion != AmbientOcclusion::OFF)
 	{
 		glDisable(GL_CULL_FACE);
-		renderSsaoTexture(_renderData, invProj, _effects);
+		renderSsaoTexture(_renderData, _effects);
 		glEnable(GL_CULL_FACE);
 	}
 
@@ -277,12 +273,12 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	// render environment light and the first directional light, if present
 	if (_level->environment.skyboxEntity)
 	{
-		renderEnvironmentLight(_renderData, _level, invView, invProj, _effects);
+		renderEnvironmentLight(_renderData, _level, _effects);
 	}
 	// render remaining directional lights
 	if (_level->lights.directionalLights.size() > 1 || !_level->environment.skyboxEntity)
 	{
-		renderDirectionalLights(_renderData, _level, invView, invProj);
+		renderDirectionalLights(_renderData, _level);
 	}
 
 	//glEnable(GL_DEPTH_TEST);
@@ -295,11 +291,11 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	{
 		if (!_level->lights.pointLights.empty())
 		{
-			renderPointLights(_renderData, _level, invView, invProj);
+			renderPointLights(_renderData, _level);
 		}
 		if (!_level->lights.spotLights.empty())
 		{
-			renderSpotLights(_renderData, _level, invView, invProj);
+			renderSpotLights(_renderData, _level);
 		}
 	}
 
@@ -670,7 +666,7 @@ void SceneRenderer::renderSkybox(const RenderData &_renderData, const std::share
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
-void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const glm::mat4 &_inverseView, const glm::mat4 &_inverseProjection, const Effects &_effects)
+void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects)
 {
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
@@ -687,9 +683,9 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 
 	environmentLightPassShader->bind();
 
-	uInverseViewE.set(_inverseView);
+	uInverseViewE.set(_renderData.invViewMatrix);
 	uProjectionE.set(_renderData.projectionMatrix);
-	uInverseProjectionE.set(_inverseProjection);
+	uInverseProjectionE.set(_renderData.invProjectionMatrix);
 	uSsaoE.set(_effects.ambientOcclusion != AmbientOcclusion::OFF);
 	uUseSsrE.set(_effects.screenSpaceReflections.enabled);
 
@@ -720,14 +716,14 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
-void SceneRenderer::renderDirectionalLights(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const glm::mat4 &_inverseView, const glm::mat4 &_inverseProjection)
+void SceneRenderer::renderDirectionalLights(const RenderData &_renderData, const std::shared_ptr<Level> &_level)
 {
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	directionalLightShader->bind();
 
-	uInverseViewD.set(_inverseView);
-	uInverseProjectionD.set(_inverseProjection);
+	uInverseViewD.set(_renderData.invViewMatrix);
+	uInverseProjectionD.set(_renderData.invProjectionMatrix);
 	uShadowsEnabledD.set(_renderData.shadows);
 
 	for (size_t i = _level->environment.skyboxEntity ? 1 : 0; i < _level->lights.directionalLights.size(); ++i)
@@ -746,14 +742,14 @@ void SceneRenderer::renderDirectionalLights(const RenderData &_renderData, const
 	}
 }
 
-void SceneRenderer::renderPointLights(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const glm::mat4 &_inverseView, const glm::mat4 &_inverseProjection)
+void SceneRenderer::renderPointLights(const RenderData &_renderData, const std::shared_ptr<Level> &_level)
 {
 	pointLightMesh->getSubMesh()->enableVertexAttribArrays();
 
 	pointLightPassShader->bind();
 
-	uInverseViewP.set(_inverseView);
-	uInverseProjectionP.set(_inverseProjection);
+	uInverseViewP.set(_renderData.invViewMatrix);
+	uInverseProjectionP.set(_renderData.invProjectionMatrix);
 	uShadowsEnabledP.set(_renderData.shadows);
 	uViewportSizeP.set(glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
 
@@ -773,14 +769,14 @@ void SceneRenderer::renderPointLights(const RenderData &_renderData, const std::
 	}
 }
 
-void SceneRenderer::renderSpotLights(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const glm::mat4 &_inverseView, const glm::mat4 &_inverseProjection)
+void SceneRenderer::renderSpotLights(const RenderData &_renderData, const std::shared_ptr<Level> &_level)
 {
 	spotLightMesh->getSubMesh()->enableVertexAttribArrays();
 
 	spotLightPassShader->bind();
 
-	uInverseViewS.set(_inverseView);
-	uInverseProjectionS.set(_inverseProjection);
+	uInverseViewS.set(_renderData.invViewMatrix);
+	uInverseProjectionS.set(_renderData.invProjectionMatrix);
 	uShadowsEnabledS.set(_renderData.shadows);
 	uViewportSizeS.set(glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
 
@@ -1041,7 +1037,7 @@ void SceneRenderer::renderCustomGeometry(const RenderData &_renderData, const st
 	}
 }
 
-void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::mat4 &_inverseProjection, const Effects &_effects)
+void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effects &_effects)
 {
 	switch (_effects.ambientOcclusion)
 	{
@@ -1110,7 +1106,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const glm::
 		ssaoShader->bind();
 		uViewAO.set(_renderData.viewMatrix);
 		uProjectionAO.set(_renderData.projectionMatrix);
-		uInverseProjectionAO.set(_inverseProjection);
+		uInverseProjectionAO.set(_renderData.invProjectionMatrix);
 		uKernelSizeAO.set((int)currentKernelSize);
 		uRadiusAO.set(_effects.ssao.radius);
 		uBiasAO.set(_effects.ssao.bias);
