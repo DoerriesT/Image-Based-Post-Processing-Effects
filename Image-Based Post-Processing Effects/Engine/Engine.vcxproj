@@ -86,16 +86,18 @@
     <ClInclude Include="Code\Gui\Systems\GuiFontManager.h" />
     <ClInclude Include="Code\Gui\Systems\GuiInputHandler.h" />
     <ClInclude Include="Code\Gui\Systems\GuiRenderer.h" />
-    <ClInclude Include="Code\ICharListener.h" />
     <ClInclude Include="Code\IGameLogic.h" />
     <ClInclude Include="Code\Graphics\Camera.h" />
     <ClInclude Include="Code\Graphics\Lights.h" />
     <ClInclude Include="Code\Graphics\Material.h" />
     <ClInclude Include="Code\Graphics\Mesh.h" />
     <ClInclude Include="Code\Graphics\Texture.h" />
-    <ClInclude Include="Code\IKeyListener.h" />
-    <ClInclude Include="Code\IMouseButtonListener.h" />
-    <ClInclude Include="Code\IScrollListener.h" />
+    <ClInclude Include="Code\Input\ICharListener.h" />
+    <ClInclude Include="Code\Input\IKeyListener.h" />
+    <ClInclude Include="Code\Input\IMouseButtonListener.h" />
+    <ClInclude Include="Code\Input\InputTokens.h" />
+    <ClInclude Include="Code\Input\IScrollListener.h" />
+    <ClInclude Include="Code\Input\UserInput.h" />
     <ClInclude Include="Code\Level.h" />
     <ClInclude Include="Code\Network\BaseServer.h" />
     <ClInclude Include="Code\Network\asioInclude.h" />
@@ -105,7 +107,6 @@
     <ClInclude Include="Code\Network\ByteBuffer.h" />
     <ClInclude Include="Code\JobManager.h" />
     <ClInclude Include="Code\Settings.h" />
-    <ClInclude Include="Code\UserInput.h" />
     <ClInclude Include="Code\Utilities\Intersection.h" />
     <ClInclude Include="Code\Utilities\INIFile.h" />
     <ClInclude Include="Code\Utilities\JSONUtility.h" />
@@ -170,6 +171,7 @@
     <ClCompile Include="Code\Gui\Systems\GuiFontManager.cpp" />
     <ClCompile Include="Code\Gui\Systems\GuiInputHandler.cpp" />
     <ClCompile Include="Code\Gui\Systems\GuiRenderer.cpp" />
+    <ClCompile Include="Code\Input\UserInput.cpp" />
     <ClCompile Include="Code\Level.cpp" />
     <ClCompile Include="Code\Network\BaseServer.cpp" />
     <ClCompile Include="Code\Network\Connection.cpp" />
@@ -178,7 +180,6 @@
     <ClCompile Include="Code\Network\ByteBuffer.cpp" />
     <ClCompile Include="Code\JobManager.cpp" />
     <ClCompile Include="Code\Settings.cpp" />
-    <ClCompile Include="Code\UserInput.cpp" />
     <ClCompile Include="Code\Utilities\Intersection.cpp" />
     <ClCompile Include="Code\Utilities\INIFile.cpp" />
     <ClCompile Include="Code\Utilities\JSONUtility.cpp" />

@@ -15,7 +15,7 @@
 #include "IGameLogic.h"
 #include "Window.h"
 #include "EntityComponentSystem\SystemManager.h"
-#include "UserInput.h"
+#include "Input\UserInput.h"
 
 Engine* Engine::instance = nullptr;
 

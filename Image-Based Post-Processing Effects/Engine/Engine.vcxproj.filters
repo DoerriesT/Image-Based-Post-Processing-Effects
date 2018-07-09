@@ -75,6 +75,9 @@
     <Filter Include="Resources\Shaders\Custom">
       <UniqueIdentifier>{7d9e075f-bc31-497f-9c83-a2e6a359f951}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Input">
+      <UniqueIdentifier>{c289388a-c2ce-4012-8ea7-2da7b6559b91}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Window.h">
@@ -115,9 +118,6 @@
     </ClInclude>
     <ClInclude Include="Code\Framework\Window\IInputListener.h">
       <Filter>Code\Framework\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\UserInput.h">
-      <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\Graphics\Texture.h">
       <Filter>Code\Graphics</Filter>
@@ -305,18 +305,6 @@
     <ClInclude Include="Code\Gui\IDimensionable.h">
       <Filter>Code\Gui</Filter>
     </ClInclude>
-    <ClInclude Include="Code\ICharListener.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\IKeyListener.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\IMouseButtonListener.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\IScrollListener.h">
-      <Filter>Code</Filter>
-    </ClInclude>
     <ClInclude Include="Code\EntityComponentSystem\IOnComponentAddedListener.h">
       <Filter>Code\EntityComponentSystem</Filter>
     </ClInclude>
@@ -355,6 +343,24 @@
     </ClInclude>
     <ClInclude Include="Code\Framework\Graphics\Buffer.h">
       <Filter>Code\Framework\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Input\InputTokens.h">
+      <Filter>Code\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Input\ICharListener.h">
+      <Filter>Code\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Input\IKeyListener.h">
+      <Filter>Code\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Input\IMouseButtonListener.h">
+      <Filter>Code\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Input\IScrollListener.h">
+      <Filter>Code\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Input\UserInput.h">
+      <Filter>Code\Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -399,9 +405,6 @@
     </ClCompile>
     <ClCompile Include="Code\Graphics\Texture.cpp">
       <Filter>Code\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\UserInput.cpp">
-      <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Code\EntityComponentSystem\Systems\RenderSystem.cpp">
       <Filter>Code\EntityComponentSystem\Systems</Filter>
@@ -570,6 +573,9 @@
     </ClCompile>
     <ClCompile Include="Code\Framework\Graphics\Buffer.cpp">
       <Filter>Code\Framework\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Input\UserInput.cpp">
+      <Filter>Code\Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

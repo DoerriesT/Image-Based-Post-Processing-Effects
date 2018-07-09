@@ -1,6 +1,6 @@
 #include "GuiInputHandler.h"
 #include <cstring>
-#include "UserInput.h"
+#include ".\..\..\Input\UserInput.h"
 
 
 GuiInputHandler::GuiInputHandler()
@@ -76,9 +76,9 @@ void GuiInputHandler::input(nk_context *ctx)
 	//	}
 	//#endif
 
-	nk_input_button(ctx, NK_BUTTON_LEFT, mx, my, userInput->isMouseButtonPressed(INPUT_MOUSE_BUTTON_LEFT));
-	nk_input_button(ctx, NK_BUTTON_MIDDLE, mx, my, userInput->isMouseButtonPressed(INPUT_MOUSE_BUTTON_MIDDLE));
-	nk_input_button(ctx, NK_BUTTON_RIGHT, mx, my, userInput->isMouseButtonPressed(INPUT_MOUSE_BUTTON_RIGHT));
+	nk_input_button(ctx, NK_BUTTON_LEFT, mx, my, userInput->isMouseButtonPressed(InputMouse::BUTTON_LEFT));
+	nk_input_button(ctx, NK_BUTTON_MIDDLE, mx, my, userInput->isMouseButtonPressed(InputMouse::BUTTON_MIDDLE));
+	nk_input_button(ctx, NK_BUTTON_RIGHT, mx, my, userInput->isMouseButtonPressed(InputMouse::BUTTON_RIGHT));
 
 	nk_input_scroll(ctx, glfw_input.scroll);
 	nk_input_end(ctx);
@@ -110,89 +110,89 @@ void GuiInputHandler::input(nk_context *ctx)
 //}
 
 
-void GuiInputHandler::onKey(int _key, int _action)
+void GuiInputHandler::onKey(InputKey _key, InputAction _action)
 {
 	switch (_key) {
-	case INPUT_KEY_DELETE:
+	case InputKey::DELETE:
 		inputNkKey(NK_KEY_DEL, _action); break;
-	case INPUT_KEY_ENTER:
+	case InputKey::ENTER:
 		inputNkKey(NK_KEY_ENTER, _action); break;
-	case INPUT_KEY_TAB:
+	case InputKey::TAB:
 		inputNkKey(NK_KEY_TAB, _action); break;
-	case INPUT_KEY_BACKSPACE:
+	case InputKey::BACKSPACE:
 		inputNkKey(NK_KEY_BACKSPACE, _action); break;
-	case INPUT_KEY_UP:
+	case InputKey::UP:
 		inputNkKey(NK_KEY_UP, _action); break;
-	case INPUT_KEY_DOWN:
+	case InputKey::DOWN:
 		inputNkKey(NK_KEY_DOWN, _action); break;
-	case INPUT_KEY_HOME:
+	case InputKey::HOME:
 		inputNkKey(NK_KEY_TEXT_START, _action);
 		inputNkKey(NK_KEY_SCROLL_START, _action); break;
-	case INPUT_KEY_END:
+	case InputKey::END:
 		inputNkKey(NK_KEY_TEXT_END, _action);
 		inputNkKey(NK_KEY_SCROLL_END, _action); break;
-	case INPUT_KEY_PAGE_DOWN:
+	case InputKey::PAGE_DOWN:
 		inputNkKey(NK_KEY_SCROLL_DOWN, _action); break;
-	case INPUT_KEY_PAGE_UP:
+	case InputKey::PAGE_UP:
 		inputNkKey(NK_KEY_SCROLL_UP, _action); break;
 
-	case INPUT_KEY_LEFT_SHIFT:
-	case INPUT_KEY_RIGHT_SHIFT:
+	case InputKey::LEFT_SHIFT:
+	case InputKey::RIGHT_SHIFT:
 		inputNkKey(NK_KEY_SHIFT, _action);
 		break;
 	}
 
-	if (userInput->isKeyPressed(INPUT_KEY_LEFT_SHIFT) || userInput->isKeyPressed(INPUT_KEY_RIGHT_SHIFT)) {
+	if (userInput->isKeyPressed(InputKey::LEFT_SHIFT) || userInput->isKeyPressed(InputKey::RIGHT_SHIFT)) {
 		switch (_key) {
-		case INPUT_KEY_C:
+		case InputKey::C:
 			inputNkKey(NK_KEY_COPY, _action); break;
-		case INPUT_KEY_V:
+		case InputKey::V:
 			inputNkKey(NK_KEY_PASTE, _action); break;
-		case INPUT_KEY_X:
+		case InputKey::X:
 			inputNkKey(NK_KEY_CUT, _action); break;
-		case INPUT_KEY_Z:
+		case InputKey::Z:
 			inputNkKey(NK_KEY_TEXT_UNDO, _action); break;
-		case INPUT_KEY_R:
+		case InputKey::R:
 			inputNkKey(NK_KEY_TEXT_REDO, _action); break;
-		case INPUT_KEY_LEFT:
+		case InputKey::LEFT:
 			inputNkKey(NK_KEY_TEXT_WORD_LEFT, _action); break;
-		case INPUT_KEY_RIGHT:
+		case InputKey::RIGHT:
 			inputNkKey(NK_KEY_TEXT_WORD_RIGHT, _action); break;
-		case INPUT_KEY_B:
+		case InputKey::B:
 			inputNkKey(NK_KEY_TEXT_LINE_START, _action); break;
-		case INPUT_KEY_E:
+		case InputKey::E:
 			inputNkKey(NK_KEY_TEXT_LINE_END, _action); break;
 		}
 	}
 	else
 	{
-		if (_key == INPUT_KEY_LEFT) {
+		if (_key == InputKey::LEFT) {
 			inputNkKey(NK_KEY_LEFT, _action);
 		}
-		if (_key == INPUT_KEY_RIGHT) {
+		if (_key == InputKey::RIGHT) {
 			inputNkKey(NK_KEY_RIGHT, _action);
 		}
-		inputNkKey(NK_KEY_COPY, 0);
-		inputNkKey(NK_KEY_PASTE, 0);
-		inputNkKey(NK_KEY_CUT, 0);
-		inputNkKey(NK_KEY_SHIFT, 0);
+		inputNkKey(NK_KEY_COPY, InputAction::RELEASE);
+		inputNkKey(NK_KEY_PASTE, InputAction::RELEASE);
+		inputNkKey(NK_KEY_CUT, InputAction::RELEASE);
+		inputNkKey(NK_KEY_SHIFT, InputAction::RELEASE);
 	}
 }
 
-void GuiInputHandler::inputNkKey(nk_keys key, int action) {
+void GuiInputHandler::inputNkKey(nk_keys key, InputAction action) {
 	if (glfw_input.key_len < NK_GLFW_TEXT_MAX - 3) //-3 because of repeat
 	{
 		switch (action) {
-		case INPUT_RELEASE:
+		case InputAction::RELEASE:
 			glfw_input.keys[glfw_input.key_len++] = key;
 			glfw_input.keys[glfw_input.key_len++] = 0;
 			break;
 
-		case INPUT_REPEAT:
+		case InputAction::REPEAT:
 			glfw_input.keys[glfw_input.key_len++] = key;
 			glfw_input.keys[glfw_input.key_len++] = 0;
 			//no break
-		case INPUT_PRESS:
+		case InputAction::PRESS:
 			glfw_input.keys[glfw_input.key_len++] = key;
 			glfw_input.keys[glfw_input.key_len++] = 1;
 			break;
@@ -200,9 +200,9 @@ void GuiInputHandler::inputNkKey(nk_keys key, int action) {
 	}
 }
 
-void GuiInputHandler::onChar(int _key) {
+void GuiInputHandler::onChar(InputKey _key) {
 	if (glfw_input.text_len < NK_GLFW_TEXT_MAX) {
-		glfw_input.text[glfw_input.text_len++] = _key;
+		glfw_input.text[glfw_input.text_len++] = static_cast<int>(_key);
 	}
 }
 

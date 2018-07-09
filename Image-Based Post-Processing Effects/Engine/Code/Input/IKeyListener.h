@@ -1,4 +1,5 @@
 #pragma once
+#include "InputTokens.h"
 
 /**
 * A IKeyListener will be informed of any keys that are pressed or released. Keys are non-character keys such as
@@ -15,5 +16,5 @@ public:
 	* @param action
 	*            Either RELEASE, PRESS or REPEAT, indicating what action was performed on the key.
 	*/
-	virtual void onKey(int _key, int _action) = 0;
+	virtual void onKey(InputKey _key, InputAction _action) = 0;
 };

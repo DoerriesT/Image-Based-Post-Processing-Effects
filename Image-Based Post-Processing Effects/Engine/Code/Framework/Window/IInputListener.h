@@ -58,6 +58,4 @@ public:
 	*            The scroll offset in y direction.
 	*/
 	virtual void onMouseScroll(double _xOffset, double _yOffset) = 0;
-
-	virtual ~IInputListener() = default;
 };

@@ -4,7 +4,7 @@
 #include <rapidjson\rapidjson.h>
 #include <rapidjson\document.h>
 #include "GuiEvent.h"
-#include "UserInput.h"
+#include "Input\UserInput.h"
 #include "overview.h"
 #include "Elements\GuiWindow.h"
 #include "..\EntityComponentSystem\Systems\RenderSystem.h"

@@ -1,9 +1,9 @@
 #pragma once
 #include "..\nuklearInclude.h"
-#include "IKeyListener.h"
-#include "ICharListener.h"
-#include "IMouseButtonListener.h"
-#include "IScrollListener.h"
+#include ".\..\..\Input\IKeyListener.h"
+#include ".\..\..\Input\ICharListener.h"
+#include ".\..\..\Input\IMouseButtonListener.h"
+#include ".\..\..\Input\IScrollListener.h"
 
 
 #define NK_GLFW_TEXT_MAX 256
@@ -38,10 +38,10 @@ private:
 	nk_glfw_input glfw_input;
 	UserInput *userInput;
 
-	void inputNkKey(nk_keys key, int action);
+	void inputNkKey(nk_keys key, InputAction action);
 
-	void onKey(int _key, int _action) override;
-	void onChar(int _charKey) override;
+	void onKey(InputKey _key, InputAction _action) override;
+	void onChar(InputKey _charKey) override;
 	void onScroll(double _xOffset, double _yOffset) override;
 };
 

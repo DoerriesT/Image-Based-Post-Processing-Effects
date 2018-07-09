@@ -18,6 +18,7 @@ class WindowFramework
 	friend void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 	friend void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 	friend void charCallback(GLFWwindow *window, unsigned int codepoint);
+	friend void joystickCallback(int joystickId, int event);
 
 public:
 	static std::shared_ptr<WindowFramework> createWindowFramework(const std::string &_title, unsigned int _width, unsigned int _height, bool _vsync, const WindowMode &_windowMode = WindowMode::WINDOWED);

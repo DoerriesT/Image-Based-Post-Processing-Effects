@@ -5,7 +5,7 @@
 #include "GraphicsFramework.h"
 #include ".\..\..\Utilities\Utility.h"
 #include "Engine.h"
-#include "UserInput.h"
+#include ".\..\..\Input\UserInput.h"
 #include <gli\gli.hpp>
 #include ".\..\..\Graphics\EnvironmentProbe.h"
 #include ".\..\..\Window.h"
@@ -193,7 +193,7 @@ void GraphicsFramework::blitToScreen()
 
 	static double lastPressed = Engine::getTime();
 
-	if (UserInput::getInstance().isKeyPressed(INPUT_KEY_F11) && Engine::getTime() - lastPressed > 0.5)
+	if (UserInput::getInstance().isKeyPressed(InputKey::F11) && Engine::getTime() - lastPressed > 0.5)
 	{
 		lastPressed = Engine::getTime();
 		save2DTextureToFile(postProcessRenderer.getFinishedTexture(), window->getWidth(), window->getHeight());

@@ -1,6 +1,6 @@
 #include <limits>
 #include "Intersection.h"
-#include ".\..\UserInput.h"
+#include ".\..\Input\UserInput.h"
 #include ".\..\EntityComponentSystem\EntityManager.h"
 #include ".\..\Window.h"
 #include ".\..\Graphics\Camera.h"

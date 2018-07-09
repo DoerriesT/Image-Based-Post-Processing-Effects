@@ -1,6 +1,6 @@
 #include <glm\gtx\intersect.hpp>
 #include "GrabbingSystem.h"
-#include ".\..\..\UserInput.h"
+#include "Input\UserInput.h"
 #include ".\..\..\Utilities\Intersection.h"
 #include ".\..\..\Utilities\Utility.h"
 #include ".\..\SystemManager.h"

@@ -19,6 +19,8 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 
 void charCallback(GLFWwindow *window, unsigned int codepoint);
 
+void joystickCallback(int joystickId, int event);
+
 WindowFramework::WindowFramework(const std::string &_title, unsigned int _width, unsigned int _height, bool _vsync, const WindowMode &_windowMode)
 	:title(_title), selectedResolution(std::make_pair(_width, _height)), currentResolution(&selectedResolution), vsync(_vsync), windowMode(_windowMode)
 {
@@ -78,6 +80,7 @@ void WindowFramework::init()
 	glfwSetMouseButtonCallback(window, mouseButtonCallback);
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetCharCallback(window, charCallback);
+	glfwSetJoystickCallback(joystickCallback);
 
 	glfwSetWindowUserPointer(window, this);
 
@@ -379,5 +382,17 @@ void charCallback(GLFWwindow *window, unsigned int codepoint)
 	for (IInputListener *listener : windowFramework->inputListeners)
 	{
 		listener->onChar(codepoint);
+	}
+}
+
+void joystickCallback(int joystickId, int event)
+{
+	if (event == GLFW_CONNECTED)
+	{
+
+	}
+	else if (event == GLFW_DISCONNECTED)
+	{
+
 	}
 }

@@ -3,7 +3,6 @@
 #include <assert.h>
 #include <iostream>
 #include <algorithm>
-#include "UserInput.h"
 #include "..\..\Utilities\Utility.h"
 #include ".\..\..\Settings.h"
 #include ".\..\..\EntityComponentSystem\SystemManager.h"

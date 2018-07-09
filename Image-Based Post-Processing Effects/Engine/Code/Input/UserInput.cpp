@@ -1,5 +1,7 @@
 #include <algorithm>
 #include "UserInput.h"
+#define GLFW_INCLUDE_NONE
+#include <GLFW\glfw3.h>
 
 UserInput &UserInput::getInstance()
 {
@@ -14,6 +16,16 @@ void UserInput::input()
 
 	mousePosDelta = (currentMousePos - previousMousePos);
 	previousMousePos = currentMousePos;
+
+	for (int i = 0; i < 16; ++i)
+	{
+		connectedJoySticks[i] = glfwJoystickPresent(i);
+		if (connectedJoySticks[i])
+		{
+			gamepadInputData[i].axisValues = glfwGetJoystickAxes(i, &gamepadInputData[i].axisCount);
+			gamepadInputData[i].buttonValues = glfwGetJoystickButtons(i, &gamepadInputData[i].buttonCount);
+		}
+	}
 }
 
 glm::vec2 UserInput::getPreviousMousePos()
@@ -36,14 +48,9 @@ glm::vec2 UserInput::getScrollOffset()
 	return scrollOffset;
 }
 
-const std::set<int> &UserInput::getPressedKeys()
+const GamepadInputData &UserInput::getGamepadInputData(int gamepadId)
 {
-	return pressedKeys;
-}
-
-const std::set<int> &UserInput::getPressedMouseButtons()
-{
-	return pressedMouseButtons;
+	return gamepadInputData[gamepadId];
 }
 
 bool UserInput::isMouseInsideWindow()
@@ -51,12 +58,12 @@ bool UserInput::isMouseInsideWindow()
 	return insideWindow;
 }
 
-bool UserInput::isKeyPressed(int _key)
+bool UserInput::isKeyPressed(InputKey _key)
 {
 	return pressedKeys.find(_key) != pressedKeys.end();
 }
 
-bool UserInput::isMouseButtonPressed(int _mouseButton)
+bool UserInput::isMouseButtonPressed(InputMouse _mouseButton)
 {
 	return pressedMouseButtons.find(_mouseButton) != pressedMouseButtons.end();
 }
@@ -103,55 +110,53 @@ void UserInput::removeMouseButtonListener(IMouseButtonListener *_listener)
 
 void UserInput::onKey(int _key, int _action)
 {
+	InputKey key = static_cast<InputKey>(_key);
+	InputAction action = static_cast<InputAction>(_action);
+
 	for (IKeyListener *listener : keyListeners)
 	{
-		listener->onKey(_key, _action);
-	}
-	for (std::function<void(int, int)> callback : keyCallbacks)
-	{
-		callback(_key, _action);
+		listener->onKey(key, action);
 	}
 
-	if (_action == INPUT_RELEASE)
+	if (action == InputAction::RELEASE)
 	{
-		pressedKeys.erase(_key);
+		pressedKeys.erase(key);
 	}
-	else if (_action == INPUT_PRESS)
+	else if (action == InputAction::PRESS)
 	{
-		pressedKeys.insert(_key);
+		pressedKeys.insert(key);
 	}
 }
 
 void UserInput::onChar(int _charKey)
 {
+	InputKey charKey = static_cast<InputKey>(_charKey);
+
 	for (ICharListener *listener : charListeners)
 	{
-		listener->onChar(_charKey);
+		listener->onChar(charKey);
 	}
-	for (std::function<void(int)> callback : charCallbacks)
-	{
-		callback(_charKey);
-	}
-	pressedKeys.insert(_charKey);
+
+	pressedKeys.insert(charKey);
 }
 
 void UserInput::onMouseButton(int _mouseButton, int _action)
 {
+	InputMouse mouseButton = static_cast<InputMouse>(_mouseButton);
+	InputAction action = static_cast<InputAction>(_action);
+
 	for (IMouseButtonListener *listener : mouseButtonlisteners)
 	{
-		listener->onMouseButton(_mouseButton, _action);
+		listener->onMouseButton(mouseButton, action);
 	}
-	for (std::function<void(int, int)> callback : mouseButtonCallbacks)
+
+	if (action == InputAction::RELEASE)
 	{
-		callback(_mouseButton, _action);
+		pressedMouseButtons.erase(mouseButton);
 	}
-	if (_action == INPUT_RELEASE)
+	else if (action == InputAction::PRESS)
 	{
-		pressedMouseButtons.erase(_mouseButton);
-	}
-	else if (_action == INPUT_PRESS)
-	{
-		pressedMouseButtons.insert(_mouseButton);
+		pressedMouseButtons.insert(mouseButton);
 	}
 }
 
@@ -171,10 +176,6 @@ void UserInput::onMouseScroll(double _xOffset, double _yOffset)
 	for (IScrollListener *listener : scrollListeners)
 	{
 		listener->onScroll(_xOffset, _yOffset);
-	}
-	for (std::function<void(double, double)> callback : scrollCallbacks)
-	{
-		callback(_xOffset, _yOffset);
 	}
 
 	scrollOffset.x = static_cast<float>(_xOffset);

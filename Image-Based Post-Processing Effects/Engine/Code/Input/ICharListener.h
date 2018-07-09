@@ -1,4 +1,5 @@
 #pragma once
+#include "InputTokens.h"
 
 /**
 * A ICharListener will be informed of any character keys that are pressed or released. Character keys are keys
@@ -13,5 +14,5 @@ public:
 	* @param key
 	*            The key code of the key.
 	*/
-	virtual void onChar(int _key) = 0;
+	virtual void onChar(InputKey _key) = 0;
 };
