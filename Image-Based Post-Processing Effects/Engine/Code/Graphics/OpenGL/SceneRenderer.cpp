@@ -789,6 +789,12 @@ void SceneRenderer::renderSpotLights(const RenderData &_renderData, const std::s
 			glActiveTexture(GL_TEXTURE4);
 			glBindTexture(GL_TEXTURE_2D, spotLight->getShadowMap());
 		}
+		if (spotLight->isProjector())
+		{
+			assert(spotLight->getProjectionTexture());
+			glActiveTexture(GL_TEXTURE5);
+			glBindTexture(GL_TEXTURE_2D, spotLight->getProjectionTexture()->getId());
+		}
 
 		// scale a bit larger to correct for proxy geometry not being exactly round
 		float scale = (glm::tan(spotLight->getOuterAngle()) + 0.1f) * spotLight->getRadius();

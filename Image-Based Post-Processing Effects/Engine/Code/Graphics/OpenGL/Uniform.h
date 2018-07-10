@@ -91,6 +91,7 @@ private:
 	Uniform<GLfloat> innerAngle;
 	Uniform<GLfloat> radius;
 	Uniform<GLboolean> renderShadows;
+	Uniform<GLboolean> projector;
 	Uniform<glm::mat4> viewProjection;
 	std::string name;
 	bool firstTime;

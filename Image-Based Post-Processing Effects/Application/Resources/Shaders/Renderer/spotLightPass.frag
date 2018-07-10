@@ -15,6 +15,7 @@ struct SpotLight
 	float innerAngle;
 	float radius;
 	bool renderShadows;
+	bool projector;
 	
 	mat4 viewProjectionMatrix;
 };
@@ -25,6 +26,7 @@ layout(binding = 1) uniform sampler2D uNormalMap;
 layout(binding = 2) uniform sampler2D uMetallicRoughnessAoMap;
 layout(binding = 3) uniform sampler2D uDepthMap;
 layout(binding = 4) uniform sampler2DShadow uShadowMap;
+layout(binding = 5) uniform sampler2D uProjectionMap;
 
 uniform SpotLight uSpotLight;
 uniform mat4 uInverseView;
@@ -110,25 +112,35 @@ void main()
 			
 		// shadow
 		float shadow = 0.0;
-		if(uSpotLight.renderShadows && uShadowsEnabled)
+		vec3 projectedColor = vec3(1.0);
+		if(uSpotLight.renderShadows && uShadowsEnabled || uSpotLight.projector)
 		{
 			vec4 worldPos4 = uInverseView * (viewSpacePosition + 0.1 * vec4(L, 0.0));
 			vec4 projCoords4 = uSpotLight.viewProjectionMatrix * worldPos4;
 			vec3 projCoords = projCoords4.xyz / projCoords4.w;
 			projCoords = projCoords * 0.5 + 0.5; 
-			vec2 invShadowMapSize = vec2(1.0 / (textureSize(uShadowMap, 0).xy));
 
-			float count = 0.0;
-			float radius = 2.0;
-			for(float row = -radius; row <= radius; ++row)
+			if(uSpotLight.renderShadows && uShadowsEnabled)
 			{
-				for(float col = -radius; col <= radius; ++col)
+				vec2 invShadowMapSize = vec2(1.0 / (textureSize(uShadowMap, 0).xy));
+
+				float count = 0.0;
+				float radius = 2.0;
+				for(float row = -radius; row <= radius; ++row)
 				{
-					++count;
-					shadow += texture(uShadowMap, vec3(projCoords.xy + vec2(col, row) * invShadowMapSize, projCoords.z)).x;
+					for(float col = -radius; col <= radius; ++col)
+					{
+						++count;
+						shadow += texture(uShadowMap, vec3(projCoords.xy + vec2(col, row) * invShadowMapSize, projCoords.z)).x;
+					}
 				}
+				shadow *= 1.0 / count;
 			}
-			shadow *= 1.0 / count;
+
+			if (uSpotLight.projector)
+			{
+				projectedColor = texture(uProjectionMap, vec2(projCoords.x, 1.0 - projCoords.y)).rgb;
+			}
 		}
 
 
@@ -161,7 +173,7 @@ void main()
 		// multiply kD by the inverse metalness so if a material is metallic, it has no diffuse lighting (and otherwise a blend)
 		kD *= 1.0 - metallicRoughnessAoShaded.r;
 
-		oFragColor = metallicRoughnessAoShaded.a * vec4((kD * albedo.rgb / PI + specular) * radiance * NdotL * (1.0 - shadow), 1.0);
+		oFragColor = metallicRoughnessAoShaded.a * vec4((kD * albedo.rgb / PI + specular) * radiance * projectedColor * NdotL * (1.0 - shadow), 1.0);
     }
 	else
 	{

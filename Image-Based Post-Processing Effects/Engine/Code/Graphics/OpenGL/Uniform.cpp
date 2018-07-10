@@ -43,6 +43,7 @@ UniformSpotLight::UniformSpotLight(const std::string &_name)
 	innerAngle(_name + ".innerAngle"),
 	radius(_name + ".radius"),
 	renderShadows(_name + ".renderShadows"),
+	projector(_name + ".projector"),
 	viewProjection(_name + ".viewProjectionMatrix"),
 	name(_name),
 	firstTime(true)
@@ -59,6 +60,7 @@ void UniformSpotLight::create(const std::shared_ptr<ShaderProgram> &_shaderProgr
 	innerAngle.create(shaderProgram);
 	radius.create(shaderProgram);
 	renderShadows.create(shaderProgram);
+	projector.create(shaderProgram);
 	viewProjection.create(shaderProgram);
 }
 
@@ -71,6 +73,7 @@ void UniformSpotLight::set(const std::shared_ptr<SpotLight> &_value)
 	innerAngle.set(_value->getInnerAngleCos());
 	radius.set(_value->getRadius());
 	renderShadows.set(_value->isRenderShadows());
+	projector.set(_value->isProjector());
 	viewProjection.set(_value->getViewProjectionMatrix());
 }
 

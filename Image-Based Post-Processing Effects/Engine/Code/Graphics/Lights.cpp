@@ -296,7 +296,7 @@ unsigned int PointLight::getShadowMapResolution() const
 
 const unsigned int SpotLight::DEFAULT_SHADOW_MAP_RESOLUTION = 1024;
 
-SpotLight::SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _outerAngle, float _innerAngle, float _radius, bool _renderShadows, unsigned int _shadowMapResolution)
+SpotLight::SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _outerAngle, float _innerAngle, float _radius, bool _renderShadows, unsigned int _shadowMapResolution, bool _projector, const std::shared_ptr<Texture> &_projectionTexture)
 	:color(_color), 
 	position(_position), 
 	direction(glm::normalize(_direction)), 
@@ -305,8 +305,10 @@ SpotLight::SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const 
 	innerAngle(glm::radians(_innerAngle)),
 	innerAngleCos(glm::cos(innerAngle)),
 	radius(_radius),
-	renderShadows(false), 
-	shadowMapResolution(_shadowMapResolution)
+	renderShadows(false),
+	projector(_projector),
+	shadowMapResolution(_shadowMapResolution),
+	projectionTexture(_projectionTexture)
 {
 	assert(_radius > 0.0);
 	assert(innerAngle <= outerAngle);
@@ -349,9 +351,9 @@ void SpotLight::createShadowMap()
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 }
 
-std::shared_ptr<SpotLight> SpotLight::createSpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _outerAngle, float _innerAngle, float _radius, bool _renderShadows, unsigned int _shadowMapResolution)
+std::shared_ptr<SpotLight> SpotLight::createSpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _outerAngle, float _innerAngle, float _radius, bool _renderShadows, unsigned int _shadowMapResolution, bool _projector, const std::shared_ptr<Texture> &_projectionTexture)
 {
-	return std::shared_ptr<SpotLight>(new SpotLight(_color, _position, _direction, _outerAngle, _innerAngle, _radius, _renderShadows, _shadowMapResolution));
+	return std::shared_ptr<SpotLight>(new SpotLight(_color, _position, _direction, _outerAngle, _innerAngle, _radius, _renderShadows, _shadowMapResolution, _projector, _projectionTexture));
 }
 
 SpotLight::~SpotLight()
@@ -377,6 +379,11 @@ void SpotLight::setRenderShadows(bool _renderShadows)
 			glDeleteTextures(1, &shadowMap);
 		}
 	}
+}
+
+void SpotLight::setProjector(bool _projector)
+{
+	projector = _projector;
 }
 
 void SpotLight::setColor(const glm::vec3 &_color)
@@ -434,6 +441,11 @@ void SpotLight::setShadowMapResolution(unsigned int _resolution)
 	}
 }
 
+void SpotLight::setProjectionTexture(const std::shared_ptr<Texture> &_projectionTexture)
+{
+	projectionTexture = _projectionTexture;
+}
+
 void SpotLight::updateViewValues(const glm::mat4 &_viewMatrix)
 {
 	glm::vec4 tmp = _viewMatrix * glm::vec4(position, 1.0);
@@ -444,6 +456,11 @@ void SpotLight::updateViewValues(const glm::mat4 &_viewMatrix)
 bool SpotLight::isRenderShadows() const
 {
 	return renderShadows;
+}
+
+bool SpotLight::isProjector() const
+{
+	return projector;
 }
 
 glm::vec3 SpotLight::getColor() const
@@ -509,4 +526,9 @@ unsigned int SpotLight::getShadowMap() const
 unsigned int SpotLight::getShadowMapResolution() const
 {
 	return shadowMapResolution;
+}
+
+std::shared_ptr<Texture> SpotLight::getProjectionTexture() const
+{
+	return projectionTexture;
 }

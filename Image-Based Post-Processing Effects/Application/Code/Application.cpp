@@ -10,6 +10,8 @@
 #include <Window\Window.h>
 #include <random>
 #include <EasingFunctions.h>
+#include <Input\UserInput.h>
+#include <Input\Gamepad.h>
 
 namespace App
 {
@@ -80,7 +82,11 @@ namespace App
 
 	void Application::update(double time, double timeDelta)
 	{
-
+		if (UserInput::getInstance().isKeyPressed(InputKey::SPACE) || UserInput::getInstance().getGamepad().leftTrigger > -1.0f)
+		{
+			level->lights.spotLights[2]->setDirection(level->cameras[level->activeCameraIndex]->getForwardDirection());
+			level->lights.spotLights[2]->setPosition(level->cameras[level->activeCameraIndex]->getPosition());
+		}
 	}
 
 	void Application::render()
