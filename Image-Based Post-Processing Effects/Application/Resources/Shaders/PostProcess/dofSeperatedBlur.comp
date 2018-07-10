@@ -1,0 +1,65 @@
+#version 450 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z= 1) in;
+
+layout(rgba16f, binding = 0) writeonly uniform image2D uImgOutA;
+layout(rgba16f, binding = 1) writeonly uniform image2D uImgOutB;
+
+layout(binding = 0) uniform sampler2D uColorTexture;
+layout(binding = 1) uniform sampler2D uCocTexture;
+layout(binding = 2) uniform sampler2D uCocTileNeighborMaxTexture;
+
+uniform vec2 uSampleCoords[7 * 7];
+
+void main()
+{	
+	vec2 texelSize = vec2(1.0 / (textureSize(uColorTexture, 0).xy * 0.5));
+	vec2 centerCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * texelSize;
+	
+	vec2 centerCoc = texture(uCocTexture, centerCoord).xy;
+
+    float centerCocNear = centerCoc.x;
+	float centerCocFar = centerCoc.y;
+	
+	vec2 tileMaxCoc = texture(uCocTileNeighborMaxTexture, centerCoord).xy;
+	
+	vec3 sumNear = vec3(0.0);
+	float weightNear = 0.0;
+	vec3 sumFar = vec3(0.0);
+	float weightFar = 0.0;
+ 
+    for (int i = 0; i < 7 * 7; ++i)
+    {
+		vec2 sampleCoord = uSampleCoords[i];
+		// near field
+		if(centerCoc.x > 0.5)
+		{
+			vec2 sampleCoordNear = vec2(centerCoord + tileMaxCoc.x * texelSize * sampleCoord);
+			vec3 sampleNear = texture(uColorTexture, sampleCoordNear).rgb;
+			float sampleCoc = texture(uCocTexture, sampleCoordNear).x;
+			float centerToSampleDistSquared = (sampleCoord.x * sampleCoord.x * tileMaxCoc.x) + (sampleCoord.y * sampleCoord.y * tileMaxCoc.x);
+			float nearWeight = float(sampleCoc >= distance(gl_GlobalInvocationID.xy, gl_GlobalInvocationID.xy + tileMaxCoc.x * sampleCoord));
+	
+			sumNear += sampleNear * nearWeight;
+			weightNear += nearWeight;
+		}
+		// far field
+		else if (centerCoc.y > 0.5)
+		{
+			vec2 sampleCoordFar = vec2(centerCoord + tileMaxCoc.y * texelSize * sampleCoord);
+			vec3 sampleFar = texture(uColorTexture, sampleCoordFar).rgb;
+			float sampleCoc = texture(uCocTexture, sampleCoordFar).y;
+			float centerToSampleDistSquared = (sampleCoord.x * sampleCoord.x * tileMaxCoc.y) + (sampleCoord.y * sampleCoord.y * tileMaxCoc.y);
+			float farWeight = float(sampleCoc >= distance(gl_GlobalInvocationID.xy, gl_GlobalInvocationID.xy + tileMaxCoc.y * sampleCoord));
+	
+			sumFar += sampleFar * farWeight;
+			weightFar += farWeight;
+		}
+    }
+ 
+    sumNear *= (1.0 / (weightNear > 0.0 ? weightNear : 1.0));
+	sumFar *= (1.0 / (weightFar > 0.0 ? weightFar : 1.0));
+	
+	imageStore(uImgOutA, ivec2(gl_GlobalInvocationID.xy), vec4(sumNear, 1.0));
+	imageStore(uImgOutB, ivec2(gl_GlobalInvocationID.xy), vec4(sumFar, 1.0));
+}

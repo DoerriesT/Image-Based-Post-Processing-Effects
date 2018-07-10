@@ -8,8 +8,7 @@ layout(rgba16f, binding = 1) uniform image2D uImgOutB;
 layout(binding = 0) uniform sampler2D uColorNearTexture;
 layout(binding = 1) uniform sampler2D uColorFarTexture;
 
-uniform vec2 uSampleCoords[16];
-uniform float uBokehScale;
+uniform vec2 uSampleCoords[3 * 3];
 
 void main()
 {	
@@ -23,10 +22,8 @@ void main()
 	vec4 centerSampleFar = texture(uColorFarTexture, centerCoord).rgba;
     vec3 maxValFar = centerSampleFar.rgb;
     float cocFar = centerSampleFar.a;
-	
-    texelSize *= uBokehScale;
  
-    for (int i = 0; i < 16; ++i)
+    for (int i = 0; i < 3 * 3; ++i)
     {
         vec2 sampleCoordNear = vec2(centerCoord + cocNear * texelSize * uSampleCoords[i]);
         vec3 sampleNear = texture(uColorNearTexture, sampleCoordNear).rgb;

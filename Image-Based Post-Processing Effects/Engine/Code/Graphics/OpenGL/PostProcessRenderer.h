@@ -34,9 +34,14 @@ private:
 	std::shared_ptr<ShaderProgram> velocityNeighborTileMaxShader;
 	std::shared_ptr<ShaderProgram> cocShader;
 	std::shared_ptr<ShaderProgram> cocBlurShader;
+	std::shared_ptr<ShaderProgram> cocTileMaxShader;
+	std::shared_ptr<ShaderProgram> cocNeighborTileMaxShader;
 	std::shared_ptr<ShaderProgram> dofBlurShader;
 	std::shared_ptr<ShaderProgram> dofFillShader;
 	std::shared_ptr<ShaderProgram> dofCompositeShader;
+	std::shared_ptr<ShaderProgram> dofSeperateBlurShader;
+	std::shared_ptr<ShaderProgram> dofSeperateFillShader;
+	std::shared_ptr<ShaderProgram> dofSeperateCompositeShader;
 	std::shared_ptr<ShaderProgram> luminanceGenShader;
 	std::shared_ptr<ShaderProgram> luminanceAdaptionShader;
 	std::shared_ptr<Window> window;
@@ -95,6 +100,11 @@ private:
 	GLuint velocityMaxTex;
 	GLuint velocityNeighborMaxTex;
 
+	GLuint cocFbo;
+	GLuint cocTexTmp;
+	GLuint cocMaxTex;
+	GLuint cocNeighborMaxTex;
+
 	// single pass effects uniforms
 	Uniform<GLfloat> uTimeS = Uniform<GLfloat>("uTime");
 	Uniform<GLfloat> uFilmGrainStrengthS = Uniform<GLfloat>("uFilmGrainStrength");
@@ -145,11 +155,21 @@ private:
 	// coc blur
 	Uniform<GLboolean> uDirectionCOCB = Uniform<GLboolean>("uDirection");
 
+	// coc tile max
+	Uniform<GLboolean> uDirectionCOCTM = Uniform<GLboolean>("uDirection");
+	Uniform<GLint> uTileSizeCOCTM = Uniform<GLint>("uTileSize");
+
 	// dof blur
 	std::vector<GLint> uSampleCoordsDOFB;
 
 	// dof fill
 	std::vector<GLint> uSampleCoordsDOFF;
+
+	// dof seperate blur
+	std::vector<GLint> uSampleCoordsSDOFB;
+
+	// dof seperate fill
+	std::vector<GLint> uSampleCoordsSDOFF;
 
 	// luminance adaption
 	Uniform<GLfloat> uTimeDeltaLA = Uniform<GLfloat>("uTimeDelta");
@@ -163,6 +183,8 @@ private:
 	void generateFlares(const Effects &_effects);
 	void calculateCoc(GLuint _depthTexture);
 	void simpleDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
+	void tileBasedSeperateFieldDepthOfField(GLuint _colorTexture);
+	void tileBasedCombinedFieldDepthOfField(GLuint _colorTexture);
 	void calculateLuminance(GLuint _colorTexture);
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
 
