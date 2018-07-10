@@ -1,9 +1,9 @@
 #include <limits>
 #include "Intersection.h"
-#include ".\..\Input\UserInput.h"
-#include ".\..\EntityComponentSystem\EntityManager.h"
-#include ".\..\Window.h"
-#include ".\..\Graphics\Camera.h"
+#include "Input\UserInput.h"
+#include "EntityComponentSystem\EntityManager.h"
+#include "Window\Window.h"
+#include "Graphics\Camera.h"
 
 bool intersectRayAabb(const glm::vec3 &_origin, const glm::vec3 &_dir, const glm::vec3 &_maxCorner, glm::vec2 &_result, const glm::vec3 &_position)
 {

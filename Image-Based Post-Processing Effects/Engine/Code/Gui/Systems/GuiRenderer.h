@@ -2,8 +2,8 @@
 
 #include "..\nuklearInclude.h"
 #include <glad\glad.h>
-#include "..\..\Framework\Graphics\Uniform.h"
-#include "..\..\Settings.h"
+#include "Graphics\OpenGL\Uniform.h"
+#include "Settings.h"
 
 #define MAX_VERTEX_BUFFER 512 * 1024
 #define MAX_ELEMENT_BUFFER 128 * 1024

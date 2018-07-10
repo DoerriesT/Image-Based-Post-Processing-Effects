@@ -2,8 +2,8 @@
 #include <string>
 #include <glad\glad.h>
 #include "ShaderProgram.h"
-#include ".\..\..\Graphics\Material.h"
-#include ".\..\..\Graphics\Lights.h"
+#include "Graphics\Material.h"
+#include "Graphics\Lights.h"
 
 template<typename Type>
 class Uniform

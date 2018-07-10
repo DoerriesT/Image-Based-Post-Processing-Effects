@@ -2,11 +2,11 @@
 #include <cassert>
 #include "GuiJSONParser.h"
 #include "Gui.h"
-#include "..\Utilities\Utility.h"
+#include "Utilities\Utility.h"
 #include "EntityComponentSystem\SystemManager.h"
 #include "EntityComponentSystem\Systems\RenderSystem.h"
-#include "Window.h"
-#include ".\..\Graphics\Camera.h"
+#include "Window\Window.h"
+#include "Graphics\Camera.h"
 
 const char *POPUP_COMBO[] = { "POPUP_COMBO_0", "POPUP_COMBO_1", "POPUP_COMBO_2", "POPUP_COMBO_3" };
 const char *POPUP_INPUT[] = { "POPUP_INPUT_0", "POPUP_INPUT_1", "POPUP_INPUT_2", "POPUP_INPUT_3" };

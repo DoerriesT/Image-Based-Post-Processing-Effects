@@ -3,8 +3,8 @@
 #include <glm\mat4x4.hpp>
 #include <memory>
 #include <glad\glad.h>
-#include ".\..\..\Graphics\AxisAlignedBoundingBox.h"
-#include ".\..\..\Graphics\Lights.h"
+#include "Graphics\AxisAlignedBoundingBox.h"
+#include "Graphics\Lights.h"
 
 class ShaderProgram;
 class Camera;

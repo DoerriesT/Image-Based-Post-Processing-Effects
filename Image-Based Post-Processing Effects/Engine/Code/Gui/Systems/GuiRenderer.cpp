@@ -3,11 +3,11 @@
 #include <assert.h>
 #include <iostream>
 #include <algorithm>
-#include "..\..\Utilities\Utility.h"
-#include ".\..\..\Settings.h"
-#include ".\..\..\EntityComponentSystem\SystemManager.h"
-#include ".\..\..\EntityComponentSystem\Systems\RenderSystem.h"
-#include "..\..\Framework\Graphics\ShaderProgram.h"
+#include "Utilities\Utility.h"
+#include "Settings.h"
+#include "EntityComponentSystem\SystemManager.h"
+#include "EntityComponentSystem\Systems\RenderSystem.h"
+#include "Graphics\OpenGL\ShaderProgram.h"
 
 GuiRenderer::GuiRenderer()
 {

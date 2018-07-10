@@ -8,15 +8,6 @@
     <Filter Include="Code\EntityComponentSystem">
       <UniqueIdentifier>{bae4ac82-fd35-472e-a2c7-c8685776f2de}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Framework">
-      <UniqueIdentifier>{1f83bf33-173a-4147-8d07-ae0a8ba2ed8c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Framework\Graphics">
-      <UniqueIdentifier>{5c355ffc-b324-421a-9900-9e97b36b4b1e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Framework\Window">
-      <UniqueIdentifier>{9e498f88-37ef-480f-8e84-ee27d5ec8e2c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -48,9 +39,6 @@
     <Filter Include="Code\Network">
       <UniqueIdentifier>{1286c2c9-1bf9-415e-9759-e97d03f9efcb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Framework\Sound">
-      <UniqueIdentifier>{e6f47753-7a6a-447f-bd99-0ae2ef7188b2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources\Shaders\Shared">
       <UniqueIdentifier>{f54cb0f4-abc4-46d1-a4fd-1ad0c4cb86b7}</UniqueIdentifier>
     </Filter>
@@ -78,28 +66,25 @@
     <Filter Include="Code\Input">
       <UniqueIdentifier>{c289388a-c2ce-4012-8ea7-2da7b6559b91}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Graphics\OpenGL">
+      <UniqueIdentifier>{14522b25-1ad9-48f9-a04b-8841e595a3a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Sound">
+      <UniqueIdentifier>{85ccda0b-c00e-4102-acac-c3ebc2e3e7ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Sound\OpenAL">
+      <UniqueIdentifier>{bc642f1d-373d-452e-b969-f8db6fefba5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Window">
+      <UniqueIdentifier>{386b7288-00dd-4e97-98f6-c913fe6289cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Window\GLFW">
+      <UniqueIdentifier>{1074de25-d66f-4f38-bf8a-f125d714caba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Code\Window.h">
-      <Filter>Code</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Engine.h">
       <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Window\IWindowResizeListener.h">
-      <Filter>Code\Framework\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Window\WindowFramework.h">
-      <Filter>Code\Framework\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Graphics\SceneRenderer.h">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Graphics\ShaderProgram.h">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Graphics\GraphicsFramework.h">
-      <Filter>Code\Framework\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Code\EntityComponentSystem\EntityManager.h">
       <Filter>Code\EntityComponentSystem</Filter>
@@ -115,9 +100,6 @@
     </ClInclude>
     <ClInclude Include="Code\Graphics\Camera.h">
       <Filter>Code\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Window\IInputListener.h">
-      <Filter>Code\Framework\Window</Filter>
     </ClInclude>
     <ClInclude Include="Code\Graphics\Texture.h">
       <Filter>Code\Graphics</Filter>
@@ -224,27 +206,6 @@
     <ClInclude Include="Code\Network\BaseServer.h">
       <Filter>Code\Network</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Framework\Graphics\PostProcessRenderer.h">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Graphics\ShadowRenderer.h">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Sound\SoundBuffer.h">
-      <Filter>Code\Framework\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Sound\SoundFramework.h">
-      <Filter>Code\Framework\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Sound\SoundListener.h">
-      <Filter>Code\Framework\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Sound\SoundSource.h">
-      <Filter>Code\Framework\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Sound\stb_vorbis.h">
-      <Filter>Code\Framework\Sound</Filter>
-    </ClInclude>
     <ClInclude Include="Code\EntityComponentSystem\Systems\RotationSystem.h">
       <Filter>Code\EntityComponentSystem\Systems</Filter>
     </ClInclude>
@@ -277,15 +238,6 @@
     </ClInclude>
     <ClInclude Include="Code\Graphics\EnvironmentProbe.h">
       <Filter>Code\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Graphics\EnvironmentRenderer.h">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Graphics\RenderData.h">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Graphics\Uniform.h">
-      <Filter>Code\Framework\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Code\Level.h">
       <Filter>Code</Filter>
@@ -329,21 +281,6 @@
     <ClInclude Include="Code\Graphics\AxisAlignedBoundingBox.h">
       <Filter>Code\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Framework\Graphics\MediumDescription.h">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Graphics\Ocean.h">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Graphics\TileRing.h">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Graphics\VolumetricLighting.h">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Framework\Graphics\Buffer.h">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Input\InputTokens.h">
       <Filter>Code\Input</Filter>
     </ClInclude>
@@ -365,25 +302,76 @@
     <ClInclude Include="Code\Input\Gamepad.h">
       <Filter>Code\Input</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\Buffer.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\EnvironmentRenderer.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\GraphicsFramework.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\MediumDescription.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\Ocean.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\PostProcessRenderer.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderData.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\SceneRenderer.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ShaderProgram.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ShadowRenderer.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\TileRing.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\Uniform.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\VolumetricLighting.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Sound\OpenAL\SoundBuffer.h">
+      <Filter>Code\Sound\OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Sound\OpenAL\SoundFramework.h">
+      <Filter>Code\Sound\OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Sound\OpenAL\SoundListener.h">
+      <Filter>Code\Sound\OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Sound\OpenAL\SoundSource.h">
+      <Filter>Code\Sound\OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Sound\OpenAL\stb_vorbis.h">
+      <Filter>Code\Sound\OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Window\Window.h">
+      <Filter>Code\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Window\GLFW\IInputListener.h">
+      <Filter>Code\Window\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Window\GLFW\IWindowResizeListener.h">
+      <Filter>Code\Window\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Window\GLFW\WindowFramework.h">
+      <Filter>Code\Window\GLFW</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Code\Window.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Engine.cpp">
       <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Window\WindowFramework.cpp">
-      <Filter>Code\Framework\Window</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Graphics\ShaderProgram.cpp">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Graphics\GraphicsFramework.cpp">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Graphics\SceneRenderer.cpp">
-      <Filter>Code\Framework\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Code\EntityComponentSystem\EntityManager.cpp">
       <Filter>Code\EntityComponentSystem</Filter>
@@ -393,9 +381,6 @@
     </ClCompile>
     <ClCompile Include="Code\EntityComponentSystem\SystemManager.cpp">
       <Filter>Code\EntityComponentSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Graphics\glad.c">
-      <Filter>Code\Framework\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Code\Graphics\Camera.cpp">
       <Filter>Code\Graphics</Filter>
@@ -484,27 +469,6 @@
     <ClCompile Include="Code\Graphics\Lights.cpp">
       <Filter>Code\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Framework\Graphics\PostProcessRenderer.cpp">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Graphics\ShadowRenderer.cpp">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Sound\SoundBuffer.cpp">
-      <Filter>Code\Framework\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Sound\SoundFramework.cpp">
-      <Filter>Code\Framework\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Sound\SoundListener.cpp">
-      <Filter>Code\Framework\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Sound\SoundSource.cpp">
-      <Filter>Code\Framework\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Sound\stb_vorbis.c">
-      <Filter>Code\Framework\Sound</Filter>
-    </ClCompile>
     <ClCompile Include="Code\EntityComponentSystem\Systems\RotationSystem.cpp">
       <Filter>Code\EntityComponentSystem\Systems</Filter>
     </ClCompile>
@@ -532,14 +496,8 @@
     <ClCompile Include="Code\Graphics\EnvironmentProbe.cpp">
       <Filter>Code\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Framework\Graphics\EnvironmentRenderer.cpp">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Level.cpp">
       <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Graphics\Uniform.cpp">
-      <Filter>Code\Framework\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Code\Graphics\stb_image.cpp">
       <Filter>Code\Graphics</Filter>
@@ -565,20 +523,65 @@
     <ClCompile Include="Code\EntityComponentSystem\Systems\PhysicsSystem.cpp">
       <Filter>Code\EntityComponentSystem\Systems</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Framework\Graphics\Ocean.cpp">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Graphics\TileRing.cpp">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Graphics\VolumetricLighting.cpp">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Framework\Graphics\Buffer.cpp">
-      <Filter>Code\Framework\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Input\UserInput.cpp">
       <Filter>Code\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\Buffer.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\EnvironmentRenderer.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\glad.c">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\GraphicsFramework.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\Ocean.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\PostProcessRenderer.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\SceneRenderer.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ShaderProgram.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ShadowRenderer.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\TileRing.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\Uniform.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\VolumetricLighting.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Sound\OpenAL\SoundBuffer.cpp">
+      <Filter>Code\Sound\OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Sound\OpenAL\SoundFramework.cpp">
+      <Filter>Code\Sound\OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Sound\OpenAL\SoundListener.cpp">
+      <Filter>Code\Sound\OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Sound\OpenAL\SoundSource.cpp">
+      <Filter>Code\Sound\OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Sound\OpenAL\stb_vorbis.c">
+      <Filter>Code\Sound\OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Window\Window.cpp">
+      <Filter>Code\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Window\GLFW\WindowFramework.cpp">
+      <Filter>Code\Window\GLFW</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

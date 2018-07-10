@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <glad\glad.h>
-#include ".\..\..\Level.h"
+#include "Level.h"
 #include "Uniform.h"
 
 class ShaderProgram;

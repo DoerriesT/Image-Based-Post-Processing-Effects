@@ -4,7 +4,7 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW\glfw3.h>
 #include <memory>
-#include ".\..\..\Settings.h"
+#include "Settings.h"
 
 class IInputListener;
 class IWindowResizeListener;

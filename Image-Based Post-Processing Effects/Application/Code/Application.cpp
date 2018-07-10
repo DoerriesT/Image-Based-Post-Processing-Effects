@@ -7,7 +7,7 @@
 #include <Gui\GuiLayout.h>
 #include <Gui\GuiEvent.h>
 #include <Engine.h>
-#include <Window.h>
+#include <Window\Window.h>
 #include <random>
 #include <EasingFunctions.h>
 

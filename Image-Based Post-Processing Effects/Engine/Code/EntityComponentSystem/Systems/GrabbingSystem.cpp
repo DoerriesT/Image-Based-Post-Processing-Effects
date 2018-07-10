@@ -1,11 +1,11 @@
 #include <glm\gtx\intersect.hpp>
 #include "GrabbingSystem.h"
 #include "Input\UserInput.h"
-#include ".\..\..\Utilities\Intersection.h"
-#include ".\..\..\Utilities\Utility.h"
+#include "Utilities\Intersection.h"
+#include "Utilities\Utility.h"
 #include ".\..\SystemManager.h"
 #include ".\..\EntityManager.h"
-#include ".\..\..\Window.h"
+#include "Window\Window.h"
 #include "Level.h"
 
 GrabbingSystem::GrabbingSystem(std::shared_ptr<Window>_window)

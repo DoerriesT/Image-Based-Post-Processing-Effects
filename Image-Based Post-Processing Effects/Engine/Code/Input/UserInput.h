@@ -3,7 +3,7 @@
 #include <set>
 #include <glm\vec2.hpp>
 #include <functional>
-#include "Framework\Window\IInputListener.h"
+#include "Window\GLFW\IInputListener.h"
 #include "ICharListener.h"
 #include "IKeyListener.h"
 #include "IScrollListener.h"

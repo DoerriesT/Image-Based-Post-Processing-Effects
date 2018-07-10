@@ -3,7 +3,6 @@
 #include <glm\ext.hpp>
 #include <Graphics\Mesh.h>
 #include <Graphics\EntityRenderData.h>
-#include <Framework\Graphics\RenderData.h>
 #include "EasingFunctions.h"
 #include <Engine.h>
 #include <Graphics\Material.h>

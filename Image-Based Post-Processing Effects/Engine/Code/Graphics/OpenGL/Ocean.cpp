@@ -1,9 +1,9 @@
 #include "Ocean.h"
-#include".\..\..\Graphics\Texture.h"
+#include"Graphics\Texture.h"
 #include <glm\ext.hpp>
 #include "Engine.h"
 #include "TileRing.h"
-#include ".\..\..\Graphics\Mesh.h"
+#include "Graphics\Mesh.h"
 #include "RenderData.h"
 
 Ocean::Ocean(bool _useCompute, bool _useTesselation, bool _wireframe)

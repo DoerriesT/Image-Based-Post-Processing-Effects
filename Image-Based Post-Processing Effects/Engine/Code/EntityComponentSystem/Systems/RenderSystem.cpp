@@ -2,18 +2,18 @@
 #include <cassert>
 #include "RenderSystem.h"
 #include ".\..\Component.h"
-#include ".\..\..\Utilities\Utility.h"
-#include ".\..\..\Engine.h"
-#include ".\..\..\Gui\Gui.h"
-#include ".\..\..\Framework\Graphics\GraphicsFramework.h"
+#include "Utilities\Utility.h"
+#include "Engine.h"
+#include "Gui\Gui.h"
+#include "Graphics\OpenGL\GraphicsFramework.h"
 #include ".\..\EntityManager.h"
-#include "Window.h"
-#include ".\..\..\Graphics\Camera.h"
-#include ".\..\..\Graphics\Texture.h"
+#include "Window\Window.h"
+#include "Graphics\Camera.h"
+#include "Graphics\Texture.h"
 #include "Level.h"
 #include ".\..\SystemManager.h"
-#include ".\..\..\Graphics\EntityRenderData.h"
-#include ".\..\..\Settings.h"
+#include "Graphics\EntityRenderData.h"
+#include "Settings.h"
 
 RenderSystem::RenderSystem(std::shared_ptr<Window> _window)
 	:graphicsFramework(new GraphicsFramework(_window)), 

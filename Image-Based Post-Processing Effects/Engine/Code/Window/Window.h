@@ -2,7 +2,7 @@
 #include <string>
 #include <glm\mat4x4.hpp>
 #include "Settings.h"
-#include "Framework\Window\IWindowResizeListener.h"
+#include "GLFW\IWindowResizeListener.h"
 
 class IInputListener;
 class WindowFramework;

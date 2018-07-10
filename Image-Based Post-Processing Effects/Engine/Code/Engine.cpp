@@ -13,7 +13,7 @@
 #include "EntityComponentSystem\Systems\MovementPathSystem.h"
 #include "EntityComponentSystem\Systems\PhysicsSystem.h"
 #include "IGameLogic.h"
-#include "Window.h"
+#include "Window\Window.h"
 #include "EntityComponentSystem\SystemManager.h"
 #include "Input\UserInput.h"
 

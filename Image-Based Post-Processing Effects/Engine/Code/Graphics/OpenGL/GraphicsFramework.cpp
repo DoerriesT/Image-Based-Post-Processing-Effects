@@ -3,15 +3,15 @@
 #include <iostream>
 #include <glm\gtc\matrix_transform.hpp>
 #include "GraphicsFramework.h"
-#include ".\..\..\Utilities\Utility.h"
+#include "Utilities\Utility.h"
 #include "Engine.h"
-#include ".\..\..\Input\UserInput.h"
+#include "Input\UserInput.h"
 #include <gli\gli.hpp>
-#include ".\..\..\Graphics\EnvironmentProbe.h"
-#include ".\..\..\Window.h"
-#include ".\..\..\Graphics\Camera.h"
-#include ".\..\..\Graphics\Effects.h"
-#include ".\..\..\Graphics\Mesh.h"
+#include "Graphics\EnvironmentProbe.h"
+#include "Window\Window.h"
+#include "Graphics\Camera.h"
+#include "Graphics\Effects.h"
+#include "Graphics\Mesh.h"
 #include "RenderData.h"
 
 #define STBI_MSC_SECURE_CRT

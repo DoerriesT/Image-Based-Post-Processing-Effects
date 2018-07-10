@@ -1,8 +1,8 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include "Camera.h"
-#include ".\..\EntityComponentSystem\SystemManager.h"
-#include ".\..\EntityComponentSystem\Systems\RenderSystem.h"
-#include "Window.h"
+#include "EntityComponentSystem\SystemManager.h"
+#include "EntityComponentSystem\Systems\RenderSystem.h"
+#include "Window\Window.h"
 
 Camera::Camera(const glm::vec3 &_position, const glm::quat &_rotation)
 	: position(_position), rotation(_rotation), startPosition(_position), startRotation(_rotation)

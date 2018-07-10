@@ -3,19 +3,16 @@
 #include <glm\mat4x4.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\ext.hpp>
-#include <cmath>
-#define GLFW_INCLUDE_NONE
-#include <GLFW\glfw3.h>
-#include ".\..\..\Graphics\Mesh.h"
-#include ".\..\..\EntityComponentSystem\Component.h"
+#include "Graphics\Mesh.h"
+#include "EntityComponentSystem\Component.h"
 #include "ShaderProgram.h"
-#include ".\..\..\Graphics\Camera.h"
-#include ".\..\..\Graphics\Scene.h"
+#include "Graphics\Camera.h"
+#include "Graphics\Scene.h"
 #include "RenderData.h"
-#include ".\..\..\Level.h"
-#include ".\..\..\Graphics\Effects.h"
-#include ".\..\..\Graphics\EntityRenderData.h"
-#include "Window.h"
+#include "Level.h"
+#include "Graphics\Effects.h"
+#include "Graphics\EntityRenderData.h"
+#include "Window\Window.h"
 
 ShadowRenderer::ShadowRenderer()
 {

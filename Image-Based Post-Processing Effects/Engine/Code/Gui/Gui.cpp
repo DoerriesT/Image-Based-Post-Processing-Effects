@@ -7,9 +7,9 @@
 #include "Input\UserInput.h"
 #include "overview.h"
 #include "Elements\GuiWindow.h"
-#include "..\EntityComponentSystem\Systems\RenderSystem.h"
-#include "..\EntityComponentSystem\SystemManager.h"
-#include "Window.h"
+#include "EntityComponentSystem\Systems\RenderSystem.h"
+#include "EntityComponentSystem\SystemManager.h"
+#include "Window\Window.h"
 
 const float Gui::fontSizes[] = { 10, 18, 25, 32, 50 };
 const float Gui::rowHeights[] = { 12, 22, 30, 38, 60 };

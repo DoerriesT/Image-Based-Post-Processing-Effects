@@ -3,7 +3,7 @@
 #include "PostProcessRenderer.h"
 #include "ShadowRenderer.h"
 #include "EnvironmentRenderer.h"
-#include ".\..\Window\IWindowResizeListener.h"
+#include "Window\GLFW\IWindowResizeListener.h"
 
 class Camera;
 class Scene;

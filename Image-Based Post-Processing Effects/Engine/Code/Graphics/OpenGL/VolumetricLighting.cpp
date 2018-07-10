@@ -1,7 +1,7 @@
 #include "VolumetricLighting.h"
 #include "RenderData.h"
 #include "Level.h"
-#include ".\..\..\Graphics\Mesh.h"
+#include "Graphics\Mesh.h"
 
 VolumetricLighting::VolumetricLighting(unsigned int _width, unsigned int _height)
 	:width(_width), height(_height)

@@ -1,9 +1,9 @@
 #include "SoundSystem.h"
 #include ".\..\SystemManager.h"
 #include ".\..\EntityManager.h"
-#include ".\..\..\Framework\Sound\SoundFramework.h"
-#include ".\..\..\Window.h"
-#include ".\..\..\Graphics\Camera.h"
+#include "Sound\OpenAL\SoundFramework.h"
+#include "Window\Window.h"
+#include "Graphics\Camera.h"
 #include "Level.h"
 
 SoundSystem::SoundSystem()

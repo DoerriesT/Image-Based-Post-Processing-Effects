@@ -1,13 +1,13 @@
 #include "PostProcessRenderer.h"
 #include "Utilities\Utility.h"
-#include ".\..\..\Engine.h"
+#include "Engine.h"
 #include <iostream>
 #include "ShaderProgram.h"
-#include ".\..\..\Graphics\Camera.h"
-#include ".\..\..\Window.h"
-#include ".\..\..\Graphics\Mesh.h"
-#include ".\..\..\Graphics\Effects.h"
-#include ".\..\..\Graphics\Texture.h"
+#include "Graphics\Camera.h"
+#include "Window\Window.h"
+#include "Graphics\Mesh.h"
+#include "Graphics\Effects.h"
+#include "Graphics\Texture.h"
 
 PostProcessRenderer::PostProcessRenderer(std::shared_ptr<Window> _window)
 	:window(_window)

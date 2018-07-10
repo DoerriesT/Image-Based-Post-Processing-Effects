@@ -1,8 +1,8 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <algorithm>
 #include "Window.h"
-#include "Framework\Window\IInputListener.h"
-#include "Framework\Window\WindowFramework.h"
+#include "GLFW\IInputListener.h"
+#include "GLFW\WindowFramework.h"
 
 const float Window::DEFAULT_FOV = 60.0f;
 const float Window::NEAR_PLANE = 0.1f;

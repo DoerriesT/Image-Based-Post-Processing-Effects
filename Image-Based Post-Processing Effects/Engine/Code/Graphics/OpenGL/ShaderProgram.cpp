@@ -3,9 +3,9 @@
 #include <cassert>
 #include <iostream>
 #include "ShaderProgram.h"
-#include ".\..\..\Utilities\Utility.h"
-#include ".\..\..\Graphics\Material.h"
-#include ".\..\..\Graphics\Lights.h"
+#include "Utilities\Utility.h"
+#include "Graphics\Material.h"
+#include "Graphics\Lights.h"
 
 
 ShaderProgram::ShaderProgram(const char *_vertexShaderPath,
