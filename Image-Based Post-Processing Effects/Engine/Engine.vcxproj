@@ -92,6 +92,7 @@
     <ClInclude Include="Code\Graphics\Material.h" />
     <ClInclude Include="Code\Graphics\Mesh.h" />
     <ClInclude Include="Code\Graphics\Texture.h" />
+    <ClInclude Include="Code\Input\Gamepad.h" />
     <ClInclude Include="Code\Input\ICharListener.h" />
     <ClInclude Include="Code\Input\IKeyListener.h" />
     <ClInclude Include="Code\Input\IMouseButtonListener.h" />

@@ -4,6 +4,7 @@
 #include "IWindowResizeListener.h"
 #include "IInputListener.h"
 #include ".\..\..\Utilities\Utility.h"
+#include "Input\Gamepad.h"
 
 void windowSizeCallback(GLFWwindow *window, int width, int height);
 
@@ -22,7 +23,7 @@ void charCallback(GLFWwindow *window, unsigned int codepoint);
 void joystickCallback(int joystickId, int event);
 
 WindowFramework::WindowFramework(const std::string &_title, unsigned int _width, unsigned int _height, bool _vsync, const WindowMode &_windowMode)
-	:title(_title), selectedResolution(std::make_pair(_width, _height)), currentResolution(&selectedResolution), vsync(_vsync), windowMode(_windowMode)
+	:title(_title), selectedResolution(std::make_pair(_width, _height)), currentResolution(&selectedResolution), vsync(_vsync), windowMode(_windowMode), gamepads(16)
 {
 };
 
@@ -134,11 +135,80 @@ void WindowFramework::update()
 {
 	glfwSwapBuffers(window);
 	glfwPollEvents();
+
+	const float *axisValues;
+	const unsigned char *buttonValues;
+	int axisCount;
+	int buttonCount;
+
+	for (int i = 0; i < 16; ++i)
+	{
+		bool connected = glfwJoystickPresent(i);
+
+		axisValues = glfwGetJoystickAxes(i, &axisCount);
+		buttonValues = glfwGetJoystickButtons(i, &buttonCount);
+
+		if (connected && axisCount == 6 && buttonCount == 14)
+		{
+			/*
+			buttons:
+			0 = A
+			1 = B
+			2 = X
+			3 = Y
+			4 = LB
+			5 = RB
+			6 = back
+			7 = start
+			8 = left stick
+			9 = right stick
+			10 = up
+			11 = right
+			12 = down
+			13 = left
+
+			axes:
+			0 = left x
+			1 = left y
+			2 = right x
+			3 = right y
+			4 = LT
+			5 = RT
+			*/
+
+			gamepads[i].id = i;
+			gamepads[i].buttonA = buttonValues[0];
+			gamepads[i].buttonB = buttonValues[1];
+			gamepads[i].buttonX = buttonValues[2];
+			gamepads[i].buttonY = buttonValues[3];
+			gamepads[i].leftButton = buttonValues[4];
+			gamepads[i].rightButton = buttonValues[5];
+			gamepads[i].backButton = buttonValues[6];
+			gamepads[i].startButton = buttonValues[7];
+			gamepads[i].leftStick = buttonValues[8];
+			gamepads[i].rightStick = buttonValues[9];
+			gamepads[i].dPadUp = buttonValues[10];
+			gamepads[i].dPadRight = buttonValues[11];
+			gamepads[i].dPadDown = buttonValues[12];
+			gamepads[i].dPadLeft = buttonValues[13];
+			gamepads[i].leftStickX = axisValues[0];
+			gamepads[i].leftStickY = axisValues[1];
+			gamepads[i].rightStickX = axisValues[2];
+			gamepads[i].rightStickY = axisValues[3];
+			gamepads[i].leftTrigger = axisValues[4];
+			gamepads[i].rightTrigger = axisValues[5];
+		}
+		else
+		{
+			gamepads[i].id = -1;
+		}
+	}
 }
 
 void WindowFramework::addInputListener(IInputListener *listener)
 {
 	inputListeners.push_back(listener);
+	listener->gamepadUpdate(&gamepads);
 }
 
 void WindowFramework::removeInputListener(IInputListener *listener)

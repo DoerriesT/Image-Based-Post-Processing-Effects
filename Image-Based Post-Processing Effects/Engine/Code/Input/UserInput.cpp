@@ -1,7 +1,6 @@
 #include <algorithm>
 #include "UserInput.h"
-#define GLFW_INCLUDE_NONE
-#include <GLFW\glfw3.h>
+#include "Gamepad.h"
 
 UserInput &UserInput::getInstance()
 {
@@ -16,16 +15,6 @@ void UserInput::input()
 
 	mousePosDelta = (currentMousePos - previousMousePos);
 	previousMousePos = currentMousePos;
-
-	for (int i = 0; i < 16; ++i)
-	{
-		connectedJoySticks[i] = glfwJoystickPresent(i);
-		if (connectedJoySticks[i])
-		{
-			gamepadInputData[i].axisValues = glfwGetJoystickAxes(i, &gamepadInputData[i].axisCount);
-			gamepadInputData[i].buttonValues = glfwGetJoystickButtons(i, &gamepadInputData[i].buttonCount);
-		}
-	}
 }
 
 glm::vec2 UserInput::getPreviousMousePos()
@@ -48,9 +37,30 @@ glm::vec2 UserInput::getScrollOffset()
 	return scrollOffset;
 }
 
-const GamepadInputData &UserInput::getGamepadInputData(int gamepadId)
+Gamepad UserInput::getGamepad()
 {
-	return gamepadInputData[gamepadId];
+	const std::vector<Gamepad> &gamepadVector = *gamepads;
+	for (size_t i = 0; i < gamepadVector.size(); ++i)
+	{
+		if (gamepadVector[i].id != -1)
+		{
+			return gamepadVector[i];
+		}
+	}
+	return { -1 };
+}
+
+Gamepad UserInput::getGamepad(int gamepadId)
+{
+	const std::vector<Gamepad> &gamepadVector = *gamepads;
+	for (size_t i = 0; i < gamepadVector.size(); ++i)
+	{
+		if (gamepadVector[i].id == gamepadId)
+		{
+			return gamepadVector[i];
+		}
+	}
+	return { -1 };
 }
 
 bool UserInput::isMouseInsideWindow()
@@ -180,4 +190,9 @@ void UserInput::onMouseScroll(double _xOffset, double _yOffset)
 
 	scrollOffset.x = static_cast<float>(_xOffset);
 	scrollOffset.y = static_cast<float>(_yOffset);
+}
+
+void UserInput::gamepadUpdate(const std::vector<Gamepad> *_gamepads)
+{
+	gamepads = _gamepads;
 }

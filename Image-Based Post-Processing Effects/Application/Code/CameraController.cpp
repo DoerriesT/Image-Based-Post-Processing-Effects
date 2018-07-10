@@ -3,6 +3,7 @@
 #include <Input\UserInput.h>
 #include <Graphics\Camera.h>
 #include <iostream>
+#include <Input\Gamepad.h>
 
 namespace App
 {
@@ -18,15 +19,15 @@ namespace App
 	void CameraController::input(double _currentTime, double _timeDelta)
 	{
 		assert(camera);
-		const GamepadInputData gamepadInputData = userInput.getGamepadInputData(0);
+		Gamepad gamepad = userInput.getGamepad();
 
 		glm::vec3 cameraTranslation;
 
-		if (gamepadInputData.axisValues)
+		if (gamepad.id != -1)
 		{
-			camera->rotate(glm::vec3(-gamepadInputData.axisValues[3], gamepadInputData.axisValues[2], 0.0) * (float)_timeDelta * 2.0f);
-			cameraTranslation.z = -5.0f * gamepadInputData.axisValues[1] * (float)_timeDelta;
-			cameraTranslation.x = 5.0f * gamepadInputData.axisValues[0] * (float)_timeDelta;
+			camera->rotate(glm::vec3(-gamepad.rightStickY, gamepad.rightStickX, 0.0) * (float)_timeDelta * 2.0f);
+			cameraTranslation.z = -5.0f * gamepad.leftStickY * (float)_timeDelta;
+			cameraTranslation.x = 5.0f * gamepad.leftStickX * (float)_timeDelta;
 			camera->translate(cameraTranslation);
 		}
 

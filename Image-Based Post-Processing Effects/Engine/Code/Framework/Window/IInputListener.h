@@ -1,5 +1,7 @@
 #pragma once
 
+struct Gamepad;
+
 class IInputListener
 {
 public:
@@ -58,4 +60,6 @@ public:
 	*            The scroll offset in y direction.
 	*/
 	virtual void onMouseScroll(double _xOffset, double _yOffset) = 0;
+
+	virtual void gamepadUpdate(const std::vector<Gamepad> *_gamepads) = 0;
 };

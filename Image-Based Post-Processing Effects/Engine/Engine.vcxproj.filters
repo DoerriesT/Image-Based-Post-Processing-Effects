@@ -362,6 +362,9 @@
     <ClInclude Include="Code\Input\UserInput.h">
       <Filter>Code\Input</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Input\Gamepad.h">
+      <Filter>Code\Input</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Window.cpp">

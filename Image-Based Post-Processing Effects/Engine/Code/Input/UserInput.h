@@ -10,40 +10,6 @@
 #include "IMouseButtonListener.h"
 #include "InputTokens.h"
 
-/*
-buttons:
-0 = A
-1 = B
-2 = X
-3 = Y
-4 = LB
-5 = RB
-6 = back
-7 = start
-8 = left stick
-9 = right stick
-10 = up
-11 = right
-12 = down
-13 = left
-
-axes:
-0 = left x
-1 = left y
-2 = right x
-3 = right y
-4 = LT
-5 = RT
-*/
-
-struct GamepadInputData
-{
-	int axisCount;
-	const float *axisValues;
-	int buttonCount;
-	const unsigned char *buttonValues;
-};
-
 
 class UserInput :public IInputListener
 {
@@ -59,7 +25,8 @@ public:
 	glm::vec2 getCurrentMousePos();
 	glm::vec2 getMousePosDelta();
 	glm::vec2 getScrollOffset();
-	const GamepadInputData &getGamepadInputData(int gamepadId);
+	Gamepad getGamepad();
+	Gamepad getGamepad(int gamepadId);
 	bool isMouseInsideWindow();
 	bool isKeyPressed(InputKey key);
 	bool isMouseButtonPressed(InputMouse mouseButton);
@@ -77,6 +44,7 @@ public:
 	void onMouseMove(double _x, double _y) override;
 	void onMouseEnter(bool _entered) override;
 	void onMouseScroll(double _xOffset, double _yOffset) override;
+	void gamepadUpdate(const std::vector<Gamepad> *_gamepadData) override;
 
 private:
 	glm::vec2 previousMousePos;
@@ -91,8 +59,7 @@ private:
 	std::set<InputKey> pressedKeys;
 	std::set<InputMouse> pressedMouseButtons;
 	std::set<InputKey> pressedChars;
-	bool connectedJoySticks[16];
-	GamepadInputData gamepadInputData[16];
+	const std::vector<Gamepad> *gamepads;
 
 	UserInput() = default;
 };
