@@ -167,7 +167,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	level->filepath = "Resources/Levels/sponza/";
 
 	// camera(s)
-	std::shared_ptr<Camera> camera0 = std::make_shared<Camera>(glm::vec3(-10.0f, 6.0f, 4.0f), glm::quat(glm::vec3(glm::radians(0.0f), glm::radians(90.0f), 0.0f)));
+	std::shared_ptr<Camera> camera0 = std::make_shared<Camera>(glm::vec3(4.81539774f,5.86095524f, 1.85534108f ), glm::quat(0.386821985f , -0.184476748f, 0.815521121f, -0.388924748f));
 
 	level->cameras.push_back(camera0);
 	level->activeCameraIndex = 0;

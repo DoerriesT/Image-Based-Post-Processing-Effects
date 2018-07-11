@@ -1,51 +1,51 @@
 #version 450 core
 
-layout(local_size_x = 8, local_size_y = 8, local_size_z= 1) in;
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
-layout(rgba16f, binding = 0) uniform image2D uImgOutA;
-layout(rgba16f, binding = 1) uniform image2D uImgOutB;
+layout(rgba16f, binding = 0) uniform writeonly image2D uImgOutA;
+layout(rgba16f, binding = 1) uniform writeonly image2D uImgOutB;
 
-layout(binding = 0) uniform sampler2D uColorNearTexture;
-layout(binding = 1) uniform sampler2D uColorFarTexture;
-layout(binding = 2) uniform sampler2D uCocTexture;
-layout(binding = 3) uniform sampler2D uCocTileNeighborMaxTexture;
+layout(binding = 3) uniform sampler2D uColorNearTexture;
+layout(binding = 4) uniform sampler2D uColorFarTexture;
+layout(binding = 1) uniform sampler2D uCocTexture;
+layout(binding = 2) uniform sampler2D uCocTileNeighborMaxTexture;
 
 uniform vec2 uSampleCoords[3 * 3];
 
 void main()
 {	
-	vec2 texelSize = vec2(1.0 / textureSize(uColorNearTexture, 0).xy);
+	vec2 invocationSize = gl_WorkGroupSize.xy * gl_NumWorkGroups.xy;
+	vec2 texelSize = vec2(1.0 / invocationSize);
 	vec2 centerCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * texelSize;
 	
-    vec4 centerSampleNear = texture(uColorNearTexture, centerCoord).rgba;
-    vec3 maxValNear = centerSampleNear.rgb;
-
-	vec4 centerSampleFar = texture(uColorFarTexture, centerCoord).rgba;
-    vec3 maxValFar = centerSampleFar.rgb;
+    vec3 maxValNear = vec3(0.0);
+    vec3 maxValFar = vec3(0.0);
 	
-	vec2 tileMaxCoc = texture(uCocTileNeighborMaxTexture, centerCoord).xy;
- 
+	vec2 tileMaxCoc = texture(uCocTileNeighborMaxTexture, centerCoord).xy * 0.15;
+	
     for (int i = 0; i < 3 * 3; ++i)
     {
-		vec2 sampleCoord = uSampleCoords[i];
+		vec2 kernelSampleCoord = uSampleCoords[i];
 		// near field
 		{
-			vec2 sampleCoordNear = vec2(centerCoord + tileMaxCoc.x * texelSize * uSampleCoords[i]);
-			vec3 sampleNear = texture(uColorNearTexture, sampleCoordNear).rgb;
-			float sampleCoc = texture(uCocTexture, sampleCoordNear).x;
-				
-			maxValNear = max(sampleNear, maxValNear);
+			vec2 sampleCoordTexels = vec2(gl_GlobalInvocationID.xy + tileMaxCoc.x * kernelSampleCoord);
+			vec2 sampleCoord = vec2(sampleCoordTexels + 0.5) * texelSize;
+			vec3 sampleColor = texture(uColorNearTexture, sampleCoord).rgb;
+			float sampleCoc = texture(uCocTexture, sampleCoord).y;
+			float sampleWeight = float(sampleCoc >= distance(gl_GlobalInvocationID.xy, sampleCoordTexels));
+	    
+			maxValNear = max(sampleColor * sampleWeight, maxValNear);
 		}
         
 		// far field
 		{
-			vec2 sampleCoordFar = vec2(centerCoord + tileMaxCoc.y * texelSize * uSampleCoords[i]);
-			vec3 sampleFar = texture(uColorFarTexture, sampleCoordFar).rgb;
-			float sampleCoc = texture(uCocTexture, sampleCoordFar).y;
-			float centerToSampleDistSquared = (sampleCoord.x * sampleCoord.x * tileMaxCoc.y) + (sampleCoord.y * sampleCoord.y * tileMaxCoc.y);
-			float farWeight = float(sampleCoc >= distance(gl_GlobalInvocationID.xy, gl_GlobalInvocationID.xy + tileMaxCoc.y * sampleCoord));
-	
-			maxValFar = max(sampleFar * farWeight, maxValNear);
+			vec2 sampleCoordTexels = vec2(gl_GlobalInvocationID.xy + tileMaxCoc.y * kernelSampleCoord);
+			vec2 sampleCoord = vec2(sampleCoordTexels + 0.5) * texelSize;
+			vec3 sampleColor = texture(uColorFarTexture, sampleCoord).rgb;
+			float sampleCoc = texture(uCocTexture, sampleCoord).y;
+			float sampleWeight = float(sampleCoc >= distance(gl_GlobalInvocationID.xy, sampleCoordTexels));
+	    
+			maxValFar = max(sampleColor * sampleWeight, maxValFar);
 		}
     }
 	

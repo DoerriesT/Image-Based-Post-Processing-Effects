@@ -184,7 +184,7 @@ void PostProcessRenderer::init()
 }
 
 unsigned int tileSize = 40;
-bool dof = false;
+bool dof = true;
 
 void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {
@@ -299,7 +299,8 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 			fullscreenTriangle->getSubMesh()->render();
 		}
 
-		tileBasedSeperateFieldDepthOfField(_colorTexture);
+		//tileBasedSeperateFieldDepthOfField(_colorTexture);
+		simpleDepthOfField(_colorTexture, _depthTexture);
 	}
 	calculateLuminance(_colorTexture);
 
@@ -617,7 +618,9 @@ void PostProcessRenderer::calculateCoc(GLuint _depthTexture)
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
-glm::vec2 generateDepthOfFieldSample(const glm::vec2 &_origin, float blades, float fstop)
+float PI = glm::pi<float>();
+
+glm::vec2 generateDepthOfFieldSample(const glm::vec2 &_origin)
 {
 	float max_fstops = 8;
 	float min_fstops = 1;
@@ -630,18 +633,16 @@ glm::vec2 generateDepthOfFieldSample(const glm::vec2 &_origin, float blades, flo
 	if (abs(a) > abs(b)) // Use squares instead of absolute values
 	{
 		r = a;
-		phi = (glm::pi<float>() / 4.0f) * (b / (a + 1e-6f));
+		phi = (PI / 4.0f) * (b / (a + 1e-6f));
 	}
 	else
 	{
 		r = b;
-		phi = (glm::pi<float>() / 2.0f) - (glm::pi<float>() / 4.0f) * (a / (b + 1e-6f));
+		phi = (PI / 2.0f) - (PI / 4.0f) * (a / (b + 1e-6f));
 	}
 
-	float nGonRad = cosf(glm::pi<float>() / blades) / cosf(phi - (2 * glm::pi<float>() / blades) * floorf((blades * phi + glm::pi<float>()) / (2 * glm::pi<float>())));
-
-	float rr = r * powf(nGonRad, normalizedStops);
-	rr = abs(rr) * (rr > 0 ? 1.0f : -1.0f);
+	float rr = r;
+	rr = abs(rr) * (rr > 0.0f ? 1.0f : -1.0f);
 
 	//normalizedStops *= -0.4f * PI;
 	return glm::vec2(rr * cosf(phi + normalizedStops), rr * sinf(phi + normalizedStops));
@@ -655,9 +656,7 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 	unsigned int halfHeight = height / 2;
 
 	const float filmWidth = 35.0f;
-	const float apertureSize = 8.0f;
 	const float focalLength = (0.5f * filmWidth) / glm::tan(window->getFieldOfView() * 0.5f);
-	const float blades = 6.0f;
 
 	// blur coc
 	{
@@ -690,19 +689,25 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 	{
 		samplesGenerated = true;
 
-		for (unsigned int y = 0; y < 7; ++y)
+		int nSquareTapsSide = 7;
+		float fRecipTaps = 1.0f / ((float)nSquareTapsSide - 1.0f);
+
+		for (unsigned int y = 0; y < nSquareTapsSide; ++y)
 		{
-			for (unsigned int x = 0; x < 7; ++x)
+			for (unsigned int x = 0; x < nSquareTapsSide; ++x)
 			{
-				blurSamples[y * 7 + x] = generateDepthOfFieldSample(glm::vec2(x, y) * glm::vec2(1.0f / 7.0f), blades, focalLength / apertureSize);
+				blurSamples[y * nSquareTapsSide + x] = generateDepthOfFieldSample(glm::vec2(x * fRecipTaps, y * fRecipTaps));
 			}
 		}
 
-		for (unsigned int y = 0; y < 3; ++y)
+		nSquareTapsSide = 3;
+		fRecipTaps = 1.0f / ((float)nSquareTapsSide - 1.0f);
+
+		for (unsigned int y = 0; y < nSquareTapsSide; ++y)
 		{
-			for (unsigned int x = 0; x < 3; ++x)
+			for (unsigned int x = 0; x < nSquareTapsSide; ++x)
 			{
-				fillSamples[y * 3 + x] = generateDepthOfFieldSample(glm::vec2(x, y) * glm::vec2(1.0f / 3.0f), blades, focalLength / apertureSize);
+				fillSamples[y * nSquareTapsSide + x] = generateDepthOfFieldSample(glm::vec2(x * fRecipTaps, y * fRecipTaps));
 			}
 		}
 	}
@@ -796,22 +801,43 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 	{
 		samplesGenerated = true;
 
-		for (unsigned int y = 0; y < 7; ++y)
+		int nSquareTapsSide = 7;
+		float fRecipTaps = 1.0f / ((float)nSquareTapsSide - 1.0f);
+
+		for (unsigned int y = 0; y < nSquareTapsSide; ++y)
 		{
-			for (unsigned int x = 0; x < 7; ++x)
+			for (unsigned int x = 0; x < nSquareTapsSide; ++x)
 			{
-				blurSamples[y * 7 + x] = generateDepthOfFieldSample(glm::vec2(x, y) * glm::vec2(1.0f / 7.0f), blades, focalLength / apertureSize);
+				blurSamples[y * nSquareTapsSide + x] = generateDepthOfFieldSample(glm::vec2(x * fRecipTaps, y * fRecipTaps));
 			}
 		}
 
-		for (unsigned int y = 0; y < 3; ++y)
+		nSquareTapsSide = 3;
+		fRecipTaps = 1.0f / ((float)nSquareTapsSide - 1.0f);
+
+		for (unsigned int y = 0; y < nSquareTapsSide; ++y)
 		{
-			for (unsigned int x = 0; x < 3; ++x)
+			for (unsigned int x = 0; x < nSquareTapsSide; ++x)
 			{
-				fillSamples[y * 3 + x] = generateDepthOfFieldSample(glm::vec2(x, y) * glm::vec2(1.0f / 3.0f), blades, focalLength / apertureSize);
+				fillSamples[y * nSquareTapsSide + x] = generateDepthOfFieldSample(glm::vec2(x * fRecipTaps, y * fRecipTaps));
 			}
 		}
 	}
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, _colorTexture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, cocNeighborMaxTex);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, fullResolutionDofTexA);
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, fullResolutionDofTexB);
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, fullResolutionDofTexC);
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, fullResolutionDofTexD);
 
 	// blur
 	{
@@ -826,16 +852,9 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 			}
 		}
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, _colorTexture);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, cocNeighborMaxTex);
-
-		glBindImageTexture(0, halfResolutionDofTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glBindImageTexture(1, halfResolutionDofTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glDispatchCompute(halfWidth / 8, halfHeight / 8, 1);
+		glBindImageTexture(0, fullResolutionDofTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		glBindImageTexture(1, fullResolutionDofTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		glDispatchCompute(width / 8, height / 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 
@@ -852,18 +871,9 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 			}
 		}
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexA);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexB);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, cocNeighborMaxTex);
-
-		glBindImageTexture(0, halfResolutionDofTexC, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glBindImageTexture(1, halfResolutionDofTexD, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glDispatchCompute(halfWidth / 8, halfHeight / 8, 1);
+		glBindImageTexture(0, fullResolutionDofTexC, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		glBindImageTexture(1, fullResolutionDofTexD, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		glDispatchCompute(width / 8, height / 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 	}
@@ -871,15 +881,6 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 	// composite
 	{
 		dofSeperateCompositeShader->bind();
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexC);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexD);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, _colorTexture);
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
 
 		glBindImageTexture(0, fullResolutionHdrTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 		glDispatchCompute(width / 8, height / 8, 1);
@@ -956,6 +957,38 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		glGenTextures(1, &fullResolutionCocTexture);
 		glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution.first, _resolution.second, 0, GL_RG, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glGenTextures(1, &fullResolutionDofTexA);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionDofTexA);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _resolution.first, _resolution.second, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glGenTextures(1, &fullResolutionDofTexB);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionDofTexB);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _resolution.first, _resolution.second, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glGenTextures(1, &fullResolutionDofTexC);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionDofTexC);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _resolution.first, _resolution.second, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glGenTextures(1, &fullResolutionDofTexD);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionDofTexD);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _resolution.first, _resolution.second, 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

@@ -10,7 +10,8 @@ layout(binding = 2) uniform sampler2D uColorTexture;
 
 void main()
 {	
-	vec2 texelSize = vec2(1.0 / textureSize(uColorTexture, 0).xy);
+	vec2 invocationSize = gl_WorkGroupSize.xy * gl_NumWorkGroups.xy;
+	vec2 texelSize = vec2(1.0 / invocationSize);
 	vec2 texCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * texelSize;
 	
     vec4 dofNear = texture(uNearTexture, texCoord);

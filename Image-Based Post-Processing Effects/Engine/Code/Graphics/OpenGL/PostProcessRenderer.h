@@ -63,6 +63,10 @@ private:
 	GLuint fullResolutionTextureB;
 	GLuint fullResolutionHdrTexture;
 	GLuint fullResolutionCocTexture;
+	GLuint fullResolutionDofTexA;
+	GLuint fullResolutionDofTexB;
+	GLuint fullResolutionDofTexC;
+	GLuint fullResolutionDofTexD;
 
 	GLuint halfResolutionFbo;
 	GLuint halfResolutionHdrTexA;
