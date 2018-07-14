@@ -26,12 +26,14 @@ void main()
  
     for (int i = 0; i < 7 * 7; ++i)
     {
-        vec2 sampleCoordNear = vec2(centerCoord + cocNear * texelSize * uSampleCoords[i]);
+		vec2 kernelSampleCoord = uSampleCoords[i];
+
+        vec2 sampleCoordNear = vec2(centerCoord + cocNear * texelSize * kernelSampleCoord);
         vec3 sampleNear = texture(uColorTexture, sampleCoordNear).rgb;
  
         sumNear += sampleNear;
 
-		vec2 sampleCoordFar = vec2(centerCoord + cocFar * texelSize * uSampleCoords[i]);
+		vec2 sampleCoordFar = vec2(centerCoord + cocFar * texelSize * kernelSampleCoord);
         vec3 sampleFar = texture(uColorTexture, sampleCoordFar).rgb;
  
         sumFar += sampleFar;

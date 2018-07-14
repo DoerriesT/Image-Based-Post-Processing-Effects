@@ -5,8 +5,8 @@ layout(local_size_x = 8, local_size_y = 8, local_size_z= 1) in;
 layout(rgba16f, binding = 0) uniform image2D uImgOutA;
 layout(rgba16f, binding = 1) uniform image2D uImgOutB;
 
-layout(binding = 0) uniform sampler2D uColorNearTexture;
-layout(binding = 1) uniform sampler2D uColorFarTexture;
+layout(binding = 2) uniform sampler2D uColorNearTexture;
+layout(binding = 3) uniform sampler2D uColorFarTexture;
 
 uniform vec2 uSampleCoords[3 * 3];
 
@@ -26,11 +26,13 @@ void main()
  
     for (int i = 0; i < 3 * 3; ++i)
     {
-        vec2 sampleCoordNear = vec2(centerCoord + cocNear * 0.15 * texelSize * uSampleCoords[i]);
+		vec2 kernelSampleCoord = uSampleCoords[i];
+
+        vec2 sampleCoordNear = vec2(centerCoord + cocNear * 0.15 * texelSize * kernelSampleCoord);
         vec3 sampleNear = texture(uColorNearTexture, sampleCoordNear).rgb;
         maxValNear = max(sampleNear, maxValNear);
 
-		vec2 sampleCoordFar = vec2(centerCoord + cocFar * 0.15 * texelSize * uSampleCoords[i]);
+		vec2 sampleCoordFar = vec2(centerCoord + cocFar * 0.15 * texelSize * kernelSampleCoord);
         vec3 sampleFar = texture(uColorFarTexture, sampleCoordFar).rgb;
         maxValFar = max(sampleFar, maxValFar);
     }

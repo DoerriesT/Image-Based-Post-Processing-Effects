@@ -4,9 +4,10 @@ layout(local_size_x = 8, local_size_y = 8, local_size_z= 1) in;
 
 layout(rgba16f, binding = 0) uniform image2D uImgOut;
 
-layout(binding = 0) uniform sampler2D uNearTexture;
-layout(binding = 1) uniform sampler2D uFarTexture;
-layout(binding = 2) uniform sampler2D uColorTexture;
+layout(binding = 4) uniform sampler2D uNearTexture;
+layout(binding = 5) uniform sampler2D uFarTexture;
+layout(binding = 0) uniform sampler2D uColorTexture;
+layout(binding = 1) uniform sampler2D uCocTexture;
 
 void main()
 {	
@@ -17,9 +18,10 @@ void main()
     vec4 dofNear = texture(uNearTexture, texCoord);
 	vec4 dofFar = texture(uFarTexture, texCoord);
 	vec3 color = texture(uColorTexture, texCoord).rgb;
+	vec2 coc = texture(uCocTexture, texCoord).xy;
 	
-	color = mix(color, dofFar.rgb, min(dofFar.a, 0.5) * 2.0);
-	color = mix(color, dofNear.rgb, min(dofNear.a, 0.5) * 2.0);
+	color = mix(color, dofFar.rgb, clamp(coc.y, 0.0, 1.0));
+	color = mix(color, dofNear.rgb, clamp(coc.x, 0.0, 1.0));
 	
 	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
 }
