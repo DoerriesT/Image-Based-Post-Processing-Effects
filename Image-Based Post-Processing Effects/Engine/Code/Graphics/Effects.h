@@ -8,18 +8,6 @@ struct FXAA
 	float edgeThresholdMin;
 };
 
-struct BokehDepthOfField
-{
-	bool enabled;
-	float aperture;
-	float apertureMax;
-	float focalLength;
-	float fStopsMin;
-	float fStopsMax;
-	float shutterAngleMax;
-	unsigned int blades;
-};
-
 struct LensFlares
 {
 	bool enabled;
@@ -91,6 +79,11 @@ enum class MotionBlur
 	OFF, SIMPLE, TILE_BASED_SINGLE, TILE_BASED_MULTI
 };
 
+enum class DepthOfField
+{
+	OFF, SIMPLE, SPRITE_BASED, TILE_BASED_SEPERATE, TILE_BASED_COMBINED
+};
+
 struct Effects
 {
 	AmbientOcclusion ambientOcclusion;
@@ -101,7 +94,7 @@ struct Effects
 	FilmGrain filmGrain;
 	ChromaticAberration chromaticAberration;
 	FXAA fxaa;
-	BokehDepthOfField depthOfField;
+	DepthOfField depthOfField;
 	LensFlares lensFlares;
 	ShadowQuality shadowQuality;
 	ScreenSpaceReflections screenSpaceReflections;

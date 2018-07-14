@@ -60,22 +60,25 @@ void PostProcessRenderer::init()
 	singlePassEffectsShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/singlePassEffects.frag");
 	hdrShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/hdr.frag");
 	fxaaShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/fxaa.frag");
-	lensFlareGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/lensFlareGen.frag");
-	lensFlareBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/lensFlareBlur.frag");
+	lensFlareGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/LensFlares/lensFlareGen.frag");
+	lensFlareBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/LensFlares/lensFlareBlur.frag");
 	downsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/downsample.frag");
 	upsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/upsample.frag");
-	velocityTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/velocityTileMax.frag");
-	velocityNeighborTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/velocityNeighborTileMax.frag");
-	cocTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/cocTileMax.frag");
-	cocNeighborTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/cocNeighborTileMax.frag");
-	cocShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/coc.comp");
-	cocBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/cocBlur.comp");
-	dofBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/dofBlur.comp");
-	dofFillShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/dofFill.comp");
-	dofCompositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/dofComposite.comp");
-	dofSeperateBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/dofSeperatedBlur.comp");
-	dofSeperateFillShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/dofSeperatedFill.comp");
-	dofSeperateCompositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/dofSeperatedComposite.comp");
+	velocityTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/MotionBlur/velocityTileMax.frag");
+	velocityNeighborTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/MotionBlur/velocityNeighborTileMax.frag");
+	cocTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/DepthOfField/cocTileMax.frag");
+	cocNeighborTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/DepthOfField/cocNeighborTileMax.frag");
+	cocShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/coc.comp");
+	cocBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/cocBlur.comp");
+	dofBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/Simple/dofBlur.comp");
+	dofFillShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/Simple/dofFill.comp");
+	dofCompositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/Simple/dofComposite.comp");
+	dofSeperateBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/TileBasedSeperate/dofSeperatedBlur.comp");
+	dofSeperateFillShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/TileBasedSeperate/dofSeperatedFill.comp");
+	dofSeperateCompositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/TileBasedSeperate/dofSeperatedComposite.comp");
+	dofCombinedBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/TileBasedCombined/dofCombinedBlur.comp");
+	dofSpriteShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/SpriteBased/dofSprite.vert", "Resources/Shaders/PostProcess/DepthOfField/SpriteBased/dofSprite.frag");
+	dofSpriteComposeShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/SpriteBased/dofSpriteCompose.comp");
 	luminanceGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/luminanceGen.comp");
 	luminanceAdaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/luminanceAdaption.comp");
 
@@ -150,14 +153,24 @@ void PostProcessRenderer::init()
 	// dof seperate blur
 	for (int i = 0; i < 7 * 7; ++i)
 	{
-		uSampleCoordsSDOFB.push_back(dofBlurShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
+		uSampleCoordsSDOFB.push_back(dofSeperateBlurShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
 	}
 
 	// dof seperate fill
 	for (int i = 0; i < 3 * 3; ++i)
 	{
-		uSampleCoordsSDOFF.push_back(dofFillShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
+		uSampleCoordsSDOFF.push_back(dofSeperateFillShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
 	}
+
+	// dof combined blur
+	for (int i = 0; i < 7 * 7; ++i)
+	{
+		uSampleCoordsCDOFB.push_back(dofCombinedBlurShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
+	}
+
+	// dof sprite
+	uWidthDOF.create(dofSpriteShader);
+	uHeightDOF.create(dofSpriteShader);
 
 	// luminance adaption
 	uTimeDeltaLA.create(luminanceAdaptionShader);
@@ -181,10 +194,41 @@ void PostProcessRenderer::init()
 	lensStarTexture = Texture::createTexture("Resources/Textures/starburst.dds", true);
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+
+
+	// sprite
+
+	glm::vec2 spritePositions[] = 
+	{
+		glm::vec2(-1.0, -1.0),
+		glm::vec2(1.0, -1.0),
+		glm::vec2(-1.0, 1.0),
+		glm::vec2(1.0, 1.0)
+	};
+
+	uint32_t spriteIndices[] =
+	{
+		0, 1, 2, 1, 3, 2
+	};
+
+	// create buffers/arrays
+	glGenVertexArrays(1, &spriteVAO);
+	glGenBuffers(1, &spriteVBO);
+	glGenBuffers(1, &spriteEBO);
+	glBindVertexArray(spriteVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, spriteVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(spritePositions), spritePositions, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, spriteEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(spriteIndices), spriteIndices, GL_STATIC_DRAW);
+
+	// vertex positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+
+	glBindVertexArray(0);
 }
 
 unsigned int tileSize = 40;
-bool dof = true;
 
 void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {
@@ -253,55 +297,30 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 
 	}
 
-	if (dof)
+	switch (_effects.depthOfField)
 	{
+	case DepthOfField::OFF:
+		break;
+	case DepthOfField::SIMPLE:
 		calculateCoc(_depthTexture);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, cocFbo);
-		glActiveTexture(GL_TEXTURE0);
-
-		// tile max
-		{
-			cocTileMaxShader->bind();
-
-			uTileSizeCOCTM.set(tileSize);
-
-			// fullscreen to first step
-			{
-				glViewport(0, 0, window->getWidth() / tileSize, window->getHeight());
-				glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cocTexTmp, 0);
-
-				uDirectionCOCTM.set(false);
-
-				fullscreenTriangle->getSubMesh()->render();
-			}
-
-			// first to second step
-			{
-				glViewport(0, 0, window->getWidth() / tileSize, window->getHeight() / tileSize);
-				glBindTexture(GL_TEXTURE_2D, cocTexTmp);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cocMaxTex, 0);
-
-				uDirectionCOCTM.set(true);
-
-				fullscreenTriangle->getSubMesh()->render();
-			}
-		}
-
-		// tile neighbor max
-		{
-			cocNeighborTileMaxShader->bind();
-
-			glBindTexture(GL_TEXTURE_2D, cocMaxTex);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cocNeighborMaxTex, 0);
-
-			fullscreenTriangle->getSubMesh()->render();
-		}
-
+		simpleDepthOfField(_colorTexture, _depthTexture);
+		break;
+	case DepthOfField::SPRITE_BASED:
+		calculateCoc(_depthTexture);
+		spriteBasedDepthOfField(_colorTexture, _depthTexture);
+		break;
+	case DepthOfField::TILE_BASED_SEPERATE:
+		calculateCoc(_depthTexture);
 		tileBasedSeperateFieldDepthOfField(_colorTexture);
-		//simpleDepthOfField(_colorTexture, _depthTexture);
+		break;
+	case DepthOfField::TILE_BASED_COMBINED:
+		calculateCoc(_depthTexture);
+		tileBasedCombinedFieldDepthOfField(_colorTexture, _depthTexture);
+		break;
+	default:
+		break;
 	}
+
 	calculateLuminance(_colorTexture);
 
 	// combine and tonemap
@@ -310,7 +329,7 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, dof ? fullResolutionHdrTexture : _colorTexture);
+	glBindTexture(GL_TEXTURE_2D, _effects.depthOfField != DepthOfField::OFF ? fullResolutionHdrTexture : _colorTexture);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, _depthTexture);
 	glActiveTexture(GL_TEXTURE2);
@@ -618,6 +637,51 @@ void PostProcessRenderer::calculateCoc(GLuint _depthTexture)
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
+void PostProcessRenderer::calculateCocTileTexture()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, cocFbo);
+	glActiveTexture(GL_TEXTURE0);
+
+	// tile max
+	{
+		cocTileMaxShader->bind();
+
+		uTileSizeCOCTM.set(tileSize);
+
+		// fullscreen to first step
+		{
+			glViewport(0, 0, window->getWidth() / tileSize, window->getHeight());
+			glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cocTexTmp, 0);
+
+			uDirectionCOCTM.set(false);
+
+			fullscreenTriangle->getSubMesh()->render();
+		}
+
+		// first to second step
+		{
+			glViewport(0, 0, window->getWidth() / tileSize, window->getHeight() / tileSize);
+			glBindTexture(GL_TEXTURE_2D, cocTexTmp);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cocMaxTex, 0);
+
+			uDirectionCOCTM.set(true);
+
+			fullscreenTriangle->getSubMesh()->render();
+		}
+	}
+
+	// tile neighbor max
+	{
+		cocNeighborTileMaxShader->bind();
+
+		glBindTexture(GL_TEXTURE_2D, cocMaxTex);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cocNeighborMaxTex, 0);
+
+		fullscreenTriangle->getSubMesh()->render();
+	}
+}
+
 float PI = glm::pi<float>();
 
 glm::vec2 generateDepthOfFieldSample(const glm::vec2 &_origin)
@@ -780,6 +844,8 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 
 void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTexture)
 {
+	calculateCocTileTexture();
+
 	unsigned int width = window->getWidth();
 	unsigned int height = window->getHeight();
 	unsigned int halfWidth = width / 2;
@@ -890,8 +956,129 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 	}
 }
 
-void PostProcessRenderer::tileBasedCombinedFieldDepthOfField(GLuint _colorTexture)
+void PostProcessRenderer::tileBasedCombinedFieldDepthOfField(GLuint _colorTexture, GLuint _depthTexture)
 {
+	calculateCocTileTexture();
+
+	unsigned int width = window->getWidth();
+	unsigned int height = window->getHeight();
+	unsigned int halfWidth = width / 2;
+	unsigned int halfHeight = height / 2;
+
+	const float filmWidth = 35.0f;
+	const float apertureSize = 8.0f;
+	const float focalLength = (0.5f * filmWidth) / glm::tan(window->getFieldOfView() * 0.5f);
+	const float blades = 6.0f;
+
+
+	static bool samplesGenerated = false;
+	static bool blurSamplesSet = false;
+	static bool fillSamplesSet = false;
+	static glm::vec2 blurSamples[7 * 7];
+	static glm::vec2 fillSamples[3 * 3];
+
+	if (!samplesGenerated)
+	{
+		samplesGenerated = true;
+
+		unsigned int nSquareTapsSide = 7;
+		float fRecipTaps = 1.0f / ((float)nSquareTapsSide - 1.0f);
+
+		for (unsigned int y = 0; y < nSquareTapsSide; ++y)
+		{
+			for (unsigned int x = 0; x < nSquareTapsSide; ++x)
+			{
+				blurSamples[y * nSquareTapsSide + x] = generateDepthOfFieldSample(glm::vec2(x * fRecipTaps, y * fRecipTaps));
+			}
+		}
+
+		nSquareTapsSide = 3;
+		fRecipTaps = 1.0f / ((float)nSquareTapsSide - 1.0f);
+		const float rotAngle = glm::radians(15.0f);
+		const glm::mat2 rot = glm::mat2(glm::cos(rotAngle), -glm::sin(rotAngle), glm::sin(rotAngle), glm::cos(rotAngle));
+
+		for (unsigned int y = 0; y < nSquareTapsSide; ++y)
+		{
+			for (unsigned int x = 0; x < nSquareTapsSide; ++x)
+			{
+				fillSamples[y * nSquareTapsSide + x] = rot * generateDepthOfFieldSample(glm::vec2(x * fRecipTaps, y * fRecipTaps));
+			}
+		}
+	}
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, _colorTexture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, cocNeighborMaxTex);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, _depthTexture);
+
+	// blur
+	{
+		dofCombinedBlurShader->bind();
+
+		if (!blurSamplesSet)
+		{
+			blurSamplesSet = true;
+			for (int i = 0; i < 7 * 7; ++i)
+			{
+				dofCombinedBlurShader->setUniform(uSampleCoordsCDOFB[i], blurSamples[i]);
+			}
+		}
+
+		glBindImageTexture(0, fullResolutionHdrTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		glDispatchCompute(width / 8, height / 8, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	}
+}
+
+void PostProcessRenderer::spriteBasedDepthOfField(GLuint _colorTexture, GLuint _depthTexture)
+{
+	static std::shared_ptr<Texture> bokehSprite = Texture::createTexture("Resources/Textures/bokehsprite.dds", true);
+	unsigned int width = window->getWidth();
+	unsigned int height = window->getHeight();
+	unsigned int halfWidth = width / 2;
+	unsigned int halfHeight = height / 2;
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, _colorTexture);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, _depthTexture);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, halfResolutionDofDoubleTex);
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, bokehSprite->getId());
+
+	glBindFramebuffer(GL_FRAMEBUFFER, cocFbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, halfResolutionDofDoubleTex, 0);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+
+	glViewport(0, 0, width, halfHeight);
+
+	glBindVertexArray(spriteVAO);
+	glEnableVertexAttribArray(0);
+
+	dofSpriteShader->bind();
+
+	uWidthDOF.set(halfWidth);
+	uHeightDOF.set(halfHeight);
+
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL, halfWidth * halfHeight);
+
+	glDisable(GL_BLEND);
+
+	dofSpriteComposeShader->bind();
+
+	glBindImageTexture(0, fullResolutionHdrTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	glDispatchCompute(width / 8, height / 8, 1);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
 void PostProcessRenderer::calculateLuminance(GLuint _colorTexture)
@@ -1062,6 +1249,14 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		glGenTextures(1, &halfResolutionDofTexD);
 		glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexD);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _resolution.first / 2, _resolution.second / 2, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glGenTextures(1, &halfResolutionDofDoubleTex);
+		glBindTexture(GL_TEXTURE_2D, halfResolutionDofDoubleTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _resolution.first, _resolution.second / 2, 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

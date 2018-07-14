@@ -42,6 +42,9 @@ private:
 	std::shared_ptr<ShaderProgram> dofSeperateBlurShader;
 	std::shared_ptr<ShaderProgram> dofSeperateFillShader;
 	std::shared_ptr<ShaderProgram> dofSeperateCompositeShader;
+	std::shared_ptr<ShaderProgram> dofCombinedBlurShader;
+	std::shared_ptr<ShaderProgram> dofSpriteShader;
+	std::shared_ptr<ShaderProgram> dofSpriteComposeShader;
 	std::shared_ptr<ShaderProgram> luminanceGenShader;
 	std::shared_ptr<ShaderProgram> luminanceAdaptionShader;
 	std::shared_ptr<Window> window;
@@ -51,6 +54,10 @@ private:
 	std::shared_ptr<Texture> lensStarTexture;
 
 	std::shared_ptr<Mesh> fullscreenTriangle;
+
+	GLuint spriteVAO;
+	GLuint spriteVBO;
+	GLuint spriteEBO;
 
 	GLuint finishedTexture;
 
@@ -78,6 +85,7 @@ private:
 	GLuint halfResolutionDofTexB;
 	GLuint halfResolutionDofTexC;
 	GLuint halfResolutionDofTexD;
+	GLuint halfResolutionDofDoubleTex;
 
 	GLuint resolution4Fbo;
 	GLuint resolution4HdrTexA;
@@ -175,6 +183,13 @@ private:
 	// dof seperate fill
 	std::vector<GLint> uSampleCoordsSDOFF;
 
+	// dof combined blur
+	std::vector<GLint> uSampleCoordsCDOFB;
+
+	// dof sprite
+	Uniform<GLint> uWidthDOF = Uniform<GLint>("uWidth");
+	Uniform<GLint> uHeightDOF = Uniform<GLint>("uHeight");
+
 	// luminance adaption
 	Uniform<GLfloat> uTimeDeltaLA = Uniform<GLfloat>("uTimeDelta");
 	Uniform<GLfloat> uTauLA = Uniform<GLfloat>("uTau");
@@ -186,9 +201,11 @@ private:
 	void upsample();
 	void generateFlares(const Effects &_effects);
 	void calculateCoc(GLuint _depthTexture);
+	void calculateCocTileTexture();
 	void simpleDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
 	void tileBasedSeperateFieldDepthOfField(GLuint _colorTexture);
-	void tileBasedCombinedFieldDepthOfField(GLuint _colorTexture);
+	void tileBasedCombinedFieldDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
+	void spriteBasedDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
 	void calculateLuminance(GLuint _colorTexture);
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
 

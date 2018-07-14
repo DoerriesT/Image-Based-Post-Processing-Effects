@@ -38,6 +38,7 @@ namespace App
 			windowHeight = settingsManager.getIntSetting("graphics", "window_height", 720);
 			windowMode = settingsManager.getIntSetting("graphics", "window_mode", 0);
 			motionBlur = settingsManager.getIntSetting("graphics", "motion_blur", 0);
+			depthOfField = settingsManager.getIntSetting("graphics", "depth_of_field", 0);
 			ssaoKernelSize = settingsManager.getIntSetting("graphics", "ssao_kernel_size", 16);
 			ssaoRadius = settingsManager.getDoubleSetting("graphics", "ssao_radius", 0.5);
 			ssaoStrength = settingsManager.getDoubleSetting("graphics", "ssao_strength", 1.0);
@@ -195,6 +196,10 @@ namespace App
 		if (optionsGui->getElementById("motion_blur_box", box) && _event.source == box)
 		{
 			motionBlur->set(box->getSelectedItem());
+		}
+		if (optionsGui->getElementById("depth_of_field_box", box) && _event.source == box)
+		{
+			depthOfField->set(box->getSelectedItem());
 		}
 		if (optionsGui->getElementById("bounce_checkbox", checkbox) && _event.source == checkbox)
 		{
@@ -449,6 +454,10 @@ namespace App
 		if (optionsGui->getElementById("motion_blur_box", box))
 		{
 			box->setSelectedItem(static_cast<size_t>(motionBlur->get()));
+		}
+		if (optionsGui->getElementById("depth_of_field_box", box))
+		{
+			box->setSelectedItem(static_cast<size_t>(depthOfField->get()));
 		}
 		if (optionsGui->getElementById("ambient_occlusion_box", box))
 		{

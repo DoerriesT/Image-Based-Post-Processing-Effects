@@ -77,6 +77,7 @@ private:
 	std::shared_ptr<Setting<bool>> loadEnvironmentFromFile;
 	std::shared_ptr<Setting<bool>> saveEnvironmentToFile;
 	std::shared_ptr<Setting<int>> motionBlur;
+	std::shared_ptr<Setting<int>> depthOfField;
 
 	bool validate(std::uint64_t bitMap);
 };

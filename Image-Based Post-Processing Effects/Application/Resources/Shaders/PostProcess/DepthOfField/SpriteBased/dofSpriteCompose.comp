@@ -1,0 +1,31 @@
+#version 450 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z= 1) in;
+
+layout(rgba16f, binding = 0) uniform writeonly image2D uImgOut;
+
+layout(binding = 0) uniform sampler2D uCocTexture;
+layout(binding = 1) uniform sampler2D uColorTexture;
+layout(binding = 3) uniform sampler2D uBlurTexture;
+
+void main()
+{	
+	vec2 invocationSize = gl_WorkGroupSize.xy * gl_NumWorkGroups.xy;
+	vec2 texelSize = vec2(1.0 / invocationSize);
+	vec2 texCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * texelSize;
+	
+    vec4 farPlane = texture(uBlurTexture, texCoord * vec2(0.5, 1.0) + vec2(0.5, 0.0));
+	vec4 nearPlane = texture(uBlurTexture, texCoord * vec2(0.5, 1.0));
+	
+	vec3 color = texture(uColorTexture, texCoord).rgb;
+	vec2 cocVals = texture(uCocTexture, texCoord).xy;
+	
+	farPlane.rgb /= farPlane.a;
+	nearPlane.rgb /= nearPlane.a;
+	
+	color = mix(color, farPlane.rgb, clamp(cocVals.y, 0.0, 1.0));
+	
+	color = mix(color, nearPlane.rgb, clamp(cocVals.x, 0.0, 1.0));
+
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
+}

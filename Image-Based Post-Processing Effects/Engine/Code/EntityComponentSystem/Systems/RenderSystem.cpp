@@ -172,14 +172,9 @@ void RenderSystem::init()
 
 	settingsManager.saveToIni();
 
-	effects.depthOfField.enabled = false;
-	effects.depthOfField.aperture = 8.0f;
-	effects.depthOfField.apertureMax = 8.0f;
-	effects.depthOfField.blades = 0;
-	effects.depthOfField.focalLength = (0.5f * 0.35f) / tan(glm::radians(window->getFieldOfView()) * 0.5f);
-	effects.depthOfField.fStopsMax = effects.depthOfField.focalLength / effects.depthOfField.apertureMax;
-	effects.depthOfField.fStopsMin = effects.depthOfField.focalLength;
-	effects.depthOfField.shutterAngleMax = glm::radians(45.0f);
+	depthOfField = settingsManager.getIntSetting("graphics", "depth_of_field", 0);
+	depthOfField->addListener([&](int _value) { effects.depthOfField = static_cast<DepthOfField>(_value); });
+	effects.depthOfField = static_cast<DepthOfField>(depthOfField->get());
 }
 
 void RenderSystem::input(double _currentTime, double _timeDelta)
