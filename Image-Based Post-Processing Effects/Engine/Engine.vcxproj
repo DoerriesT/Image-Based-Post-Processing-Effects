@@ -204,9 +204,14 @@
     <None Include="..\Application\Resources\Shaders\Gui\gui.vert" />
     <None Include="..\Application\Resources\Shaders\PostProcess\coc.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\cocBlur.comp" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\cocNeighborTileMax.frag" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\cocTileMax.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\dofBlur.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\dofComposite.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\dofFill.comp" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\dofSeperatedBlur.comp" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\dofSeperatedComposite.comp" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\dofSeperatedFill.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\downsample.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\fxaa.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\hdr.frag" />

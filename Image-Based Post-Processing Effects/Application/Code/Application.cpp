@@ -212,12 +212,12 @@ namespace App
 
 					assert(entity);
 
-					glm::vec3 position = glm::vec3(i - 5.0f, 0.0f, j - 5.0f) * 4.0f;
+					glm::vec3 position = glm::vec3(i - 5.0f, 0.0f, j - 5.0f) * 0.2f;
 
 					if (bounce)
 					{
-						glm::vec3 bouncePos = position + glm::vec3(0.0f, 10.0f, 0.0f);
-						float speed = dist1(e) * 0.5f;
+						glm::vec3 bouncePos = position + glm::vec3(0.0f, 3.0f, 0.0f);
+						float speed = dist1(e);
 
 						std::vector<PathSegment> pathSegments;
 						pathSegments.push_back(PathSegment(

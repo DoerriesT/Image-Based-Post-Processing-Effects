@@ -167,7 +167,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	level->filepath = "Resources/Levels/sponza/";
 
 	// camera(s)
-	std::shared_ptr<Camera> camera0 = std::make_shared<Camera>(glm::vec3(4.81539774f,5.86095524f, 1.85534108f ), glm::quat(0.386821985f , -0.184476748f, 0.815521121f, -0.388924748f));
+	std::shared_ptr<Camera> camera0 = std::make_shared<Camera>(glm::vec3(4.81539774f, 5.86095524f, 1.85534108f), glm::quat(0.386821985f, -0.184476748f, 0.815521121f, -0.388924748f));
 
 	level->cameras.push_back(camera0);
 	level->activeCameraIndex = 0;
@@ -231,8 +231,8 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	float outerAngle = 25.0f;
 	float innerAngle = 0.0f;
 	float range = 25.0f;
-	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f, 0.7f, -0.8f), glm::vec3(-1.0f, -0.25f, -0.1f), outerAngle, innerAngle, range, true));
-	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f, 0.7f, 0.8f), glm::vec3(-1.0f, -0.25f, 0.1f), outerAngle, innerAngle, range, true));
+	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f + 6.0f, 0.7f, -0.8f), glm::vec3(-1.0f, -0.25f, -0.1f), outerAngle, innerAngle, range, true));
+	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f + 6.0f, 0.7f, 0.8f), glm::vec3(-1.0f, -0.25f, 0.1f), outerAngle, innerAngle, range, true));
 	//level->lights.pointLights.push_back(PointLight::createPointLight(glm::vec3(100.0f), glm::vec3(0.0, 3.0, 0.0), 15.0f, true));
 
 	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(0.0f, 1.7f, 0.0f), glm::vec3(1.0f, 0.5f, 0.0f), outerAngle, innerAngle, range, true, SpotLight::DEFAULT_SHADOW_MAP_RESOLUTION, true, Texture::createTexture("Resources/Textures/opengllogo.dds", true)));
@@ -251,7 +251,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 		level->entityMap["car"] = carEntity;
 		Model lamboModel("Resources/Models/aventador.meshmat", true);
 		entityManager.addComponent<ModelComponent>(carEntity, lamboModel);
-		entityManager.addComponent<TransformationComponent>(carEntity, glm::vec3(0.0, 0.0, 0.0), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(1.0f));
+		entityManager.addComponent<TransformationComponent>(carEntity, glm::vec3(6.0, 0.0, 0.0), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(1.0f));
 		entityManager.addComponent<TransparencyComponent>(carEntity, lamboModel.getTransparentSubmeshes());
 		entityManager.addComponent<RenderableComponent>(carEntity);
 		//entityManager.addComponent<PhysicsComponent>(carEntity, 0.0f, 1.0f, false, true);
@@ -293,25 +293,24 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 			}
 		}*/
 
-		/*for (int i = 0; i < 10; ++i)
+		for (int i = 0; i < 10; ++i)
 		{
-		for (int j = 0; j < 10; ++j)
-		{
+			for (int j = 0; j < 10; ++j)
+			{
 
-		glm::vec3 color(1.0);
-		glm::vec3 position = glm::vec3(i - 5.0f, 0.0f, j - 5.0f) * 0.2;
-		glm::vec3 bouncePos = position + glm::vec3(0.0f, 10.0f, 0.0f);
+				glm::vec3 color(1.0);
+				glm::vec3 position = glm::vec3(i - 5.0f, 0.0f, j - 5.0f) * 0.2f;
 
-		const Entity *teapotEntity = entityManager.createEntity();
-		level->entityMap["teapot" + std::to_string(i * 10 + j)] = teapotEntity;
-		Model model("Resources/Models/teapot.meshmat", true);
-		model[0].second.setRoughness(i / 10.0f);
-		model[0].second.setMetallic(j / 10.0f);
-		entityManager.addComponent<ModelComponent>(teapotEntity, model);
-		entityManager.addComponent<TransformationComponent>(teapotEntity, position, glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(1.0f));
-		entityManager.addComponent<RenderableComponent>(teapotEntity);
+				const Entity *teapotEntity = entityManager.createEntity();
+				level->entityMap["teapot" + std::to_string(i * 10 + j)] = teapotEntity;
+				Model model("Resources/Models/teapot.meshmat", true);
+				model[0].second.setRoughness(i / 10.0f);
+				model[0].second.setMetallic(j / 10.0f);
+				entityManager.addComponent<ModelComponent>(teapotEntity, model);
+				entityManager.addComponent<TransformationComponent>(teapotEntity, position, glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(1.0f));
+				entityManager.addComponent<RenderableComponent>(teapotEntity);
+			}
 		}
-		}*/
 
 		/*{
 		const Entity *teapotEntity = entityManager.createEntity();

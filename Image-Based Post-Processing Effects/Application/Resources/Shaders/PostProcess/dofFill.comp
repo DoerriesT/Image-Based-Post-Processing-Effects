@@ -26,11 +26,11 @@ void main()
  
     for (int i = 0; i < 3 * 3; ++i)
     {
-        vec2 sampleCoordNear = vec2(centerCoord + cocNear * texelSize * uSampleCoords[i]);
+        vec2 sampleCoordNear = vec2(centerCoord + cocNear * 0.15 * texelSize * uSampleCoords[i]);
         vec3 sampleNear = texture(uColorNearTexture, sampleCoordNear).rgb;
         maxValNear = max(sampleNear, maxValNear);
 
-		vec2 sampleCoordFar = vec2(centerCoord + cocFar * texelSize * uSampleCoords[i]);
+		vec2 sampleCoordFar = vec2(centerCoord + cocFar * 0.15 * texelSize * uSampleCoords[i]);
         vec3 sampleFar = texture(uColorFarTexture, sampleCoordFar).rgb;
         maxValFar = max(sampleFar, maxValFar);
     }
