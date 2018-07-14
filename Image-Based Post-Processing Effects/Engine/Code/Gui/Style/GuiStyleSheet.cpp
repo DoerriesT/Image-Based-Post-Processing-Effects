@@ -1,5 +1,5 @@
 #include "GuiStyleSheet.h"
-#include "..\..\Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
 #include "..\Gui.h"
 
 GuiStyleSheet::GuiStyleSheet()
@@ -12,7 +12,7 @@ GuiStyleSheet::~GuiStyleSheet()
 
 void GuiStyleSheet::addClassProperty(const std::string &name, GuiStyleProperty *prop)
 {
-	if (!contains(classes, name))
+	if (!ContainerUtility::contains(classes, name))
 	{
 		classes[name] = GuiStyleBlock();
 	}
@@ -27,7 +27,7 @@ GuiStyleBlock* GuiStyleSheet::getClassBlock(const std::string &name)
 		return nullptr;
 	}
 
-	if (!contains(classes, name))
+	if (!ContainerUtility::contains(classes, name))
 	{
 		classes[name] = GuiStyleBlock();
 		notifyListener();
@@ -38,7 +38,7 @@ GuiStyleBlock* GuiStyleSheet::getClassBlock(const std::string &name)
 
 void GuiStyleSheet::addListener(IStyleable *l)
 {
-	if (!contains(listener, l))
+	if (!ContainerUtility::contains(listener, l))
 	{
 		listener.push_back(l);
 	}
@@ -46,7 +46,7 @@ void GuiStyleSheet::addListener(IStyleable *l)
 
 void GuiStyleSheet::removeListener(IStyleable *l)
 {
-	remove(listener, l);
+	ContainerUtility::remove(listener, l);
 }
 
 GuiStyleSheet& GuiStyleSheet::operator=(const GuiStyleSheet &other)

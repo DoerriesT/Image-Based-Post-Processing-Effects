@@ -3,7 +3,7 @@
 #include "WindowFramework.h"
 #include "IWindowResizeListener.h"
 #include "IInputListener.h"
-#include ".\..\..\Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
 #include "Input\Gamepad.h"
 
 void windowSizeCallback(GLFWwindow *window, int width, int height);
@@ -124,7 +124,7 @@ void WindowFramework::init()
 	{
 		if (resolution.first > nativeResolution.first || resolution.second > nativeResolution.second)
 		{
-			remove(supportedResolutions, resolution);
+			ContainerUtility::remove(supportedResolutions, resolution);
 		}
 	}
 

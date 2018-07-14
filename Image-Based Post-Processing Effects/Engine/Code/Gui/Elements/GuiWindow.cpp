@@ -1,12 +1,12 @@
 #include "GuiWindow.h"
 #include "..\Gui.h"
-#include "..\..\Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
 #include "..\GuiLayout.h"
 #include "..\GuiUtility.h"
 #include "..\Style\GuiStyleSheet.h"
 
 using GuiUtil::copy;
-using Util::empty;
+using Utility::empty;
 
 GuiWindow::GuiWindow(GuiLayout *layout, const std::string &id)
 	: IIdentifiable(id), parentLayout(layout), parentWindow(nullptr),
@@ -29,7 +29,7 @@ void GuiWindow::addRow(GuiRow *row)
 	if (!row)
 		return;
 
-	if (!contains(rows, row))
+	if (!ContainerUtility::contains(rows, row))
 	{
 		assert(parentLayout->isUnique(row));
 		rows.push_back(row);
@@ -38,7 +38,7 @@ void GuiWindow::addRow(GuiRow *row)
 
 void GuiWindow::removeRow(GuiRow *row)
 {
-	remove(rows, row);
+	ContainerUtility::remove(rows, row);
 }
 
 

@@ -295,7 +295,7 @@ public:
 template<typename T>
 bool GuiElement::getElementById(const char *id, T *&resultElement)
 {
-	if (Util::equals(this->id, id))
+	if (Utility::equals(this->id, id))
 	{
 		if (resultElement = dynamic_cast<T*>(this))
 		{

@@ -1,20 +1,18 @@
 #include "Utility.h"
 #include <fstream>
 #include <cassert>
-#include <glad\glad.h>
 #include <windows.h>
 #include <iostream>
 #include <sstream>
 #include <cctype>
-#include <al.h>
 #include <chrono>
-#include <ctime> 
-#include <time.h>
+#include <ctime>
 #include <thread>
 #include <direct.h>
 #include <iomanip>
+#include <algorithm>
 
-std::vector<char> readTextFile(const std::string & _filename)
+std::vector<char> Utility::readTextFile(const std::string & _filename)
 {
 	std::ifstream file(_filename, std::ios::ate);
 	file.exceptions(std::ifstream::badbit);
@@ -45,7 +43,7 @@ std::vector<char> readTextFile(const std::string & _filename)
 	return buffer;
 }
 
-std::vector<char> readBinaryFile(const std::string & _filename)
+std::vector<char> Utility::readBinaryFile(const std::string & _filename)
 {
 	std::ifstream file(_filename, std::ios::binary | std::ios::ate);
 
@@ -68,127 +66,8 @@ std::vector<char> readBinaryFile(const std::string & _filename)
 	}
 }
 
-void glErrorCheck(const std::string &_message)
-{
-	switch (glGetError())
-	{
-	case (GL_INVALID_ENUM):
-		std::cout << _message << std::endl;
-		std::cout << "GL_INVALID_ENUM" << std::endl;
-		break;
-	case (GL_INVALID_VALUE):
-		std::cout << _message << std::endl;
-		std::cout << "GL_INVALID_VALUE" << std::endl;
-		break;
-	case (GL_INVALID_OPERATION):
-		std::cout << _message << std::endl;
-		std::cout << "GL_INVALID_OPERATION" << std::endl;
-		break;
-	case (GL_OUT_OF_MEMORY):
-		std::cout << _message << std::endl;
-		std::cout << "GL_OUT_OF_MEMORY" << std::endl;
-		break;
-	case (GL_INVALID_FRAMEBUFFER_OPERATION):
-		std::cout << _message << std::endl;
-		std::cout << "GL_INVALID_FRAMEBUFFER_OPERATION" << std::endl;
-		break;
-	}
-}
-
-void alErrorCheck(const std::string & _message)
-{
-	switch (alGetError())
-	{
-	case (AL_INVALID_NAME):
-		std::cout << _message << std::endl;
-		std::cout << "AL_INVALID_NAME" << std::endl;
-		break;
-	case (AL_INVALID_ENUM):
-		std::cout << _message << std::endl;
-		std::cout << "AL_INVALID_ENUM" << std::endl;
-		break;
-	case (AL_INVALID_VALUE):
-		std::cout << _message << std::endl;
-		std::cout << "AL_INVALID_VALUE" << std::endl;
-		break;
-	case (AL_INVALID_OPERATION):
-		std::cout << _message << std::endl;
-		std::cout << "AL_INVALID_OPERATION" << std::endl;
-		break;
-	case (AL_OUT_OF_MEMORY):
-		std::cout << _message << std::endl;
-		std::cout << "AL_OUT_OF_MEMORY" << std::endl;
-		break;
-	}
-}
-
-void createDummyMesh(GLuint &_VAO)
-{
-	// create buffers/arrays
-	glGenVertexArrays(1, &_VAO);
-	glBindVertexArray(_VAO);
-
-
-	// vertex Positions
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * 4, (void*)0);
-
-	glBindVertexArray(0);
-}
-
-static bool created = false;
-static GLuint VAO;
-
-void deleteDummyMesh()
-{
-	glBindVertexArray(VAO);
-	glDisableVertexAttribArray(0);
-
-	glBindVertexArray(0);
-	glDeleteVertexArrays(1, &VAO);
-}
-
-void bindDummyMesh()
-{
-	if (!created)
-	{
-		created = true;
-		createDummyMesh(VAO);
-	}
-
-	assert(VAO);
-	glBindVertexArray(VAO);
-	glEnableVertexAttribArray(0);
-}
-
-
-
-glm::vec3 interpolateHermiteCurve(double _t, const glm::vec3 &_p0, const glm::vec3 &_p1, const glm::vec3 &_t0, const glm::vec3 &_t1)
-{
-	double t3 = _t * _t * _t;
-	double t2 = _t * _t;
-	double h1 = 2 * t3 - 3 * t2 + 1;
-	double h2 = -2 * t3 + 3 * t2;
-	double h3 = t3 - 2 * t2 + _t;
-	double h4 = t3 - t2;
-
-	return (float)h1 * _p0 + (float)h2 * _p1 + (float)h3 * _t0 + (float)h4 * _t1;
-}
-
-glm::quat nlerp(const glm::quat &_x, const glm::quat &_y, float _a)
-{
-	float cosom = _x.x * _y.x + _x.y * _y.y + _x.z * _y.z + _x.w * _y.w;
-	float scale0 = 1.0f - _a;
-	float scale1 = (cosom >= 0.0f) ? _a : -_a;
-	glm::quat result;
-	result = scale0 * _x + scale1 * _y;
-	float s = (float)(1.0 / sqrt(result.x * result.x + result.y * result.y + result.z * result.z + result.w * result.w));
-	result *= s;
-	return result;
-}
-
 //base code from Fox32 (https://stackoverflow.com/a/5167641)
-std::vector<std::string> Util::split(const std::string &str, const std::string &seperator)
+std::vector<std::string> Utility::split(const std::string &str, const std::string &seperator)
 {
 	std::vector<std::string> output;
 	std::string::size_type prev_pos = 0, pos = 0;
@@ -202,12 +81,12 @@ std::vector<std::string> Util::split(const std::string &str, const std::string &
 	return output;
 }
 
-bool Util::contains(const std::string &string, const std::string &contains)
+bool Utility::contains(const std::string &string, const std::string &contains)
 {
 	return string.find(contains) != std::string::npos;
 }
 
-void Util::ltrim(std::string &s)
+void Utility::ltrim(std::string &s)
 {
 	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch)
 	{
@@ -215,7 +94,7 @@ void Util::ltrim(std::string &s)
 	}));
 }
 
-void Util::rtrim(std::string &s)
+void Utility::rtrim(std::string &s)
 {
 	s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch)
 	{
@@ -223,37 +102,37 @@ void Util::rtrim(std::string &s)
 	}).base(), s.end());
 }
 
-void Util::trim(std::string &str)
+void Utility::trim(std::string &str)
 {
 	ltrim(str);
 	rtrim(str);
 }
 
 
-std::string Util::toLowerCase(std::string str)
+std::string Utility::toLowerCase(std::string str)
 {
 	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 	return str;
 }
 
-bool Util::fileExists(const std::string &name)
+bool Utility::fileExists(const std::string &name)
 {
 	std::ifstream f(name.c_str());
 	return f.good();
 }
 
-std::streampos Util::fileSize(const std::string &name)
+std::streampos Utility::fileSize(const std::string &name)
 {
 	std::ifstream in(name, std::ifstream::ate | std::ifstream::binary);
 	return in.tellg();
 }
 
-void Util::createDirectory(const std::string &path)
+void Utility::createDirectory(const std::string &path)
 {
 	_mkdir(path.c_str());
 }
 
-std::vector<std::string> Util::listDirectory(const std::string &directoryPath)
+std::vector<std::string> Utility::listDirectory(const std::string &directoryPath)
 {
 	std::vector<std::string> result;
 	std::string pattern(directoryPath);
@@ -264,7 +143,7 @@ std::vector<std::string> Util::listDirectory(const std::string &directoryPath)
 	{
 		do
 		{
-			if (!Util::equals(data.cFileName, ".") && !Util::equals(data.cFileName, ".."))
+			if (!Utility::equals(data.cFileName, ".") && !Utility::equals(data.cFileName, ".."))
 			{
 				result.push_back(data.cFileName);
 			}
@@ -274,7 +153,7 @@ std::vector<std::string> Util::listDirectory(const std::string &directoryPath)
 	return result;
 }
 
-bool Util::isDirectory(const std::string &directoryPath)
+bool Utility::isDirectory(const std::string &directoryPath)
 {
 	std::string pattern(directoryPath);
 	pattern.append("\\*");
@@ -288,7 +167,7 @@ bool Util::isDirectory(const std::string &directoryPath)
 	return false;
 }
 
-std::string Util::fileMD5Hash(const std::string & filePath)
+std::string Utility::fileMD5Hash(const std::string & filePath)
 {
 	std::vector<char> buffer = readBinaryFile(filePath);
 	MD5 md5;
@@ -297,7 +176,7 @@ std::string Util::fileMD5Hash(const std::string & filePath)
 	return md5.hexdigest();
 }
 
-bool Util::readTextFile(const std::string & _filename, std::string & _result)
+bool Utility::readTextFile(const std::string & _filename, std::string & _result)
 {
 	// wtf?
 	/*char *buffer = nullptr;
@@ -314,7 +193,7 @@ bool Util::readTextFile(const std::string & _filename, std::string & _result)
 	return false;
 }
 
-void Util::createFile(const std::string &filePath, const std::string &content)
+void Utility::createFile(const std::string &filePath, const std::string &content)
 {
 	std::ofstream outfile(filePath, std::ios::binary);
 	outfile << content;
@@ -322,7 +201,7 @@ void Util::createFile(const std::string &filePath, const std::string &content)
 	outfile.close();
 }
 
-void Util::copyFile(const std::string &sourceFile, const std::string &destinationFile)
+void Utility::copyFile(const std::string &sourceFile, const std::string &destinationFile)
 {
 	std::ifstream  src(sourceFile, std::ios::binary);
 	std::ofstream  dst(destinationFile, std::ios::binary);
@@ -330,7 +209,7 @@ void Util::copyFile(const std::string &sourceFile, const std::string &destinatio
 	dst << src.rdbuf();
 }
 
-std::string Util::getPathFileName(const std::string &filePath)
+std::string Utility::getPathFileName(const std::string &filePath)
 {
 	auto f = getPathLastPart(filePath);
 
@@ -355,17 +234,17 @@ std::string Util::getPathFileName(const std::string &filePath)
 	return result;
 }
 
-std::string Util::getPathFileExtension(const std::string &filePath)
+std::string Utility::getPathFileExtension(const std::string &filePath)
 {
 	return split(filePath, ".").back();
 }
 
-std::string Util::getPathLastPart(const std::string &filePath)
+std::string Utility::getPathLastPart(const std::string &filePath)
 {
 	return split(split(filePath, "/").back(), "\\").back();
 }
 
-size_t Util::grow(char *&buffer, size_t size)
+size_t Utility::grow(char *&buffer, size_t size)
 {
 	const size_t newSize = (size >> 1) + size;
 	char *newBuffer = new char[newSize];
@@ -381,12 +260,12 @@ size_t Util::grow(char *&buffer, size_t size)
 	return newSize;
 }
 
-void Util::sleep(unsigned int milliseconds)
+void Utility::sleep(unsigned int milliseconds)
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
-std::string Util::getFormatedTime()
+std::string Utility::getFormatedTime()
 {
 	auto now = std::chrono::system_clock::now();
 	auto in_time_t = std::chrono::system_clock::to_time_t(now);

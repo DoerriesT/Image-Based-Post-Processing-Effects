@@ -2,7 +2,8 @@
 #include <chrono>
 #include <iostream>
 #include <sstream>
-#include "..\Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
+#include "Utilities\Utility.h"
 
 typedef std::lock_guard<std::recursive_mutex> lock;
 
@@ -70,7 +71,7 @@ NetLoadManager::AbstractLoad* NetLoadManager::nextLoad()
 void NetLoadManager::removeLoad(AbstractLoad *load)
 {
 	lock lock(mutex);
-	remove(loads, load);
+	ContainerUtility::remove(loads, load);
 }
 
 void NetLoadManager::updateThread()
@@ -289,7 +290,7 @@ void NetLoadManager::runUpload(UpLoad *load)
 	load->setStarted(true);
 
 	auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-	std::string boundary = "--"+std::string(to_hex(millis))+"--";
+	std::string boundary = "--"+std::string(Utility::to_hex(millis))+"--";
 
 	try
 	{
@@ -303,11 +304,11 @@ void NetLoadManager::runUpload(UpLoad *load)
 				const std::string &filePath = p.second;
 
 				bodyStream << "--" << boundary << CRLF;
-				bodyStream << "Content-Disposition: form-data; name=\""<<fileName<<"\"; filename=\"" + Util::getPathLastPart(filePath) + "\"" << CRLF;
+				bodyStream << "Content-Disposition: form-data; name=\""<<fileName<<"\"; filename=\"" + Utility::getPathLastPart(filePath) + "\"" << CRLF;
 				bodyStream << "Content-Type: text/plain; charset=" + charset << CRLF;
 				bodyStream << CRLF;
 
-				std::vector<char> fileContent = readBinaryFile(filePath.c_str());
+				std::vector<char> fileContent = Utility::readBinaryFile(filePath.c_str());
 				bodyStream.write(fileContent.data(), fileContent.size());
 				bodyStream << CRLF;
 			}

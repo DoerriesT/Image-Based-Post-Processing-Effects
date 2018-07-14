@@ -1,9 +1,11 @@
 #include <iostream>
 #include "Mesh.h"
-#include ".\..\Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
+#include "Utilities\Utility.h"
+#include "OpenGL\GLUtility.h"
 #include <functional>
-#include ".\..\Engine.h"
-#include ".\..\JobManager.h"
+#include "Engine.h"
+#include "JobManager.h"
 
 const std::uint32_t MAGIC_NUMBER = 0xFFABCDFF;
 
@@ -11,7 +13,7 @@ std::map<std::string, std::weak_ptr<Mesh>> Mesh::meshMap;
 
 std::shared_ptr<Mesh> Mesh::createMesh(const std::string &_filepath, std::size_t _reserveCount, bool _instantLoading)
 {
-	if (contains(meshMap, _filepath))
+	if (ContainerUtility::contains(meshMap, _filepath))
 	{
 		return std::shared_ptr<Mesh>(meshMap[_filepath]);
 	}
@@ -29,7 +31,7 @@ Mesh::~Mesh()
 	{
 		dataJob->kill();
 	}
-	remove(meshMap, filepath);
+	ContainerUtility::remove(meshMap, filepath);
 }
 
 std::shared_ptr<SubMesh> Mesh::getSubMesh(std::size_t _index) const
@@ -68,7 +70,7 @@ Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instan
 
 	auto dataPreparation = [=](JobManager::SharedJob job)
 	{
-		std::vector<char> data = readBinaryFile(_filepath);
+		std::vector<char> data = Utility::readBinaryFile(_filepath);
 		assert(data.size());
 		void *userData = new std::vector<char>(std::move(data));
 		job->setUserData(userData);
@@ -290,13 +292,13 @@ void SubMesh::enableVertexAttribArraysPositionOnly() const
 void SubMesh::render() const
 {
 #ifdef _DEBUG
-	glErrorCheck("BEFORE");
+	GLUtility::glErrorCheck("BEFORE");
 #endif // DEBUG	
 	assert(indexCount);
 	glDrawElements(GL_TRIANGLES, (GLsizei)indexCount, GL_UNSIGNED_INT, NULL);
 
 #ifdef _DEBUG
-	glErrorCheck("AFTER");
+	GLUtility::glErrorCheck("AFTER");
 #endif // DEBUG	
 }
 

@@ -68,7 +68,7 @@ bool GuiRow::getElementById(const char *id, T *& resultElement)
 {
 	if (std::is_same<T, GuiRow>::value)
 	{
-		if (Util::equals(this->id, id))
+		if (Utility::equals(this->id, id))
 		{
 			resultElement = (T*)this;
 			return true;

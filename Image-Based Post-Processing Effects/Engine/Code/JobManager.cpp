@@ -1,7 +1,8 @@
 #include "JobManager.h"
-#include "Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
 #include "IGameLogic.h"
 #include "Engine.h"
+#include <cassert>
 
 typedef std::unique_lock<std::recursive_mutex> unique_lock;
 typedef std::unique_lock<std::recursive_mutex> lock_guard;
@@ -116,7 +117,7 @@ void JobManager::removeJob(SharedJob job)
 	}
 
 	lock_guard lock(mutex);
-	remove(jobs, job);
+	ContainerUtility::remove(jobs, job);
 }
 
 void JobManager::startThread()
@@ -201,7 +202,7 @@ void JobManager::notifyListenersWithFinished(SharedJob job)
 void JobManager::addListener(IJobManagerJobListener *listener)
 {
 	lock_guard lock(mutex);
-	if (!contains(listeners, listener))
+	if (!ContainerUtility::contains(listeners, listener))
 	{
 		listeners.push_back(listener);
 	}
@@ -210,7 +211,7 @@ void JobManager::addListener(IJobManagerJobListener *listener)
 void JobManager::removeListener(IJobManagerJobListener *listener)
 {
 	lock_guard lock(mutex);
-	remove(listeners, listener);
+	ContainerUtility::remove(listeners, listener);
 }
 
 void JobManager::check()

@@ -166,7 +166,7 @@ void save2DTextureToFile(GLuint _texture, unsigned int _width, unsigned int _hei
 
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
 
-	std::string filename = "screenshot-" + Util::getFormatedTime() + ".png";
+	std::string filename = "screenshot-" + Utility::getFormatedTime() + ".png";
 	stbi_flip_vertically_on_write(true);
 	stbi_write_png(filename.c_str(), _width, _height, 4, textureData, 0);
 

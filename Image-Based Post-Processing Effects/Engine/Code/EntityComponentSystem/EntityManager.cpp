@@ -70,8 +70,8 @@ void EntityManager::removeComponentFamily(const Entity *_entity, std::uint64_t _
 
 		// delete pointer and remove component from maps
 		delete component;
-		remove(entityIdToComponentMap[id], typeId);
-		remove(entityIdToFamilyMap[id], _familyId);
+		ContainerUtility::remove(entityIdToComponentMap[id], typeId);
+		ContainerUtility::remove(entityIdToFamilyMap[id], _familyId);
 	}
 }
 
@@ -144,25 +144,25 @@ void EntityManager::addOnComponentRemovedListener(IOnComponentRemovedListener *_
 void EntityManager::removeOnEntityCreatedListener(IOnEntityCreatedListener *_listener)
 {
 	assert(_listener);
-	remove(onEntityCreatedListeners, _listener);
+	ContainerUtility::remove(onEntityCreatedListeners, _listener);
 }
 
 void EntityManager::removeOnEntityDestructionListener(IOnEntityDestructionListener *_listener)
 {
 	assert(_listener);
-	remove(onEntityDestructionListeners, _listener);
+	ContainerUtility::remove(onEntityDestructionListeners, _listener);
 }
 
 void EntityManager::removeOnComponentAddedListener(IOnComponentAddedListener *_listener)
 {
 	assert(_listener);
-	remove(onComponentAddedListeners, _listener);
+	ContainerUtility::remove(onComponentAddedListeners, _listener);
 }
 
 void EntityManager::removeOnComponentRemovedListener(IOnComponentRemovedListener *_listener)
 {
 	assert(_listener);
-	remove(onComponentRemovedListeners, _listener);
+	ContainerUtility::remove(onComponentRemovedListeners, _listener);
 }
 
 bool EntityManager::validateEntity(const Entity *_entity)
@@ -173,10 +173,10 @@ bool EntityManager::validateEntity(const Entity *_entity)
 	const Entity::Version &version = _entity->version;
 
 	//check if given id is still a valid id and present in all maps
-	return contains(entityIdVersionMap, id) &&
+	return ContainerUtility::contains(entityIdVersionMap, id) &&
 		entityIdVersionMap[id] == version &&
-		contains(entityIdToComponentBitFieldMap, id) &&
-		contains(entityIdToFamilyBitFieldMap, id) &&
-		contains(entityIdToComponentMap, id) &&
-		contains(entityIdToFamilyMap, id);
+		ContainerUtility::contains(entityIdToComponentBitFieldMap, id) &&
+		ContainerUtility::contains(entityIdToFamilyBitFieldMap, id) &&
+		ContainerUtility::contains(entityIdToComponentMap, id) &&
+		ContainerUtility::contains(entityIdToFamilyMap, id);
 }

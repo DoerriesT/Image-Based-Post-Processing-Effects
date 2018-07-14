@@ -9,7 +9,7 @@
 #include <memory>
 #include <limits.h>
 #include "SceneRenderer.h"
-#include "Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
 #include "Engine.h"
 #include "EntityComponentSystem\EntityManager.h"
 #include "ShaderProgram.h"
@@ -552,7 +552,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		}
 
 		// skip this mesh if its transparent
-		if (entityRenderData->transparencyComponent && contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
+		if (entityRenderData->transparencyComponent && ContainerUtility::contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
 		{
 			continue;
 		}
@@ -571,7 +571,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		int columns = 1;
 		glm::vec2 textureOffset;
 		TextureAtlasIndexComponent *textureAtlasComponent = entityRenderData->textureAtlasIndexComponent;
-		if (textureAtlasComponent && contains(textureAtlasComponent->meshToIndexMap, currentMesh))
+		if (textureAtlasComponent && ContainerUtility::contains(textureAtlasComponent->meshToIndexMap, currentMesh))
 		{
 			rows = textureAtlasComponent->rows;
 			columns = textureAtlasComponent->columns;
@@ -863,7 +863,7 @@ void SceneRenderer::renderTransparentGeometry(const RenderData &_renderData, con
 		}
 
 		// skip this mesh if its not transparent
-		if (entityRenderData->transparencyComponent && !contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
+		if (entityRenderData->transparencyComponent && !ContainerUtility::contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
 		{
 			continue;
 		}
@@ -892,7 +892,7 @@ void SceneRenderer::renderTransparentGeometry(const RenderData &_renderData, con
 		int columns = 1;
 		glm::vec2 textureOffset;
 		TextureAtlasIndexComponent *textureAtlasComponent = entityRenderData->textureAtlasIndexComponent;
-		if (textureAtlasComponent && contains(textureAtlasComponent->meshToIndexMap, currentMesh))
+		if (textureAtlasComponent && ContainerUtility::contains(textureAtlasComponent->meshToIndexMap, currentMesh))
 		{
 			rows = textureAtlasComponent->rows;
 			columns = textureAtlasComponent->columns;

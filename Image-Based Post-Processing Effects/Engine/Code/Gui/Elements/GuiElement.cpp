@@ -1,7 +1,7 @@
 #include "GuiElement.h"
 #include "..\GuiUtility.h"
 #include "..\Gui.h"
-#include "..\..\Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
 #include <algorithm>
 
 using GuiUtil::copy;
@@ -244,7 +244,7 @@ void GuiGroup::addRow(GuiRow *row)
 	if (!row)
 		return;
 
-	if (!contains(rows, row))
+	if (!ContainerUtility::contains(rows, row))
 	{
 		assert(this->row->getWindow()->getParentLayout()->isUnique(row));
 		rows.push_back(row);
@@ -252,7 +252,7 @@ void GuiGroup::addRow(GuiRow *row)
 }
 void GuiGroup::removeRow(GuiRow *row)
 {
-	remove(rows, row);
+	ContainerUtility::remove(rows, row);
 }
 
 void GuiGroup::setBordered(bool bordered)
@@ -476,7 +476,7 @@ void GuiMultilineLabel::elementLayout(nk_context *ctx)
 
 void GuiMultilineLabel::setText(const std::string &text)
 {
-	lines = Util::split(text, "\n");
+	lines = Utility::split(text, "\n");
 }
 
 GuiToggle::GuiToggle(GuiRow *row, const std::string &id, const std::string &text, const std::string &group, GuiToggleType type, bool checked)

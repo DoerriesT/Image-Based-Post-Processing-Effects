@@ -1,5 +1,5 @@
 #include "PostProcessRenderer.h"
-#include "Utilities\Utility.h"
+#include "GLUtility.h"
 #include "Engine.h"
 #include <iostream>
 #include "ShaderProgram.h"
@@ -633,9 +633,7 @@ void PostProcessRenderer::calculateCoc(GLuint _depthTexture)
 	glBindTexture(GL_TEXTURE_2D, _depthTexture);
 
 	glBindImageTexture(0, fullResolutionCocTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
-	glDispatchCompute(width / 8, height / 8, 1);
-	assert(width % 8 == 0);
-	assert(height % 8 == 0);
+	GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
@@ -733,9 +731,7 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 		glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
 
 		glBindImageTexture(0, halfResolutionCocTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
-		glDispatchCompute(halfWidth / 8, halfHeight / 8, 1);
-		assert(halfWidth % 8 == 0);
-		assert(halfHeight % 8 == 0);
+		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 		glBindTexture(GL_TEXTURE_2D, halfResolutionCocTexA);
@@ -743,9 +739,7 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 		uDirectionCOCB.set(true);
 
 		glBindImageTexture(0, halfResolutionCocTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
-		glDispatchCompute(halfWidth / 8, halfHeight / 8, 1);
-		assert(halfWidth % 8 == 0);
-		assert(halfHeight % 8 == 0);
+		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 
@@ -810,9 +804,7 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 
 		glBindImageTexture(0, halfResolutionDofTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 		glBindImageTexture(1, halfResolutionDofTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glDispatchCompute(halfWidth / 8, halfHeight / 8, 1);
-		assert(halfWidth % 8 == 0);
-		assert(halfHeight % 8 == 0);
+		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 
@@ -831,9 +823,7 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 
 		glBindImageTexture(0, halfResolutionDofTexC, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 		glBindImageTexture(1, halfResolutionDofTexD, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glDispatchCompute(halfWidth / 8, halfHeight / 8, 1);
-		assert(halfWidth % 8 == 0);
-		assert(halfHeight % 8 == 0);
+		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 	}
@@ -843,9 +833,7 @@ void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depth
 		dofCompositeShader->bind();
 
 		glBindImageTexture(0, fullResolutionHdrTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glDispatchCompute(width / 8, height / 8, 1);
-		assert(width % 8 == 0);
-		assert(height % 8 == 0);
+		GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 }
@@ -930,9 +918,7 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 
 		glBindImageTexture(0, fullResolutionDofTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 		glBindImageTexture(1, fullResolutionDofTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glDispatchCompute(width / 8, height / 8, 1);
-		assert(width % 8 == 0);
-		assert(height % 8 == 0);
+		GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 
@@ -951,9 +937,7 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 
 		glBindImageTexture(0, fullResolutionDofTexC, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 		glBindImageTexture(1, fullResolutionDofTexD, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glDispatchCompute(width / 8, height / 8, 1);
-		assert(width % 8 == 0);
-		assert(height % 8 == 0);
+		GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 	}
@@ -963,9 +947,7 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 		dofSeperateCompositeShader->bind();
 
 		glBindImageTexture(0, fullResolutionHdrTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glDispatchCompute(width / 8, height / 8, 1);
-		assert(width % 8 == 0);
-		assert(height % 8 == 0);
+		GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 }
@@ -1043,9 +1025,7 @@ void PostProcessRenderer::tileBasedCombinedFieldDepthOfField(GLuint _colorTextur
 		}
 
 		glBindImageTexture(0, fullResolutionHdrTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glDispatchCompute(width / 8, height / 8, 1);
-		assert(width % 8 == 0);
-		assert(height % 8 == 0);
+		GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 }
@@ -1093,9 +1073,7 @@ void PostProcessRenderer::spriteBasedDepthOfField(GLuint _colorTexture, GLuint _
 	dofSpriteComposeShader->bind();
 
 	glBindImageTexture(0, fullResolutionHdrTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-	glDispatchCompute(width / 8, height / 8, 1);
-	assert(width % 8 == 0);
-	assert(height % 8 == 0);
+	GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
@@ -1296,7 +1274,7 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-		glErrorCheck("");
+		GLUtility::glErrorCheck("");
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
@@ -1328,7 +1306,7 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, resolution4HdrTexB, 0);
 
-		glErrorCheck("");
+		GLUtility::glErrorCheck("");
 	}
 
 	// 1/8 res

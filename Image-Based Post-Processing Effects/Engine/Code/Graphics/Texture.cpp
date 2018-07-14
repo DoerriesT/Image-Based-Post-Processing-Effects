@@ -3,9 +3,10 @@
 #include <iostream>
 #include <cassert>
 #include <functional>
-#include ".\..\Utilities\Utility.h"
-#include ".\..\Engine.h"
-#include ".\..\JobManager.h"
+#include "Utilities\ContainerUtility.h"
+#include "Utilities\Utility.h"
+#include "Engine.h"
+#include "JobManager.h"
 #include <stb_image.h>
 #include <gli\texture.hpp>
 #include <gli\load.hpp>
@@ -27,7 +28,7 @@ float Texture::anisotropicFiltering = 1.0f;
 std::shared_ptr<Texture> Texture::createTexture(GLuint _id, GLenum _target)
 {
 	std::string idStr = std::to_string(_id);
-	if (contains(textureMap, idStr))
+	if (ContainerUtility::contains(textureMap, idStr))
 	{
 		return std::shared_ptr<Texture>(textureMap[idStr]);
 	}
@@ -41,7 +42,7 @@ std::shared_ptr<Texture> Texture::createTexture(GLuint _id, GLenum _target)
 
 std::shared_ptr<Texture> Texture::createTexture(const std::string &_filename, bool _instantLoading)
 {
-	if (contains(textureMap, _filename))
+	if (ContainerUtility::contains(textureMap, _filename))
 	{
 		return std::shared_ptr<Texture>(textureMap[_filename]);
 	}
@@ -63,7 +64,7 @@ Texture::Texture(const std::string &_filename, bool _instantLoading)
 {
 	JobManager::Work dataPreparation = [=](JobManager::SharedJob job)
 	{
-		bool isPNG = Util::getPathFileExtension(_filename) == "png";
+		bool isPNG = Utility::getPathFileExtension(_filename) == "png";
 
 		PackedJobTexture *pack = new PackedJobTexture();
 		if (isPNG)
@@ -131,7 +132,7 @@ Texture::~Texture()
 	{
 		dataJob->kill();
 	}
-	remove(textureMap, filepath);
+	ContainerUtility::remove(textureMap, filepath);
 	if (valid)
 	{
 		glDeleteTextures(1, &id);

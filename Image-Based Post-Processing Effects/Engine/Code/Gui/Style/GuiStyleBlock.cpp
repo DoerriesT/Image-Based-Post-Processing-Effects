@@ -1,5 +1,5 @@
 #include "GuiStyleBlock.h"
-#include "..\..\Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
 
 GuiStyleBlock::GuiStyleBlock()
 {
@@ -29,6 +29,6 @@ void GuiStyleBlock::revert(nk_style &style) const
 
 void GuiStyleBlock::addProperty(GuiStyleProperty *p)
 {
-	remove(properties, p);
+	ContainerUtility::remove(properties, p);
 	properties.push_back(p);
 }

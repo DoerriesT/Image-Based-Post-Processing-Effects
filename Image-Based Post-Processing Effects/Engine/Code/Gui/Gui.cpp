@@ -10,6 +10,7 @@
 #include "EntityComponentSystem\Systems\RenderSystem.h"
 #include "EntityComponentSystem\SystemManager.h"
 #include "Window\Window.h"
+#include "Utilities\ContainerUtility.h"
 
 const float Gui::fontSizes[] = { 10, 18, 25, 32, 50 };
 const float Gui::rowHeights[] = { 12, 22, 30, 38, 60 };
@@ -308,7 +309,7 @@ void Gui::notificationSound()
 
 void Gui::addDimensionListener(IDimensionable *listener)
 {
-	if (!contains(dimensionListeners, listener))
+	if (!ContainerUtility::contains(dimensionListeners, listener))
 	{
 		dimensionListeners.push_back(listener);
 	}
@@ -316,7 +317,7 @@ void Gui::addDimensionListener(IDimensionable *listener)
 
 void Gui::removeDimensionListener(IDimensionable *listener)
 {
-	remove(dimensionListeners, listener);
+	ContainerUtility::remove(dimensionListeners, listener);
 }
 
 void Gui::notifyDimensionListeners()

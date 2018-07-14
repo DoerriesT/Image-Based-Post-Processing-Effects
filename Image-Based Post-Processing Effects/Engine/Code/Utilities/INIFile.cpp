@@ -58,7 +58,7 @@ void INIFile::parse(const char *_parseText)
 	{
 		if (memoryPos >= memorySize)
 		{
-			memorySize = Util::grow(parseMemory, memorySize);
+			memorySize = Utility::grow(parseMemory, memorySize);
 		}
 
 
@@ -159,7 +159,7 @@ INIFile::INIFile(const std::string &_filename)
 
 void INIFile::load()
 {
-	parse(readTextFile(filename).data());
+	parse(Utility::readTextFile(filename).data());
 
 #ifdef _DEBUG
 	printf("-- INIFile loaded Data: --\n");

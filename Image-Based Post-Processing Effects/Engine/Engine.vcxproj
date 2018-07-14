@@ -46,6 +46,7 @@
     <ClInclude Include="Code\Graphics\Model.h" />
     <ClInclude Include="Code\Graphics\OpenGL\Buffer.h" />
     <ClInclude Include="Code\Graphics\OpenGL\EnvironmentRenderer.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\GLUtility.h" />
     <ClInclude Include="Code\Graphics\OpenGL\GraphicsFramework.h" />
     <ClInclude Include="Code\Graphics\OpenGL\MediumDescription.h" />
     <ClInclude Include="Code\Graphics\OpenGL\Ocean.h" />
@@ -100,14 +101,17 @@
     <ClInclude Include="Code\Network\ByteBuffer.h" />
     <ClInclude Include="Code\JobManager.h" />
     <ClInclude Include="Code\Settings.h" />
+    <ClInclude Include="Code\Sound\OpenAL\ALUtility.h" />
     <ClInclude Include="Code\Sound\OpenAL\SoundBuffer.h" />
     <ClInclude Include="Code\Sound\OpenAL\SoundFramework.h" />
     <ClInclude Include="Code\Sound\OpenAL\SoundListener.h" />
     <ClInclude Include="Code\Sound\OpenAL\SoundSource.h" />
     <ClInclude Include="Code\Sound\OpenAL\stb_vorbis.h" />
+    <ClInclude Include="Code\Utilities\ContainerUtility.h" />
     <ClInclude Include="Code\Utilities\Intersection.h" />
     <ClInclude Include="Code\Utilities\INIFile.h" />
     <ClInclude Include="Code\Utilities\JSONUtility.h" />
+    <ClInclude Include="Code\Utilities\MathUtility.h" />
     <ClInclude Include="Code\Utilities\md5.h" />
     <ClInclude Include="Code\Utilities\Utility.h" />
     <ClInclude Include="Code\Window\GLFW\IInputListener.h" />
@@ -140,6 +144,7 @@
     <ClCompile Include="Code\Graphics\OpenGL\Buffer.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\EnvironmentRenderer.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\glad.c" />
+    <ClCompile Include="Code\Graphics\OpenGL\GLUtility.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\GraphicsFramework.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\Ocean.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\PostProcessRenderer.cpp" />
@@ -175,6 +180,7 @@
     <ClCompile Include="Code\Network\ByteBuffer.cpp" />
     <ClCompile Include="Code\JobManager.cpp" />
     <ClCompile Include="Code\Settings.cpp" />
+    <ClCompile Include="Code\Sound\OpenAL\ALUtility.cpp" />
     <ClCompile Include="Code\Sound\OpenAL\SoundBuffer.cpp" />
     <ClCompile Include="Code\Sound\OpenAL\SoundFramework.cpp" />
     <ClCompile Include="Code\Sound\OpenAL\SoundListener.cpp" />
@@ -183,6 +189,7 @@
     <ClCompile Include="Code\Utilities\Intersection.cpp" />
     <ClCompile Include="Code\Utilities\INIFile.cpp" />
     <ClCompile Include="Code\Utilities\JSONUtility.cpp" />
+    <ClCompile Include="Code\Utilities\MathUtility.cpp" />
     <ClCompile Include="Code\Utilities\md5.cpp" />
     <ClCompile Include="Code\Utilities\Utility.cpp" />
     <ClCompile Include="Code\Window\GLFW\WindowFramework.cpp" />

@@ -89,7 +89,7 @@ bool GuiWindow::getElementById(const char *id, T *&resultElement)
 {
 	if (std::is_same<T, GuiWindow>::value)
 	{
-		if (Util::equals(this->id, id))
+		if (Utility::equals(this->id, id))
 		{
 			resultElement = (T*)this;
 			return true;

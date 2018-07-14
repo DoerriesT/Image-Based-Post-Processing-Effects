@@ -1,5 +1,5 @@
 #include "ShadowRenderer.h"
-#include "Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
 #include <glm\mat4x4.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\ext.hpp>
@@ -150,7 +150,7 @@ void ShadowRenderer::render(const glm::mat4 *_viewProjectionMatrix, unsigned int
 
 
 		// skip this mesh if its transparent
-		if (entityRenderData->transparencyComponent && contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
+		if (entityRenderData->transparencyComponent && ContainerUtility::contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
 		{
 			continue;
 		}
@@ -303,7 +303,7 @@ AxisAlignedBoundingBox ShadowRenderer::calculateSceneAABB(const Scene &_scene)
 		std::shared_ptr<SubMesh> &currentMesh = entityRenderData->mesh;
 
 		// skip this mesh if its transparent
-		if (entityRenderData->transparencyComponent && contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
+		if (entityRenderData->transparencyComponent && ContainerUtility::contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
 		{
 			continue;
 		}

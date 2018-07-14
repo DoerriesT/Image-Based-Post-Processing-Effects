@@ -2,7 +2,7 @@
 #include <cassert>
 #include "GuiJSONParser.h"
 #include "Gui.h"
-#include "Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
 #include "EntityComponentSystem\SystemManager.h"
 #include "EntityComponentSystem\Systems\RenderSystem.h"
 #include "Window\Window.h"
@@ -82,7 +82,7 @@ void GuiLayout::addWindow(GuiWindow *window)
 		return;
 
 	clearInput();
-	if (!contains(windows, window))
+	if (!ContainerUtility::contains(windows, window))
 	{
 		assert(isUnique(window));
 		windows.push_back(window);
@@ -91,7 +91,7 @@ void GuiLayout::addWindow(GuiWindow *window)
 
 void GuiLayout::removeWindow(GuiWindow *window)
 {
-	remove(windows, window);
+	ContainerUtility::remove(windows, window);
 }
 
 
@@ -176,7 +176,7 @@ void GuiLayout::addToggle(GuiToggle *toggle)
 
 void GuiLayout::removeToggle(GuiToggle *toggle)
 {
-	remove(toggleMap[toggle->group], toggle);
+	ContainerUtility::remove(toggleMap[toggle->group], toggle);
 }
 
 void GuiLayout::clearToggleGroup(const std::string &group)
@@ -347,7 +347,7 @@ void GuiLayout::clearInput()
 
 void GuiLayout::add3DWindow(GuiWindow *window)
 {
-	if (!contains(windows3D, window))
+	if (!ContainerUtility::contains(windows3D, window))
 	{
 		windows3D.push_back(window);
 	}
@@ -356,7 +356,7 @@ void GuiLayout::add3DWindow(GuiWindow *window)
 
 void GuiLayout::remove3DWindow(GuiWindow *window)
 {
-	remove(windows3D, window);
+	ContainerUtility::remove(windows3D, window);
 	window->updateDimensions();
 }
 

@@ -2,6 +2,7 @@
 #include <algorithm>
 #include ".\..\..\Utilities\Utility.h"
 #include ".\..\EntityManager.h"
+#include <glm\gtx\spline.hpp>
 
 MovementPathSystem::MovementPathSystem()
 	:entityManager(EntityManager::getInstance())
@@ -24,7 +25,7 @@ void MovementPathSystem::update(double _currentTime, double _timeDelta)
 {
 	for (const Entity *entity : entitiesToRemove)
 	{
-		remove(managedEntities, entity);
+		ContainerUtility::remove(managedEntities, entity);
 	}
 	entitiesToRemove.clear();
 
@@ -78,7 +79,7 @@ void MovementPathSystem::update(double _currentTime, double _timeDelta)
 			}
 			else
 			{
-				tc->position = interpolateHermiteCurve(factor, segment->startPosition, segment->endPosition, segment->startTangent, segment->endTangent);
+				tc->position = glm::hermite(segment->startPosition, segment->startTangent, segment->endPosition, segment->endTangent, factor);
 			}
 		}
 	}
@@ -90,9 +91,9 @@ void MovementPathSystem::render()
 
 void MovementPathSystem::onComponentAdded(const Entity *_entity, BaseComponent *_addedComponent)
 {
-	if (validate(entityManager.getComponentBitField(_entity)) && !contains(entitiesToAdd, _entity))
+	if (validate(entityManager.getComponentBitField(_entity)) && !ContainerUtility::contains(entitiesToAdd, _entity))
 	{
-		if (!contains(managedEntities, _entity) || contains(entitiesToRemove, _entity))
+		if (!ContainerUtility::contains(managedEntities, _entity) || ContainerUtility::contains(entitiesToRemove, _entity))
 		{
 			entitiesToAdd.push_back(_entity);
 		}
@@ -101,7 +102,7 @@ void MovementPathSystem::onComponentAdded(const Entity *_entity, BaseComponent *
 
 void MovementPathSystem::onComponentRemoved(const Entity *_entity, BaseComponent *_removedComponent)
 {
-	if (!validate(entityManager.getComponentBitField(_entity)) && contains(managedEntities, _entity))
+	if (!validate(entityManager.getComponentBitField(_entity)) && ContainerUtility::contains(managedEntities, _entity))
 	{
 		entitiesToRemove.push_back(_entity);
 	}
@@ -109,7 +110,7 @@ void MovementPathSystem::onComponentRemoved(const Entity *_entity, BaseComponent
 
 void MovementPathSystem::onDestruction(const Entity *_entity)
 {
-	if (contains(managedEntities, _entity))
+	if (ContainerUtility::contains(managedEntities, _entity))
 	{
 		entitiesToRemove.push_back(_entity);
 	}

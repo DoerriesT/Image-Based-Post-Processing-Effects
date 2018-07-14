@@ -120,7 +120,7 @@ inline bool GuiLayout::isUnique(T *obj)
 	}
 
 	const char *id = obj->getId();
-	if (!Util::empty(id) && getElementById<T>(id))
+	if (!Utility::empty(id) && getElementById<T>(id))
 	{
 		printf("ERROR: The ID \"%s\" is already used for the same type in this layout (\"%s\")\n", id, this->id);
 		return false;

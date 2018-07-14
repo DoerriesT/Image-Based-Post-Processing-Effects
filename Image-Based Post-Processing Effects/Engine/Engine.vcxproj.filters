@@ -389,6 +389,18 @@
     <ClInclude Include="Code\Window\GLFW\WindowFramework.h">
       <Filter>Code\Window\GLFW</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\GLUtility.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Sound\OpenAL\ALUtility.h">
+      <Filter>Code\Sound\OpenAL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Utilities\ContainerUtility.h">
+      <Filter>Code\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Utilities\MathUtility.h">
+      <Filter>Code\Utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -603,6 +615,15 @@
     </ClCompile>
     <ClCompile Include="Code\Window\GLFW\WindowFramework.cpp">
       <Filter>Code\Window\GLFW</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\GLUtility.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Sound\OpenAL\ALUtility.cpp">
+      <Filter>Code\Sound\OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Utilities\MathUtility.cpp">
+      <Filter>Code\Utilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

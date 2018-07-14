@@ -1,5 +1,6 @@
 #include "GuiRow.h"
 #include "..\Gui.h"
+#include "Utilities\ContainerUtility.h"
 
 GuiRow::GuiRow(GuiWindow *window, const std::string &id, const std::string &height)
 	: IIdentifiable(id), window(window), hasLayoutCode(false), hidden(false)
@@ -22,7 +23,7 @@ void GuiRow::addElement(GuiElement *element)
 	if (!element)
 		return;
 
-	if (!contains(elements, element))
+	if (!ContainerUtility::contains(elements, element))
 	{
 		elements.push_back(element);
 	}
@@ -31,7 +32,7 @@ void GuiRow::addElement(GuiElement *element)
 
 void GuiRow::removeElement(GuiElement *element)
 {
-	remove(elements, element);
+	ContainerUtility::remove(elements, element);
 	updateColumnCount();
 }
 

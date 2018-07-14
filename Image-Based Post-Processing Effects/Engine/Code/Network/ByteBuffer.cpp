@@ -96,7 +96,7 @@ void ByteBuffer::discard()
 
 void ByteBuffer::grow()
 {
-	capacity_ = Util::grow(data, capacity_);
+	capacity_ = Utility::grow(data, capacity_);
 }
 
 std::ostream& operator<<(std::ostream &os, const ByteBuffer &buffer)

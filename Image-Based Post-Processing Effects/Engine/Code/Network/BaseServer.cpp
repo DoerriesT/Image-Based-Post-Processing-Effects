@@ -3,7 +3,7 @@
 #include "DebugMacro.h"
 #include <functional>
 #include "Connection.h"
-#include "..\Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
 #include "Connection.h"
 
 using asio::ip::tcp;
@@ -29,7 +29,7 @@ void BaseServer::networkMessage(Connection *connection, ByteBuffer &buffer)
 
 void BaseServer::networkDisconnect(Connection *connection)
 {
-	remove(connections, connection);
+	ContainerUtility::remove(connections, connection);
 	clientDisconnected(connection);
 
 	delete connection;

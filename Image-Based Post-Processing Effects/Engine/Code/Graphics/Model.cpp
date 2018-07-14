@@ -2,7 +2,8 @@
 #include <cassert>
 #include <fstream>
 #include "Mesh.h"
-#include ".\..\Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
+#include "Utilities\Utility.h"
 #include <glm\vec4.hpp>
 #include <glm\vec3.hpp>
 #include "Texture.h"
@@ -59,7 +60,7 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 		// albedo
 		std::getline(matFile, str);
 		assert(!str.empty());
-		std::vector<std::string> albedoValues = Util::split(str.substr(ALBEDO_STRING.size()), "/");
+		std::vector<std::string> albedoValues = Utility::split(str.substr(ALBEDO_STRING.size()), "/");
 		assert(albedoValues.size() == 4);
 		glm::vec4 albedo = glm::vec4(std::stof(albedoValues[0]), std::stof(albedoValues[1]), std::stof(albedoValues[2]), std::stof(albedoValues[3]));
 		material.setAlbedo(albedo);
@@ -79,7 +80,7 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 		// emissive
 		std::getline(matFile, str);
 		assert(!str.empty());
-		std::vector<std::string> emissiveValues = Util::split(str.substr(EMISSIVE_STRING.size()), "/");
+		std::vector<std::string> emissiveValues = Utility::split(str.substr(EMISSIVE_STRING.size()), "/");
 		assert(emissiveValues.size() == 3);
 		glm::vec3 emissive = glm::vec3(std::stof(emissiveValues[0]), std::stof(emissiveValues[1]), std::stof(emissiveValues[2]));
 		material.setEmissive(emissive);
@@ -88,7 +89,7 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 		std::getline(matFile, str);
 		assert(!str.empty());
 		std::string albedoPath = str.substr(ALBEDO_PATH_STRING.size());
-		Util::trim(albedoPath);
+		Utility::trim(albedoPath);
 		if (!albedoPath.empty())
 		{
 			material.setAlbedoMap(Texture::createTexture(albedoPath, _instantLoading));
@@ -98,7 +99,7 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 		std::getline(matFile, str);
 		assert(!str.empty());
 		std::string normalPath = str.substr(NORMAL_PATH_STRING.size());
-		Util::trim(normalPath);
+		Utility::trim(normalPath);
 		if (!normalPath.empty())
 		{
 			material.setNormalMap(Texture::createTexture(normalPath, _instantLoading));
@@ -108,7 +109,7 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 		std::getline(matFile, str);
 		assert(!str.empty());
 		std::string metallicPath = str.substr(METALLIC_PATH_STRING.size());
-		Util::trim(metallicPath);
+		Utility::trim(metallicPath);
 		if (!metallicPath.empty())
 		{
 			material.setMetallicMap(Texture::createTexture(metallicPath, _instantLoading));
@@ -118,7 +119,7 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 		std::getline(matFile, str);
 		assert(!str.empty());
 		std::string roughnessPath = str.substr(ROUGHNESS_PATH_STRING.size());
-		Util::trim(roughnessPath);
+		Utility::trim(roughnessPath);
 		if (!roughnessPath.empty())
 		{
 			material.setRoughnessMap(Texture::createTexture(roughnessPath, _instantLoading));
@@ -128,7 +129,7 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 		std::getline(matFile, str);
 		assert(!str.empty());
 		std::string aoPath = str.substr(AO_PATH_STRING.size());
-		Util::trim(aoPath);
+		Utility::trim(aoPath);
 		if (!aoPath.empty())
 		{
 			material.setAoMap(Texture::createTexture(aoPath, _instantLoading));
@@ -138,7 +139,7 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 		std::getline(matFile, str);
 		assert(!str.empty());
 		std::string emissivePath = str.substr(EMISSIVE_PATH_STRING.size());
-		Util::trim(emissivePath);
+		Utility::trim(emissivePath);
 		if (!emissivePath.empty())
 		{
 			material.setEmissiveMap(Texture::createTexture(emissivePath, _instantLoading));
@@ -160,7 +161,7 @@ std::pair<std::shared_ptr<SubMesh>, Material> &Model::operator[](std::size_t _in
 
 std::pair<std::shared_ptr<SubMesh>, Material> &Model::operator[](const std::string &_name)
 {
-	assert(contains(nameToIndexMap, _name));
+	assert(ContainerUtility::contains(nameToIndexMap, _name));
 	assert(nameToIndexMap[_name] < submeshMaterialPairs.size());
 	return submeshMaterialPairs[nameToIndexMap[_name]];
 }

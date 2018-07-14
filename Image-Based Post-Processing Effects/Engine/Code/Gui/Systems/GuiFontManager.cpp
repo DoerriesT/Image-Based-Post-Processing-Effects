@@ -21,7 +21,7 @@ void GuiFontManager::init(GuiRenderer *renderer)
 {
 	renderer->fontStashBegin(atlas);
 
-	std::vector<char> buffer = readBinaryFile("Resources/Gui/Fonts/FiraSans.ttf");
+	std::vector<char> buffer = Utility::readBinaryFile("Resources/Gui/Fonts/FiraSans.ttf");
 	if (!buffer.empty())
 	{
 		for (uint32_t i = 0; i < GUI_SIZE_COUNT; ++i)

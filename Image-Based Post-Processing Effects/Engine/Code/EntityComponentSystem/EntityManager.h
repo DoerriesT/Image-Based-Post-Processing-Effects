@@ -5,7 +5,7 @@
 #include <vector>
 #include <cassert>
 #include "Component.h"
-#include ".\..\Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
 #include "IOnComponentAddedListener.h"
 #include "IOnComponentRemovedListener.h"
 #include "IOnEntityCreatedListener.h"
@@ -150,8 +150,8 @@ void EntityManager::removeComponent(const Entity *_entity, bool _notify)
 
 		// delete pointer and remove component from maps
 		delete component;
-		remove(entityIdToComponentMap[id], typeId);
-		remove(entityIdToFamilyMap[id], familyId);
+		ContainerUtility::remove(entityIdToComponentMap[id], typeId);
+		ContainerUtility::remove(entityIdToFamilyMap[id], familyId);
 	}
 }
 
@@ -163,12 +163,12 @@ inline ComponentType *EntityManager::getComponent(const Entity *_entity)
 	ComponentType *component = nullptr;
 
 	//assert that there is a bitmap attached to the entity
-	assert(contains(entityIdToComponentBitFieldMap, _entity->id));
+	assert(ContainerUtility::contains(entityIdToComponentBitFieldMap, _entity->id));
 
 	// check if the component is attached to the entity
 	if((entityIdToComponentBitFieldMap[_entity->id] & ComponentType::getTypeId()) == ComponentType::getTypeId())
 	{
-		assert(contains(entityIdToComponentMap[_entity->id], ComponentType::getTypeId()));
+		assert(ContainerUtility::contains(entityIdToComponentMap[_entity->id], ComponentType::getTypeId()));
 		component = static_cast<ComponentType *>(entityIdToComponentMap[_entity->id][ComponentType::getTypeId()]);
 	}
 

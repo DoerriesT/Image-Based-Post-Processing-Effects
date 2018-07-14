@@ -106,7 +106,7 @@ GLuint ShaderProgram::createShader(GLenum _type, const char *_shaderPath)
 {
 	GLuint shader = glCreateShader(_type);
 
-	std::vector<char> data = readTextFile(_shaderPath);
+	std::vector<char> data = Utility::readTextFile(_shaderPath);
 	const char *shaderCode = data.data();
 	glShaderSource(shader, 1, &shaderCode, NULL);
 	glCompileShader(shader);

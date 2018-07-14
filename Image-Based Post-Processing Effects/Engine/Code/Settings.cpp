@@ -1,6 +1,6 @@
 #include <algorithm>
 #include "Settings.h"
-#include "Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
 
 SettingsManager &SettingsManager::getInstance()
 {
@@ -11,7 +11,7 @@ SettingsManager &SettingsManager::getInstance()
 std::shared_ptr<Setting<bool>> SettingsManager::getBoolSetting(const std::string &_section, const std::string &_key, bool _defaultValue)
 {
 	auto pair = std::make_pair(_section, _key);
-	if (contains(boolSettingMap, pair))
+	if (ContainerUtility::contains(boolSettingMap, pair))
 	{
 		return boolSettingMap[pair];
 	}
@@ -27,7 +27,7 @@ std::shared_ptr<Setting<bool>> SettingsManager::getBoolSetting(const std::string
 std::shared_ptr<Setting<int>> SettingsManager::getIntSetting(const std::string &_section, const std::string &_key, int _defaultValue)
 {
 	auto pair = std::make_pair(_section, _key);
-	if (contains(intSettingMap, pair))
+	if (ContainerUtility::contains(intSettingMap, pair))
 	{
 		return intSettingMap[pair];
 	}
@@ -43,7 +43,7 @@ std::shared_ptr<Setting<int>> SettingsManager::getIntSetting(const std::string &
 std::shared_ptr<Setting<double>> SettingsManager::getDoubleSetting(const std::string &_section, const std::string &_key, double _defaultValue)
 {
 	auto pair = std::make_pair(_section, _key);
-	if (contains(doubleSettingMap, pair))
+	if (ContainerUtility::contains(doubleSettingMap, pair))
 	{
 		return doubleSettingMap[pair];
 	}
@@ -59,7 +59,7 @@ std::shared_ptr<Setting<double>> SettingsManager::getDoubleSetting(const std::st
 std::shared_ptr<Setting<std::string>> SettingsManager::getStringSetting(const std::string &_section, const std::string &_key, const std::string &_defaultValue)
 {
 	auto pair = std::make_pair(_section, _key);
-	if (contains(stringSettingMap, pair))
+	if (ContainerUtility::contains(stringSettingMap, pair))
 	{
 		return stringSettingMap[pair];
 	}

@@ -64,7 +64,7 @@ nk_color parseColor(const char *value)
 
 nk_style_item parseStyleItem(const char *value)
 {
-	if (Util::equalsIgnoreCase(value, "hide"))
+	if (Utility::equalsIgnoreCase(value, "hide"))
 	{
 		return nk_style_item_hide();
 	}

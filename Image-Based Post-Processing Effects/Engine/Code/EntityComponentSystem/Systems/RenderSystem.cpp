@@ -2,7 +2,7 @@
 #include <cassert>
 #include "RenderSystem.h"
 #include ".\..\Component.h"
-#include "Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
 #include "Engine.h"
 #include "Gui\Gui.h"
 #include "Graphics\OpenGL\GraphicsFramework.h"
@@ -219,7 +219,7 @@ void RenderSystem::onComponentAdded(const Entity *_entity, BaseComponent *_added
 {
 	if (validate(entityManager.getComponentBitField(_entity)))
 	{
-		if (contains(managedEntities, _entity))
+		if (ContainerUtility::contains(managedEntities, _entity))
 		{
 			scene.update(_entity);
 		}
@@ -234,7 +234,7 @@ void RenderSystem::onComponentAdded(const Entity *_entity, BaseComponent *_added
 
 void RenderSystem::onComponentRemoved(const Entity *_entity, BaseComponent *_removedComponent)
 {
-	if (contains(managedEntities, _entity))
+	if (ContainerUtility::contains(managedEntities, _entity))
 	{
 		if (validate(entityManager.getComponentBitField(_entity)))
 		{
@@ -243,7 +243,7 @@ void RenderSystem::onComponentRemoved(const Entity *_entity, BaseComponent *_rem
 		}
 		else
 		{
-			remove(managedEntities, _entity);
+			ContainerUtility::remove(managedEntities, _entity);
 			scene.remove(_entity);
 		}
 	}
@@ -251,7 +251,7 @@ void RenderSystem::onComponentRemoved(const Entity *_entity, BaseComponent *_rem
 
 void RenderSystem::onDestruction(const Entity *_entity)
 {
-	if (contains(managedEntities, _entity))
+	if (ContainerUtility::contains(managedEntities, _entity))
 	{
 		scene.remove(_entity);
 	}

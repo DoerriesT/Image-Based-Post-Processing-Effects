@@ -5,13 +5,14 @@
 #include "GuiLayout.h"
 #include "Style\GuiStyleProperty.h"
 #include "nuklearInclude.h"
+#include <algorithm>
 
 using namespace JSON;
 using rapidjson::SizeType;
 
 GuiLayout* GuiJSONParser::parseLayoutJSONFile(const char *filename)
 {
-	GuiLayout *layout = parseLayoutJSON(readTextFile(filename).data());
+	GuiLayout *layout = parseLayoutJSON(Utility::readTextFile(filename).data());
 	return layout;
 }
 
@@ -52,7 +53,7 @@ GuiLayout* GuiJSONParser::parseLayoutJSON(const char *jsonString)
 
 GuiStyleSheet GuiJSONParser::parseStyleJSONFile(const char *filename)
 {
-	GuiStyleSheet styleSheet = parseStyleJSON(readTextFile(filename).data());
+	GuiStyleSheet styleSheet = parseStyleJSON(Utility::readTextFile(filename).data());
 	return styleSheet;
 }
 
@@ -200,8 +201,8 @@ GuiRow* GuiJSONParser::parseRowJSON(GuiWindow *window, const Object &rowJSONObje
 	std::string height = getStringDefault(rowJSONObject, "height", "1*r");
 	std::string id = getStringDefault(rowJSONObject, "id", "");
 	std::string ratioStr = getStringDefault(rowJSONObject, "ratio", "");
-	Util::ltrim(ratioStr);
-	Util::rtrim(ratioStr);
+	Utility::ltrim(ratioStr);
+	Utility::rtrim(ratioStr);
 	std::replace(ratioStr.begin(), ratioStr.end(), ':', ';');
 
 	//create window
@@ -210,7 +211,7 @@ GuiRow* GuiJSONParser::parseRowJSON(GuiWindow *window, const Object &rowJSONObje
 	if (!ratioStr.empty())
 	{
 		
-		row->setRatios(Util::split(ratioStr, ";"));
+		row->setRatios(Utility::split(ratioStr, ";"));
 	}
 
 	row->setStyleClass(getStringDefault(rowJSONObject, "class", ""));
@@ -287,7 +288,7 @@ GuiElement* GuiJSONParser::parseElementJSON(GuiRow *row, const Object &elementJS
 		else if (type == "textfield")
 		{
 			std::string text = getStringDefault(elementJSONObject, "text", "");
-			std::string inputTypeStr = Util::toLowerCase(getStringDefault(elementJSONObject, "input_type", ""));
+			std::string inputTypeStr = Utility::toLowerCase(getStringDefault(elementJSONObject, "input_type", ""));
 			GuiTextFieldType inputType;
 			if (inputTypeStr == "int" || inputTypeStr == "integer" || inputTypeStr == "decimal")
 			{
@@ -309,7 +310,7 @@ GuiElement* GuiJSONParser::parseElementJSON(GuiRow *row, const Object &elementJS
 			GuiComboBox *comboBox = new GuiComboBox(row, id);
 
 			std::string itemsStr = getStringDefault(elementJSONObject, "items", "");
-			std::vector<std::string> items = Util::split(itemsStr, ";");
+			std::vector<std::string> items = Utility::split(itemsStr, ";");
 			comboBox->setItems(items);
 
 			element = comboBox;

@@ -1,12 +1,14 @@
 #include "SoundBuffer.h"
 #include <iostream>
-#include ".\..\..\Utilities\Utility.h"
+#include "Utilities\ContainerUtility.h"
+#include "Utilities\Utility.h"
+#include <cassert>
 
 std::map<std::string, std::weak_ptr<SoundBuffer>> SoundBuffer::soundMap;
 
 std::shared_ptr<SoundBuffer> SoundBuffer::createSoundBuffer(const std::string &_file, bool _instantLoading)
 {
-	if (contains(soundMap, _file))
+	if (ContainerUtility::contains(soundMap, _file))
 	{
 		return std::shared_ptr<SoundBuffer>(soundMap[_file]);
 	}
@@ -24,7 +26,7 @@ SoundBuffer::~SoundBuffer()
 	{
 		dataJob->kill();
 	}
-	remove(soundMap, filepath);
+	ContainerUtility::remove(soundMap, filepath);
 	if (valid)
 	{
 		alDeleteBuffers(1, &bufferId);
@@ -49,7 +51,7 @@ SoundBuffer::SoundBuffer(const std::string &_file, bool _instantLoading)
 	{
 		stb_vorbis_info info;
 
-		std::vector<char> vorbisData = readBinaryFile(_file.c_str());
+		std::vector<char> vorbisData = Utility::readBinaryFile(_file.c_str());
 		int error = 0;
 		stb_vorbis *decoder = stb_vorbis_open_memory((unsigned char *)vorbisData.data(), (int)vorbisData.size(), &error, nullptr);
 		if (!decoder)

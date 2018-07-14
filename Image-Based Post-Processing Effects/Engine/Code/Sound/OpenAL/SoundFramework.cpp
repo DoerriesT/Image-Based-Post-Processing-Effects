@@ -1,7 +1,8 @@
 #include "SoundFramework.h"
 #include <iostream>
-#include ".\..\..\Utilities\Utility.h"
-#include ".\..\..\Graphics\Camera.h"
+#include "Utilities\ContainerUtility.h"
+#include "ALUtility.h"
+#include "Graphics\Camera.h"
 #include "SoundBuffer.h"
 #include "SoundSource.h"
 
@@ -13,7 +14,7 @@ void SoundFramework::addSoundSource(const Entity *_entity, const glm::vec3 *_pos
 {
 	if (soundSourceMap.find(_entity) != soundSourceMap.end())
 	{
-		remove(soundSourceMap, _entity);
+		ContainerUtility::remove(soundSourceMap, _entity);
 	}
 	soundSourceMap.emplace(_entity, SoundSource::createSoundSource(_position, _volume, _soundTypeVolume, _looping, _relative));
 }
@@ -120,7 +121,7 @@ std::vector<const Entity*> SoundFramework::update(const std::shared_ptr<Camera> 
 	}
 
 #ifdef _DEBUG
-	alErrorCheck("SoundFramework::update Error");
+	ALUtility::alErrorCheck("SoundFramework::update Error");
 #endif // _DEBUG
 
 	return readyToRemove;
