@@ -38,8 +38,8 @@ float cylinder(float dist, float velocityMag)
 
 void main()
 {	
-	vec2 invocationSize = gl_WorkGroupSize.xy * gl_NumWorkGroups.xy;
-	vec2 texelSize = vec2(1.0 / invocationSize);
+	vec2 domainSize = textureSize(uColorTexture, 0).xy;
+	vec2 texelSize = vec2(1.0 / domainSize);
 	vec2 centerCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * texelSize;
 	
 	vec2 centerCoc = texture(uCocTexture, centerCoord).xy;
