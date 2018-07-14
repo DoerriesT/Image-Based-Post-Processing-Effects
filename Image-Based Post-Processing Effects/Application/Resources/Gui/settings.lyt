@@ -552,7 +552,7 @@
         ]
       },
       {
-        "#editor-node-expanded": false,
+        "#editor-node-expanded": true,
         "elements": [
           {
             "multiline": false,
@@ -567,12 +567,12 @@
             "id": "motion_blur_box",
             "type": "combobox",
             "class": "",
-            "items": "Off;1;2;3"
+            "items": "Off;Simple;Tile-Based Single;Tile-Based Multi"
           }
         ]
       },
       {
-        "#editor-node-expanded": false,
+        "#editor-node-expanded": true,
         "elements": [{
           "multiline": false,
           "id": "",
@@ -584,7 +584,7 @@
         }]
       },
       {
-        "#editor-node-expanded": false,
+        "#editor-node-expanded": true,
         "elements": [{
           "checked": false,
           "id": "bounce_checkbox",
@@ -594,7 +594,7 @@
         }]
       },
       {
-        "#editor-node-expanded": false,
+        "#editor-node-expanded": true,
         "elements": [{
           "checked": false,
           "id": "colors_checkbox",

@@ -27,5 +27,5 @@ void main()
 	
 	vec4 cocData = vec4(abs(step(coc, 0.0) * coc), abs(step(0.0, coc) * coc), 0.0, 0.0);
 	
-	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), min(cocData, vec4(16.0)));
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), min(cocData, vec4(40.0)));
 }

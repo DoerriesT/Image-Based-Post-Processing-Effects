@@ -88,7 +88,7 @@ enum class ShadowQuality
 
 enum class MotionBlur
 {
-	OFF, ONE, TWO, THREE
+	OFF, SIMPLE, TILE_BASED_SINGLE, TILE_BASED_MULTI
 };
 
 struct Effects
