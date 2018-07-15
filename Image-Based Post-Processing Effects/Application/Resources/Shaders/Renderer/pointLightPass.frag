@@ -62,13 +62,10 @@ float GeometrySmith(float NdotV, float NdotL, float roughness)
     return ggx1 * ggx2;
 }
 
-
 vec3 fresnelSchlick(float HdotV, vec3 F0)
 {
-	float fresnel = 1.0 - HdotV;
-	fresnel *= fresnel;
-	fresnel *= fresnel;
-	return F0 + (1.0 - F0) * fresnel;
+	float power = (-5.55473 * HdotV - 6.98316) * HdotV;
+	return F0 + (1.0 - F0) * pow(2.0, power);
 }
 
 float vectorToDepth (vec3 vec)
@@ -116,7 +113,7 @@ void main()
 		float shadow = 0.0;
 		if(uPointLight.renderShadows && uShadowsEnabled)
 		{
-			vec3 lightToFrag = viewSpacePosition.xyz + 0.1 * L - uPointLight.position;
+			vec3 lightToFrag = viewSpacePosition.xyz - uPointLight.position;
 			lightToFrag = (uInverseView * vec4(lightToFrag, 0.0)).xyz;
 			//lightToFrag -= normalize(lightToFrag) * 0.1;
 			float fragDepth = vectorToDepth(lightToFrag);

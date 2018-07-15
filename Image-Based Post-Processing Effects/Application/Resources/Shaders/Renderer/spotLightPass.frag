@@ -70,13 +70,10 @@ float GeometrySmith(float NdotV, float NdotL, float roughness)
     return ggx1 * ggx2;
 }
 
-
 vec3 fresnelSchlick(float HdotV, vec3 F0)
 {
-	float fresnel = 1.0 - HdotV;
-	fresnel *= fresnel;
-	fresnel *= fresnel;
-	return F0 + (1.0 - F0) * fresnel;
+	float power = (-5.55473 * HdotV - 6.98316) * HdotV;
+	return F0 + (1.0 - F0) * pow(2.0, power);
 }
 
 void main()
@@ -115,7 +112,7 @@ void main()
 		vec3 projectedColor = vec3(1.0);
 		if(uSpotLight.renderShadows && uShadowsEnabled || uSpotLight.projector)
 		{
-			vec4 worldPos4 = uInverseView * (viewSpacePosition + 0.1 * vec4(L, 0.0));
+			vec4 worldPos4 = uInverseView * viewSpacePosition;
 			vec4 projCoords4 = uSpotLight.viewProjectionMatrix * worldPos4;
 			vec3 projCoords = projCoords4.xyz / projCoords4.w;
 			projCoords = projCoords * 0.5 + 0.5; 

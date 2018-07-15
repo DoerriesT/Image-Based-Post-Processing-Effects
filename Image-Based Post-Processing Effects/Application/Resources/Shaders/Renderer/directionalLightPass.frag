@@ -64,13 +64,10 @@ float GeometrySmith(float NdotV, float NdotL, float roughness)
     return ggx1 * ggx2;
 }
 
-
 vec3 fresnelSchlick(float HdotV, vec3 F0)
 {
-	float fresnel = 1.0 - HdotV;
-	fresnel *= fresnel;
-	fresnel *= fresnel;
-	return F0 + (1.0 - F0) * fresnel;
+	float power = (-5.55473 * HdotV - 6.98316) * HdotV;
+	return F0 + (1.0 - F0) * pow(2.0, power);
 }
 
 void main()
@@ -119,7 +116,7 @@ void main()
 				for(float col = -radius; col <= radius; ++col)
 				{
 					++count;
-					shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.001)).x;
+					shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z)).x;
 				}
 			}
 			shadow *= 1.0 / count;
