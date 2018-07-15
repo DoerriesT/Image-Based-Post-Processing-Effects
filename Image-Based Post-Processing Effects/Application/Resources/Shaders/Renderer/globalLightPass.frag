@@ -305,7 +305,12 @@ void main()
 				vec2 dCoords = smoothstep(0.2, 0.5, abs(vec2(0.5) - ssPosition.xy));
 				float edgeFactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
 
-				vec3 ssrColor = texture(uPrevFrame, ssPosition.xy).rgb;
+				// reproject
+				vec4 reprojected = uPrevViewProjection * uInverseView * uInverseProjection * vec4(ssPosition * 2.0 - 1.0, 1.0);
+				reprojected.xy /= reprojected.w;
+				reprojected.xy = reprojected.xy * 0.5 + 0.5;
+
+				vec3 ssrColor = textureLod(uPrevFrame, reprojected.xy, metallicRoughnessAoShaded.g * log2(textureSize(uPrevFrame, 0).x)).rgb;
 				vec3 cubeColor = textureLod(uPrefilterMap, (uInverseView * vec4(reflect(-V, N), 0.0)).xyz, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
 				prefilteredColor = mix(cubeColor, ssrColor, float(hit) * edgeFactor);
 

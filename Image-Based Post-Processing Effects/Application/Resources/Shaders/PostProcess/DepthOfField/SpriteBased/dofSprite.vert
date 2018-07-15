@@ -21,7 +21,10 @@ void main()
 	
 	float near = cocVals.x > cocVals.y ? 1.0 : 0.0;
 	float coc = max(cocVals.x, cocVals.y) * 0.5;
-	coc = max(coc, 1.0);
+
+	vColor = vec4(texture(uColorTexture, texCoord).rgb, 1.0 / (coc * coc));
+	vTexCoord = aPosition * 0.5 + 0.5;
+	vNear = float(near == 1.0);
 	
 	// scale by coc
 	vec2 position = aPosition * coc;
@@ -35,9 +38,5 @@ void main()
 	// screen space
 	position = position * vec2(1.0, 2.0) - vec2(near, 1.0);
 	
-    gl_Position = vec4(position, 0.0, 1.0);
-	
-	vColor = vec4(texture(uColorTexture, texCoord).rgb, 1.0 / (coc * coc));
-	vTexCoord = aPosition * 0.5 + 0.5;
-	vNear = float(near == 1.0);
+    gl_Position = vec4(position, coc < 1.0 ? -2.0 : 0.0, 1.0);
 }

@@ -1051,7 +1051,9 @@ void PostProcessRenderer::spriteBasedDepthOfField(GLuint _colorTexture, GLuint _
 
 	glBindFramebuffer(GL_FRAMEBUFFER, cocFbo);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, halfResolutionDofDoubleTex, 0);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);

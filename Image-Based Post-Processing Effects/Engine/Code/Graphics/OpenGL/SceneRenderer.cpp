@@ -346,6 +346,11 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	// disable blending to save performance
 	glDisable(GL_BLEND);
 	glDisable(GL_CULL_FACE);
+
+	// generate mips
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, gLightColorTextures[currentLightColorTexture]);
+	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void SceneRenderer::resize(const std::pair<unsigned int, unsigned int> &_resolution)
@@ -419,7 +424,7 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 	glGenTextures(1, &gLightColorTextures[0]);
 	glBindTexture(GL_TEXTURE_2D, gLightColorTextures[0]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, _resolution.first, _resolution.second, 0, GL_RGB, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -428,7 +433,7 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 	glGenTextures(1, &gLightColorTextures[1]);
 	glBindTexture(GL_TEXTURE_2D, gLightColorTextures[1]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, _resolution.first, _resolution.second, 0, GL_RGB, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -691,7 +696,7 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 
 	static glm::mat4 prevViewProjection;
 
-	uPrevViewProjectionE.set(_renderData.viewProjectionMatrix);
+	uPrevViewProjectionE.set(prevViewProjection);
 	prevViewProjection = _renderData.viewProjectionMatrix;
 
 	if (!_level->lights.directionalLights.empty())
