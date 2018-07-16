@@ -50,8 +50,6 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 	glDepthMask(GL_TRUE);
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	glDisable(GL_BLEND);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
 
 	AxisAlignedBoundingBox sceneAABB = calculateSceneAABB(_scene);
 
@@ -122,8 +120,6 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
-	glCullFace(GL_BACK);
-	glDisable(GL_CULL_FACE);
 }
 
 void ShadowRenderer::render(const glm::mat4 *_viewProjectionMatrix, unsigned int _count, const Scene &_scene)
