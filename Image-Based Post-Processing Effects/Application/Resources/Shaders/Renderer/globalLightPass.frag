@@ -32,7 +32,7 @@ layout(binding = 9) uniform sampler2D uPrevFrame;
 uniform mat4 uInverseView;
 uniform mat4 uProjection;
 uniform mat4 uInverseProjection;
-uniform mat4 uPrevViewProjection;
+uniform mat4 uReProjection;
 uniform DirectionalLight uDirectionalLight;
 uniform bool uShadowsEnabled;
 uniform bool uRenderDirectionalLight;
@@ -306,7 +306,7 @@ void main()
 				float edgeFactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
 
 				// reproject
-				vec4 reprojected = uPrevViewProjection * uInverseView * uInverseProjection * vec4(ssPosition * 2.0 - 1.0, 1.0);
+				vec4 reprojected = uReProjection * vec4(ssPosition * 2.0 - 1.0, 1.0);
 				reprojected.xy /= reprojected.w;
 				reprojected.xy = reprojected.xy * 0.5 + 0.5;
 

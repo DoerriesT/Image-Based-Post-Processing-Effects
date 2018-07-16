@@ -1,0 +1,21 @@
+#version 450 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z= 1) in;
+
+layout(binding = 0) uniform writeonly image2D uImgOut;
+
+layout(binding = 0) uniform sampler2D uDepthTexture;
+layout(binding = 1) uniform sampler2D uColorTexture;
+
+void main()
+{	
+	vec2 domainSize = textureSize(uColorTexture, 0).xy * 0.5;
+	vec2 texelSize = vec2(1.0 / domainSize);
+	vec2 texCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * texelSize;
+	
+    float depth = texture(uDepthTexture, texCoord).x;
+	vec3 color = texture(uColorTexture, texCoord).rgb;
+	float mask = float(depth == 1.0);
+
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(color * mask * 0.01, mask));
+}

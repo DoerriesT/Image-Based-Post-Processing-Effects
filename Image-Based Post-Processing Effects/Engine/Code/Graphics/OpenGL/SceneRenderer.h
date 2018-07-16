@@ -102,7 +102,7 @@ private:
 	Uniform<glm::mat4> uProjectionE = Uniform<glm::mat4>("uProjection");
 	Uniform<glm::mat4> uInverseProjectionE = Uniform<glm::mat4>("uInverseProjection");
 	Uniform<glm::mat4> uInverseViewE = Uniform<glm::mat4>("uInverseView");
-	Uniform<glm::mat4> uPrevViewProjectionE = Uniform<glm::mat4>("uPrevViewProjection");
+	Uniform<glm::mat4> uReProjectionE = Uniform<glm::mat4>("uReProjection");
 	UniformDirectionalLight uDirectionalLightE = UniformDirectionalLight("uDirectionalLight");
 	Uniform<GLboolean> uShadowsEnabledE = Uniform<GLboolean>("uShadowsEnabled");
 	Uniform<GLboolean> uRenderDirectionalLightE = Uniform<GLboolean>("uRenderDirectionalLight");

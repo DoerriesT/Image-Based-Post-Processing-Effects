@@ -80,7 +80,7 @@ void SceneRenderer::init()
 	uRenderDirectionalLightE.create(environmentLightPassShader);
 	uSsaoE.create(environmentLightPassShader);
 	uProjectionE.create(environmentLightPassShader);
-	uPrevViewProjectionE.create(environmentLightPassShader);
+	uReProjectionE.create(environmentLightPassShader);
 	uUseSsrE.create(environmentLightPassShader);
 
 
@@ -696,7 +696,7 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 
 	static glm::mat4 prevViewProjection;
 
-	uPrevViewProjectionE.set(prevViewProjection);
+	uReProjectionE.set(prevViewProjection * _renderData.invViewProjectionMatrix);
 	prevViewProjection = _renderData.viewProjectionMatrix;
 
 	if (!_level->lights.directionalLights.empty())

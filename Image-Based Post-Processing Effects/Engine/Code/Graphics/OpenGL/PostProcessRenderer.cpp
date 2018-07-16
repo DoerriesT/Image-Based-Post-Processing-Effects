@@ -8,6 +8,8 @@
 #include "Graphics\Mesh.h"
 #include "Graphics\Effects.h"
 #include "Graphics\Texture.h"
+#include "Level.h"
+#include "RenderData.h"
 
 PostProcessRenderer::PostProcessRenderer(std::shared_ptr<Window> _window)
 	:window(_window)
@@ -81,6 +83,8 @@ void PostProcessRenderer::init()
 	dofSpriteComposeShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/SpriteBased/dofSpriteCompose.comp");
 	luminanceGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/luminanceGen.comp");
 	luminanceAdaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/luminanceAdaption.comp");
+	godRayMaskShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/GodRays/godRayMask.comp");
+	godRayGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/GodRays/godRayGen.comp");
 
 	// create uniforms
 
@@ -100,6 +104,7 @@ void PostProcessRenderer::init()
 	uBloomDirtStrengthH.create(hdrShader);
 	uExposureH.create(hdrShader);
 	uMotionBlurH.create(hdrShader);
+	uGodRaysH.create(hdrShader);
 
 	// fxaa
 	uInverseResolutionF.create(fxaaShader);
@@ -176,6 +181,9 @@ void PostProcessRenderer::init()
 	uTimeDeltaLA.create(luminanceAdaptionShader);
 	uTauLA.create(luminanceAdaptionShader);
 
+	// god ray gen
+	uSunPosGR.create(godRayGenShader);
+
 	// create FBO
 	glGenFramebuffers(1, &fullResolutionFbo);
 	glGenFramebuffers(1, &halfResolutionFbo);
@@ -229,8 +237,9 @@ void PostProcessRenderer::init()
 }
 
 unsigned int tileSize = 40;
+bool godrays = true;
 
-void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
+void PostProcessRenderer::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
@@ -297,6 +306,13 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 
 	}
 
+	uGodRaysH.set(godrays);
+	if (godrays && !_level->lights.directionalLights.empty())
+	{
+		glm::vec2 sunpos = glm::vec2(_renderData.viewProjectionMatrix * glm::vec4(_level->lights.directionalLights[0]->getDirection(), 0.0f)) * 0.5f + 0.5f;
+		godRays(sunpos, _colorTexture, _depthTexture);
+	}
+
 	switch (_effects.depthOfField)
 	{
 	case DepthOfField::OFF:
@@ -346,6 +362,8 @@ void PostProcessRenderer::render(const Effects &_effects, GLuint _colorTexture, 
 	glBindTexture(GL_TEXTURE_2D, velocityNeighborMaxTex);
 	glActiveTexture(GL_TEXTURE8);
 	glBindTexture(GL_TEXTURE_2D, luminanceTexture[currentLuminanceTexture]);
+	glActiveTexture(GL_TEXTURE9);
+	glBindTexture(GL_TEXTURE_2D, halfResolutionGodRayTexB);
 
 	hdrShader->bind();
 
@@ -1079,6 +1097,55 @@ void PostProcessRenderer::spriteBasedDepthOfField(GLuint _colorTexture, GLuint _
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
+void PostProcessRenderer::godRays(const glm::vec2 &_sunpos, GLuint _colorTexture, GLuint _depthTexture)
+{
+	unsigned int width = window->getWidth();
+	unsigned int height = window->getHeight();
+	unsigned int halfWidth = width / 2;
+	unsigned int halfHeight = height / 2;
+
+	// mask
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, _depthTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, _colorTexture);
+
+		godRayMaskShader->bind();
+
+		glBindImageTexture(0, halfResolutionGodRayTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	}
+	
+	// god ray gen
+	{
+		godRayGenShader->bind();
+		uSunPosGR.set(_sunpos);
+	
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, halfResolutionGodRayTexA);
+	
+		glBindImageTexture(0, halfResolutionGodRayTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, halfResolutionGodRayTexB);
+		
+		glBindImageTexture(0, halfResolutionGodRayTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, halfResolutionGodRayTexA);
+		
+		glBindImageTexture(0, halfResolutionGodRayTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	}
+}
+
 void PostProcessRenderer::calculateLuminance(GLuint _colorTexture)
 {
 	currentLuminanceTexture = !currentLuminanceTexture;
@@ -1271,6 +1338,22 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		glGenTextures(1, &halfResolutionCocTexB);
 		glBindTexture(GL_TEXTURE_2D, halfResolutionCocTexB);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution.first / 2, _resolution.second / 2, 0, GL_RG, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glGenTextures(1, &halfResolutionGodRayTexA);
+		glBindTexture(GL_TEXTURE_2D, halfResolutionGodRayTexA);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _resolution.first / 2, _resolution.second / 2, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glGenTextures(1, &halfResolutionGodRayTexB);
+		glBindTexture(GL_TEXTURE_2D, halfResolutionGodRayTexB);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _resolution.first / 2, _resolution.second / 2, 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

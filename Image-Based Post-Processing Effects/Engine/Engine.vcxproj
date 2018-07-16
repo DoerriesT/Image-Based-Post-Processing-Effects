@@ -225,6 +225,8 @@
     <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\TileBasedSeperate\dofSeperatedFill.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\downsample.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\fxaa.frag" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\GodRays\godRayGen.comp" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\GodRays\godRayMask.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\hdr.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\LensFlares\lensFlareBlur.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\LensFlares\lensFlareGen.frag" />

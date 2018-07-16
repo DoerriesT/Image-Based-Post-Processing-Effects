@@ -1,0 +1,34 @@
+#version 450 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z= 1) in;
+
+layout(binding = 0) uniform writeonly image2D uImgOut;
+
+layout(binding = 0) uniform sampler2D uSourceTexture;
+
+uniform vec2 uSunPos;
+
+void main()
+{	
+	vec2 domainSize = textureSize(uSourceTexture, 0).xy;
+	vec2 texelSize = vec2(1.0 / domainSize);
+	vec2 texCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * texelSize;
+	
+	const int SAMPLE_COUNT = 30;
+	float decayFactor = pow( 0.98, 30.0 / SAMPLE_COUNT );
+	
+	vec4 color = texture(uSourceTexture, texCoord).rgba;
+	float decay = 1.0;
+	
+	vec2 inc = (uSunPos - texCoord) / float(SAMPLE_COUNT);
+	
+	for (int i = 0; i < SAMPLE_COUNT; ++i)
+	{
+		vec4 tap = texture(uSourceTexture, texCoord + i * inc).rgba;
+		color.rgb += tap.rgb * decay;
+		decay *= decayFactor;
+	}
+	color.rgb *= 1.0 / SAMPLE_COUNT;
+
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), color);
+}

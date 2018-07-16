@@ -7,6 +7,8 @@ class Camera;
 class Mesh;
 class Window;
 struct Effects;
+struct Level;
+struct RenderData;
 
 class PostProcessRenderer
 {
@@ -18,7 +20,7 @@ public:
 	PostProcessRenderer &operator= (const PostProcessRenderer &&) = delete;
 	~PostProcessRenderer();
 	void init();
-	void render(const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera);
+	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera);
 	void resize(const std::pair<unsigned int, unsigned int> &_resolution);
 	GLuint getFinishedTexture() const;
 
@@ -47,6 +49,8 @@ private:
 	std::shared_ptr<ShaderProgram> dofSpriteComposeShader;
 	std::shared_ptr<ShaderProgram> luminanceGenShader;
 	std::shared_ptr<ShaderProgram> luminanceAdaptionShader;
+	std::shared_ptr<ShaderProgram> godRayMaskShader;
+	std::shared_ptr<ShaderProgram> godRayGenShader;
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Texture> lensColorTexture;
@@ -86,6 +90,8 @@ private:
 	GLuint halfResolutionDofTexC;
 	GLuint halfResolutionDofTexD;
 	GLuint halfResolutionDofDoubleTex;
+	GLuint halfResolutionGodRayTexA;
+	GLuint halfResolutionGodRayTexB;
 
 	GLuint resolution4Fbo;
 	GLuint resolution4HdrTexA;
@@ -133,6 +139,7 @@ private:
 	Uniform<GLfloat> uBloomStrengthH = Uniform<GLfloat>("uBloomStrength");
 	Uniform<GLfloat> uBloomDirtStrengthH = Uniform<GLfloat>("uBloomDirtStrength");
 	Uniform<GLfloat> uExposureH = Uniform<GLfloat>("uExposure");
+	Uniform<GLboolean> uGodRaysH = Uniform<GLboolean>("uGodRays");
 
 	// fxaa uniforms
 	Uniform<glm::vec2> uInverseResolutionF = Uniform<glm::vec2>("uInverseResolution");
@@ -194,6 +201,8 @@ private:
 	Uniform<GLfloat> uTimeDeltaLA = Uniform<GLfloat>("uTimeDelta");
 	Uniform<GLfloat> uTauLA = Uniform<GLfloat>("uTau");
 
+	// god ray gen
+	Uniform<glm::vec2> uSunPosGR = Uniform<glm::vec2>("uSunPos");
 
 	void fxaa(float _subPixelAA, float _edgeThreshold, float _edgeThresholdMin);
 	void singlePassEffects(const Effects &_effects);
@@ -206,6 +215,7 @@ private:
 	void tileBasedSeperateFieldDepthOfField(GLuint _colorTexture);
 	void tileBasedCombinedFieldDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
 	void spriteBasedDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
+	void godRays(const glm::vec2 &_sunpos, GLuint _colorTexture, GLuint _depthTexture);
 	void calculateLuminance(GLuint _colorTexture);
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
 

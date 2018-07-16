@@ -12,6 +12,7 @@ layout(binding = 5) uniform sampler2D uLensStarTex; // diffraction starburst tex
 layout(binding = 6) uniform sampler2D uVelocityTexture;
 layout(binding = 7) uniform sampler2D uVelocityNeighborMaxTexture;
 layout(binding = 8) uniform sampler2D uLuminanceTexture;
+layout(binding = 9) uniform sampler2D uGodRayTexture;
 
 uniform float uStarburstOffset; // transforms texcoords
 uniform bool uLensFlares;
@@ -25,6 +26,7 @@ uniform float uVelocityScale;
 uniform float uHalfPixelWidth = 0.0003125;
 uniform float uKeyValue = 0.12;
 uniform bool uAutoExposure = true;
+uniform bool uGodRays = true;
 
 const float MAX_SAMPLES = 32.0;
 const float SOFT_Z_EXTENT = 1.0;
@@ -286,6 +288,11 @@ void main()
 	{
 		vec3 dirt = texture(uLensDirtTex, vTexCoord).rgb;
 		additions += additions * 4 * dirt;
+	}
+
+	if (uGodRays)
+	{
+		additions.rgb += texture(uGodRayTexture, vTexCoord).rgb;
 	}
 
 	color.rgb += additions;

@@ -109,7 +109,7 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 		shadowRenderer.renderShadows(renderData, _scene, _level, _effects, _camera);
 	}
 	sceneRenderer.render(renderData, _scene, _level, _effects);
-	postProcessRenderer.render(_effects, sceneRenderer.getColorTexture(), sceneRenderer.getDepthStencilTexture(), sceneRenderer.getVelocityTexture(), _camera);
+	postProcessRenderer.render(renderData, _level, _effects, sceneRenderer.getColorTexture(), sceneRenderer.getDepthStencilTexture(), sceneRenderer.getVelocityTexture(), _camera);
 
 	blitToScreen();
 }

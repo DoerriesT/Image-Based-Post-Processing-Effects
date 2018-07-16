@@ -102,6 +102,9 @@
     <Filter Include="Resources\Shaders\PostProcess\DepthOfField\SpriteBased">
       <UniqueIdentifier>{a19060b8-bab5-41f1-992b-aef142f2a143}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\Shaders\PostProcess\GodRays">
+      <UniqueIdentifier>{34d4b5d2-e09d-4528-96d4-4f558b29ec99}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Engine.h">
@@ -881,6 +884,12 @@
     </None>
     <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\SpriteBased\dofSpriteCompose.comp">
       <Filter>Resources\Shaders\PostProcess\DepthOfField\SpriteBased</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\GodRays\godRayGen.comp">
+      <Filter>Resources\Shaders\PostProcess\GodRays</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\GodRays\godRayMask.comp">
+      <Filter>Resources\Shaders\PostProcess\GodRays</Filter>
     </None>
   </ItemGroup>
 </Project>
