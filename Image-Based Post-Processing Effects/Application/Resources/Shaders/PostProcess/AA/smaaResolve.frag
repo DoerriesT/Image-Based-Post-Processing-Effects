@@ -14,9 +14,9 @@
 #define SMAA_PRESET_ULTRA
 
 uniform vec4 uResolution; // vec4(1.0 / 1280.0, 1.0 / 720.0, 1280.0, 720.0)
-uniform bool uTemporalSample;
-uniform bool uTemporalAA;
 
+#define SMAA_REPROJECTION 1
+#define SMAA_REPROJECTION_WEIGHT_SCALE 30.0
 #define SMAA_INCLUDE_VS 0
 
 // And include our header!
@@ -25,16 +25,16 @@ uniform bool uTemporalAA;
 layout(location = 0) out vec4 oFragColor;
 
 in vec2 vTexCoord;
-in vec2 vPixCoord;
-in vec4 vOffset[3];
 
-layout(binding = 0) uniform sampler2D uEdgesTex;
-layout(binding = 1) uniform sampler2D uAreaTex;
-layout(binding = 2) uniform sampler2D uSearchTex;
+layout(binding = 0) uniform sampler2D uColorTex;
+layout(binding = 1) uniform sampler2D uColorTexPrev;
+layout(binding = 2) uniform sampler2D uVelocityTex;
 
 void main()
 {
-	vec4 subsampleIndices = uTemporalAA ? uTemporalSample ? vec4(2, 2, 2, 0) : vec4(1, 1, 1, 0) : vec4(0.0);
-	oFragColor = SMAABlendingWeightCalculationPS(vTexCoord, vPixCoord, vOffset, uEdgesTex, uAreaTex, uSearchTex, subsampleIndices);
+	oFragColor = SMAAResolvePS(vTexCoord, uColorTex, uColorTexPrev
+	#if SMAA_REPROJECTION
+	, uVelocityTex
+	#endif
+	);
 }
-

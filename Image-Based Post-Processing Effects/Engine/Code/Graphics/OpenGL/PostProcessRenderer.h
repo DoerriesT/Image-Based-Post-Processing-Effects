@@ -54,6 +54,7 @@ private:
 	std::shared_ptr<ShaderProgram> smaaEdgeDetectionShader;
 	std::shared_ptr<ShaderProgram> smaaBlendingWeightCalculationShader;
 	std::shared_ptr<ShaderProgram> smaaNeighborhoodBlendingShader;
+	std::shared_ptr<ShaderProgram> smaaResolveShader;
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Texture> lensColorTexture;
@@ -85,7 +86,9 @@ private:
 	GLuint smaaFbo;
 	GLuint fullResolutionSmaaEdgesTex;
 	GLuint fullResolutionSmaaBlendTex;
+	GLuint fullResolutionSmaaMLResultTex[2];
 	GLuint fullResolutionSmaaResultTex;
+	bool currentSmaaTexture;
 
 	GLuint halfResolutionFbo;
 	GLuint halfResolutionHdrTexA;
@@ -217,12 +220,17 @@ private:
 
 	// smaa blend
 	Uniform<glm::vec4> uResolutionSMAAB = Uniform<glm::vec4>("uResolution");
+	Uniform<GLboolean> uTemporalSampleSMAAB = Uniform<GLboolean>("uTemporalSample");
+	Uniform<GLboolean> uTemporalAASMAAB = Uniform<GLboolean>("uTemporalAA");
 
 	// smaa combine
 	Uniform<glm::vec4> uResolutionSMAAC = Uniform<glm::vec4>("uResolution");
 
+	// smaa resolve
+	Uniform<glm::vec4> uResolutionSMAAR = Uniform<glm::vec4>("uResolution");
+
 	void fxaa(float _subPixelAA, float _edgeThreshold, float _edgeThresholdMin);
-	void smaa(GLuint _colorTexture);
+	void smaa(GLuint _colorTexture, GLuint _velocityTexture, bool _temporalAA);
 	void singlePassEffects(const Effects &_effects);
 	void downsample(GLuint _colorTexture);
 	void upsample();

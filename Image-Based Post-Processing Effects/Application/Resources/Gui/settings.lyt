@@ -193,17 +193,34 @@
         }]
       },
       {
-        "#editor-node-expanded": false,
+        "#editor-node-expanded": true,
         "elements": [{
           "checked": false,
-          "id": "anti_aliasing_checkbox",
-          "text": "Anti-Aliasing",
+          "id": "fxaa_checkbox",
+          "text": "FXAA",
           "type": "checkbox",
           "group": ""
         }]
       },
+      {"elements": [
+        {
+          "multiline": false,
+          "id": "",
+          "text": "SMAA",
+          "type": "label",
+          "align": "left",
+          "class": "",
+          "font_offset": 0
+        },
+        {
+          "id": "smaa_box",
+          "type": "combobox",
+          "class": "",
+          "items": "Off;SMAA 1x;SMAA T2x"
+        }
+      ]},
       {
-        "#editor-node-expanded": false,
+        "#editor-node-expanded": true,
         "elements": [
           {
             "id": "",

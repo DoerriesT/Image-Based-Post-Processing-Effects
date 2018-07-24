@@ -29,6 +29,8 @@ namespace App
 		std::shared_ptr<Setting<int>> anisotropicFiltering;
 		std::shared_ptr<Setting<bool>> bloomEnabled;
 		std::shared_ptr<Setting<bool>> fxaaEnabled;
+		std::shared_ptr<Setting<bool>> smaaEnabled;
+		std::shared_ptr<Setting<bool>> smaaTemporalAA;
 		std::shared_ptr<Setting<bool>> lensFlaresEnabled;
 		std::shared_ptr<Setting<int>> ambientOcclusion;
 		std::shared_ptr<Setting<bool>> vsync;

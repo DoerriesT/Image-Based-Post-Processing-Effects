@@ -13,6 +13,8 @@ struct RenderData
 	glm::mat4 viewProjectionMatrix;
 	glm::mat4 invViewProjectionMatrix;
 	glm::mat4 prevViewProjectionMatrix;
+	glm::mat4 invJitter;
+	glm::mat4 prevInvJitter;
 	glm::vec3 cameraPosition;
 	glm::vec3 viewDirection;
 	float time;

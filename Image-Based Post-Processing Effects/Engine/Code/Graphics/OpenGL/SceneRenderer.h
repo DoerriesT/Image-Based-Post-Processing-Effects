@@ -88,6 +88,7 @@ private:
 	Uniform<glm::mat3> uModelViewMatrixG = Uniform<glm::mat3>("uModelViewMatrix");
 	Uniform<glm::mat4> uModelViewProjectionMatrixG = Uniform<glm::mat4>("uModelViewProjectionMatrix");
 	Uniform<glm::mat4> uPrevTransformG = Uniform<glm::mat4>("uPrevTransform");
+	Uniform<glm::mat4> uCurrTransformG = Uniform<glm::mat4>("uCurrTransform");
 	Uniform<glm::vec4> uAtlasDataG = Uniform<glm::vec4>("uAtlasData");
 	Uniform<glm::vec2> uVelG = Uniform<glm::vec2>("uVel");
 	Uniform<GLfloat> uExposureTimeG = Uniform<GLfloat>("uExposureTime");

@@ -15,6 +15,7 @@
 
 uniform vec4 uResolution; // vec4(1.0 / 1280.0, 1.0 / 720.0, 1280.0, 720.0)
 
+#define SMAA_REPROJECTION 1
 #define SMAA_INCLUDE_VS 0
 
 // And include our header!
@@ -27,8 +28,13 @@ in vec4 vOffset;
 
 layout(binding = 0) uniform sampler2D uColorTex;
 layout(binding = 1) uniform sampler2D uBlendTex;
+layout(binding = 2) uniform sampler2D uVelocityTex;
 
 void main()
 {
-	oFragColor = SMAANeighborhoodBlendingPS(vTexCoord, vOffset, uColorTex, uBlendTex);
+	oFragColor = SMAANeighborhoodBlendingPS(vTexCoord, vOffset, uColorTex, uBlendTex
+	#if SMAA_REPROJECTION
+	, uVelocityTex
+	#endif
+	);
 }

@@ -13,6 +13,7 @@ out vec4 vCurrentPos;
 out vec4 vPrevPos;
 
 uniform mat4 uPrevTransform;
+uniform mat4 uCurrTransform;
 uniform mat4 uModelViewProjectionMatrix;
 uniform mat3 uModelViewMatrix;
 uniform vec4 uAtlasData; // x = cols, y = rows, z = texOffsetX, w = texOffsetY
@@ -30,6 +31,6 @@ void main()
 	vBitangent = uModelViewMatrix * cross(vNormal, vTangent);
 
 	vPrevPos = uPrevTransform * vec4(aPosition, 1.0);
-	vCurrentPos = uModelViewProjectionMatrix * vec4(aPosition, 1.0);
-	gl_Position = vCurrentPos;
+	vCurrentPos = uCurrTransform * vec4(aPosition, 1.0);
+	gl_Position = uModelViewProjectionMatrix * vec4(aPosition, 1.0);
 }

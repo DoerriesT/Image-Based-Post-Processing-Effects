@@ -8,6 +8,12 @@ struct FXAA
 	float edgeThresholdMin;
 };
 
+struct SMAA
+{
+	bool enabled;
+	bool temporalAntiAliasing;
+};
+
 struct LensFlares
 {
 	bool enabled;
@@ -94,6 +100,7 @@ struct Effects
 	FilmGrain filmGrain;
 	ChromaticAberration chromaticAberration;
 	FXAA fxaa;
+	SMAA smaa;
 	DepthOfField depthOfField;
 	LensFlares lensFlares;
 	ShadowQuality shadowQuality;

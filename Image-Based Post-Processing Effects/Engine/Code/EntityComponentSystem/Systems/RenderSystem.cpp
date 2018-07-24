@@ -91,6 +91,14 @@ void RenderSystem::init()
 	fxaaEdgeThresholdMin->addListener([&](double _value) { effects.fxaa.edgeThresholdMin = (float)_value; });
 	effects.fxaa.edgeThresholdMin = (float)fxaaEdgeThresholdMin->get();
 
+	smaaEnabled = settingsManager.getBoolSetting("graphics", "smaa_enabled", false);
+	smaaEnabled->addListener([&](bool _value) { effects.smaa.enabled = _value; });
+	effects.smaa.enabled = smaaEnabled->get();
+
+	smaaTemporalAA = settingsManager.getBoolSetting("graphics", "smaa_temporal_aa", false);
+	smaaTemporalAA->addListener([&](bool _value) { effects.smaa.temporalAntiAliasing = _value; });
+	effects.smaa.temporalAntiAliasing = smaaTemporalAA->get();
+
 	lensFlaresEnabled = settingsManager.getBoolSetting("graphics", "lens_flares_enabled", false);
 	lensFlaresEnabled->addListener([&](bool _value) { effects.lensFlares.enabled = _value; });
 	effects.lensFlares.enabled = lensFlaresEnabled->get();

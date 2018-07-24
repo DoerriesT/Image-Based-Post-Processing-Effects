@@ -56,6 +56,8 @@ private:
 	std::shared_ptr<Setting<double>> fxaaSubPixelAA;
 	std::shared_ptr<Setting<double>> fxaaEdgeThreshold;
 	std::shared_ptr<Setting<double>> fxaaEdgeThresholdMin;
+	std::shared_ptr<Setting<bool>> smaaEnabled;
+	std::shared_ptr<Setting<bool>> smaaTemporalAA;
 	std::shared_ptr<Setting<bool>> lensFlaresEnabled;
 	std::shared_ptr<Setting<double>> lensFlaresChromaticDistortion;
 	std::shared_ptr<Setting<int>> lensFlaresCount;

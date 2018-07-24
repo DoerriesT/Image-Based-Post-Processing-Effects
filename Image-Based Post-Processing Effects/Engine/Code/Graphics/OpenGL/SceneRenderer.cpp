@@ -67,6 +67,7 @@ void SceneRenderer::init()
 	uVelG.create(gBufferPassShader);
 	uExposureTimeG.create(gBufferPassShader);
 	uMaxVelocityMagG.create(gBufferPassShader);
+	uCurrTransformG.create(gBufferPassShader);
 
 	// outline uniforms
 	uModelViewProjectionMatrixO.create(outlineShader);
@@ -588,7 +589,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 
 		glm::mat4 mvpTransformation = _renderData.viewProjectionMatrix * modelMatrix;
 		const float cameraMovementStrength = 0.15f;
-		glm::mat4 prevTransformation = glm::mix(_renderData.viewProjectionMatrix, _renderData.prevViewProjectionMatrix, cameraMovementStrength) * entityRenderData->transformationComponent->prevTransformation;
+		glm::mat4 prevTransformation = glm::mix(_renderData.invJitter * _renderData.viewProjectionMatrix, _renderData.prevInvJitter * _renderData.prevViewProjectionMatrix, cameraMovementStrength) * entityRenderData->transformationComponent->prevTransformation;
 
 		if (cullAABB(mvpTransformation, currentMesh->getAABB()))
 		{
@@ -599,6 +600,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 		uModelViewMatrixG.set(glm::mat3(_renderData.viewMatrix * modelMatrix));
 		uModelViewProjectionMatrixG.set(mvpTransformation);
 		uPrevTransformG.set(prevTransformation);
+		uCurrTransformG.set(_renderData.invJitter * mvpTransformation);
 		uVelG.set(entityRenderData->transformationComponent->vel / glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
 		const float frameRateTarget = 60.0f;
 		uExposureTimeG.set((float(Engine::getFps()) / frameRateTarget));

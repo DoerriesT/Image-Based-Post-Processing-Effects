@@ -110,13 +110,14 @@ void main()
 
 	vec2 a = (vCurrentPos.xy / vCurrentPos.w);
     vec2 b = (vPrevPos.xy / vPrevPos.w);
-	vec2 v = abs(a - b);
-	v *= uExposureTime;
+	vec2 v = a - b;
+
+	//v *= uExposureTime;
 	//v = uVel;
 
 	// clamp to maximum length
-	float originalLength = length(v);
-	v *= min(uMaxVelocityMag / originalLength, 1.0);
+	//float originalLength = length(v);
+	//v *= min(uMaxVelocityMag / originalLength, 1.0);
 
 	oVelocity = vec4(v, 0.0, 0.0);
 }

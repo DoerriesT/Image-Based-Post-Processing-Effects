@@ -31,6 +31,8 @@ namespace App
 			anisotropicFiltering = settingsManager.getIntSetting("graphics", "anisotropic_filtering", 1);
 			bloomEnabled = settingsManager.getBoolSetting("graphics", "bloom_enabled", false);
 			fxaaEnabled = settingsManager.getBoolSetting("graphics", "fxaa_enabled", false);
+			smaaEnabled = settingsManager.getBoolSetting("graphics", "smaa_enabled", false);
+			smaaTemporalAA = settingsManager.getBoolSetting("graphics", "smaa_temporal_aa", false);
 			lensFlaresEnabled = settingsManager.getBoolSetting("graphics", "lens_flares_enabled", false);
 			ambientOcclusion = settingsManager.getIntSetting("graphics", "ambient_occlusion", 0);
 			vsync = settingsManager.getBoolSetting("graphics", "vsync", false);
@@ -169,9 +171,26 @@ namespace App
 		{
 			vsync->set(checkbox->isChecked());
 		}
-		if (optionsGui->getElementById("anti_aliasing_checkbox", checkbox) && _event.source == checkbox)
+		if (optionsGui->getElementById("fxaa_checkbox", checkbox) && _event.source == checkbox)
 		{
 			fxaaEnabled->set(checkbox->isChecked());
+		}
+		if (optionsGui->getElementById("smaa_box", box) && _event.source == box)
+		{
+			switch (box->getSelectedItem())
+			{
+			case 0:
+				smaaEnabled->set(false);
+				break;
+			case 1:
+				smaaEnabled->set(true);
+				smaaTemporalAA->set(false);
+				break;
+			case 2:
+				smaaEnabled->set(true);
+				smaaTemporalAA->set(true);
+				break;
+			}
 		}
 		if (optionsGui->getElementById("anisotropic_filtering_box", box) && _event.source == box)
 		{
@@ -416,9 +435,13 @@ namespace App
 		{
 			checkbox->setChecked(vsync->get());
 		}
-		if (optionsGui->getElementById("anti_aliasing_checkbox", checkbox))
+		if (optionsGui->getElementById("fxaa_checkbox", checkbox))
 		{
 			checkbox->setChecked(fxaaEnabled->get());
+		}
+		if (optionsGui->getElementById("smaa_box", box))
+		{
+			box->setSelectedItem(smaaEnabled->get() ? smaaTemporalAA->get() ? 2 : 1 : 0);
 		}
 		if (optionsGui->getElementById("anisotropic_filtering_box", box))
 		{

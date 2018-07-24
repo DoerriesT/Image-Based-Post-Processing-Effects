@@ -75,7 +75,7 @@ void GraphicsFramework::init()
 	postProcessRenderer.init();
 	shadowRenderer.init();
 	environmentRenderer.init();
-	
+
 	blitShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Shared/blit.frag");
 
 	uScreenTextureBlit = blitShader->createUniform("uScreenTexture");
@@ -86,9 +86,24 @@ void GraphicsFramework::init()
 void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
 {
 	static glm::mat4 prevViewProjectionMatrix;
+	static glm::mat4 prevInvJitter;
+	static bool currentJitter = false;
+	static glm::vec2 jitters[] =
+	{
+		glm::vec2(0.25f, -0.25f),
+		glm::vec2(-0.25f, 0.25f)
+	};
+
+	currentJitter = !currentJitter;
+
+	glm::mat4 jitterMatrix = _effects.smaa.enabled && _effects.smaa.temporalAntiAliasing ?
+		glm::translate(glm::mat4(), glm::vec3(jitters[currentJitter].x / float(window->getWidth()), jitters[currentJitter].y / float(window->getHeight()), 0.0f))
+		: glm::mat4();
 
 	RenderData renderData;
-	renderData.projectionMatrix = window->getProjectionMatrix();
+	renderData.invJitter = glm::inverse(jitterMatrix);
+	renderData.prevInvJitter = prevInvJitter;
+	renderData.projectionMatrix = jitterMatrix * window->getProjectionMatrix();
 	renderData.invProjectionMatrix = glm::inverse(renderData.projectionMatrix);
 	renderData.viewMatrix = _camera->getViewMatrix();
 	renderData.invViewMatrix = glm::inverse(renderData.viewMatrix);
@@ -103,6 +118,7 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 	renderData.fov = window->getFieldOfView();
 
 	prevViewProjectionMatrix = renderData.viewProjectionMatrix;
+	prevInvJitter = renderData.invJitter;
 
 	if (renderData.shadows)
 	{

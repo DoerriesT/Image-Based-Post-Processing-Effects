@@ -88,6 +88,7 @@ void PostProcessRenderer::init()
 	smaaEdgeDetectionShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/AA/smaaEdgeDetection.vert", "Resources/Shaders/PostProcess/AA/smaaEdgeDetection.frag");
 	smaaBlendingWeightCalculationShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/AA/smaaBlendingWeightCalculation.vert", "Resources/Shaders/PostProcess/AA/smaaBlendingWeightCalculation.frag");
 	smaaNeighborhoodBlendingShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/AA/smaaNeighborhoodBlending.vert", "Resources/Shaders/PostProcess/AA/smaaNeighborhoodBlending.frag");
+	smaaResolveShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/AA/smaaResolve.frag");
 
 
 	// create uniforms
@@ -191,11 +192,16 @@ void PostProcessRenderer::init()
 	// smaa edges
 	uResolutionSMAAE.create(smaaEdgeDetectionShader);
 
-	// smaa blend
+	// smaa blend weight calc
 	uResolutionSMAAB.create(smaaBlendingWeightCalculationShader);
+	uTemporalSampleSMAAB.create(smaaBlendingWeightCalculationShader);
+	uTemporalAASMAAB.create(smaaBlendingWeightCalculationShader);
 
 	// smaa combine
 	uResolutionSMAAC.create(smaaNeighborhoodBlendingShader);
+
+	// smaa resolve
+	uResolutionSMAAR.create(smaaResolveShader);
 
 	// create FBO
 	glGenFramebuffers(1, &fullResolutionFbo);
@@ -255,10 +261,17 @@ bool godrays = false;
 
 void PostProcessRenderer::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {
-	if (_effects.fxaa.enabled)
+	if (_effects.smaa.enabled)
 	{
-		smaa(_colorTexture);
-		_colorTexture = fullResolutionSmaaResultTex;
+		smaa(_colorTexture, _velocityTexture, _effects.smaa.temporalAntiAliasing);
+		if (_effects.smaa.temporalAntiAliasing)
+		{
+			_colorTexture = fullResolutionSmaaResultTex;
+		}
+		else
+		{
+			_colorTexture = fullResolutionSmaaMLResultTex[currentSmaaTexture];
+		}
 	}
 	
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
@@ -399,10 +412,10 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 
 	finishedTexture = fullResolutionTextureA;
 
-	//if (_effects.fxaa.enabled)
-	//{
-	//	fxaa(_effects.fxaa.subPixelAA, _effects.fxaa.edgeThreshold, _effects.fxaa.edgeThresholdMin);
-	//}
+	if (_effects.fxaa.enabled)
+	{
+		fxaa(_effects.fxaa.subPixelAA, _effects.fxaa.edgeThreshold, _effects.fxaa.edgeThresholdMin);
+	}
 
 	if (_effects.chromaticAberration.enabled || _effects.vignette.enabled || _effects.filmGrain.enabled)
 	{
@@ -461,10 +474,12 @@ void PostProcessRenderer::fxaa(float _subPixelAA, float _edgeThreshold, float _e
 	finishedTexture = (finishedTexture == fullResolutionTextureA) ? fullResolutionTextureB : fullResolutionTextureA;
 }
 
-void PostProcessRenderer::smaa(GLuint _colorTexture)
+void PostProcessRenderer::smaa(GLuint _colorTexture, GLuint _velocityTexture, bool _temporalAA)
 {
 	static std::shared_ptr<Texture> smaaAreaLut = Texture::createTexture("Resources/Textures/AreaTexDX10.dds", true);
 	static std::shared_ptr<Texture> smaaSearchLut = Texture::createTexture("Resources/Textures/SearchTex.dds", true);
+
+	currentSmaaTexture = !currentSmaaTexture;
 
 	unsigned int windowWidth = window->getWidth();
 	unsigned int windowHeight = window->getHeight();
@@ -507,6 +522,8 @@ void PostProcessRenderer::smaa(GLuint _colorTexture)
 		smaaBlendingWeightCalculationShader->bind();
 
 		uResolutionSMAAB.set(resolution);
+		uTemporalSampleSMAAB.set(currentSmaaTexture);
+		uTemporalAASMAAB.set(_temporalAA);
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT1);
 
@@ -519,12 +536,37 @@ void PostProcessRenderer::smaa(GLuint _colorTexture)
 		glBindTexture(GL_TEXTURE_2D, _colorTexture);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, fullResolutionSmaaBlendTex);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, _velocityTexture);
 
 		smaaNeighborhoodBlendingShader->bind();
 
 		uResolutionSMAAC.set(resolution);
 
-		glDrawBuffer(GL_COLOR_ATTACHMENT2);
+		glDrawBuffer(GL_COLOR_ATTACHMENT2 + static_cast<int>(currentSmaaTexture));
+
+		fullscreenTriangle->getSubMesh()->render();
+	}
+
+	if (!_temporalAA)
+	{
+		return;
+	}
+
+	// temporal resolve
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionSmaaMLResultTex[currentSmaaTexture]);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionSmaaMLResultTex[!currentSmaaTexture]);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, _velocityTexture);
+
+		smaaResolveShader->bind();
+
+		uResolutionSMAAR.set(resolution);
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT4);
 
 		fullscreenTriangle->getSubMesh()->render();
 	}
@@ -1359,14 +1401,32 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, fullResolutionSmaaBlendTex, 0);
 
-		glGenTextures(1, &fullResolutionSmaaResultTex);
-		glBindTexture(GL_TEXTURE_2D, fullResolutionSmaaResultTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, _resolution.first, _resolution.second, 0, GL_RGB, GL_FLOAT, NULL);
+		glGenTextures(1, &fullResolutionSmaaMLResultTex[0]);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionSmaaMLResultTex[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _resolution.first, _resolution.second, 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, fullResolutionSmaaResultTex, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, fullResolutionSmaaMLResultTex[0], 0);
+
+		glGenTextures(1, &fullResolutionSmaaMLResultTex[1]);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionSmaaMLResultTex[1]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _resolution.first, _resolution.second, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, fullResolutionSmaaMLResultTex[1], 0);
+
+		glGenTextures(1, &fullResolutionSmaaResultTex);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionSmaaResultTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _resolution.first, _resolution.second, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, fullResolutionSmaaResultTex, 0);
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
