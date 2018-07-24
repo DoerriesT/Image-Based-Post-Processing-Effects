@@ -3,6 +3,7 @@
 #include <cassert>
 #include <iostream>
 #include "ShaderProgram.h"
+#include "GLUtility.h"
 #include "Utilities\Utility.h"
 #include "Graphics\Material.h"
 #include "Graphics\Lights.h"
@@ -106,8 +107,8 @@ GLuint ShaderProgram::createShader(GLenum _type, const char *_shaderPath)
 {
 	GLuint shader = glCreateShader(_type);
 
-	std::vector<char> data = Utility::readTextFile(_shaderPath);
-	const char *shaderCode = data.data();
+	std::string shaderCodeStr = GLUtility::shaderIncludeResolve(Utility::readTextFile(_shaderPath).data());
+	const char *shaderCode = shaderCodeStr.c_str();
 	glShaderSource(shader, 1, &shaderCode, NULL);
 	glCompileShader(shader);
 

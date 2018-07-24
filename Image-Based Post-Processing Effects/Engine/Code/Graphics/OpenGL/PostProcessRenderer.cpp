@@ -85,6 +85,10 @@ void PostProcessRenderer::init()
 	luminanceAdaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/luminanceAdaption.comp");
 	godRayMaskShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/GodRays/godRayMask.comp");
 	godRayGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/GodRays/godRayGen.comp");
+	smaaEdgeDetectionShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/AA/smaaEdgeDetection.vert", "Resources/Shaders/PostProcess/AA/smaaEdgeDetection.frag");
+	smaaBlendingWeightCalculationShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/AA/smaaBlendingWeightCalculation.vert", "Resources/Shaders/PostProcess/AA/smaaBlendingWeightCalculation.frag");
+	smaaNeighborhoodBlendingShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/AA/smaaNeighborhoodBlending.vert", "Resources/Shaders/PostProcess/AA/smaaNeighborhoodBlending.frag");
+
 
 	// create uniforms
 
@@ -184,6 +188,15 @@ void PostProcessRenderer::init()
 	// god ray gen
 	uSunPosGR.create(godRayGenShader);
 
+	// smaa edges
+	uResolutionSMAAE.create(smaaEdgeDetectionShader);
+
+	// smaa blend
+	uResolutionSMAAB.create(smaaBlendingWeightCalculationShader);
+
+	// smaa combine
+	uResolutionSMAAC.create(smaaNeighborhoodBlendingShader);
+
 	// create FBO
 	glGenFramebuffers(1, &fullResolutionFbo);
 	glGenFramebuffers(1, &halfResolutionFbo);
@@ -194,6 +207,7 @@ void PostProcessRenderer::init()
 	glGenFramebuffers(1, &resolution64Fbo);
 	glGenFramebuffers(1, &velocityFbo);
 	glGenFramebuffers(1, &cocFbo);
+	glGenFramebuffers(1, &smaaFbo);
 	createFboAttachments(std::make_pair(window->getWidth(), window->getHeight()));
 
 	// load textures
@@ -237,10 +251,16 @@ void PostProcessRenderer::init()
 }
 
 unsigned int tileSize = 40;
-bool godrays = true;
+bool godrays = false;
 
 void PostProcessRenderer::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {
+	if (_effects.fxaa.enabled)
+	{
+		smaa(_colorTexture);
+		_colorTexture = fullResolutionSmaaResultTex;
+	}
+	
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	// downsample/blur -> upsample/blur/combine with previous result
@@ -306,7 +326,6 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 
 	}
 
-	uGodRaysH.set(godrays);
 	if (godrays && !_level->lights.directionalLights.empty())
 	{
 		glm::vec2 sunpos = glm::vec2(_renderData.viewProjectionMatrix * glm::vec4(_level->lights.directionalLights[0]->getDirection(), 0.0f)) * 0.5f + 0.5f;
@@ -374,15 +393,16 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 	uBloomDirtStrengthH.set(_effects.bloom.lensDirtStrength);
 	uExposureH.set(_effects.exposure);
 	uMotionBlurH.set(GLint(_effects.motionBlur));
+	uGodRaysH.set(godrays);
 
 	fullscreenTriangle->getSubMesh()->render();
 
 	finishedTexture = fullResolutionTextureA;
 
-	if (_effects.fxaa.enabled)
-	{
-		fxaa(_effects.fxaa.subPixelAA, _effects.fxaa.edgeThreshold, _effects.fxaa.edgeThresholdMin);
-	}
+	//if (_effects.fxaa.enabled)
+	//{
+	//	fxaa(_effects.fxaa.subPixelAA, _effects.fxaa.edgeThreshold, _effects.fxaa.edgeThresholdMin);
+	//}
 
 	if (_effects.chromaticAberration.enabled || _effects.vignette.enabled || _effects.filmGrain.enabled)
 	{
@@ -439,6 +459,75 @@ void PostProcessRenderer::fxaa(float _subPixelAA, float _edgeThreshold, float _e
 
 	fullscreenTriangle->getSubMesh()->render();
 	finishedTexture = (finishedTexture == fullResolutionTextureA) ? fullResolutionTextureB : fullResolutionTextureA;
+}
+
+void PostProcessRenderer::smaa(GLuint _colorTexture)
+{
+	static std::shared_ptr<Texture> smaaAreaLut = Texture::createTexture("Resources/Textures/AreaTexDX10.dds", true);
+	static std::shared_ptr<Texture> smaaSearchLut = Texture::createTexture("Resources/Textures/SearchTex.dds", true);
+
+	unsigned int windowWidth = window->getWidth();
+	unsigned int windowHeight = window->getHeight();
+
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+
+	// clear edges/blend tex
+	glBindFramebuffer(GL_FRAMEBUFFER, smaaFbo);
+	GLenum clearBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	glDrawBuffers(2, clearBuffers);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glm::vec4 resolution = glm::vec4(1.0f / windowWidth, 1.0f / windowHeight, windowWidth, windowHeight);
+
+	glViewport(0, 0, windowWidth, windowHeight);
+
+	// edge detection
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, _colorTexture);
+
+		smaaEdgeDetectionShader->bind();
+
+		uResolutionSMAAE.set(resolution);
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+		fullscreenTriangle->getSubMesh()->render();
+	}
+	
+	// blend weight calculation
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionSmaaEdgesTex);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, smaaAreaLut->getId());
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, smaaSearchLut->getId());
+
+		smaaBlendingWeightCalculationShader->bind();
+
+		uResolutionSMAAB.set(resolution);
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT1);
+
+		fullscreenTriangle->getSubMesh()->render();
+	}
+	
+	// blend
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, _colorTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionSmaaBlendTex);
+
+		smaaNeighborhoodBlendingShader->bind();
+
+		uResolutionSMAAC.set(resolution);
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT2);
+
+		fullscreenTriangle->getSubMesh()->render();
+	}
 }
 
 void PostProcessRenderer::singlePassEffects(const Effects &_effects)
@@ -1247,6 +1336,37 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, smaaFbo);
+
+		glGenTextures(1, &fullResolutionSmaaEdgesTex);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionSmaaEdgesTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, _resolution.first, _resolution.second, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fullResolutionSmaaEdgesTex, 0);
+
+		glGenTextures(1, &fullResolutionSmaaBlendTex);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionSmaaBlendTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, _resolution.first, _resolution.second, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, fullResolutionSmaaBlendTex, 0);
+
+		glGenTextures(1, &fullResolutionSmaaResultTex);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionSmaaResultTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, _resolution.first, _resolution.second, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, fullResolutionSmaaResultTex, 0);
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 

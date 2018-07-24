@@ -83,7 +83,8 @@ namespace App
 
 	void Application::update(double time, double timeDelta)
 	{
-		if (UserInput::getInstance().isKeyPressed(InputKey::SPACE) || UserInput::getInstance().getGamepad().leftTrigger > -1.0f)
+		Gamepad &gamepad = UserInput::getInstance().getGamepad();
+		if (UserInput::getInstance().isKeyPressed(InputKey::SPACE) || gamepad.id != -1 && gamepad.leftTrigger > -1.0f)
 		{
 			level->lights.spotLights[2]->setDirection(level->cameras[level->activeCameraIndex]->getForwardDirection());
 			level->lights.spotLights[2]->setPosition(level->cameras[level->activeCameraIndex]->getPosition());

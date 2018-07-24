@@ -51,6 +51,9 @@ private:
 	std::shared_ptr<ShaderProgram> luminanceAdaptionShader;
 	std::shared_ptr<ShaderProgram> godRayMaskShader;
 	std::shared_ptr<ShaderProgram> godRayGenShader;
+	std::shared_ptr<ShaderProgram> smaaEdgeDetectionShader;
+	std::shared_ptr<ShaderProgram> smaaBlendingWeightCalculationShader;
+	std::shared_ptr<ShaderProgram> smaaNeighborhoodBlendingShader;
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Texture> lensColorTexture;
@@ -78,6 +81,11 @@ private:
 	GLuint fullResolutionDofTexB;
 	GLuint fullResolutionDofTexC;
 	GLuint fullResolutionDofTexD;
+
+	GLuint smaaFbo;
+	GLuint fullResolutionSmaaEdgesTex;
+	GLuint fullResolutionSmaaBlendTex;
+	GLuint fullResolutionSmaaResultTex;
 
 	GLuint halfResolutionFbo;
 	GLuint halfResolutionHdrTexA;
@@ -204,7 +212,17 @@ private:
 	// god ray gen
 	Uniform<glm::vec2> uSunPosGR = Uniform<glm::vec2>("uSunPos");
 
+	// smaa edges
+	Uniform<glm::vec4> uResolutionSMAAE = Uniform<glm::vec4>("uResolution");
+
+	// smaa blend
+	Uniform<glm::vec4> uResolutionSMAAB = Uniform<glm::vec4>("uResolution");
+
+	// smaa combine
+	Uniform<glm::vec4> uResolutionSMAAC = Uniform<glm::vec4>("uResolution");
+
 	void fxaa(float _subPixelAA, float _edgeThreshold, float _edgeThresholdMin);
+	void smaa(GLuint _colorTexture);
 	void singlePassEffects(const Effects &_effects);
 	void downsample(GLuint _colorTexture);
 	void upsample();
