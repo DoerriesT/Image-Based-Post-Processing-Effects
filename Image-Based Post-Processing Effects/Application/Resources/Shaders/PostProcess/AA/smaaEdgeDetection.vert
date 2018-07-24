@@ -18,7 +18,7 @@ uniform vec4 uResolution; // float4(1.0 / 1280.0, 1.0 / 720.0, 1280.0, 720.0)
 #define SMAA_INCLUDE_PS 0
 
 // And include our header!
-#include "SMAA.hlsl"
+#include "SMAA.h"
 
 out vec2 vTexCoord;
 out vec4 vOffset[3];

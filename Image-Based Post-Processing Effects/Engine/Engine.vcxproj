@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Application\Resources\Shaders\Include\brdf.h" />
+    <ClInclude Include="..\Application\Resources\Shaders\Include\SMAA.h" />
     <ClInclude Include="Code\DebugMacro.h" />
     <ClInclude Include="Code\EasingFunctions.h" />
     <ClInclude Include="Code\Engine.h" />
@@ -209,6 +211,12 @@
     <None Include="..\Application\Resources\Shaders\Environment\reflectance.frag" />
     <None Include="..\Application\Resources\Shaders\Gui\gui.frag" />
     <None Include="..\Application\Resources\Shaders\Gui\gui.vert" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaBlendingWeightCalculation.frag" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaBlendingWeightCalculation.vert" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaEdgeDetection.frag" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaEdgeDetection.vert" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaNeighborhoodBlending.frag" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaNeighborhoodBlending.vert" />
     <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\coc.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\cocBlur.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\cocNeighborTileMax.frag" />

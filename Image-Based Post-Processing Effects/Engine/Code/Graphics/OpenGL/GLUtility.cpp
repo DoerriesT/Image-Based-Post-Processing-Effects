@@ -118,9 +118,8 @@ std::string GLUtility::shaderIncludeResolve(const std::string & _sourceCode)
 			{
 				includedFiles.push_back(includeFileName);
 				std::string fileContent = Utility::readTextFile("Resources/Shaders/Include/" + includeFileName).data();
-				fileContent[fileContent.size() - 1] = ' ';
 
-				result.replace(pos, end - pos, fileContent);
+				result.replace(pos, end - pos + 1, fileContent);
 			}
 		}
 		pos = result.find("#include", pos + 1);
