@@ -217,6 +217,7 @@
     <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaEdgeDetection.vert" />
     <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaNeighborhoodBlending.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaNeighborhoodBlending.vert" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaResolve.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\coc.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\cocBlur.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\cocNeighborTileMax.frag" />
