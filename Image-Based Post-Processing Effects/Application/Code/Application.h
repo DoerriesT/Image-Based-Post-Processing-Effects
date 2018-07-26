@@ -77,6 +77,8 @@ namespace App
 		std::string frameTimeWorstStr;
 		bool colors;
 		bool bouncing;
+		double scrollOffset;
+		bool guiVisible;
 
 		std::shared_ptr<Setting<int>> shadowQuality;
 		std::shared_ptr<Setting<int>> uiSizeOffset;

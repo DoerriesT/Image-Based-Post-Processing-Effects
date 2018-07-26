@@ -166,7 +166,8 @@ namespace App
 	}
 
 	Application::Application()
-		:cameraController()
+		:cameraController(),
+		guiVisible(true)
 	{
 	}
 
@@ -370,11 +371,19 @@ namespace App
 
 	void Application::update(double time, double timeDelta)
 	{
-		Gamepad &gamepad = UserInput::getInstance().getGamepad();
-		if (UserInput::getInstance().isKeyPressed(InputKey::SPACE) || gamepad.id != -1 && gamepad.leftTrigger > -1.0f)
+		UserInput &userInput = UserInput::getInstance();
+		Gamepad &gamepad = userInput.getGamepad();
+		if (userInput.isKeyPressed(InputKey::SPACE) || gamepad.id != -1 && gamepad.leftTrigger > -1.0f)
 		{
 			level->lights.spotLights[2]->setDirection(level->cameras[level->activeCameraIndex]->getForwardDirection());
 			level->lights.spotLights[2]->setPosition(level->cameras[level->activeCameraIndex]->getPosition());
+		}
+
+		static double lastPressed = time;
+		if (time - lastPressed > 0.1 && userInput.isKeyPressed(InputKey::LEFT_SHIFT) && userInput.isKeyPressed(InputKey::ENTER))
+		{
+			lastPressed = time;
+			guiVisible = !guiVisible;
 		}
 	}
 
@@ -418,7 +427,10 @@ namespace App
 		frameTimeAvgStr = std::to_string(frameTimeAvg * 1000.0).substr(0, 6);
 		frameTimeWorstStr = std::to_string(worstFrameTime * 1000.0).substr(0, 6);
 
-		TwDraw();
+		if (guiVisible)
+		{
+			TwDraw();
+		}
 	}
 
 	void Application::onKey(int _key, int _action)
@@ -447,7 +459,8 @@ namespace App
 
 	void Application::onMouseScroll(double _xOffset, double _yOffset)
 	{
-		TwEventMouseWheelGLFW((int)_yOffset);
+		scrollOffset += _yOffset;
+		TwEventMouseWheelGLFW((int)scrollOffset);
 	}
 
 	void Application::gamepadUpdate(const std::vector<Gamepad>* _gamepads)
