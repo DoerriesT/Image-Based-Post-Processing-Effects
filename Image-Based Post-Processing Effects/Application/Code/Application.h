@@ -45,6 +45,7 @@ namespace App
 			COMBINED_FUNC_DECL(hbaoAngleBias)
 			COMBINED_FUNC_DECL(colors)
 			COMBINED_FUNC_DECL(bouncing)
+			COMBINED_FUNC_DECL(screenSpaceReflectionsEnabled)
 
 	public:
 		explicit Application();
@@ -85,6 +86,7 @@ namespace App
 		std::shared_ptr<Setting<bool>> smaaEnabled;
 		std::shared_ptr<Setting<bool>> smaaTemporalAA;
 		std::shared_ptr<Setting<bool>> lensFlaresEnabled;
+		std::shared_ptr<Setting<bool>> screenSpaceReflectionsEnabled;
 		std::shared_ptr<Setting<int>> ambientOcclusion;
 		std::shared_ptr<Setting<bool>> vsync;
 		std::shared_ptr<Setting<int>> windowWidth;

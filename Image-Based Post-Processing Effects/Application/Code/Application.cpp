@@ -53,6 +53,7 @@ namespace App
 		COMBINED_FUNC_DEF(hbaoRadius, double)
 		COMBINED_FUNC_DEF(hbaoMaxRadiusPixels, double)
 		COMBINED_FUNC_DEF(hbaoAngleBias, double)
+		COMBINED_FUNC_DEF(screenSpaceReflectionsEnabled, bool)
 
 		void TW_CALL windowResolutionGetCallback(void *value, void *clientData)
 	{
@@ -199,6 +200,7 @@ namespace App
 			hbaoRadius = settingsManager.getDoubleSetting("graphics", "hbao_radius", 0.3);
 			hbaoMaxRadiusPixels = settingsManager.getDoubleSetting("graphics", "hbao_max_radius_pixels", 50.0);
 			hbaoAngleBias = settingsManager.getDoubleSetting("graphics", "hbao_angle_bias", glm::tan(glm::radians(30.0f)));
+			screenSpaceReflectionsEnabled = settingsManager.getBoolSetting("graphics", "screen_space_reflections_enabled", false);
 
 			settingsManager.saveToIni();
 		}
@@ -312,6 +314,11 @@ namespace App
 			{
 				TwAddVarCB(settingsTweakBar, "Lens Flares", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensFlaresEnabled), GETTER_FUNC_PTR(lensFlaresEnabled), this, "group=Lens");
 				TwAddVarCB(settingsTweakBar, "Bloom", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(bloomEnabled), GETTER_FUNC_PTR(bloomEnabled), this, "group=Lens ");
+			}
+
+			// reflections
+			{
+				TwAddVarCB(settingsTweakBar, "Screen Space Reflections", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(screenSpaceReflectionsEnabled), GETTER_FUNC_PTR(screenSpaceReflectionsEnabled), this, "group=Reflections");
 			}
 
 			// depth of field
