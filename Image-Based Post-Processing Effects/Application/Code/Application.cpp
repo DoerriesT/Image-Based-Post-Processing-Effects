@@ -2,19 +2,168 @@
 #include "Application.h"
 #include "Levels.h"
 #include <EntityComponentSystem\SystemManager.h>
-#include <Gui\GuiJSONParser.h>
-#include <Gui\nuklearInclude.h>
-#include <Gui\GuiLayout.h>
-#include <Gui\GuiEvent.h>
+#include <EntityComponentSystem\EntityManager.h>
 #include <Engine.h>
 #include <Window\Window.h>
 #include <random>
 #include <EasingFunctions.h>
 #include <Input\UserInput.h>
 #include <Input\Gamepad.h>
+#include <Graphics\Effects.h>
+
+#define GETTER_FUNC_DEF(name, type) void TW_CALL name##GetCallback(void *value, void *clientData)	\
+									{																\
+										App::Application *app = (App::Application *)clientData;		\
+										*(type *)value = app->##name##->get();					\
+									}
+
+#define SETTER_FUNC_DEF(name, type) void TW_CALL name##SetCallback(const void *value, void *clientData)	\
+									{																	\
+										App::Application *app = (App::Application *)clientData;			\
+										app->##name##->set(*(type *)value);								\
+										SettingsManager::getInstance().saveToIni();						\
+									}
+
+#define COMBINED_FUNC_DEF(name, type) GETTER_FUNC_DEF(name, type) SETTER_FUNC_DEF(name, type)
+#define GETTER_FUNC_PTR(name) name##GetCallback
+#define SETTER_FUNC_PTR(name) name##SetCallback
 
 namespace App
 {
+	COMBINED_FUNC_DEF(shadowQuality, int)
+		COMBINED_FUNC_DEF(anisotropicFiltering, int)
+		COMBINED_FUNC_DEF(bloomEnabled, bool)
+		COMBINED_FUNC_DEF(fxaaEnabled, bool)
+		COMBINED_FUNC_DEF(smaaEnabled, bool)
+		COMBINED_FUNC_DEF(smaaTemporalAA, bool)
+		COMBINED_FUNC_DEF(lensFlaresEnabled, bool)
+		COMBINED_FUNC_DEF(ambientOcclusion, int)
+		COMBINED_FUNC_DEF(vsync, bool)
+		COMBINED_FUNC_DEF(windowWidth, int)
+		COMBINED_FUNC_DEF(windowHeight, int)
+		COMBINED_FUNC_DEF(windowMode, int)
+		COMBINED_FUNC_DEF(motionBlur, int)
+		COMBINED_FUNC_DEF(depthOfField, int)
+		COMBINED_FUNC_DEF(ssaoKernelSize, int)
+		COMBINED_FUNC_DEF(ssaoRadius, double)
+		COMBINED_FUNC_DEF(ssaoStrength, double)
+		COMBINED_FUNC_DEF(hbaoDirections, int)
+		COMBINED_FUNC_DEF(hbaoSteps, int)
+		COMBINED_FUNC_DEF(hbaoStrength, double)
+		COMBINED_FUNC_DEF(hbaoRadius, double)
+		COMBINED_FUNC_DEF(hbaoMaxRadiusPixels, double)
+		COMBINED_FUNC_DEF(hbaoAngleBias, double)
+
+		void TW_CALL windowResolutionGetCallback(void *value, void *clientData)
+	{
+		*(int *)value = (int)Engine::getInstance()->getWindow()->getSelectedResolutionIndex();
+	}
+
+	void TW_CALL windowResolutionSetCallback(const void *value, void *clientData)
+	{
+		Window *window = Engine::getInstance()->getWindow();
+		auto resolution = window->getSupportedResolutions()[*(int *)value];
+
+		App::Application *app = (App::Application *)clientData;
+		app->windowWidth->set((int)resolution.first);
+		app->windowHeight->set((int)resolution.second);
+		SettingsManager::getInstance().saveToIni();
+	}
+
+	void TW_CALL colorsGetCallback(void *value, void *clientData)
+	{
+		*(bool *)value = ((App::Application *)clientData)->colors;
+	}
+
+	void TW_CALL colorsSetCallback(const void *value, void *clientData)
+	{
+		App::Application *app = ((App::Application *)clientData);
+		app->colors = *(bool *)value;
+		EntityManager &entityManager = EntityManager::getInstance();
+		std::default_random_engine e;
+		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+		std::uniform_real_distribution<float> dist1(1.0f, 3.0f);
+
+		for (int i = 0; i < 10; ++i)
+		{
+			for (int j = 0; j < 10; ++j)
+			{
+				const Entity *entity = app->level->entityMap.at("teapot" + std::to_string(i * 10 + j));
+
+				assert(entity);
+
+				glm::vec3 color(1.0);
+
+				if (app->colors)
+				{
+					color = glm::vec3(dist(e), dist(e), dist(e));
+				}
+				entityManager.getComponent<ModelComponent>(entity)->model[0].second.setAlbedo(glm::vec4(color, 1.0));
+			}
+		}
+	}
+
+	void TW_CALL bouncingGetCallback(void *value, void *clientData)
+	{
+		*(bool *)value = ((App::Application *)clientData)->bouncing;
+	}
+
+	void TW_CALL bouncingSetCallback(const void *value, void *clientData)
+	{
+		App::Application *app = ((App::Application *)clientData);
+		app->bouncing = *(bool *)value;
+
+		EntityManager &entityManager = EntityManager::getInstance();
+		std::default_random_engine e;
+		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+		std::uniform_real_distribution<float> dist1(1.0f, 3.0f);
+
+		for (int i = 0; i < 10; ++i)
+		{
+			for (int j = 0; j < 10; ++j)
+			{
+				const Entity *entity = app->level->entityMap.at("teapot" + std::to_string(i * 10 + j));
+
+				assert(entity);
+
+				glm::vec3 position = glm::vec3(i - 5.0f, 0.0f, j - 5.0f) * 0.2f;
+
+				if (app->bouncing)
+				{
+					glm::vec3 bouncePos = position + glm::vec3(0.0f, 3.0f, 0.0f);
+					float speed = dist1(e);
+
+					std::vector<PathSegment> pathSegments;
+					pathSegments.push_back(PathSegment(
+						position,	// start pos
+						bouncePos,	// end pos
+						glm::vec3(0.0f, 1.0f, 0.0f),						// start tangent
+						glm::vec3(0.0f, 1.0f, 0.0f),						// end tangent
+						speed,														// duration
+						linear));													// easing function
+					pathSegments.push_back(PathSegment(
+						bouncePos,
+						position,
+						glm::vec3(0.0f, -1.0f, 0.0),
+						glm::vec3(0.0f, -1.0f, 0.0),
+						speed,
+						linear));
+					entityManager.addComponent<MovementPathComponent>(entity, pathSegments, Engine::getTime(), true);
+					entityManager.addComponent<PerpetualRotationComponent>(entity, glm::vec3(dist(e), dist(e), dist(e)));
+				}
+				else
+				{
+					entityManager.removeComponent<MovementPathComponent>(entity);
+					entityManager.removeComponent<PerpetualRotationComponent>(entity);
+					TransformationComponent *tc = entityManager.getComponent<TransformationComponent>(entity);
+					tc->position = position;
+					tc->rotation = glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f));
+				}
+
+			}
+		}
+	}
+
 	Application::Application()
 		:cameraController()
 	{
@@ -59,28 +208,157 @@ namespace App
 		SystemManager::getInstance().setLevel(level);
 		cameraController.setCamera(level->cameras[level->activeCameraIndex]);
 
-		gui.init();
-		GuiStyleSheet style = GuiJSONParser::parseStyleJSONFile("Resources/Gui/stylesheet.sts");
-		gui.setStyleSheet(style);
+		TwInit(TW_OPENGL_CORE, NULL); // for core profile
+		TwWindowSize(windowWidth->get(), windowHeight->get());
+		settingsTweakBar = TwNewBar("Settings");
+		TwDefine("Settings refresh=0.49");
 
-		optionsGui = std::unique_ptr<GuiLayout>(GuiJSONParser::parseLayoutJSONFile("Resources/Gui/settings.lyt"));
-		optionsGui->init();
-		optionsGui->setEventListener(this);
-		optionsGui->setDisabled(false);
+		{
+			// timings
+			{
+				TwAddVarRO(settingsTweakBar, "FPS", TW_TYPE_STDSTRING, &fpsStr, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "FPS Average", TW_TYPE_STDSTRING, &fpsAvgStr, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "FPS Worst", TW_TYPE_STDSTRING, &fpsWorstStr, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Frame Time", TW_TYPE_STDSTRING, &frameTimeStr, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Frame Time Average", TW_TYPE_STDSTRING, &frameTimeAvgStr, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Frame Time Worst", TW_TYPE_STDSTRING, &frameTimeWorstStr, "group=Timings");
+			}
 
-		gui.setLayout(optionsGui.get());
+			// window
+			{
+				// window mode
+				{
+					TwEnumVal windowOptions[] = { { (int)WindowMode::WINDOWED, "Windowed" },{ (int)WindowMode::BORDERLESS_FULLSCREEN, "Borderless Fullscreen" },{ (int)WindowMode::FULLSCREEN, "Fullscreen" } };
+					TwType WindowModeTwType = TwDefineEnum("WindowModeType", windowOptions, 3);
+					TwAddVarCB(settingsTweakBar, "Window Mode", WindowModeTwType, SETTER_FUNC_PTR(windowMode), GETTER_FUNC_PTR(windowMode), this, "group=Window");
+				}
 
-		//SettingsManager::getInstance().saveToIni();
+				// window resolution
+				{
+					std::vector<TwEnumVal> resolutionOptions;
+					Window *window = Engine::getInstance()->getWindow();
+					auto resolutions = window->getSupportedResolutions();
+					size_t resolutionsCount = resolutions.size();
+					assert(!resolutions.empty());
 
-		initGuiData();
+					for (size_t i = 0; i < resolutionsCount; ++i)
+					{
+						const unsigned int w = resolutions[i].first;
+						const unsigned int h = resolutions[i].second;
+						resolutionOptionStrings.push_back(std::to_string(w) + " x " + std::to_string(h));
+					}
 
-		optionsGui->getElementById<GuiWindow>("settings_window")->setFlag(NK_WINDOW_MINIMIZABLE, true);
+					// only call c_str() after vector is completely filled (don't touch it after this point or the char pointers will invalidate)
+					// TODO: find better solution
+					for (size_t i = 0; i < resolutionOptionStrings.size(); ++i)
+					{
+						const char *str = resolutionOptionStrings[i].c_str();
+						resolutionOptions.push_back({ (int)i, str });
+					}
+
+					TwType ResolutionTwType = TwDefineEnum("ResolutionType", resolutionOptions.data(), resolutionOptions.size());
+					TwAddVarCB(settingsTweakBar, "Window Resolution", ResolutionTwType, SETTER_FUNC_PTR(windowResolution), GETTER_FUNC_PTR(windowResolution), this, "group=Window");
+				}
+
+				// vsync
+				TwAddVarCB(settingsTweakBar, "V-Sync", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(vsync), GETTER_FUNC_PTR(vsync), this, "group=Window");
+			}
+
+			// shadows
+			{
+				// shadow quality
+				{
+					TwEnumVal shadowOptions[] = { { (int)ShadowQuality::OFF, "Off" },{ (int)ShadowQuality::NORMAL, "Normal" } };
+					TwType ShadowTwType = TwDefineEnum("ShadowType", shadowOptions, 2);
+					TwAddVarCB(settingsTweakBar, "Shadow Quality", ShadowTwType, SETTER_FUNC_PTR(shadowQuality), GETTER_FUNC_PTR(shadowQuality), this, "group=Shadows");
+				}
+			}
+
+			// af
+			{
+				// af
+				{
+					int aa = Engine::getInstance()->getMaxAnisotropicFiltering();
+					std::vector<TwEnumVal> afOptions;
+					afOptions.push_back({ 1, "Off" });
+
+					for (int i = 2; i <= aa; i *= 2)
+					{
+						// strings need to reside somewhere -> c_str()
+						afOptionStrings.push_back("x" + std::to_string(i));
+					}
+
+					// only call c_str() after vector is completely filled (don't touch it after this point or the char pointers will invalidate)
+					// TODO: find better solution
+					for (int i = 2, j = 0; i <= aa; i *= 2, ++j)
+					{
+						const char *str = afOptionStrings[j].c_str();
+						afOptions.push_back({ i, str });
+					}
+
+					TwType DofTwType = TwDefineEnum("AfType", afOptions.data(), afOptions.size());
+					TwAddVarCB(settingsTweakBar, "Anisotropic Filtering", DofTwType, SETTER_FUNC_PTR(anisotropicFiltering), GETTER_FUNC_PTR(anisotropicFiltering), this, "group=Anisotropic_Filtering");
+				}
+			}
+
+			// anti aliasing
+			{
+				TwAddVarCB(settingsTweakBar, "FXAA", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(fxaaEnabled), GETTER_FUNC_PTR(fxaaEnabled), this, "group=Anti-Aliasing");
+				TwAddVarCB(settingsTweakBar, "SMAA", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(smaaEnabled), GETTER_FUNC_PTR(smaaEnabled), this, "group=Anti-Aliasing");
+				TwAddVarCB(settingsTweakBar, "SMAA Temporal AA", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(smaaTemporalAA), GETTER_FUNC_PTR(smaaTemporalAA), this, "group=Anti-Aliasing");
+			}
+
+			// lens
+			{
+				TwAddVarCB(settingsTweakBar, "Lens Flares", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensFlaresEnabled), GETTER_FUNC_PTR(lensFlaresEnabled), this, "group=Lens");
+				TwAddVarCB(settingsTweakBar, "Bloom", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(bloomEnabled), GETTER_FUNC_PTR(bloomEnabled), this, "group=Lens ");
+			}
+
+			// depth of field
+			{
+				TwEnumVal dofOptions[] = { { (int)DepthOfField::OFF, "Off" },{ (int)DepthOfField::SIMPLE, "Simple" },{ (int)DepthOfField::SPRITE_BASED, "Sprite Based" },{ (int)DepthOfField::TILE_BASED_SEPERATE, "Tile-Based Seperate" },{ (int)DepthOfField::TILE_BASED_COMBINED, "Tile-Based Combined" } };
+				TwType DofTwType = TwDefineEnum("DepthOfFieldType", dofOptions, 5);
+				TwAddVarCB(settingsTweakBar, "Depth of Field", DofTwType, SETTER_FUNC_PTR(depthOfField), GETTER_FUNC_PTR(depthOfField), this, "group=Depth_of_Field");
+			}
+
+			// motion blur
+			{
+				TwEnumVal mbOptions[] = { { (int)MotionBlur::OFF, "Off" },{ (int)MotionBlur::SIMPLE, "Simple" },{ (int)MotionBlur::TILE_BASED_SINGLE, "Tile-Based Single Direction" },{ (int)MotionBlur::TILE_BASED_MULTI, "Tile-Based Multi Direction" } };
+				TwType MbTwType = TwDefineEnum("MotionBlurType", mbOptions, 4);
+				TwAddVarCB(settingsTweakBar, "Motion Blur", MbTwType, SETTER_FUNC_PTR(motionBlur), GETTER_FUNC_PTR(motionBlur), this, "group=Motion_Blur");
+			}
+
+			// ambient occlusion
+			{
+				TwEnumVal aoOptions[] = { { (int)AmbientOcclusion::OFF, "Off" }, { (int)AmbientOcclusion::SSAO_ORIGINAL, "SSAO (Original)" }, { (int)AmbientOcclusion::SSAO, "SSAO" }, { (int)AmbientOcclusion::HBAO, "HBAO" } };
+				TwType AoTwType = TwDefineEnum("AoType", aoOptions, 4);
+				TwAddVarCB(settingsTweakBar, "Ambient Occlusion", AoTwType, SETTER_FUNC_PTR(ambientOcclusion), GETTER_FUNC_PTR(ambientOcclusion), this, "group=Ambient_Occlusion");
+
+				TwAddVarCB(settingsTweakBar, "SSAO Kernel Size", TW_TYPE_INT32, SETTER_FUNC_PTR(ssaoKernelSize), GETTER_FUNC_PTR(ssaoKernelSize), this, "group=Ambient_Occlusion min=1 max=64");
+				TwAddVarCB(settingsTweakBar, "SSAO Radius", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(ssaoRadius), GETTER_FUNC_PTR(ssaoRadius), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
+				TwAddVarCB(settingsTweakBar, "SSAO Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(ssaoStrength), GETTER_FUNC_PTR(ssaoStrength), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
+				TwAddVarCB(settingsTweakBar, "HBAO Directions", TW_TYPE_INT32, SETTER_FUNC_PTR(hbaoDirections), GETTER_FUNC_PTR(hbaoDirections), this, "group=Ambient_Occlusion min=1 max=32");
+				TwAddVarCB(settingsTweakBar, "HBAO Steps", TW_TYPE_INT32, SETTER_FUNC_PTR(hbaoSteps), GETTER_FUNC_PTR(hbaoSteps), this, "group=Ambient_Occlusion min=1 max=32");
+				TwAddVarCB(settingsTweakBar, "HBAO Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoStrength), GETTER_FUNC_PTR(hbaoStrength), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
+				TwAddVarCB(settingsTweakBar, "HBAO Radius", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoRadius), GETTER_FUNC_PTR(hbaoRadius), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
+				TwAddVarCB(settingsTweakBar, "HBAO Max Radius Pixels", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoMaxRadiusPixels), GETTER_FUNC_PTR(hbaoMaxRadiusPixels), this, "group=Ambient_Occlusion min=1 max=256");
+				TwAddVarCB(settingsTweakBar, "HBAO Angle Bias", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoAngleBias), GETTER_FUNC_PTR(hbaoAngleBias), this, "group=Ambient_Occlusion min=0.0 max=1.5 step=0.01");
+			}
+
+			// scene
+			{
+				TwAddVarCB(settingsTweakBar, "Colors", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(colors), GETTER_FUNC_PTR(colors), this, "group=Scene");
+				TwAddVarCB(settingsTweakBar, "Bouncing", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(bouncing), GETTER_FUNC_PTR(bouncing), this, "group=Scene");
+			}
+		}
+
+		Engine::getInstance()->getWindow()->addInputListener(this);
+		Engine::getInstance()->getWindow()->addResizeListener(this);
 	}
 
 	void Application::input(double time, double timeDelta)
 	{
 		cameraController.input(time, timeDelta);
-		gui.input();
 	}
 
 	void Application::update(double time, double timeDelta)
@@ -126,408 +404,51 @@ namespace App
 		worstFrameTime = glm::max(worstFrameTime, timeDelta);
 		worstFps = glm::min(worstFps, fps);
 
-		std::string fpsStr = std::to_string(fps).substr(0, 6);
-		std::string fpsAvgStr = std::to_string(fpsAvg).substr(0, 6);
-		std::string fpsWorstStr = std::to_string(worstFps).substr(0, 6);
-		std::string frameTimeStr = std::to_string(timeDelta * 1000.0).substr(0, 6);
-		std::string frameTimeAvgStr = std::to_string(frameTimeAvg * 1000.0).substr(0, 6);
-		std::string frameTimeWorstStr = std::to_string(worstFrameTime * 1000.0).substr(0, 6);
+		fpsStr = std::to_string(fps).substr(0, 6);
+		fpsAvgStr = std::to_string(fpsAvg).substr(0, 6);
+		fpsWorstStr = std::to_string(worstFps).substr(0, 6);
+		frameTimeStr = std::to_string(timeDelta * 1000.0).substr(0, 6);
+		frameTimeAvgStr = std::to_string(frameTimeAvg * 1000.0).substr(0, 6);
+		frameTimeWorstStr = std::to_string(worstFrameTime * 1000.0).substr(0, 6);
 
-		optionsGui->getElementById<GuiLabel>("fps_label")->setText(fpsStr);
-		optionsGui->getElementById<GuiLabel>("fps_avg_label")->setText(fpsAvgStr);
-		optionsGui->getElementById<GuiLabel>("fps_worst_label")->setText(fpsWorstStr);
-		optionsGui->getElementById<GuiLabel>("frame_time_label")->setText(frameTimeStr);
-		optionsGui->getElementById<GuiLabel>("frame_time_avg_label")->setText(frameTimeAvgStr);
-		optionsGui->getElementById<GuiLabel>("frame_time_worst_label")->setText(frameTimeWorstStr);
-		gui.render();
+		TwDraw();
 	}
 
-	void Application::guiEventNotification(GuiEvent & _event)
+	void Application::onKey(int _key, int _action)
 	{
-		const char *id = _event.source->getId();
-
-		SettingsManager &settingsManager = SettingsManager::getInstance();
-		const int ON = 0, OFF = 1;
-
-		GuiComboBox *box;
-		GuiToggle *checkbox;
-		GuiSlider *slider;
-
-		if (optionsGui->getElementById("window_mode_box", box) && _event.source == box)
-		{
-			windowMode->set((int)box->getSelectedItem());
-		}
-		if (optionsGui->getElementById("resolution_box", box) && _event.source == box)
-		{
-			auto window = Engine::getInstance()->getWindow();
-			auto resolutions = window->getSupportedResolutions();
-			auto resolution = resolutions[box->getSelectedItem()];
-
-			windowWidth->set((int)resolution.first);
-			windowHeight->set((int)resolution.second);
-
-		}
-		if (optionsGui->getElementById("vsync_checkbox", checkbox) && _event.source == checkbox)
-		{
-			vsync->set(checkbox->isChecked());
-		}
-		if (optionsGui->getElementById("fxaa_checkbox", checkbox) && _event.source == checkbox)
-		{
-			fxaaEnabled->set(checkbox->isChecked());
-		}
-		if (optionsGui->getElementById("smaa_box", box) && _event.source == box)
-		{
-			switch (box->getSelectedItem())
-			{
-			case 0:
-				smaaEnabled->set(false);
-				break;
-			case 1:
-				smaaEnabled->set(true);
-				smaaTemporalAA->set(false);
-				break;
-			case 2:
-				smaaEnabled->set(true);
-				smaaTemporalAA->set(true);
-				break;
-			}
-		}
-		if (optionsGui->getElementById("anisotropic_filtering_box", box) && _event.source == box)
-		{
-			int aa = (int)glm::pow(2, box->getSelectedItem());
-			anisotropicFiltering->set(aa);
-		}
-		if (optionsGui->getElementById("shadow_quality_box", box) && _event.source == box)
-		{
-			shadowQuality->set((int)box->getSelectedItem());
-		}
-		if (optionsGui->getElementById("lens_flare_checkbox", checkbox) && _event.source == checkbox)
-		{
-			lensFlaresEnabled->set(checkbox->isChecked());
-		}
-		if (optionsGui->getElementById("bloom_checkbox", checkbox) && _event.source == checkbox)
-		{
-			bloomEnabled->set(checkbox->isChecked());
-		}
-		if (optionsGui->getElementById("ambient_occlusion_box", box) && _event.source == box)
-		{
-			ambientOcclusion->set(static_cast<int>(box->getSelectedItem()));
-		}
-		if (optionsGui->getElementById("motion_blur_box", box) && _event.source == box)
-		{
-			motionBlur->set(box->getSelectedItem());
-		}
-		if (optionsGui->getElementById("depth_of_field_box", box) && _event.source == box)
-		{
-			depthOfField->set(box->getSelectedItem());
-		}
-		if (optionsGui->getElementById("bounce_checkbox", checkbox) && _event.source == checkbox)
-		{
-			bool bounce = checkbox->isChecked();
-			EntityManager &entityManager = EntityManager::getInstance();
-			std::default_random_engine e;
-			std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-			std::uniform_real_distribution<float> dist1(1.0f, 3.0f);
-
-			for (int i = 0; i < 10; ++i)
-			{
-				for (int j = 0; j < 10; ++j)
-				{
-					const Entity *entity = level->entityMap.at("teapot" + std::to_string(i * 10 + j));
-
-					assert(entity);
-
-					glm::vec3 position = glm::vec3(i - 5.0f, 0.0f, j - 5.0f) * 0.2f;
-
-					if (bounce)
-					{
-						glm::vec3 bouncePos = position + glm::vec3(0.0f, 3.0f, 0.0f);
-						float speed = dist1(e);
-
-						std::vector<PathSegment> pathSegments;
-						pathSegments.push_back(PathSegment(
-							position,	// start pos
-							bouncePos,	// end pos
-							glm::vec3(0.0f, 1.0f, 0.0f),						// start tangent
-							glm::vec3(0.0f, 1.0f, 0.0f),						// end tangent
-							speed,														// duration
-							linear));													// easing function
-						pathSegments.push_back(PathSegment(
-							bouncePos,
-							position,
-							glm::vec3(0.0f, -1.0f, 0.0),
-							glm::vec3(0.0f, -1.0f, 0.0),
-							speed,
-							linear));
-						entityManager.addComponent<MovementPathComponent>(entity, pathSegments, Engine::getTime(), true);
-						entityManager.addComponent<PerpetualRotationComponent>(entity, glm::vec3(dist(e), dist(e), dist(e)));
-					}
-					else
-					{
-						entityManager.removeComponent<MovementPathComponent>(entity);
-						entityManager.removeComponent<PerpetualRotationComponent>(entity);
-						TransformationComponent *tc = entityManager.getComponent<TransformationComponent>(entity);
-						tc->position = position;
-						tc->rotation = glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f));
-					}
-
-				}
-			}
-		}
-		if (optionsGui->getElementById("colors_checkbox", checkbox) && _event.source == checkbox)
-		{
-			bool colors = checkbox->isChecked();
-			EntityManager &entityManager = EntityManager::getInstance();
-			std::default_random_engine e;
-			std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-			std::uniform_real_distribution<float> dist1(1.0f, 3.0f);
-
-			for (int i = 0; i < 10; ++i)
-			{
-				for (int j = 0; j < 10; ++j)
-				{
-					const Entity *entity = level->entityMap.at("teapot" + std::to_string(i * 10 + j));
-
-					assert(entity);
-
-					glm::vec3 color(1.0);
-
-					if (colors)
-					{
-						color = glm::vec3(dist(e), dist(e), dist(e));
-					}
-					entityManager.getComponent<ModelComponent>(entity)->model[0].second.setAlbedo(glm::vec4(color, 1.0));
-				}
-			}
-		}
-		if (optionsGui->getElementById("ssao_kernel_size_slider", slider) && _event.source == slider)
-		{
-			ssaoKernelSize->set((int)slider->getValue());
-			optionsGui->getElementById<GuiLabel>("ssao_kernel_size_label")->setText(std::to_string(ssaoKernelSize->get()));
-		}
-		if (optionsGui->getElementById("ssao_radius_slider", slider) && _event.source == slider)
-		{
-			ssaoRadius->set(slider->getValue());
-			optionsGui->getElementById<GuiLabel>("ssao_radius_label")->setText(std::to_string(ssaoRadius->get()));
-		}
-		if (optionsGui->getElementById("ssao_strength_slider", slider) && _event.source == slider)
-		{
-			ssaoStrength->set(slider->getValue());
-			optionsGui->getElementById<GuiLabel>("ssao_strength_label")->setText(std::to_string(ssaoStrength->get()));
-		}
-		if (optionsGui->getElementById("hbao_directions_slider", slider) && _event.source == slider)
-		{
-			hbaoDirections->set((int)slider->getValue());
-			optionsGui->getElementById<GuiLabel>("hbao_directions_label")->setText(std::to_string(hbaoDirections->get()));
-		}
-		if (optionsGui->getElementById("hbao_steps_slider", slider) && _event.source == slider)
-		{
-			hbaoSteps->set((int)slider->getValue());
-			optionsGui->getElementById<GuiLabel>("hbao_steps_label")->setText(std::to_string(hbaoSteps->get()));
-		}
-		if (optionsGui->getElementById("hbao_strength_slider", slider) && _event.source == slider)
-		{
-			hbaoStrength->set(slider->getValue());
-			optionsGui->getElementById<GuiLabel>("hbao_strength_label")->setText(std::to_string(hbaoStrength->get()));
-		}
-		if (optionsGui->getElementById("hbao_radius_slider", slider) && _event.source == slider)
-		{
-			hbaoRadius->set(slider->getValue());
-			optionsGui->getElementById<GuiLabel>("hbao_radius_label")->setText(std::to_string(hbaoRadius->get()));
-		}
-		if (optionsGui->getElementById("hbao_max_radius_pixels_slider", slider) && _event.source == slider)
-		{
-			hbaoMaxRadiusPixels->set(slider->getValue());
-			optionsGui->getElementById<GuiLabel>("hbao_max_radius_pixels_label")->setText(std::to_string(hbaoMaxRadiusPixels->get()));
-		}
-		if (optionsGui->getElementById("hbao_angle_bias_slider", slider) && _event.source == slider)
-		{
-			hbaoAngleBias->set(slider->getValue());
-			optionsGui->getElementById<GuiLabel>("hbao_angle_bias_label")->setText(std::to_string(hbaoAngleBias->get()));
-		}
-		if (optionsGui->getElementById("hbao_angle_bias_slider", slider) && _event.source == slider)
-		{
-			hbaoAngleBias->set(slider->getValue());
-			optionsGui->getElementById<GuiLabel>("hbao_angle_bias_label")->setText(std::to_string(hbaoAngleBias->get()));
-		}
-		if (optionsGui->getElementById("water_enabled_checkbox", checkbox) && _event.source == checkbox)
-		{
-			level->water.enabled = checkbox->isChecked();
-		}
-		if (optionsGui->getElementById("water_wind_dir_x_slider", slider) && _event.source == slider)
-		{
-			level->water.normalizedWindDirection.x = slider->getValue();
-			level->water.normalizedWindDirection = glm::normalize(level->water.normalizedWindDirection);
-		}
-		if (optionsGui->getElementById("water_wind_dir_y_slider", slider) && _event.source == slider)
-		{
-			level->water.normalizedWindDirection.y = slider->getValue();
-			level->water.normalizedWindDirection = glm::normalize(level->water.normalizedWindDirection);
-		}
-		if (optionsGui->getElementById("water_amplitude", slider) && _event.source == slider)
-		{
-			level->water.waveAmplitude = slider->getValue();
-		}
-		if (optionsGui->getElementById("water_choppiness", slider) && _event.source == slider)
-		{
-			level->water.waveChoppiness = slider->getValue();
-		}
-		if (optionsGui->getElementById("water_wave_suppression", slider) && _event.source == slider)
-		{
-			level->water.waveSuppressionExponent = slider->getValue();
-		}
-		if (optionsGui->getElementById("water_wind_speed", slider) && _event.source == slider)
-		{
-			level->water.windSpeed = slider->getValue();
-		}
-		if (optionsGui->getElementById("water_world_size", slider) && _event.source == slider)
-		{
-			level->water.worldSize = static_cast<unsigned int>(slider->getValue());
-		}
-		if (optionsGui->getElementById("water_high_res", checkbox) && _event.source == checkbox)
-		{
-			level->water.simulationResolution = checkbox->isChecked() ? 512 : 256;
-		}
-
-		settingsManager.saveToIni();
+		TwEventKeyGLFW(_key, _action);
 	}
 
-
-	void Application::initGuiData()
+	void Application::onChar(int _charKey)
 	{
-		SettingsManager &settingsManager = SettingsManager::getInstance();
-		const int ON = 0, OFF = 1;
+		TwEventCharGLFW(_charKey, 1);
+	}
 
+	void Application::onMouseButton(int _mouseButton, int _action)
+	{
+		TwEventMouseButtonGLFW(_mouseButton, _action);
+	}
 
-		GuiComboBox *box;
-		GuiToggle *checkbox;
-		GuiSlider *slider;
+	void Application::onMouseMove(double _x, double _y)
+	{
+		TwEventMousePosGLFW((int)_x, (int)_y);
+	}
 
-		if (optionsGui->getElementById("window_mode_box", box))
-		{
-			box->setSelectedItem(static_cast<size_t>(windowMode->get()));
-		}
-		if (optionsGui->getElementById("resolution_box", box))
-		{
-			auto window = Engine::getInstance()->getWindow();
-			auto resolutions = window->getSupportedResolutions();
-			size_t resolutionsCount = resolutions.size();
-			auto selectedResolution = window->getSelectedResolution();
-			assert(!resolutions.empty());
+	void Application::onMouseEnter(bool _entered)
+	{
+	}
 
-			std::vector<std::string> resolutionStrings;
-			size_t selectedIndex = 0;
-			for (size_t i = 0; i < resolutionsCount; ++i)
-			{
-				const unsigned int w = resolutions[i].first;
-				const unsigned int h = resolutions[i].second;
-				resolutionStrings.push_back(std::to_string(w) + " x " + std::to_string(h));
-				if (w == selectedResolution.first && h == selectedResolution.second)
-				{
-					selectedIndex = i;
-				}
-			}
+	void Application::onMouseScroll(double _xOffset, double _yOffset)
+	{
+		TwEventMouseWheelGLFW((int)_yOffset);
+	}
 
-			box->setItems(resolutionStrings);
-			box->setSelectedItem(selectedIndex);
-		}
-		if (optionsGui->getElementById("vsync_checkbox", checkbox))
-		{
-			checkbox->setChecked(vsync->get());
-		}
-		if (optionsGui->getElementById("fxaa_checkbox", checkbox))
-		{
-			checkbox->setChecked(fxaaEnabled->get());
-		}
-		if (optionsGui->getElementById("smaa_box", box))
-		{
-			box->setSelectedItem(smaaEnabled->get() ? smaaTemporalAA->get() ? 2 : 1 : 0);
-		}
-		if (optionsGui->getElementById("anisotropic_filtering_box", box))
-		{
-			int aa = Engine::getInstance()->getMaxAnisotropicFiltering();
-			std::vector<std::string> aaStrings;
-			aaStrings.push_back("Off");
+	void Application::gamepadUpdate(const std::vector<Gamepad>* _gamepads)
+	{
+	}
 
-			for (int i = 2; i <= aa; i *= 2)
-			{
-				aaStrings.push_back("x" + std::to_string(i));
-			}
-
-			int af = anisotropicFiltering->get();
-			size_t index = (size_t)log2(af);
-			box->setItems(aaStrings);
-			box->setSelectedItem(index);
-		}
-		if (optionsGui->getElementById("shadow_quality_box", box))
-		{
-			box->setSelectedItem(static_cast<size_t>(shadowQuality->get()));
-		}
-		if (optionsGui->getElementById("lens_flare_checkbox", checkbox))
-		{
-			checkbox->setChecked(lensFlaresEnabled->get());
-		}
-		if (optionsGui->getElementById("bloom_checkbox", checkbox))
-		{
-			checkbox->setChecked(bloomEnabled->get());
-		}
-		if (optionsGui->getElementById("ambient_occlusion_checkbox", checkbox))
-		{
-			checkbox->setChecked(ambientOcclusion->get());
-		}
-		if (optionsGui->getElementById("motion_blur_box", box))
-		{
-			box->setSelectedItem(static_cast<size_t>(motionBlur->get()));
-		}
-		if (optionsGui->getElementById("depth_of_field_box", box))
-		{
-			box->setSelectedItem(static_cast<size_t>(depthOfField->get()));
-		}
-		if (optionsGui->getElementById("ambient_occlusion_box", box))
-		{
-			box->setSelectedItem(static_cast<size_t>(ambientOcclusion->get()));
-		}
-		if (optionsGui->getElementById("ssao_kernel_size_slider", slider))
-		{
-			slider->setValue(static_cast<float>(ssaoKernelSize->get()));
-		}
-		if (optionsGui->getElementById("ssao_radius_slider", slider))
-		{
-			slider->setValue(static_cast<float>(ssaoRadius->get()));
-		}
-		if (optionsGui->getElementById("hbao_directions_slider", slider))
-		{
-			slider->setValue(static_cast<float>(hbaoDirections->get()));
-		}
-		if (optionsGui->getElementById("hbao_steps_slider", slider))
-		{
-			slider->setValue(static_cast<float>(hbaoSteps->get()));
-		}
-		if (optionsGui->getElementById("hbao_strength_slider", slider))
-		{
-			slider->setValue(static_cast<float>(hbaoStrength->get()));
-		}
-		if (optionsGui->getElementById("hbao_radius_slider", slider))
-		{
-			slider->setValue(static_cast<float>(hbaoRadius->get()));
-		}
-		if (optionsGui->getElementById("hbao_max_radius_pixels_slider", slider))
-		{
-			slider->setValue(static_cast<float>(hbaoMaxRadiusPixels->get()));
-		}
-		if (optionsGui->getElementById("hbao_angle_bias_slider", slider))
-		{
-			slider->setValue(static_cast<float>(hbaoAngleBias->get()));
-		}
-		optionsGui->getElementById<GuiLabel>("ssao_radius_label")->setText(std::to_string(ssaoRadius->get()));
-		optionsGui->getElementById<GuiLabel>("ssao_kernel_size_label")->setText(std::to_string(ssaoKernelSize->get()));
-		optionsGui->getElementById<GuiLabel>("ssao_strength_label")->setText(std::to_string(ssaoStrength->get()));
-		optionsGui->getElementById<GuiLabel>("hbao_directions_label")->setText(std::to_string(hbaoDirections->get()));
-		optionsGui->getElementById<GuiLabel>("hbao_steps_label")->setText(std::to_string(hbaoSteps->get()));
-		optionsGui->getElementById<GuiLabel>("hbao_strength_label")->setText(std::to_string(hbaoStrength->get()));
-		optionsGui->getElementById<GuiLabel>("hbao_radius_label")->setText(std::to_string(hbaoRadius->get()));
-		optionsGui->getElementById<GuiLabel>("hbao_max_radius_pixels_label")->setText(std::to_string(hbaoMaxRadiusPixels->get()));
-		optionsGui->getElementById<GuiLabel>("hbao_angle_bias_label")->setText(std::to_string(hbaoAngleBias->get()));
-
+	void Application::onResize(unsigned int width, unsigned int height)
+	{
+		TwWindowSize(width, height);
 	}
 }

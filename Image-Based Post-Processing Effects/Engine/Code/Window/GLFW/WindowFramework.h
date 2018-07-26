@@ -37,6 +37,7 @@ public:
 	void removeResizeListener(IWindowResizeListener *listener);
 	unsigned int getWidth() const;
 	unsigned int getHeight() const;
+	size_t getSelectedResolutionIndex() const;
 	std::pair<unsigned int, unsigned int> getSelectedResolution() const;
 	std::vector<std::pair<unsigned int, unsigned int>> getSupportedResolutions();
 	void destroyWindow();
@@ -59,6 +60,7 @@ private:
 	std::pair<unsigned int, unsigned int> *currentResolution;
 	std::pair<unsigned int, unsigned int> nativeResolution;
 	std::pair<unsigned int, unsigned int> selectedResolution;
+	size_t selectedResolutionIndex;
 	bool vsync;
 	unsigned int antialiasing;
 	GLFWwindow *window = nullptr;
@@ -67,4 +69,5 @@ private:
 	std::vector<Gamepad> gamepads;
 
 	explicit WindowFramework(const std::string &_title, unsigned int _width, unsigned int _height, bool _vsync, const WindowMode &_windowMode = WindowMode::WINDOWED);
+	void updateSelectedResolutionIndex();
 };

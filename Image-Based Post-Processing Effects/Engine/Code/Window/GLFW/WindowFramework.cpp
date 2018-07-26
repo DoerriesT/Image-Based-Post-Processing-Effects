@@ -5,6 +5,7 @@
 #include "IInputListener.h"
 #include "Utilities\ContainerUtility.h"
 #include "Input\Gamepad.h"
+#include <cassert>
 
 void windowSizeCallback(GLFWwindow *window, int width, int height);
 
@@ -25,7 +26,24 @@ void joystickCallback(int joystickId, int event);
 WindowFramework::WindowFramework(const std::string &_title, unsigned int _width, unsigned int _height, bool _vsync, const WindowMode &_windowMode)
 	:title(_title), selectedResolution(std::make_pair(_width, _height)), currentResolution(&selectedResolution), vsync(_vsync), windowMode(_windowMode), gamepads(16)
 {
-};
+}
+
+void WindowFramework::updateSelectedResolutionIndex()
+{
+	assert(!supportedResolutions.empty());
+
+	for (size_t i = 0; i < supportedResolutions.size(); ++i)
+	{
+		const unsigned int w = supportedResolutions[i].first;
+		const unsigned int h = supportedResolutions[i].second;
+		if (w == selectedResolution.first && h == selectedResolution.second)
+		{
+			selectedResolutionIndex = i;
+			return;
+		}
+	}
+	assert(false);
+}
 
 std::shared_ptr<WindowFramework> WindowFramework::createWindowFramework(const std::string &_title, unsigned int _width, unsigned int _height, bool _vsync, const WindowMode &_windowMode)
 {
@@ -129,6 +147,7 @@ void WindowFramework::init()
 	}
 
 	setWindowMode(windowMode);
+	updateSelectedResolutionIndex();
 }
 
 void WindowFramework::update()
@@ -234,6 +253,11 @@ unsigned int WindowFramework::getWidth() const
 unsigned int WindowFramework::getHeight() const
 {
 	return currentResolution->second;
+}
+
+size_t WindowFramework::getSelectedResolutionIndex() const
+{
+	return selectedResolutionIndex;
 }
 
 std::pair<unsigned int, unsigned int> WindowFramework::getSelectedResolution() const
@@ -354,6 +378,7 @@ void WindowFramework::setResolution(const std::pair<unsigned int, unsigned int> 
 {
 	selectedResolution.first = _resolution.first ? _resolution.first : selectedResolution.first;
 	selectedResolution.second = _resolution.second ? _resolution.second : selectedResolution.second;
+	updateSelectedResolutionIndex();
 	setWindowMode(windowMode);
 }
 
@@ -361,6 +386,7 @@ void WindowFramework::setWindowModeAndResolution(const WindowMode &_windowMode, 
 {
 	selectedResolution.first = _resolution.first ? _resolution.first : selectedResolution.first;
 	selectedResolution.second = _resolution.second ? _resolution.second : selectedResolution.second;
+	updateSelectedResolutionIndex();
 	setWindowMode(_windowMode);
 }
 

@@ -111,6 +111,11 @@ const glm::mat4 &Window::getProjectionMatrix() const
 	return projectionMatrix;
 }
 
+size_t Window::getSelectedResolutionIndex() const
+{
+	return windowFramework->getSelectedResolutionIndex();
+}
+
 void Window::setTitle(const std::string &_title)
 {
 	windowFramework->setTitle(_title);

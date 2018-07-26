@@ -31,6 +31,7 @@ public:
 	unsigned int getWidth() const;
 	unsigned int getHeight() const;
 	const glm::mat4 &getProjectionMatrix() const;
+	size_t getSelectedResolutionIndex() const;
 	void setTitle(const std::string &_title);
 	void setIcon(size_t count, const char *sizes, unsigned char **pixelData);
 	void setFieldOfView(float _fov);
