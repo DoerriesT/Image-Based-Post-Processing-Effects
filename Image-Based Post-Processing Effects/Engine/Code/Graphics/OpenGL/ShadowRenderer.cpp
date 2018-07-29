@@ -15,6 +15,7 @@
 #include "Window\Window.h"
 
 ShadowRenderer::ShadowRenderer()
+	:skipCascadeOptimization(true)
 {
 }
 
@@ -25,13 +26,10 @@ ShadowRenderer::~ShadowRenderer()
 
 void ShadowRenderer::init()
 {
-	shadowShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shadows/shadow.vert", "Resources/Shaders/Shadows/shadow.frag", nullptr, nullptr, "Resources/Shaders/Shadows/shadow.geom");
+	shadowShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shadows/shadow.vert", "Resources/Shaders/Shadows/shadow.frag");
 
 	// create uniforms
-	for (unsigned int i = 0; i < 6; ++i)
-	{
-		uModelViewProjectionMatrix[i] = shadowShader->createUniform("uModelViewProjectionMatrix[" + std::to_string(i) + "]");
-	}
+	uModelViewProjectionMatrix = shadowShader->createUniform("uModelViewProjectionMatrix");
 
 	// create FBO
 	glGenFramebuffers(1, &shadowFbo);
@@ -72,18 +70,30 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 			glm::mat4 lightViewProjections[SHADOW_CASCADES];
 			for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 			{
-				lightViewProjections[i] = calculateLightViewProjection(_renderData, sceneAABB, directionalLight->getDirection(), i == 0 ? 0.05f : splits[i - 1], splits[i], true);
+				if (i <= frameCounter || !skipCascadeOptimization)
+				{
+					lightViewProjections[i] = calculateLightViewProjection(_renderData, sceneAABB, directionalLight->getDirection(), i == 0 ? 0.05f : splits[i - 1], splits[i], true);
+				}
+				else
+				{
+					lightViewProjections[i] = directionalLight->getViewProjectionMatrices()[i];
+				}
 			}
 			directionalLight->setViewProjectionMatrices(lightViewProjections);
 			directionalLight->setSplits(splits);
 
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, directionalLight->getShadowMap(), 0);
 			unsigned int shadowMapResolution = directionalLight->getShadowMapResolution();
 			glViewport(0, 0, shadowMapResolution, shadowMapResolution);
-			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-			glClear(GL_DEPTH_BUFFER_BIT);
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			render(directionalLight->getViewProjectionMatrices(), SHADOW_CASCADES, _scene);
+
+			for (unsigned int i = 0; i < SHADOW_CASCADES && (i <= frameCounter || !skipCascadeOptimization); ++i)
+			{
+				glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, directionalLight->getShadowMap(), 0, i);
+
+				glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+				glClear(GL_DEPTH_BUFFER_BIT);
+				glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+				render(*(directionalLight->getViewProjectionMatrices() + i), _scene);
+			}
 		}
 	}
 
@@ -99,7 +109,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 			glm::mat4 viewProj = spotLight->getViewProjectionMatrix();
-			render(&viewProj, 1, _scene);
+			render(viewProj, _scene);
 		}
 	}
 
@@ -107,22 +117,29 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 	{
 		if (pointLight->isRenderShadows())
 		{
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pointLight->getShadowMap(), 0);
 			unsigned int shadowMapResolution = pointLight->getShadowMapResolution();
 			glViewport(0, 0, shadowMapResolution, shadowMapResolution);
-			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-			glClear(GL_DEPTH_BUFFER_BIT);
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			render(pointLight->getViewProjectionMatrices(), 6, _scene);
+
+			for (unsigned int i = 0; i < 6; ++i)
+			{
+				glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pointLight->getShadowMap(), 0, i);
+
+				glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+				glClear(GL_DEPTH_BUFFER_BIT);
+				glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+				render(*(pointLight->getViewProjectionMatrices() + i), _scene);
+			}
 		}
 	}
 
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
+
+	frameCounter = (frameCounter + 1) % 4;
 }
 
-void ShadowRenderer::render(const glm::mat4 *_viewProjectionMatrix, unsigned int _count, const Scene &_scene)
+void ShadowRenderer::render(const glm::mat4 &_viewProjectionMatrix, const Scene &_scene)
 {
 	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
 
@@ -167,10 +184,7 @@ void ShadowRenderer::render(const glm::mat4 *_viewProjectionMatrix, unsigned int
 			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
 			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale));
 
-		for (unsigned int i = 0; i < _count; ++i)
-		{
-			shadowShader->setUniform(uModelViewProjectionMatrix[i], _viewProjectionMatrix[i] * modelMatrix);
-		}
+		shadowShader->setUniform(uModelViewProjectionMatrix, _viewProjectionMatrix * modelMatrix);
 
 		if (!enabledMesh)
 		{
@@ -178,7 +192,7 @@ void ShadowRenderer::render(const glm::mat4 *_viewProjectionMatrix, unsigned int
 			currentMesh->enableVertexAttribArraysPositionOnly();
 		}
 		//currentMesh->render();
-		glDrawElementsInstanced(GL_TRIANGLES, currentMesh->getIndices().size(), GL_UNSIGNED_INT, NULL, _count);
+		glDrawElements(GL_TRIANGLES, currentMesh->getIndices().size(), GL_UNSIGNED_INT, NULL);
 	}
 }
 
