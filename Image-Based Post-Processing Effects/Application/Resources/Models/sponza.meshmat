@@ -12,6 +12,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -24,6 +25,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -36,6 +38,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -48,6 +51,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -60,6 +64,7 @@ metallicPath:
 roughnessPath: Resources/Textures/Sponza/arch_r.dds
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -72,6 +77,7 @@ metallicPath:
 roughnessPath: Resources/Textures/Sponza/bricks_a_r.dds
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -84,6 +90,7 @@ metallicPath:
 roughnessPath: Resources/Textures/Sponza/ceiling_a_r.dds
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -96,6 +103,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -108,6 +116,7 @@ metallicPath:
 roughnessPath: Resources/Textures/Sponza/column_a_r.dds
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -120,6 +129,7 @@ metallicPath:
 roughnessPath: Resources/Textures/Sponza/column_b_r.dds
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -132,6 +142,7 @@ metallicPath:
 roughnessPath: Resources/Textures/Sponza/column_c_r.dds
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -144,6 +155,7 @@ metallicPath:
 roughnessPath: Resources/Textures/Sponza/details_r.dds
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -156,6 +168,7 @@ metallicPath:
 roughnessPath: Resources/Textures/Sponza/fabric_r.dds
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -168,6 +181,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -180,6 +194,7 @@ metallicPath:
 roughnessPath: Resources/Textures/Sponza/fabric_r.dds 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -192,6 +207,7 @@ metallicPath:
 roughnessPath: Resources/Textures/Sponza/fabric_r.dds
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -204,6 +220,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -216,6 +233,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -228,18 +246,20 @@ metallicPath:
 roughnessPath: Resources/Textures/Sponza/flagpole_r.dds
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
 metallic: 0.0
 roughness: 0.5
 emissive: 0.0/0.0/0.0
-albedoPath: Resources/Textures/Sponza/floor_a_a.dds
-normalPath: 
+albedoPath: Resources/Textures/cobblestone_a.dds
+normalPath: Resources/Textures/cobblestone_n.dds
 metallicPath: 
-roughnessPath: Resources/Textures/Sponza/floor_a_r.dds
-aoPath: 
+roughnessPath: Resources/Textures/cobblestone_r.dds
+aoPath: Resources/Textures/cobblestone_ao.dds
 emissivePath: 
+displacementPath: Resources/Textures/cobblestone_d.dds
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -252,6 +272,7 @@ metallicPath:
 roughnessPath: Resources/Textures/Sponza/thorn_r.dds
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -264,6 +285,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -276,6 +298,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -288,6 +311,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
@@ -300,4 +324,5 @@ metallicPath:
 roughnessPath: Resources/Textures/Sponza/vase_round_r.dds 
 aoPath: 
 emissivePath: 
+displacementPath: 
 

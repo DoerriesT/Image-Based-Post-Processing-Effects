@@ -12,6 +12,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: brake
 albedo: 0.7/0.0/0.0/1.0
@@ -24,6 +25,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: hull
 albedo: 1.0/1.0/1.0/1.0
@@ -36,6 +38,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: engine_bar
 albedo: 1.0/1.0/1.0/1.0
@@ -48,6 +51,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: engine_cross
 albedo: 1.0/1.0/1.0/1.0
@@ -60,6 +64,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: rims
 albedo: 0.0/0.0/0.0/1.0
@@ -72,6 +77,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: logo0
 albedo: 0.0/0.0/0.0/1.0
@@ -84,6 +90,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: windows
 albedo: 0.0/0.0/0.0/0.2
@@ -96,6 +103,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: lights_front
 albedo: 1.0/1.0/1.0/1.0
@@ -108,6 +116,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: lights_back
 albedo: 1.0/0.0/0.0/1.0
@@ -120,6 +129,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: lights_side
 albedo: 1.0/0.0/0.0/1.0
@@ -132,6 +142,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: lights_front_1
 albedo: 1.0/1.0/1.0/1.0
@@ -144,6 +155,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: license_plate_light_and_fill
 albedo: 0.0/0.0/0.0/1.0
@@ -156,6 +168,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: logo1
 albedo: 0.0/0.0/0.0/1.0
@@ -168,6 +181,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: logo2
 albedo: 0.0/0.0/0.0/1.0
@@ -180,6 +194,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: engine0
 albedo: 1.0/1.0/1.0/1.0
@@ -192,6 +207,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: interior_mirrors
 albedo: 1.0/1.0/1.0/1.0
@@ -204,6 +220,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: wheels
 albedo: 0.0/0.0/0.0/1.0
@@ -216,6 +233,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: hull1
 albedo: 0.0/0.0/0.0/1.0
@@ -228,6 +246,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: back_deco
 albedo: 1.0/1.0/1.0/1.0
@@ -240,6 +259,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: mirrors
 albedo: 1.0/1.0/1.0/1.0
@@ -252,6 +272,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: 
 albedo: 0.0/0.0/0.0/1.0
@@ -264,6 +285,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: light_glass
 albedo: 0.0/0.0/0.0/0.8
@@ -276,6 +298,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: hull2
 albedo: 0.0/0.0/0.0/1.0
@@ -288,6 +311,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: hull3
 albedo: 0.0/0.0/0.0/1.0
@@ -300,6 +324,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: interior0
 albedo: 0.0/0.0/0.0/1.0
@@ -312,6 +337,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: dial_back_light
 albedo: 0.0/0.0/1.0/1.0
@@ -324,6 +350,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: interior1
 albedo: 0.0/0.0/0.0/1.0
@@ -336,6 +363,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: dials0
 albedo: 0.0/0.0/0.0/1.0
@@ -348,6 +376,7 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
 name: dials1
 albedo: 0.0/0.0/0.0/1.0
@@ -360,4 +389,5 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 

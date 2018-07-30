@@ -596,7 +596,7 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 			continue;
 		}
 
-		uAtlasDataG.set(glm::vec4(columns, rows, textureOffset));
+		uAtlasDataG.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
 		uModelViewMatrixG.set(glm::mat3(_renderData.viewMatrix * modelMatrix));
 		uModelViewProjectionMatrixG.set(mvpTransformation);
 		uPrevTransformG.set(prevTransformation);
@@ -922,7 +922,7 @@ void SceneRenderer::renderTransparentGeometry(const RenderData &_renderData, con
 		glm::mat4 mvpTransform = _renderData.viewProjectionMatrix * modelMatrix;
 		glm::mat4 prevTransformation = glm::mix(_renderData.viewProjectionMatrix, _renderData.prevViewProjectionMatrix, 0.15f) * entityRenderData->transformationComponent->prevTransformation;
 
-		uAtlasDataT.set(glm::vec4(columns, rows, textureOffset));
+		uAtlasDataT.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
 		uModelMatrixT.set(modelMatrix);
 		uModelViewProjectionMatrixT.set(mvpTransform);
 		uPrevTransformT.set(prevTransformation);

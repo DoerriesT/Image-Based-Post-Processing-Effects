@@ -27,6 +27,7 @@ struct Material
     float roughness;
 	vec3 emissive;
     int mapBitField;
+	bool displacement;
 };
 
 layout(binding = 0) uniform sampler2D uAlbedoMap;
@@ -35,6 +36,7 @@ layout(binding = 2) uniform sampler2D uMetallicMap;
 layout(binding = 3) uniform sampler2D uRoughnessMap;
 layout(binding = 4) uniform sampler2D uAoMap;
 layout(binding = 5) uniform sampler2D uEmissiveMap;
+layout(binding = 6) uniform sampler2D uDisplacementMap;
 
 uniform Material uMaterial;
 uniform float uExposureTime = 0.5;

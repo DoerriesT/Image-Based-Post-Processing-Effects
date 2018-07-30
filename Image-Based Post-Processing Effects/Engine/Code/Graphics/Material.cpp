@@ -14,8 +14,23 @@ Material::Material(const glm::vec4 &_albedo, float _metallic, float _roughness, 
 {
 }
 
-Material::Material(const std::shared_ptr<Texture> &_albedoMap, const std::shared_ptr<Texture> &_normalMap, const std::shared_ptr<Texture> &_metallicMap, const std::shared_ptr<Texture> &_roughnessMap, const std::shared_ptr<Texture> &_aoMap, const std::shared_ptr<Texture> &_emissiveMap)
-	: albedo(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)), metallic(0.0f), roughness(0.0f), albedoMap(_albedoMap), normalMap(_normalMap), metallicMap(_metallicMap), roughnessMap(_roughnessMap), aoMap(_aoMap), emissiveMap(_emissiveMap)
+Material::Material(const std::shared_ptr<Texture> &_albedoMap, 
+	const std::shared_ptr<Texture> &_normalMap, 
+	const std::shared_ptr<Texture> &_metallicMap, 
+	const std::shared_ptr<Texture> &_roughnessMap, 
+	const std::shared_ptr<Texture> &_aoMap, 
+	const std::shared_ptr<Texture> &_emissiveMap,
+	const std::shared_ptr<Texture> &_displacementMap)
+	: albedo(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)), 
+	metallic(0.0f), 
+	roughness(0.0f), 
+	albedoMap(_albedoMap), 
+	normalMap(_normalMap), 
+	metallicMap(_metallicMap), 
+	roughnessMap(_roughnessMap), 
+	aoMap(_aoMap), 
+	emissiveMap(_emissiveMap),
+	displacementMap(_displacementMap)
 {
 	if (albedoMap)
 	{
@@ -52,6 +67,7 @@ Material::Material(const std::string &_basePath, std::uint32_t _flags)
 	std::string roughnessPath = _basePath + "_r.dds";
 	std::string aoPath = _basePath + "_ao.dds";
 	std::string emissivePath = _basePath + "_e.dds";
+	std::string displacementPath = _basePath + "_d.dds";
 
 	if ((_flags & ALBEDO) == ALBEDO)
 	{
@@ -113,6 +129,11 @@ const std::shared_ptr<Texture> Material::getAoMap() const
 const std::shared_ptr<Texture> Material::getEmissiveMap() const
 {
 	return emissiveMap;
+}
+
+const std::shared_ptr<Texture> Material::getDisplacementMap() const
+{
+	return displacementMap;
 }
 
 const std::uint32_t Material::getMapBitField() const
@@ -243,6 +264,11 @@ void Material::setEmissiveMap(const std::shared_ptr<Texture> &_emissiveMap)
 	}
 }
 
+void Material::setDisplacementMap(const std::shared_ptr<Texture> &_displacementMap)
+{
+	displacementMap = _displacementMap;
+}
+
 void Material::setAlbedo(const glm::vec4 & _albedo)
 {
 	albedo = _albedo;
@@ -294,5 +320,10 @@ void Material::bindTextures() const
 	{
 		glActiveTexture(GL_TEXTURE5);
 		glBindTexture(emissiveMap->getTarget(), emissiveMap->getId());
+	}
+	if (displacementMap && displacementMap->isValid())
+	{
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(displacementMap->getTarget(), displacementMap->getId());
 	}
 }

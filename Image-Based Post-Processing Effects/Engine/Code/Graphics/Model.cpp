@@ -22,6 +22,7 @@ const std::string METALLIC_PATH_STRING = "metallicPath: ";
 const std::string ROUGHNESS_PATH_STRING = "roughnessPath: ";
 const std::string AO_PATH_STRING = "aoPath: ";
 const std::string EMISSIVE_PATH_STRING = "emissivePath: ";
+const std::string DISPLACEMENT_PATH_STRING = "displacementPath: ";
 
 Model::Model(const std::string &_filepath, bool _instantLoading)
 {
@@ -143,6 +144,16 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 		if (!emissivePath.empty())
 		{
 			material.setEmissiveMap(Texture::createTexture(emissivePath, _instantLoading));
+		}
+
+		// displacement texture
+		std::getline(matFile, str);
+		assert(!str.empty());
+		std::string displacementPath = str.substr(DISPLACEMENT_PATH_STRING.size());
+		Utility::trim(displacementPath);
+		if (!displacementPath.empty())
+		{
+			material.setDisplacementMap(Texture::createTexture(displacementPath, _instantLoading));
 		}
 
 		submeshMaterialPairs.push_back({ mesh->getSubMesh(i), material });

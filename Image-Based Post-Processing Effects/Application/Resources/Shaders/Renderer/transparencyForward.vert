@@ -16,15 +16,13 @@ out vec4 vPrevPos;
 uniform mat4 uPrevTransform;
 uniform mat4 uModelViewProjectionMatrix;
 uniform mat4 uModelMatrix;
-uniform vec4 uAtlasData; // x = cols, y = rows, z = texOffsetX, w = texOffsetY
+uniform vec4 uAtlasData; // x = 1/cols, y = 1/rows, z = texOffsetX, w = texOffsetY
 
 
 void main()
 {
 	// Support for texture atlas, update texture coordinates
-    float x = (aTexCoords.x / uAtlasData.x + uAtlasData.z);
-    float y = (aTexCoords.y / uAtlasData.y + uAtlasData.w);
-    vTexCoord = vec2(x, y);
+    vTexCoord = aTexCoords.xy * uAtlasData.xy + uAtlasData.zw;
 
     vNormal = (uModelMatrix * vec4(aNormal, 0.0)).xyz;
 	vTangent = (uModelMatrix * vec4(aTangent, 0.0)).xyz;

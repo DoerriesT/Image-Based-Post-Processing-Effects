@@ -12,4 +12,5 @@ metallicPath:
 roughnessPath: 
 aoPath: 
 emissivePath: 
+displacementPath: 
 
