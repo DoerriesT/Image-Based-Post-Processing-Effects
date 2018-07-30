@@ -72,6 +72,7 @@ public:
 	glm::vec3 getColor() const;
 	glm::vec3 getPosition() const;
 	glm::vec3 getViewPosition() const;
+	glm::vec4 getBoundingSphere() const;
 	float getRadius() const;
 	const glm::mat4 *getViewProjectionMatrices() const;
 	unsigned int getShadowMap() const;
@@ -122,6 +123,7 @@ public:
 	glm::vec3 getDirection() const;
 	glm::vec3 getViewPosition() const;
 	glm::vec3 getViewDirection() const;
+	glm::vec4 getBoundingSphere() const;
 	float getInnerAngle() const;
 	float getInnerAngleCos() const;
 	float getOuterAngle() const;
@@ -138,6 +140,7 @@ private:
 	glm::vec3 direction;
 	glm::vec3 viewPosition;
 	glm::vec3 viewDirection;
+	glm::vec4 boundingSphere;
 	float outerAngle;
 	float outerAngleCos;
 	float innerAngle;
@@ -152,6 +155,7 @@ private:
 
 	explicit SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _outerAngle, float _innerAngle, float _radius, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION, bool _projector = false, const std::shared_ptr<Texture> &_projectionTexture = nullptr);
 	void updateViewProjectionMatrix();
+	void updateBoundingSphere();
 	void createShadowMap();
 };
 

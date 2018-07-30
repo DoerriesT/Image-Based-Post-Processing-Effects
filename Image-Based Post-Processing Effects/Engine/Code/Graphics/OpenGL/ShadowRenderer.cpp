@@ -99,7 +99,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 
 	for (const std::shared_ptr<SpotLight> &spotLight : _level->lights.spotLights)
 	{
-		if (spotLight->isRenderShadows())
+		if (spotLight->isRenderShadows() && _renderData.frustum.testSphere(spotLight->getBoundingSphere()))
 		{
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, spotLight->getShadowMap(), 0);
 			unsigned int shadowMapResolution = spotLight->getShadowMapResolution();
@@ -115,7 +115,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 
 	for (const std::shared_ptr<PointLight> &pointLight : _level->lights.pointLights)
 	{
-		if (pointLight->isRenderShadows())
+		if (pointLight->isRenderShadows() && _renderData.frustum.testSphere(pointLight->getBoundingSphere()))
 		{
 			unsigned int shadowMapResolution = pointLight->getShadowMapResolution();
 			glViewport(0, 0, shadowMapResolution, shadowMapResolution);

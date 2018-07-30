@@ -82,6 +82,11 @@ const glm::quat &Camera::getRotation() const
 	return rotation;
 }
 
+const Frustum &Camera::getFrustum() const
+{
+	return frustum;
+}
+
 glm::vec3 Camera::getForwardDirection()
 {
 	return -glm::transpose(getViewMatrix())[2];
@@ -108,4 +113,7 @@ void Camera::updateViewMatrix()
 {
 	glm::mat4 translate;
 	viewMatrix = glm::mat4_cast(rotation) * glm::translate(translate, -position);
+
+	// TODO: update this also when projection changes
+	frustum.update(SystemManager::getInstance().getSystem<RenderSystem>()->getWindow()->getProjectionMatrix() * viewMatrix);
 }

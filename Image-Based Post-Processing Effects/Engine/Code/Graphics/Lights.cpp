@@ -273,6 +273,11 @@ glm::vec3 PointLight::getViewPosition() const
 	return viewPosition;
 }
 
+glm::vec4 PointLight::getBoundingSphere() const
+{
+	return glm::vec4(position, radius);
+}
+
 float PointLight::getRadius() const
 {
 	return radius;
@@ -318,6 +323,7 @@ SpotLight::SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const 
 
 	setRenderShadows(_renderShadows);
 	updateViewProjectionMatrix();
+	updateBoundingSphere();
 }
 
 void SpotLight::updateViewProjectionMatrix()
@@ -332,6 +338,18 @@ void SpotLight::updateViewProjectionMatrix()
 		upDir = glm::vec3(1.0f, 0.0f, 0.0f);
 	}
 	viewProjectionMatrix  = glm::perspective(outerAngle * 2.0f, ASPECT_RATIO, NEAR_PLANE, radius) * glm::lookAt(position, position + direction, upDir);
+}
+
+void SpotLight::updateBoundingSphere()
+{
+	if (outerAngle > glm::pi<float>() * 0.25f)
+	{
+		boundingSphere = glm::vec4(position + outerAngleCos * radius * direction, glm::sin(outerAngle) * radius);
+	}
+	else
+	{
+		boundingSphere = glm::vec4(position + radius / (2.0f * outerAngleCos) * direction, radius / (2.0f * outerAngleCos));
+	}
 }
 
 void SpotLight::createShadowMap()
@@ -395,12 +413,14 @@ void SpotLight::setPosition(const glm::vec3 &_position)
 {
 	position = _position;
 	updateViewProjectionMatrix();
+	updateBoundingSphere();
 }
 
 void SpotLight::setDirection(const glm::vec3 &_direction)
 {
 	direction = glm::normalize(_direction);
 	updateViewProjectionMatrix();
+	updateBoundingSphere();
 }
 
 void SpotLight::setInnerAngle(float _angle)
@@ -421,6 +441,7 @@ void SpotLight::setOuterAngle(float _angle)
 	outerAngle = glm::radians(_angle);
 	outerAngleCos = glm::cos(outerAngle);
 	updateViewProjectionMatrix();
+	updateBoundingSphere();
 }
 
 void SpotLight::setRadius(float _radius)
@@ -429,6 +450,7 @@ void SpotLight::setRadius(float _radius)
 
 	radius = _radius;
 	updateViewProjectionMatrix();
+	updateBoundingSphere();
 }
 
 void SpotLight::setShadowMapResolution(unsigned int _resolution)
@@ -486,6 +508,11 @@ glm::vec3 SpotLight::getViewPosition() const
 glm::vec3 SpotLight::getViewDirection() const
 {
 	return viewDirection;
+}
+
+glm::vec4 SpotLight::getBoundingSphere() const
+{
+	return boundingSphere;
 }
 
 float SpotLight::getInnerAngle() const

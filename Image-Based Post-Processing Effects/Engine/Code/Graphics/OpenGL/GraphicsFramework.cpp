@@ -101,6 +101,7 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 		: glm::mat4();
 
 	RenderData renderData;
+	renderData.frustum = _camera->getFrustum();
 	renderData.invJitter = glm::inverse(jitterMatrix);
 	renderData.prevInvJitter = prevInvJitter;
 	renderData.projectionMatrix = jitterMatrix * window->getProjectionMatrix();

@@ -45,6 +45,7 @@
     <ClInclude Include="Code\Graphics\EnvironmentProbe.h" />
     <ClInclude Include="Code\Graphics\Effects.h" />
     <ClInclude Include="Code\Graphics\EntityRenderData.h" />
+    <ClInclude Include="Code\Graphics\Frustum.h" />
     <ClInclude Include="Code\Graphics\Model.h" />
     <ClInclude Include="Code\Graphics\OpenGL\Buffer.h" />
     <ClInclude Include="Code\Graphics\OpenGL\EnvironmentRenderer.h" />
@@ -139,6 +140,7 @@
     <ClCompile Include="Code\Graphics\Camera.cpp" />
     <ClCompile Include="Code\Graphics\CameraPath.cpp" />
     <ClCompile Include="Code\Graphics\EnvironmentProbe.cpp" />
+    <ClCompile Include="Code\Graphics\Frustum.cpp" />
     <ClCompile Include="Code\Graphics\Lights.cpp" />
     <ClCompile Include="Code\Graphics\Material.cpp" />
     <ClCompile Include="Code\Graphics\Mesh.cpp" />

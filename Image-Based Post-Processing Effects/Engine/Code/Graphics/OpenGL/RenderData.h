@@ -2,9 +2,11 @@
 #include <glm\mat4x4.hpp>
 #include <glm\vec3.hpp>
 #include <utility>
+#include "Graphics\Frustum.h"
 
 struct RenderData
 {
+	Frustum frustum;
 	std::pair<unsigned int, unsigned int> resolution;
 	glm::mat4 viewMatrix;
 	glm::mat4 invViewMatrix;

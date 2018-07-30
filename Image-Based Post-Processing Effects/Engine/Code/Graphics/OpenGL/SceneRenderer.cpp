@@ -762,6 +762,11 @@ void SceneRenderer::renderPointLights(const RenderData &_renderData, const std::
 
 	for (std::shared_ptr<PointLight> pointLight : _level->lights.pointLights)
 	{
+		if (!_renderData.frustum.testSphere(pointLight->getBoundingSphere()))
+		{
+			continue;
+		}
+
 		pointLight->updateViewValues(_renderData.viewMatrix);
 
 		if (pointLight->isRenderShadows())
@@ -789,6 +794,11 @@ void SceneRenderer::renderSpotLights(const RenderData &_renderData, const std::s
 
 	for (std::shared_ptr<SpotLight> spotLight : _level->lights.spotLights)
 	{
+		if (!_renderData.frustum.testSphere(spotLight->getBoundingSphere()))
+		{
+			continue;
+		}
+
 		spotLight->updateViewValues(_renderData.viewMatrix);
 
 		if (spotLight->isRenderShadows())

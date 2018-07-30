@@ -416,6 +416,9 @@
     <ClInclude Include="..\Application\Resources\Shaders\Include\SMAA.h">
       <Filter>Resources\Shaders\Include</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\Frustum.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -639,6 +642,9 @@
     </ClCompile>
     <ClCompile Include="Code\Utilities\MathUtility.cpp">
       <Filter>Code\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\Frustum.cpp">
+      <Filter>Code\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -2,6 +2,7 @@
 #include <glm\vec3.hpp>
 #include <glm\mat4x4.hpp>
 #include <glm\gtc\quaternion.hpp>
+#include "Frustum.h"
 
 class Camera
 {
@@ -18,6 +19,7 @@ public:
 	const glm::mat4 &getViewMatrix();
 	const glm::vec3 &getPosition() const;
 	const glm::quat &getRotation() const;
+	const Frustum &getFrustum() const;
 	glm::vec3 getForwardDirection();
 	glm::vec3 getUpDirection();
 	float getZoom() const;
@@ -26,6 +28,7 @@ public:
 private:
 	glm::vec3 position;
 	glm::quat rotation;
+	Frustum frustum;
 
 	glm::vec3 startPosition;
 	glm::quat startRotation;
