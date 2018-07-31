@@ -160,7 +160,7 @@ displacementPath:
 name: 
 albedo: 1.0/1.0/1.0/1.0
 metallic: 0.0
-roughness: 0.5
+roughness: 1.0
 emissive: 0.0/0.0/0.0
 albedoPath: Resources/Textures/Sponza/fabric_a.dds
 normalPath: 
@@ -173,7 +173,7 @@ displacementPath:
 name: 
 albedo: 1.0/1.0/1.0/1.0
 metallic: 0.0
-roughness: 0.5
+roughness: 1.0
 emissive: 0.0/0.0/0.0
 albedoPath: Resources/Textures/Sponza/curtain_a.dds
 normalPath: 
@@ -186,7 +186,7 @@ displacementPath:
 name: 
 albedo: 1.0/1.0/1.0/1.0
 metallic: 0.0
-roughness: 0.5
+roughness: 1.0
 emissive: 0.0/0.0/0.0
 albedoPath: Resources/Textures/Sponza/fabric_blue_a.dds
 normalPath: 
@@ -199,7 +199,7 @@ displacementPath:
 name: 
 albedo: 1.0/1.0/1.0/1.0
 metallic: 0.0
-roughness: 0.5
+roughness: 1.0
 emissive: 0.0/0.0/0.0
 albedoPath: Resources/Textures/Sponza/fabric_green_a.dds
 normalPath: 
@@ -212,7 +212,7 @@ displacementPath:
 name: 
 albedo: 1.0/1.0/1.0/1.0
 metallic: 0.0
-roughness: 0.5
+roughness: 1.0
 emissive: 0.0/0.0/0.0
 albedoPath: Resources/Textures/Sponza/curtain_green_a.dds
 normalPath: 
@@ -225,7 +225,7 @@ displacementPath:
 name: 
 albedo: 1.0/1.0/1.0/1.0
 metallic: 0.0
-roughness: 0.5
+roughness: 1.0
 emissive: 0.0/0.0/0.0
 albedoPath: Resources/Textures/Sponza/curtain_blue_a.dds
 normalPath: 
