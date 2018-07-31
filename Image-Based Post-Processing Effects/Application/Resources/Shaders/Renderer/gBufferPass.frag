@@ -15,10 +15,9 @@ layout(location = 4) out vec4 oEmissive;
 
 in vec2 vTexCoord;
 in vec3 vNormal;
-in vec3 vTangent;
-in vec3 vBitangent;
 in vec4 vCurrentPos;
 in vec4 vPrevPos;
+in vec3 vWorldPos;
 
 struct Material
 {
@@ -39,11 +38,15 @@ layout(binding = 5) uniform sampler2D uEmissiveMap;
 layout(binding = 6) uniform sampler2D uDisplacementMap;
 
 uniform Material uMaterial;
+uniform mat3 uViewMatrix;
 uniform float uExposureTime = 0.5;
 uniform float uMaxVelocityMag;
 uniform vec2 uVel;
+uniform vec3 uCamPos;
 
 const float MAX_VELOCITY = 25 * 0.000625; // tilesize * pixel width
+
+#include "TBN.h"
 
 vec2 encode (vec3 n)
 {
@@ -53,28 +56,72 @@ vec2 encode (vec3 n)
 
 void main()
 {
+	vec2 texCoord = vTexCoord;
+
+	vec3 N = normalize(vNormal);
+	mat3 TBN = calculateTBN( N, vWorldPos, texCoord);
+
+	if(uMaterial.displacement)
+	{
+		const float heightScale = 0.05;
+	
+		const float minLayers = 8.0;
+		const float maxLayers = 32.0;
+
+		vec3 viewDir = normalize(uCamPos - vWorldPos) * TBN;
+		float numLayers = mix(maxLayers, minLayers, abs(viewDir.z));
+
+		// the amount to shift the texture coordinates per layer (from vector P)
+		vec2 P = viewDir.xy * heightScale; 
+
+		float layerDepth = 1.0 / numLayers;
+		vec2 deltaTexCoord = P / numLayers;
+	
+		// get initial values
+		vec2  currentTexCoord  = texCoord;
+		float currentDepthMapValue = texture(uDisplacementMap, texCoord).r;
+		float previousDepthMapValue = 0.0;
+		float currentLayerDepth = 0.0;
+		  
+		while(currentLayerDepth < currentDepthMapValue)
+		{
+		    currentTexCoord -= deltaTexCoord;
+	
+			previousDepthMapValue = currentDepthMapValue;
+		    currentDepthMapValue = texture(uDisplacementMap, currentTexCoord).r;  
+	
+		    currentLayerDepth += layerDepth;  
+		}
+		
+		// get depth after and before collision for linear interpolation
+		float afterDepth  = currentDepthMapValue - currentLayerDepth;
+		float beforeDepth = previousDepthMapValue - currentLayerDepth + layerDepth;
+		 
+		// interpolation of texture coordinates
+		float weight = afterDepth / (afterDepth - beforeDepth);
+		texCoord = mix(currentTexCoord, currentTexCoord + deltaTexCoord, weight);
+	}
+
     if((uMaterial.mapBitField & ALBEDO) != 0)
     {
-		oAlbedo = vec4(texture(uAlbedoMap, vTexCoord).rgb, 1.0);
+		oAlbedo = vec4(texture(uAlbedoMap, texCoord).rgb, 1.0);
     }
 	else
 	{
 		oAlbedo = uMaterial.albedo;
 	}
 
-	// we save normals in view space
-    vec3 N = normalize(vNormal);
     if((uMaterial.mapBitField & NORMAL) != 0)
     {
-        vec3 tangentNormal = texture(uNormalMap, vTexCoord).xyz * 2.0 - 1.0;
-        N = normalize(mat3(normalize(vTangent), -normalize(vBitangent), N) * tangentNormal);
+        vec3 tangentSpaceNormal = texture(uNormalMap, texCoord).xyz * 2.0 - 1.0;
+        N = normalize(TBN * tangentSpaceNormal);
     }
-	oNormal = vec4(encode(N), 0.0, 0.0);
-	
+	// we save normals in view space
+	oNormal = vec4(encode(uViewMatrix * N), 0.0, 0.0);
 
     if((uMaterial.mapBitField & METALLIC) != 0)
     {
-        oMetallicRoughnessAo.r  = texture(uMetallicMap, vTexCoord).r;
+        oMetallicRoughnessAo.r  = texture(uMetallicMap, texCoord).r;
     }
     else
     {
@@ -83,7 +130,7 @@ void main()
 
     if((uMaterial.mapBitField & ROUGHNESS) != 0)
     {
-        oMetallicRoughnessAo.g = texture(uRoughnessMap, vTexCoord).r;
+        oMetallicRoughnessAo.g = texture(uRoughnessMap, texCoord).r;
     }
     else
     {
@@ -92,7 +139,7 @@ void main()
 
     if((uMaterial.mapBitField & AO) != 0)
     {
-        oMetallicRoughnessAo.b = texture(uAoMap, vTexCoord).r;
+        oMetallicRoughnessAo.b = texture(uAoMap, texCoord).r;
     }
     else
     {
@@ -101,7 +148,7 @@ void main()
 
 	if((uMaterial.mapBitField & EMISSIVE) != 0)
     {
-        oEmissive = vec4(uMaterial.emissive * texture(uEmissiveMap, vTexCoord).rgb, 1.0);
+        oEmissive = vec4(uMaterial.emissive * texture(uEmissiveMap, texCoord).rgb, 1.0);
     }
     else
     {

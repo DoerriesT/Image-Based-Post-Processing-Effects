@@ -24,10 +24,10 @@ layout(binding = 2) uniform sampler2D uMetallicRoughnessAoMap;
 layout(binding = 3) uniform sampler2D uDepthMap;
 layout(binding = 4) uniform sampler2D uSsaoMap;
 layout(binding = 5) uniform sampler2DArrayShadow uShadowMap;
-layout(binding = 6) uniform samplerCube uIrradianceMap;
-layout(binding = 7) uniform samplerCube uPrefilterMap;
-layout(binding = 8) uniform sampler2D uBrdfLUT;
-layout(binding = 9) uniform sampler2D uPrevFrame;
+layout(binding = 7) uniform samplerCube uIrradianceMap;
+layout(binding = 8) uniform samplerCube uPrefilterMap;
+layout(binding = 9) uniform sampler2D uBrdfLUT;
+layout(binding = 10) uniform sampler2D uPrevFrame;
 
 uniform mat4 uInverseView;
 uniform mat4 uProjection;

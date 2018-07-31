@@ -85,7 +85,9 @@ private:
 	Uniform<GLboolean> uHasAlbedoMapB = Uniform<GLboolean>("uHasAlbedoMap");
 
 	// gBufferPass uniforms
-	Uniform<glm::mat3> uModelViewMatrixG = Uniform<glm::mat3>("uModelViewMatrix");
+	Uniform<glm::vec3> uCamPosG = Uniform<glm::vec3>("uCamPos");
+	Uniform<glm::mat3> uViewMatrixG = Uniform<glm::mat3>("uViewMatrix");
+	Uniform<glm::mat4> uModelMatrixG = Uniform<glm::mat4>("uModelMatrix");
 	Uniform<glm::mat4> uModelViewProjectionMatrixG = Uniform<glm::mat4>("uModelViewProjectionMatrix");
 	Uniform<glm::mat4> uPrevTransformG = Uniform<glm::mat4>("uPrevTransform");
 	Uniform<glm::mat4> uCurrTransformG = Uniform<glm::mat4>("uCurrTransform");
@@ -135,6 +137,7 @@ private:
 	// transparency uniforms
 	Uniform<glm::mat4> uViewMatrixT = Uniform<glm::mat4>("uViewMatrix");
 	Uniform<glm::mat4> uPrevTransformT = Uniform<glm::mat4>("uPrevTransform");
+	Uniform<glm::mat4> uCurrTransformT = Uniform<glm::mat4>("uCurrTransform");
 	Uniform<glm::mat4> uModelViewProjectionMatrixT = Uniform<glm::mat4>("uModelViewProjectionMatrix");
 	Uniform<glm::mat4> uModelMatrixT = Uniform<glm::mat4>("uModelMatrix");
 	Uniform<glm::vec4> uAtlasDataT = Uniform<glm::vec4>("uAtlasData");

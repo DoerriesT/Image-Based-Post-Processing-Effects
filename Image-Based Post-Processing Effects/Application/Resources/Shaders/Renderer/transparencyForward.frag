@@ -13,11 +13,9 @@ layout(location = 1) out vec4 oVelocity;
 
 in vec2 vTexCoord;
 in vec3 vNormal;
-in vec3 vTangent;
-in vec3 vBitangent;
-in vec4 vWorldPos;
 in vec4 vCurrentPos;
 in vec4 vPrevPos;
+in vec3 vWorldPos;
 
 const int SHADOW_CASCADES = 4;
 
@@ -28,6 +26,7 @@ struct Material
     float roughness;
 	vec3 emissive;
     int mapBitField;
+	bool displacement;
 };
 
 struct DirectionalLight
@@ -45,10 +44,11 @@ layout(binding = 2) uniform sampler2D metallicMap;
 layout(binding = 3) uniform sampler2D roughnessMap;
 layout(binding = 4) uniform sampler2D aoMap;
 layout(binding = 5) uniform sampler2D emissiveMap;
-layout(binding = 9) uniform sampler2DArrayShadow uShadowMap;
-layout(binding = 6) uniform samplerCube uIrradianceMap;
-layout(binding = 7) uniform samplerCube uPrefilterMap;
-layout(binding = 8) uniform sampler2D uBrdfLUT;
+layout(binding = 6) uniform sampler2D uDisplacementMap;
+layout(binding = 10) uniform sampler2DArrayShadow uShadowMap;
+layout(binding = 7) uniform samplerCube uIrradianceMap;
+layout(binding = 8) uniform samplerCube uPrefilterMap;
+layout(binding = 9) uniform sampler2D uBrdfLUT;
 
 uniform Material uMaterial;
 uniform DirectionalLight uDirectionalLight;
@@ -58,13 +58,60 @@ uniform bool uShadowsEnabled;
 uniform mat4 uViewMatrix;
 
 #include "brdf.h"
+#include "TBN.h"
 
 void main()
 {
+	vec2 texCoord = vTexCoord;
+
+	vec3 N = normalize(vNormal);
+	mat3 TBN = calculateTBN(N, vWorldPos, texCoord);
+
+	if(uMaterial.displacement)
+	{
+		const float heightScale = 0.05;
+	
+		const float minLayers = 8.0;
+		const float maxLayers = 32.0;
+
+		vec3 viewDir = normalize(uCamPos - vWorldPos) * TBN;
+		float numLayers = mix(maxLayers, minLayers, abs(viewDir.z));
+
+		// the amount to shift the texture coordinates per layer (from vector P)
+		vec2 P = viewDir.xy * heightScale; 
+
+		float layerDepth = 1.0 / numLayers;
+		vec2 deltaTexCoord = P / numLayers;
+	
+		// get initial values
+		vec2  currentTexCoord  = texCoord;
+		float currentDepthMapValue = texture(uDisplacementMap, texCoord).r;
+		float previousDepthMapValue = 0.0;
+		float currentLayerDepth = 0.0;
+		  
+		while(currentLayerDepth < currentDepthMapValue)
+		{
+		    currentTexCoord -= deltaTexCoord;
+	
+			previousDepthMapValue = currentDepthMapValue;
+		    currentDepthMapValue = texture(uDisplacementMap, currentTexCoord).r;  
+	
+		    currentLayerDepth += layerDepth;  
+		}
+		
+		// get depth after and before collision for linear interpolation
+		float afterDepth  = currentDepthMapValue - currentLayerDepth;
+		float beforeDepth = previousDepthMapValue - currentLayerDepth + layerDepth;
+		 
+		// interpolation of texture coordinates
+		float weight = afterDepth / (afterDepth - beforeDepth);
+		texCoord = mix(currentTexCoord, currentTexCoord + deltaTexCoord, weight);
+	}
+
     vec4 albedo;
     if((uMaterial.mapBitField & ALBEDO) == ALBEDO)
     {
-		albedo = texture(albedoMap, vTexCoord).rgba; 
+		albedo = texture(albedoMap, texCoord).rgba; 
         albedo.rgb = pow(albedo.rgb, vec3(2.2));
     }
     else
@@ -73,17 +120,16 @@ void main()
     }
 
 	// TODO: switch to view space normals for uniformity
-    vec3 N = normalize(vNormal);
     if((uMaterial.mapBitField & NORMAL) == NORMAL)
     {
-        vec3 tangentNormal = texture(normalMap, vTexCoord).xyz * 2.0 - 1.0;
-        N = normalize(mat3(normalize(vTangent), -normalize(vBitangent), N)*tangentNormal);
+        vec3 tangentSpaceNormal = texture(normalMap, texCoord).xyz * 2.0 - 1.0;
+        N = normalize(TBN * tangentSpaceNormal);
     }
 
     float metallic;
     if((uMaterial.mapBitField & METALLIC) == METALLIC)
     {
-        metallic  = texture(metallicMap, vTexCoord).r;
+        metallic  = texture(metallicMap, texCoord).r;
     }
     else
     {
@@ -93,7 +139,7 @@ void main()
     float roughness;
     if((uMaterial.mapBitField & ROUGHNESS) == ROUGHNESS)
     {
-        roughness = texture(roughnessMap, vTexCoord).r;
+        roughness = texture(roughnessMap, texCoord).r;
     }
     else
     {
@@ -103,7 +149,7 @@ void main()
     float ao;
     if((uMaterial.mapBitField & AO) == AO)
     {
-        ao = texture(aoMap, vTexCoord).r;
+        ao = texture(aoMap, texCoord).r;
     }
     else
     {
@@ -113,14 +159,14 @@ void main()
 	vec3 emissive;
 	if((uMaterial.mapBitField & EMISSIVE) != 0)
     {
-        emissive = texture(emissiveMap, vTexCoord).rgb;
+        emissive = texture(emissiveMap, texCoord).rgb;
     }
     else
     {
         emissive = uMaterial.emissive;
     }
 	
-	vec3 V = normalize(uCamPos - vWorldPos.xyz/vWorldPos.w);
+	vec3 V = normalize(uCamPos - vWorldPos.xyz);
 	float NdotV = max(dot(N, V), 0.0);
 	vec3 F0 = mix(vec3(0.04), albedo.rgb, metallic);
 	
@@ -132,7 +178,7 @@ void main()
 		float shadow = 0.0;
 		if(uDirectionalLight.renderShadows && uShadowsEnabled)
 		{		
-			vec4 viewSpacePosition = uViewMatrix * vWorldPos;
+			vec4 viewSpacePosition = uViewMatrix * vec4(vWorldPos, 1.0);
 			viewSpacePosition.xyz /= viewSpacePosition.w;
 
 			float split = SHADOW_CASCADES - 1.0;
@@ -145,7 +191,7 @@ void main()
 				}
 			}
 
-			vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * vWorldPos;
+			vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * vec4(vWorldPos, 1.0);
 			vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
 			projCoords = projCoords * 0.5 + 0.5; 
 			vec2 invShadowMapSize = vec2(1.0 / (textureSize(uShadowMap, 0).xy));
@@ -206,7 +252,7 @@ void main()
 
 	vec2 a = (vCurrentPos.xy / vCurrentPos.w);
     vec2 b = (vPrevPos.xy / vPrevPos.w);
-	vec2 v = abs(a - b);
+	vec2 v = a - b;
 	//v = pow(v, vec2(3.0));
 	oVelocity = vec4(v, 0.0, 0.0); // vec4(a - b, 0.0, 0.0); //vec4(pow((a - b) * 0.5 + 0.5, vec2(3.0)), 0.0, 0.0);
 }

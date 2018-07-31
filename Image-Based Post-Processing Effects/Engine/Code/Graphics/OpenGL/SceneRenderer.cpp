@@ -60,7 +60,6 @@ void SceneRenderer::init()
 
 	// gBufferPass uniforms
 	uMaterialG.create(gBufferPassShader);
-	uModelViewMatrixG.create(gBufferPassShader);
 	uModelViewProjectionMatrixG.create(gBufferPassShader);
 	uPrevTransformG.create(gBufferPassShader);
 	uAtlasDataG.create(gBufferPassShader);
@@ -68,6 +67,9 @@ void SceneRenderer::init()
 	uExposureTimeG.create(gBufferPassShader);
 	uMaxVelocityMagG.create(gBufferPassShader);
 	uCurrTransformG.create(gBufferPassShader);
+	uViewMatrixG.create(gBufferPassShader);
+	uModelMatrixG.create(gBufferPassShader);
+	uCamPosG.create(gBufferPassShader);
 
 	// outline uniforms
 	uModelViewProjectionMatrixO.create(outlineShader);
@@ -124,6 +126,7 @@ void SceneRenderer::init()
 	uRenderDirectionalLightT.create(transparencyShader);
 	uCamPosT.create(transparencyShader);
 	uShadowsEnabledT.create(transparencyShader);
+	uCurrTransformT.create(transparencyShader);
 
 	// ssao
 	uViewAO.create(ssaoShader);
@@ -596,8 +599,10 @@ void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_
 			continue;
 		}
 
+		uCamPosG.set(_renderData.cameraPosition);
+		uViewMatrixG.set(glm::mat3(_renderData.viewMatrix));
+		uModelMatrixG.set(modelMatrix);
 		uAtlasDataG.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
-		uModelViewMatrixG.set(glm::mat3(_renderData.viewMatrix * modelMatrix));
 		uModelViewProjectionMatrixG.set(mvpTransformation);
 		uPrevTransformG.set(prevTransformation);
 		uCurrTransformG.set(_renderData.invJitter * mvpTransformation);
@@ -679,13 +684,13 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
-	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getIrradianceMap()->getId());
 	glActiveTexture(GL_TEXTURE7);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getReflectanceMap()->getId());
+	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getIrradianceMap()->getId());
 	glActiveTexture(GL_TEXTURE8);
-	glBindTexture(GL_TEXTURE_2D, brdfLUT);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getReflectanceMap()->getId());
 	glActiveTexture(GL_TEXTURE9);
+	glBindTexture(GL_TEXTURE_2D, brdfLUT);
+	glActiveTexture(GL_TEXTURE10);
 	glBindTexture(GL_TEXTURE_2D, gLightColorTextures[(currentLightColorTexture + 1) % 2]);
 
 	environmentLightPassShader->bind();
@@ -840,7 +845,7 @@ void SceneRenderer::renderTransparentGeometry(const RenderData &_renderData, con
 	{
 		if (_level->lights.directionalLights[0]->isRenderShadows())
 		{
-			glActiveTexture(GL_TEXTURE9);
+			glActiveTexture(GL_TEXTURE10);
 			glBindTexture(GL_TEXTURE_2D_ARRAY, _level->lights.directionalLights[0]->getShadowMap());
 		}
 		uRenderDirectionalLightT.set(true);
@@ -919,13 +924,15 @@ void SceneRenderer::renderTransparentGeometry(const RenderData &_renderData, con
 			textureOffset = glm::vec2((float)col / columns, (float)row / rows);
 		}
 
-		glm::mat4 mvpTransform = _renderData.viewProjectionMatrix * modelMatrix;
-		glm::mat4 prevTransformation = glm::mix(_renderData.viewProjectionMatrix, _renderData.prevViewProjectionMatrix, 0.15f) * entityRenderData->transformationComponent->prevTransformation;
+		glm::mat4 mvpTransformation = _renderData.viewProjectionMatrix * modelMatrix;
+		const float cameraMovementStrength = 0.15f;
+		glm::mat4 prevTransformation = glm::mix(_renderData.invJitter * _renderData.viewProjectionMatrix, _renderData.prevInvJitter * _renderData.prevViewProjectionMatrix, cameraMovementStrength) * entityRenderData->transformationComponent->prevTransformation;
 
 		uAtlasDataT.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
 		uModelMatrixT.set(modelMatrix);
-		uModelViewProjectionMatrixT.set(mvpTransform);
+		uModelViewProjectionMatrixT.set(mvpTransformation);
 		uPrevTransformT.set(prevTransformation);
+		uCurrTransformT.set(_renderData.invJitter * mvpTransformation);
 
 		entityRenderData->transformationComponent->prevTransformation = modelMatrix;
 
