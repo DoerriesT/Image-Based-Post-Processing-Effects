@@ -25,6 +25,7 @@ uniform float uExposure = 1.0;
 uniform float uVelocityScale;
 uniform float uHalfPixelWidth = 0.0003125;
 uniform float uKeyValue = 0.12;
+uniform float uLensDirtStrength;
 uniform bool uAutoExposure = true;
 uniform bool uGodRays = true;
 
@@ -266,7 +267,6 @@ void main()
 	{
 		vec3 lensMod = texture(uLensDirtTex, vTexCoord).rgb;
 		vec3 bloom = texture(uBloomTexture, vTexCoord).rgb * uBloomStrength;
-		//bloom = mix(bloom, bloom * (vec3(1.0) + lensMod), uBloomDirtStrength);
 		additions += bloom;
 	}
 
@@ -287,7 +287,7 @@ void main()
 	if (uLensDirt)
 	{
 		vec3 dirt = texture(uLensDirtTex, vTexCoord).rgb;
-		additions += additions * 4 * dirt;
+		additions += additions * uLensDirtStrength * dirt;
 	}
 
 	if (uGodRays)

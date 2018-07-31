@@ -56,6 +56,8 @@ namespace App
 		COMBINED_FUNC_DEF(hbaoMaxRadiusPixels, double)
 		COMBINED_FUNC_DEF(hbaoAngleBias, double)
 		COMBINED_FUNC_DEF(screenSpaceReflectionsEnabled, bool)
+		COMBINED_FUNC_DEF(lensDirtEnabled, bool)
+		COMBINED_FUNC_DEF(lensDirtStrength, double)
 
 		void TW_CALL windowResolutionGetCallback(void *value, void *clientData)
 	{
@@ -204,7 +206,9 @@ namespace App
 			hbaoMaxRadiusPixels = settingsManager.getDoubleSetting("graphics", "hbao_max_radius_pixels", 50.0);
 			hbaoAngleBias = settingsManager.getDoubleSetting("graphics", "hbao_angle_bias", glm::tan(glm::radians(30.0f)));
 			screenSpaceReflectionsEnabled = settingsManager.getBoolSetting("graphics", "screen_space_reflections_enabled", false);
-
+			lensDirtEnabled = settingsManager.getBoolSetting("graphics", "lens_dirt_enabled", false);
+			lensDirtStrength = settingsManager.getDoubleSetting("graphics", "lens_dirt_strength", 2.0);
+		
 			settingsManager.saveToIni();
 		}
 
@@ -317,6 +321,8 @@ namespace App
 			{
 				TwAddVarCB(settingsTweakBar, "Lens Flares", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensFlaresEnabled), GETTER_FUNC_PTR(lensFlaresEnabled), this, "group=Lens");
 				TwAddVarCB(settingsTweakBar, "Bloom", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(bloomEnabled), GETTER_FUNC_PTR(bloomEnabled), this, "group=Lens ");
+				TwAddVarCB(settingsTweakBar, "Lens Dirt", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensDirtEnabled), GETTER_FUNC_PTR(lensDirtEnabled), this, "group=Lens ");
+				TwAddVarCB(settingsTweakBar, "Lens Dirt Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(lensDirtStrength), GETTER_FUNC_PTR(lensDirtStrength), this, "group=Lens min=0.0 max=10.0 step=0.1");
 			}
 
 			// reflections

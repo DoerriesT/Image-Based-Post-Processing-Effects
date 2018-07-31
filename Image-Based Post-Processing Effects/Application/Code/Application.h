@@ -46,6 +46,8 @@ namespace App
 			COMBINED_FUNC_DECL(colors)
 			COMBINED_FUNC_DECL(bouncing)
 			COMBINED_FUNC_DECL(screenSpaceReflectionsEnabled)
+			COMBINED_FUNC_DECL(lensDirtEnabled)
+			COMBINED_FUNC_DECL(lensDirtStrength)
 
 	public:
 		explicit Application();
@@ -84,6 +86,8 @@ namespace App
 		std::shared_ptr<Setting<int>> uiSizeOffset;
 		std::shared_ptr<Setting<int>> anisotropicFiltering;
 		std::shared_ptr<Setting<bool>> bloomEnabled;
+		std::shared_ptr<Setting<bool>> lensDirtEnabled;
+		std::shared_ptr<Setting<double>> lensDirtStrength;
 		std::shared_ptr<Setting<bool>> fxaaEnabled;
 		std::shared_ptr<Setting<bool>> smaaEnabled;
 		std::shared_ptr<Setting<bool>> smaaTemporalAA;

@@ -63,7 +63,7 @@ void main()
 
 	if(uMaterial.displacement)
 	{
-		const float heightScale = 0.05;
+		const float heightScale = 0.025;
 	
 		const float minLayers = 8.0;
 		const float maxLayers = 32.0;

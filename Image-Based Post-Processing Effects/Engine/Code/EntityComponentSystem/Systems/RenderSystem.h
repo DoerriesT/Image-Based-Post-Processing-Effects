@@ -47,7 +47,8 @@ private:
 	std::shared_ptr<Setting<int>> anisotropicFiltering;
 	std::shared_ptr<Setting<bool>> bloomEnabled;
 	std::shared_ptr<Setting<double>> bloomStrength;
-	std::shared_ptr<Setting<double>> bloomLensDirtStrength;
+	std::shared_ptr<Setting<bool>> lensDirtEnabled;
+	std::shared_ptr<Setting<double>> lensDirtStrength;
 	std::shared_ptr<Setting<bool>> chromaticAberrationEnabled;
 	std::shared_ptr<Setting<double>> chromaticAberrationOffsetMult;
 	std::shared_ptr<Setting<bool>> filmGrainEnabled;

@@ -106,10 +106,11 @@ void PostProcessRenderer::init()
 	uLensFlaresH.create(hdrShader);
 	uBloomH.create(hdrShader);
 	uBloomStrengthH.create(hdrShader);
-	uBloomDirtStrengthH.create(hdrShader);
+	uLensDirtStrengthH.create(hdrShader);
 	uExposureH.create(hdrShader);
 	uMotionBlurH.create(hdrShader);
 	uGodRaysH.create(hdrShader);
+	uLensDirtH.create(hdrShader);
 
 	// fxaa
 	uInverseResolutionF.create(fxaaShader);
@@ -403,10 +404,11 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 	uLensFlaresH.set(_effects.lensFlares.enabled);
 	uBloomH.set(_effects.bloom.enabled);
 	uBloomStrengthH.set(_effects.bloom.strength);
-	uBloomDirtStrengthH.set(_effects.bloom.lensDirtStrength);
 	uExposureH.set(_effects.exposure);
 	uMotionBlurH.set(GLint(_effects.motionBlur));
 	uGodRaysH.set(godrays);
+	uLensDirtH.set(_effects.lensDirt.enabled);
+	uLensDirtStrengthH.set(_effects.lensDirt.strength);
 
 	fullscreenTriangle->getSubMesh()->render();
 

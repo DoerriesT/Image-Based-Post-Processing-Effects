@@ -55,9 +55,13 @@ void RenderSystem::init()
 	bloomStrength->addListener([&](double _value) { effects.bloom.strength = (float)_value; });
 	effects.bloom.strength = (float)bloomStrength->get();
 
-	bloomLensDirtStrength = settingsManager.getDoubleSetting("graphics", "bloom_lens_dirt_strength", 1.0);
-	bloomLensDirtStrength->addListener([&](double _value) { effects.bloom.lensDirtStrength = (float)_value; });
-	effects.bloom.lensDirtStrength = (float)bloomLensDirtStrength->get();
+	lensDirtEnabled = settingsManager.getBoolSetting("graphics", "lens_dirt_enabled", false);
+	lensDirtEnabled->addListener([&](bool _value) { effects.lensDirt.enabled = _value; });
+	effects.lensDirt.enabled = lensDirtEnabled->get();
+
+	lensDirtStrength = settingsManager.getDoubleSetting("graphics", "lens_dirt_strength", 2.0);
+	lensDirtStrength->addListener([&](double _value) { effects.lensDirt.strength = (float)_value; });
+	effects.lensDirt.strength = (float)lensDirtStrength->get();
 
 	chromaticAberrationEnabled = settingsManager.getBoolSetting("graphics", "chromatic_aberration_enabled", false);
 	chromaticAberrationEnabled->addListener([&](bool _value) { effects.chromaticAberration.enabled = _value; });

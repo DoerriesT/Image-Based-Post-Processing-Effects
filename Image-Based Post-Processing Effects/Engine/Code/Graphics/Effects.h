@@ -27,7 +27,13 @@ struct Bloom
 {
 	bool enabled;
 	float strength;
-	float lensDirtStrength;
+	
+};
+
+struct LensDirt
+{
+	bool enabled;
+	float strength;
 };
 
 struct ChromaticAberration
@@ -96,6 +102,7 @@ struct Effects
 	SSAO ssao;
 	HBAO hbao;
 	Bloom bloom;
+	LensDirt lensDirt;
 	Vignette vignette;
 	FilmGrain filmGrain;
 	ChromaticAberration chromaticAberration;
