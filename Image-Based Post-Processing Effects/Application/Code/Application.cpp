@@ -28,6 +28,8 @@
 #define GETTER_FUNC_PTR(name) name##GetCallback
 #define SETTER_FUNC_PTR(name) name##SetCallback
 
+extern bool disp;
+
 namespace App
 {
 	COMBINED_FUNC_DEF(shadowQuality, int)
@@ -358,6 +360,8 @@ namespace App
 				TwAddVarCB(settingsTweakBar, "Colors", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(colors), GETTER_FUNC_PTR(colors), this, "group=Scene");
 				TwAddVarCB(settingsTweakBar, "Bouncing", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(bouncing), GETTER_FUNC_PTR(bouncing), this, "group=Scene");
 			}
+
+			TwAddVarRW(settingsTweakBar, "Parallax Occlusion Mapping", TW_TYPE_BOOLCPP, &disp, nullptr);
 		}
 
 		Engine::getInstance()->getWindow()->addInputListener(this);
