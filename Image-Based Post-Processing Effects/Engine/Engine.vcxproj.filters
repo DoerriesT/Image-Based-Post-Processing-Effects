@@ -930,5 +930,8 @@
     <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaResolve.frag">
       <Filter>Resources\Shaders\PostProcess\AA</Filter>
     </None>
+    <None Include="..\Application\Resources\Shaders\Renderer\ssaoBilateralBlur.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
   </ItemGroup>
 </Project>

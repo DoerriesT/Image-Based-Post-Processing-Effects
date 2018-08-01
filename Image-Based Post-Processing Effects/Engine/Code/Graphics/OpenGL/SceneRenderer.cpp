@@ -54,6 +54,7 @@ void SceneRenderer::init()
 	ssaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssao.frag");
 	ssaoOriginalShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoOriginal.frag");
 	ssaoBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoBlur.frag");
+	ssaoBilateralBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoBilateralBlur.frag");
 	hbaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/hbao.frag");
 
 	// create uniforms
@@ -143,6 +144,11 @@ void SceneRenderer::init()
 
 	// ssao blur
 	uBlurSizeAOB.create(ssaoBlurShader);
+
+	// ssao bilateral blur
+	uSharpnessAOBB.create(ssaoBilateralBlurShader);
+	uKernelRadiusAOBB.create(ssaoBilateralBlurShader);
+	uInvResolutionDirectionAOBB.create(ssaoBilateralBlurShader);
 
 	// hbao
 	uFocalLengthHBAO.create(hbaoShader);
@@ -397,7 +403,7 @@ GLuint SceneRenderer::getVelocityTexture() const
 
 GLuint SceneRenderer::getAmbientOcclusionTexture() const
 {
-	return ssaoTextureB;
+	return ssaoTextureA;
 }
 
 GLuint SceneRenderer::getBrdfLUT() const
@@ -535,7 +541,7 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 
 	glGenTextures(1, &ssaoTextureA);
 	glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _resolution.first, _resolution.second, 0, GL_RED, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution.first, _resolution.second, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -544,7 +550,7 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 
 	glGenTextures(1, &ssaoTextureB);
 	glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _resolution.first, _resolution.second, 0, GL_RED, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution.first, _resolution.second, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -703,7 +709,7 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
+	glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getIrradianceMap()->getId());
 	glActiveTexture(GL_TEXTURE8);
@@ -1089,6 +1095,8 @@ void SceneRenderer::renderCustomGeometry(const RenderData &_renderData, const st
 
 void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effects &_effects)
 {
+	float sharpness = 1.0f;
+	float kernelRadius = 3.0f;
 	switch (_effects.ambientOcclusion)
 	{
 	case AmbientOcclusion::SSAO_ORIGINAL:
@@ -1105,14 +1113,26 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effec
 
 		fullscreenTriangle->getSubMesh()->render();
 
+		ssaoBilateralBlurShader->bind();
+
 		glDrawBuffer(GL_COLOR_ATTACHMENT1);
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
 
-		ssaoBlurShader->bind();
-		uBlurSizeAOB.set(4);
+		uSharpnessAOBB.set(sharpness);
+		uKernelRadiusAOBB.set(kernelRadius);
+		uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
 
 		fullscreenTriangle->getSubMesh()->render();
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
+
+		uInvResolutionDirectionAOBB.set(glm::vec2(0.0, 1.0f / _renderData.resolution.second));
+
+		fullscreenTriangle->getSubMesh()->render();
+
 		break;
 	}
 	case AmbientOcclusion::SSAO:
@@ -1173,15 +1193,25 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effec
 		fullscreenTriangle->getSubMesh()->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 
+		ssaoBilateralBlurShader->bind();
+
 		glDrawBuffer(GL_COLOR_ATTACHMENT1);
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
 
-		ssaoBlurShader->bind();
-		uBlurSizeAOB.set(4);
+		uSharpnessAOBB.set(_effects.ssao.blurSharpness);
+		uKernelRadiusAOBB.set(_effects.ssao.blurRadius);
+		uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
 
 		fullscreenTriangle->getSubMesh()->render();
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
+
+		uInvResolutionDirectionAOBB.set(glm::vec2(0.0, 1.0f / _renderData.resolution.second));
+
+		fullscreenTriangle->getSubMesh()->render();
 		break;
 	}
 	case AmbientOcclusion::HBAO:
@@ -1220,12 +1250,23 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effec
 
 		fullscreenTriangle->getSubMesh()->render();
 
+		ssaoBilateralBlurShader->bind();
+
 		glDrawBuffer(GL_COLOR_ATTACHMENT1);
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
 
-		ssaoBlurShader->bind();
-		uBlurSizeAOB.set(4);
+		uSharpnessAOBB.set(_effects.hbao.blurSharpness);
+		uKernelRadiusAOBB.set(_effects.hbao.blurRadius);
+		uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
+
+		fullscreenTriangle->getSubMesh()->render();
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
+
+		uInvResolutionDirectionAOBB.set(glm::vec2(0.0, 1.0f / _renderData.resolution.second));
 
 		fullscreenTriangle->getSubMesh()->render();
 

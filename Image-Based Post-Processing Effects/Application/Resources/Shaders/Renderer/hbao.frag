@@ -212,5 +212,5 @@ void main(void)
 		ao = clamp(1.0 - ao / uNumDirections * uStrength, 0.0, 1.0);
 	}
 
-	oColor = vec4(ao);
+	oColor = vec4(ao, P.z, 0.0, 0.0);
 }

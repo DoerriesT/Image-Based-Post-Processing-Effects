@@ -48,6 +48,10 @@ namespace App
 			COMBINED_FUNC_DECL(screenSpaceReflectionsEnabled)
 			COMBINED_FUNC_DECL(lensDirtEnabled)
 			COMBINED_FUNC_DECL(lensDirtStrength)
+			COMBINED_FUNC_DECL(ssaoBlurRadius)
+			COMBINED_FUNC_DECL(ssaoBlurSharpness)
+			COMBINED_FUNC_DECL(hbaoBlurRadius)
+			COMBINED_FUNC_DECL(hbaoBlurSharpness)
 
 	public:
 		explicit Application();
@@ -103,12 +107,16 @@ namespace App
 		std::shared_ptr<Setting<int>> ssaoKernelSize;
 		std::shared_ptr<Setting<double>> ssaoRadius;
 		std::shared_ptr<Setting<double>> ssaoStrength;
+		std::shared_ptr<Setting<double>> ssaoBlurSharpness;
+		std::shared_ptr<Setting<int>> ssaoBlurRadius;
 		std::shared_ptr<Setting<int>> hbaoDirections;
 		std::shared_ptr<Setting<int>> hbaoSteps;
 		std::shared_ptr<Setting<double>> hbaoStrength;
 		std::shared_ptr<Setting<double>> hbaoRadius;
 		std::shared_ptr<Setting<double>> hbaoMaxRadiusPixels;
 		std::shared_ptr<Setting<double>> hbaoAngleBias;
+		std::shared_ptr<Setting<double>> hbaoBlurSharpness;
+		std::shared_ptr<Setting<int>> hbaoBlurRadius;
 
 		//void initGuiData();
 	};

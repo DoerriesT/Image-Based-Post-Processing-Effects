@@ -86,5 +86,5 @@ void main()
 	accessibility /= numSamples;
 	
 	// amplify and saturate if necessary
-	oColor = vec4(clamp(accessibility * accessibility + accessibility, 0.0, 1.0), 0.0, 0.0, 0.0);
+	oColor = vec4(clamp(accessibility * accessibility + accessibility, 0.0, 1.0), centerDepth, 0.0, 0.0);
 }

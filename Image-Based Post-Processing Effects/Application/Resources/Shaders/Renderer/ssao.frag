@@ -81,5 +81,5 @@ void main()
     }
     occlusion = 1.0 - min((occlusion / uKernelSize) * uStrength, 1.0);
     
-    oColor = vec4(occlusion, 0.0, 0.0, 0.0);
+    oColor = vec4(occlusion, fragPos.z, 0.0, 0.0);
 }

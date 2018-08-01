@@ -49,6 +49,7 @@ private:
 	std::shared_ptr<ShaderProgram> ssaoShader;
 	std::shared_ptr<ShaderProgram> ssaoOriginalShader;
 	std::shared_ptr<ShaderProgram> ssaoBlurShader;
+	std::shared_ptr<ShaderProgram> ssaoBilateralBlurShader;
 	std::shared_ptr<ShaderProgram> hbaoShader;
 
 	std::shared_ptr<Window> window;
@@ -163,6 +164,11 @@ private:
 
 	// ssao blur uniforms
 	Uniform<GLint> uBlurSizeAOB = Uniform<GLint>("uBlurSize"); // size of noise texture
+
+	// ssao bilateral blur
+	Uniform<GLfloat> uSharpnessAOBB = Uniform<GLfloat>("uSharpness");
+	Uniform<GLfloat> uKernelRadiusAOBB = Uniform<GLfloat>("uKernelRadius");
+	Uniform<glm::vec2> uInvResolutionDirectionAOBB = Uniform<glm::vec2>("uInvResolutionDirection");
 
 	// hbao
 	Uniform<glm::vec2> uFocalLengthHBAO = Uniform<glm::vec2>("uFocalLength");

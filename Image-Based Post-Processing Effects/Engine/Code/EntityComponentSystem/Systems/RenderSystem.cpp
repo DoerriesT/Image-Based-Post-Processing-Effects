@@ -147,6 +147,14 @@ void RenderSystem::init()
 	ssaoStrength->addListener([&](double _value) { effects.ssao.strength = (float)_value; });
 	effects.ssao.strength = (float)ssaoStrength->get();
 
+	ssaoBlurSharpness = settingsManager.getDoubleSetting("graphics", "ssao_blur_sharpness", 1.0);
+	ssaoBlurSharpness->addListener([&](double _value) { effects.ssao.blurSharpness = (float)_value; });
+	effects.ssao.blurSharpness = (float)ssaoBlurSharpness->get();
+
+	ssaoBlurRadius = settingsManager.getIntSetting("graphics", "ssao_blur_Radius", 3);
+	ssaoBlurRadius->addListener([&](int _value) { effects.ssao.blurRadius = (float)_value; });
+	effects.ssao.blurRadius = (float)ssaoBlurRadius->get();
+
 	hbaoDirections = settingsManager.getIntSetting("graphics", "hbao_directions", 4);
 	hbaoDirections->addListener([&](int _value) { effects.hbao.directions = _value; });
 	effects.hbao.directions = hbaoDirections->get();
@@ -170,6 +178,14 @@ void RenderSystem::init()
 	hbaoAngleBias = settingsManager.getDoubleSetting("graphics", "hbao_angle_bias", glm::tan(glm::radians(30.0f)));
 	hbaoAngleBias->addListener([&](double _value) { effects.hbao.angleBias = (float)_value; });
 	effects.hbao.angleBias = (float)hbaoAngleBias->get();
+
+	hbaoBlurSharpness = settingsManager.getDoubleSetting("graphics", "hbao_blur_sharpness", 1.0);
+	hbaoBlurSharpness->addListener([&](double _value) { effects.hbao.blurSharpness = (float)_value; });
+	effects.hbao.blurSharpness = (float)ssaoBlurSharpness->get();
+
+	hbaoBlurRadius = settingsManager.getIntSetting("graphics", "hbao_blur_Radius", 3);
+	hbaoBlurRadius->addListener([&](int _value) { effects.hbao.blurRadius = (float)_value; });
+	effects.hbao.blurRadius = (float)ssaoBlurRadius->get();
 
 	motionBlur = settingsManager.getIntSetting("graphics", "motion_blur", 0);
 	motionBlur->addListener([&](int _value) { effects.motionBlur = static_cast<MotionBlur>(_value); });

@@ -59,6 +59,8 @@ struct SSAO
 	float radius;
 	float bias;
 	float strength;
+	float blurRadius;
+	float blurSharpness;
 };
 
 struct HBAO
@@ -69,6 +71,8 @@ struct HBAO
 	float radius;
 	float maxRadiusPixels;
 	float angleBias;
+	float blurRadius;
+	float blurSharpness;
 };
 
 enum class AmbientOcclusion

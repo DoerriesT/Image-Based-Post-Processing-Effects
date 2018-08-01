@@ -267,6 +267,7 @@
     <None Include="..\Application\Resources\Shaders\Renderer\spotLightPass.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\spotLightPass.vert" />
     <None Include="..\Application\Resources\Shaders\Renderer\ssao.frag" />
+    <None Include="..\Application\Resources\Shaders\Renderer\ssaoBilateralBlur.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\ssaoBlur.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\ssaoOriginal.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\transparencyForward.frag" />
