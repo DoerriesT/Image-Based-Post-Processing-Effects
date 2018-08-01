@@ -29,6 +29,7 @@
 #define SETTER_FUNC_PTR(name) name##SetCallback
 
 extern bool disp;
+extern GBufferDisplayMode displayMode;
 
 namespace App
 {
@@ -208,7 +209,7 @@ namespace App
 			screenSpaceReflectionsEnabled = settingsManager.getBoolSetting("graphics", "screen_space_reflections_enabled", false);
 			lensDirtEnabled = settingsManager.getBoolSetting("graphics", "lens_dirt_enabled", false);
 			lensDirtStrength = settingsManager.getDoubleSetting("graphics", "lens_dirt_strength", 2.0);
-		
+
 			settingsManager.saveToIni();
 		}
 
@@ -368,6 +369,21 @@ namespace App
 			}
 
 			TwAddVarRW(settingsTweakBar, "Parallax Occlusion Mapping", TW_TYPE_BOOLCPP, &disp, nullptr);
+
+			{
+				TwEnumVal displayOptions[] = {
+					{ (int)GBufferDisplayMode::SHADED, "Shaded" },
+					{ (int)GBufferDisplayMode::ALBEDO, "Albedo" },
+					{ (int)GBufferDisplayMode::NORMAL, "Normal" },
+					{ (int)GBufferDisplayMode::MATERIAL, "Material" },
+					{ (int)GBufferDisplayMode::DEPTH, "Depth" },
+					{ (int)GBufferDisplayMode::VELOCITY, "Velocity" },
+					{ (int)GBufferDisplayMode::AMBIENT_OCCLUSION, "Ambient Occlusion" }
+				};
+				TwType DisplayTwType = TwDefineEnum("DisplayType", displayOptions, 7);
+				TwAddVarRW(settingsTweakBar, "Display Mode", DisplayTwType, &displayMode, nullptr);
+			}
+
 		}
 
 		Engine::getInstance()->getWindow()->addInputListener(this);

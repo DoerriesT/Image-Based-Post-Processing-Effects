@@ -370,6 +370,21 @@ GLuint SceneRenderer::getColorTexture() const
 	return gLightColorTextures[currentLightColorTexture];
 }
 
+GLuint SceneRenderer::getAlbedoTexture() const
+{
+	return gAlbedoTexture;
+}
+
+GLuint SceneRenderer::getNormalTexture() const
+{
+	return gNormalTexture;
+}
+
+GLuint SceneRenderer::getMaterialTexture() const
+{
+	return gMRASTexture;
+}
+
 GLuint SceneRenderer::getDepthStencilTexture() const
 {
 	return gDepthStencilTexture;
@@ -378,6 +393,11 @@ GLuint SceneRenderer::getDepthStencilTexture() const
 GLuint SceneRenderer::getVelocityTexture() const
 {
 	return gVelocityTexture;
+}
+
+GLuint SceneRenderer::getAmbientOcclusionTexture() const
+{
+	return ssaoTextureB;
 }
 
 GLuint SceneRenderer::getBrdfLUT() const

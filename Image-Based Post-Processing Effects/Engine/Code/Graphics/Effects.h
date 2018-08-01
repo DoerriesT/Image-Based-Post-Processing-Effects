@@ -115,3 +115,8 @@ struct Effects
 	MotionBlur motionBlur;
 	float exposure;
 };
+
+enum class GBufferDisplayMode
+{
+	SHADED, ALBEDO, NORMAL, MATERIAL, DEPTH, VELOCITY, AMBIENT_OCCLUSION
+};

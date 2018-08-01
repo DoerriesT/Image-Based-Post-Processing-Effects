@@ -43,5 +43,11 @@ private:
 
 	// blit shader uniform
 	GLint uScreenTextureBlit;
+	GLint uRedToWhiteBlit;
+	GLint uScaleBlit;
+	GLint uNormalModeBlit;
+	GLint uInvViewMatrixBlit;
+	GLint uPowerBlit;
+	GLint uPowerValueBlit;
 };
 

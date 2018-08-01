@@ -28,8 +28,12 @@ public:
 	void render(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects);
 	void resize(const std::pair<unsigned int, unsigned int> &_resolution);
 	GLuint getColorTexture() const;
+	GLuint getAlbedoTexture() const;
+	GLuint getNormalTexture() const;
+	GLuint getMaterialTexture() const;
 	GLuint getDepthStencilTexture() const;
 	GLuint getVelocityTexture() const;
+	GLuint getAmbientOcclusionTexture() const;
 	GLuint getBrdfLUT() const;
 
 private:

@@ -79,9 +79,17 @@ void GraphicsFramework::init()
 	blitShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Shared/blit.frag");
 
 	uScreenTextureBlit = blitShader->createUniform("uScreenTexture");
+	uRedToWhiteBlit = blitShader->createUniform("uRedToWhite");
+	uScaleBlit = blitShader->createUniform("uScale");
+	uNormalModeBlit = blitShader->createUniform("uNormalMode");
+	uInvViewMatrixBlit = blitShader->createUniform("uInvViewMatrix");
+	uPowerBlit = blitShader->createUniform("uPower");
+	uPowerValueBlit = blitShader->createUniform("uPowerValue");
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
+
+static glm::mat3 invViewMat;
 
 void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
 {
@@ -117,6 +125,8 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 	renderData.cameraPosition = _camera->getPosition();
 	renderData.viewDirection = _camera->getForwardDirection();
 	renderData.fov = window->getFieldOfView();
+
+	invViewMat = renderData.invViewMatrix;
 
 	prevViewProjectionMatrix = renderData.viewProjectionMatrix;
 	prevInvJitter = renderData.invJitter;
@@ -191,17 +201,79 @@ void save2DTextureToFile(GLuint _texture, unsigned int _width, unsigned int _hei
 
 }
 
+GBufferDisplayMode displayMode = GBufferDisplayMode::SHADED;
+
 void GraphicsFramework::blitToScreen()
 {
 	// bind default framebuffer
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glDrawBuffer(GL_BACK);
 
-	// bind finished frame texture
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, postProcessRenderer.getFinishedTexture());
 	blitShader->bind();
 	blitShader->setUniform(uScreenTextureBlit, 0);
+
+	GLuint texture = 0;
+
+	switch (displayMode)
+	{
+	case GBufferDisplayMode::SHADED:
+		texture = postProcessRenderer.getFinishedTexture();
+		blitShader->setUniform(uScaleBlit, 1.0f);
+		blitShader->setUniform(uRedToWhiteBlit, false);
+		blitShader->setUniform(uNormalModeBlit, false);
+		blitShader->setUniform(uPowerBlit, false);
+		break;
+	case GBufferDisplayMode::ALBEDO:
+		texture = sceneRenderer.getAlbedoTexture();
+		blitShader->setUniform(uScaleBlit, 1.0f);
+		blitShader->setUniform(uRedToWhiteBlit, false);
+		blitShader->setUniform(uNormalModeBlit, false);
+		blitShader->setUniform(uPowerBlit, false);
+		break;
+	case GBufferDisplayMode::NORMAL:
+		texture = sceneRenderer.getNormalTexture();
+		blitShader->setUniform(uScaleBlit, 1.0f);
+		blitShader->setUniform(uRedToWhiteBlit, false);
+		blitShader->setUniform(uNormalModeBlit, true);
+		blitShader->setUniform(uInvViewMatrixBlit, invViewMat);
+		blitShader->setUniform(uPowerBlit, false);
+		break;
+	case GBufferDisplayMode::MATERIAL:
+		texture = sceneRenderer.getMaterialTexture();
+		blitShader->setUniform(uScaleBlit, 1.0f);
+		blitShader->setUniform(uRedToWhiteBlit, false);
+		blitShader->setUniform(uNormalModeBlit, false);
+		blitShader->setUniform(uPowerBlit, false);
+		break;
+	case GBufferDisplayMode::DEPTH:
+		texture = sceneRenderer.getDepthStencilTexture();
+		blitShader->setUniform(uScaleBlit, 1.0f);
+		blitShader->setUniform(uRedToWhiteBlit, true);
+		blitShader->setUniform(uNormalModeBlit, false);
+		blitShader->setUniform(uPowerBlit, true);
+		blitShader->setUniform(uPowerValueBlit, 30.0f);
+		break;
+	case GBufferDisplayMode::VELOCITY:
+		texture = sceneRenderer.getVelocityTexture();
+		blitShader->setUniform(uScaleBlit, 10.0f);
+		blitShader->setUniform(uRedToWhiteBlit, false);
+		blitShader->setUniform(uNormalModeBlit, false);
+		blitShader->setUniform(uPowerBlit, false);
+		break;
+	case GBufferDisplayMode::AMBIENT_OCCLUSION:
+		texture = sceneRenderer.getAmbientOcclusionTexture();
+		blitShader->setUniform(uScaleBlit, 1.0f);
+		blitShader->setUniform(uRedToWhiteBlit, true);
+		blitShader->setUniform(uNormalModeBlit, false);
+		blitShader->setUniform(uPowerBlit, false);
+		break;
+	default:
+		break;
+	}
+	// bind finished frame texture
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	
 
 	// draw to back buffer
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
