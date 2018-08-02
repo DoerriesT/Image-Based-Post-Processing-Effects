@@ -348,3 +348,99 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 
 	return level;
 }
+
+std::shared_ptr<Level> App::loadSibenikLevel()
+{
+	EntityManager &entityManager = EntityManager::getInstance();
+	std::shared_ptr<Level> level = std::make_shared<Level>();
+
+	// filepath
+	level->filepath = "Resources/Levels/sibenik/";
+
+	// camera(s)
+	std::shared_ptr<Camera> camera0 = std::make_shared<Camera>(glm::vec3(4.81539774f, 5.86095524f, 1.85534108f), glm::quat(0.386821985f, -0.184476748f, 0.815521121f, -0.388924748f));
+
+	level->cameras.push_back(camera0);
+	level->activeCameraIndex = 0;
+
+	// exposure
+	level->exposure = 1.0f;
+
+	// water
+	Water water = {};
+	water.enabled = false;
+	water.level = 0.0f;
+	water.normalizedWindDirection = glm::normalize(glm::vec2(1.0f, 1.0f));
+	water.normalStrength = 5.5f;
+	water.simulationResolution = 256;
+	water.timeScale = 1.25f;
+	water.waveAmplitude = 4.0f;
+	water.waveChoppiness = 0.65f;
+	water.waveSuppressionExponent = 6.0f;
+	water.windSpeed = 26.0f;
+	water.worldSize = 500;
+	level->water = water;
+
+	// sun
+	level->sun.direction = glm::normalize(glm::vec3(0.0f, 2.0f, -1.0f));
+
+	/*- set skybox entity and environment maps*/
+	const Entity *skyboxEntity = entityManager.createEntity();
+	level->environment.skyboxEntity = skyboxEntity;
+
+	//oceanLevel->environment.environmentMap = Texture::createTexture("Resources/Textures/oceanskybox.dds", true);
+	if (SettingsManager::getInstance().getBoolSetting("graphics", "load_environment_from_file", true)->get())
+	{
+		level->environment.environmentProbe = EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 10.0f, 0.0f), Texture::createTexture(level->filepath + "reflectance.dds", true), Texture::createTexture(level->filepath + "irradiance.dds", true));
+	}
+	else
+	{
+		level->environment.environmentProbe = EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 10.0f, 0.0f));
+	}
+
+	AtmosphereParams params;
+	params.intensity = glm::vec3(1.0f, 1.0f, 1.0f);
+	params.lightDir = level->sun.direction;
+	params.mieBrightness = 100.0f;
+	params.mieCollectionPower = 0.39f;
+	params.mieDistribution = 63.0f;
+	params.mieStrength = 264.0f;
+	params.rayleighBrightness = 33.0f;
+	params.rayleighCollectionPower = 0.81f;
+	params.rayleighStrength = 139.0f;
+	params.scatterStrength = 28.0f;
+	params.spotBrightness = 1000.0f;
+	params.stepCount = 16;
+	params.surfaceHeight = 0.99f;
+
+	level->environment.useAtmosphere = true;
+	level->environment.isAtmosphereValid = false;
+	level->environment.atmosphereParams = params;
+
+	/*- set the lights in the scene*/
+	//level->lights.directionalLights.push_back(DirectionalLight::createDirectionalLight(params.intensity * 16.0f, level->sun.direction, true));
+	float outerAngle = 25.0f;
+	float innerAngle = 0.0f;
+	float range = 25.0f;
+	
+	level->lights.pointLights.push_back(PointLight::createPointLight(glm::vec3(5.0f), glm::vec3(0.0f, 10.0f, 0.0f), 35.0f, true, PointLight::DEFAULT_SHADOW_MAP_RESOLUTION * 2));
+	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(0.0f, 1.7f, 0.0f), glm::vec3(1.0f, 0.5f, 0.0f), outerAngle, innerAngle, range, true, SpotLight::DEFAULT_SHADOW_MAP_RESOLUTION, true, Texture::createTexture("Resources/Textures/opengllogo.dds", true)));
+
+
+	// objects
+	{
+		const Entity *sibenikEntity = entityManager.createEntity();
+		level->entityMap["sibenik"] = sibenikEntity;
+		entityManager.addComponent<ModelComponent>(sibenikEntity, Model("Resources/Models/sibenik.meshmat", true));
+		entityManager.addComponent<TransformationComponent>(sibenikEntity);
+		entityManager.addComponent<RenderableComponent>(sibenikEntity);
+		//entityManager.addComponent<PhysicsComponent>(sponzaEntity, 0.0f, 1.0f, false);
+	}
+
+	level->id = (size_t)2;
+	level->valid = true;
+	level->name = "sibenik";
+	level->loaded = true;
+
+	return level;
+}

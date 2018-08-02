@@ -24,7 +24,8 @@ vec3 decode (vec2 enc)
 
 void main()
 {
-	oFragColor = uRedToWhite ? texture(uScreenTexture, vTexCoord).rrra : texture(uScreenTexture, vTexCoord).rgba;
+	vec2 texCoord = gl_FragCoord.xy / textureSize(uScreenTexture, 0);
+	oFragColor = uRedToWhite ? texture(uScreenTexture, texCoord).rrra : texture(uScreenTexture, texCoord).rgba;
 
 	if(uNormalMode)
 	{

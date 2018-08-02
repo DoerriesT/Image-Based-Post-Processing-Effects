@@ -413,8 +413,8 @@ namespace App
 		Gamepad &gamepad = userInput.getGamepad();
 		if (userInput.isKeyPressed(InputKey::SPACE) || gamepad.id != -1 && gamepad.leftTrigger > -1.0f)
 		{
-			level->lights.spotLights[2]->setDirection(level->cameras[level->activeCameraIndex]->getForwardDirection());
-			level->lights.spotLights[2]->setPosition(level->cameras[level->activeCameraIndex]->getPosition());
+			level->lights.spotLights[level->lights.spotLights.size()-1]->setDirection(level->cameras[level->activeCameraIndex]->getForwardDirection());
+			level->lights.spotLights[level->lights.spotLights.size()-1]->setPosition(level->cameras[level->activeCameraIndex]->getPosition());
 		}
 
 		static double lastPressed = time;
