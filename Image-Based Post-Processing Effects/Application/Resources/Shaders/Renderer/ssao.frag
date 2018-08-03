@@ -79,7 +79,7 @@ void main()
 		float rangeCheck = smoothstep(0.0, 1.0, uRadius / abs(fragPos.z - sampleDepth));
         occlusion += (sampleDepth >= samplePos.z + uBias ? 1.0 : 0.0) * rangeCheck;           
     }
-    occlusion = 1.0 - min((occlusion / uKernelSize) * uStrength, 1.0);
+    occlusion = 1.0 - min((occlusion / uKernelSize), 1.0);
     
-    oColor = vec4(occlusion, fragPos.z, 0.0, 0.0);
+    oColor = vec4(pow(occlusion, uStrength), fragPos.z, 0.0, 0.0);
 }

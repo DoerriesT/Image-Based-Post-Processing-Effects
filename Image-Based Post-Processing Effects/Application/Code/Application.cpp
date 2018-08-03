@@ -363,7 +363,7 @@ namespace App
 				TwAddVarCB(settingsTweakBar, "SSAO Radius", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(ssaoRadius), GETTER_FUNC_PTR(ssaoRadius), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
 				TwAddVarCB(settingsTweakBar, "SSAO Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(ssaoStrength), GETTER_FUNC_PTR(ssaoStrength), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
 				TwAddVarCB(settingsTweakBar, "SSAO Blur Radius", TW_TYPE_INT32, SETTER_FUNC_PTR(ssaoBlurRadius), GETTER_FUNC_PTR(ssaoBlurRadius), this, "group=Ambient_Occlusion min=1 max=32 step=1");
-				TwAddVarCB(settingsTweakBar, "SSAO Blur Sharpness", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(ssaoBlurSharpness), GETTER_FUNC_PTR(ssaoBlurSharpness), this, "group=Ambient_Occlusion min=1.0 max=50.0 step=0.1");
+				TwAddVarCB(settingsTweakBar, "SSAO Blur Sharpness", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(ssaoBlurSharpness), GETTER_FUNC_PTR(ssaoBlurSharpness), this, "group=Ambient_Occlusion min=0.0 max=50.0 step=0.1");
 				TwAddVarCB(settingsTweakBar, "HBAO Directions", TW_TYPE_INT32, SETTER_FUNC_PTR(hbaoDirections), GETTER_FUNC_PTR(hbaoDirections), this, "group=Ambient_Occlusion min=1 max=32");
 				TwAddVarCB(settingsTweakBar, "HBAO Steps", TW_TYPE_INT32, SETTER_FUNC_PTR(hbaoSteps), GETTER_FUNC_PTR(hbaoSteps), this, "group=Ambient_Occlusion min=1 max=32");
 				TwAddVarCB(settingsTweakBar, "HBAO Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoStrength), GETTER_FUNC_PTR(hbaoStrength), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
@@ -371,7 +371,7 @@ namespace App
 				TwAddVarCB(settingsTweakBar, "HBAO Max Radius Pixels", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoMaxRadiusPixels), GETTER_FUNC_PTR(hbaoMaxRadiusPixels), this, "group=Ambient_Occlusion min=1 max=256");
 				TwAddVarCB(settingsTweakBar, "HBAO Angle Bias", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoAngleBias), GETTER_FUNC_PTR(hbaoAngleBias), this, "group=Ambient_Occlusion min=0.0 max=1.5 step=0.01");
 				TwAddVarCB(settingsTweakBar, "HBAO Blur Radius", TW_TYPE_INT32, SETTER_FUNC_PTR(hbaoBlurRadius), GETTER_FUNC_PTR(hbaoBlurRadius), this, "group=Ambient_Occlusion min=1 max=32 step=1");
-				TwAddVarCB(settingsTweakBar, "HBAO Blur Sharpness", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoBlurSharpness), GETTER_FUNC_PTR(hbaoBlurSharpness), this, "group=Ambient_Occlusion min=1.0 max=50.0 step=0.1");
+				TwAddVarCB(settingsTweakBar, "HBAO Blur Sharpness", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoBlurSharpness), GETTER_FUNC_PTR(hbaoBlurSharpness), this, "group=Ambient_Occlusion min=0.0 max=50.0 step=0.1");
 			}
 
 			// scene
