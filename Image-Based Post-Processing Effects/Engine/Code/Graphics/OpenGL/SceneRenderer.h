@@ -51,6 +51,7 @@ private:
 	std::shared_ptr<ShaderProgram> ssaoBlurShader;
 	std::shared_ptr<ShaderProgram> ssaoBilateralBlurShader;
 	std::shared_ptr<ShaderProgram> hbaoShader;
+	std::shared_ptr<ShaderProgram> gtaoShader;
 
 	std::shared_ptr<Window> window;
 
@@ -184,6 +185,18 @@ private:
 	Uniform<GLfloat> uMaxRadiusPixelsHBAO = Uniform<GLfloat>("uMaxRadiusPixels");
 	Uniform<GLfloat> uNumDirectionsHBAO = Uniform<GLfloat>("uNumDirections");
 	Uniform<GLfloat> uNumStepsHBAO = Uniform<GLfloat>("uNumSteps");
+
+	// gtao
+	Uniform<glm::vec2> uFocalLengthGTAO = Uniform<glm::vec2>("uFocalLength");
+	Uniform<glm::mat4> uInverseProjectionGTAO = Uniform<glm::mat4>("uInverseProjection");
+	Uniform<glm::vec2> uAOResGTAO = Uniform<glm::vec2>("uAORes");
+	Uniform<glm::vec2> uInvAOResGTAO = Uniform<glm::vec2>("uInvAORes");
+	Uniform<glm::vec2> uNoiseScaleGTAO = Uniform<glm::vec2>("uNoiseScale");
+	Uniform<GLfloat> uStrengthGTAO = Uniform<GLfloat>("uStrength");
+	Uniform<GLfloat> uRadiusGTAO = Uniform<GLfloat>("uRadius");
+	Uniform<GLfloat> uMaxRadiusPixelsGTAO = Uniform<GLfloat>("uMaxRadiusPixels");
+	Uniform<GLfloat> uNumDirectionsGTAO = Uniform<GLfloat>("uNumDirections");
+	Uniform<GLfloat> uNumStepsGTAO = Uniform<GLfloat>("uNumSteps");
 
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
 	void createSsaoAttachments(const std::pair<unsigned int, unsigned int> &_resolution);

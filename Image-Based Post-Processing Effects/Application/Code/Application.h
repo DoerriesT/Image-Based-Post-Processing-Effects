@@ -52,6 +52,13 @@ namespace App
 			COMBINED_FUNC_DECL(ssaoBlurSharpness)
 			COMBINED_FUNC_DECL(hbaoBlurRadius)
 			COMBINED_FUNC_DECL(hbaoBlurSharpness)
+			COMBINED_FUNC_DECL(gtaoDirections)
+			COMBINED_FUNC_DECL(gtaoSteps)
+			COMBINED_FUNC_DECL(gtaoStrength)
+			COMBINED_FUNC_DECL(gtaoRadius)
+			COMBINED_FUNC_DECL(gtaoMaxRadiusPixels)
+			COMBINED_FUNC_DECL(gtaoBlurSharpness)
+			COMBINED_FUNC_DECL(gtaoBlurRadius)
 
 	public:
 		explicit Application();
@@ -117,6 +124,13 @@ namespace App
 		std::shared_ptr<Setting<double>> hbaoAngleBias;
 		std::shared_ptr<Setting<double>> hbaoBlurSharpness;
 		std::shared_ptr<Setting<int>> hbaoBlurRadius;
+		std::shared_ptr<Setting<int>> gtaoDirections;
+		std::shared_ptr<Setting<int>> gtaoSteps;
+		std::shared_ptr<Setting<double>> gtaoStrength;
+		std::shared_ptr<Setting<double>> gtaoRadius;
+		std::shared_ptr<Setting<double>> gtaoMaxRadiusPixels;
+		std::shared_ptr<Setting<double>> gtaoBlurSharpness;
+		std::shared_ptr<Setting<int>> gtaoBlurRadius;
 
 		//void initGuiData();
 	};

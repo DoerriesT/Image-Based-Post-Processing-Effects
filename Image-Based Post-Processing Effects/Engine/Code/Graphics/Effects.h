@@ -75,9 +75,20 @@ struct HBAO
 	float blurSharpness;
 };
 
+struct GTAO
+{
+	unsigned int directions;
+	unsigned int steps;
+	float strength;
+	float radius;
+	float maxRadiusPixels;
+	float blurRadius;
+	float blurSharpness;
+};
+
 enum class AmbientOcclusion
 {
-	OFF, SSAO_ORIGINAL, SSAO, HBAO
+	OFF, SSAO_ORIGINAL, SSAO, HBAO, GTAO
 };
 
 struct ScreenSpaceReflections
@@ -105,6 +116,7 @@ struct Effects
 	AmbientOcclusion ambientOcclusion;
 	SSAO ssao;
 	HBAO hbao;
+	GTAO gtao;
 	Bloom bloom;
 	LensDirt lensDirt;
 	Vignette vignette;

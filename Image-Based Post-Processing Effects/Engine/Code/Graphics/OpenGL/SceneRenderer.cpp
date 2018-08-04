@@ -56,6 +56,7 @@ void SceneRenderer::init()
 	ssaoBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoBlur.frag");
 	ssaoBilateralBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoBilateralBlur.frag");
 	hbaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/hbao.frag");
+	gtaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/gtao.frag");
 
 	// create uniforms
 
@@ -164,6 +165,18 @@ void SceneRenderer::init()
 	uMaxRadiusPixelsHBAO.create(hbaoShader);
 	uNumDirectionsHBAO.create(hbaoShader);
 	uNumStepsHBAO.create(hbaoShader);
+
+	// gtao
+	uFocalLengthGTAO.create(gtaoShader);
+	uInverseProjectionGTAO.create(gtaoShader);
+	uAOResGTAO.create(gtaoShader);
+	uInvAOResGTAO.create(gtaoShader);
+	uNoiseScaleGTAO.create(gtaoShader);
+	uStrengthGTAO.create(gtaoShader);
+	uRadiusGTAO.create(gtaoShader);
+	uMaxRadiusPixelsGTAO.create(gtaoShader);
+	uNumDirectionsGTAO.create(gtaoShader);
+	uNumStepsGTAO.create(gtaoShader);
 
 	// create FBO
 	glGenFramebuffers(1, &gBufferFBO);
@@ -1258,6 +1271,61 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effec
 
 		uSharpnessAOBB.set(_effects.hbao.blurSharpness);
 		uKernelRadiusAOBB.set(_effects.hbao.blurRadius);
+		uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
+
+		fullscreenTriangle->getSubMesh()->render();
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
+
+		uInvResolutionDirectionAOBB.set(glm::vec2(0.0, 1.0f / _renderData.resolution.second));
+
+		fullscreenTriangle->getSubMesh()->render();
+
+		break;
+	}
+	case AmbientOcclusion::GTAO:
+	{
+		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
+		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, noiseTexture2);
+
+		float aspectRatio = _renderData.resolution.second / (float)_renderData.resolution.first;
+		float fovy = 2.0f * glm::atan(glm::tan(glm::radians(window->getFieldOfView()) * 0.5f) * aspectRatio);
+		glm::vec2 focalLength;
+		focalLength.x = 1.0f / tanf(fovy * 0.5f) * aspectRatio;
+		focalLength.y = 1.0f / tanf(fovy * 0.5f);
+
+		glm::vec2 res(_renderData.resolution.first, _renderData.resolution.second);
+		float radius = 0.3f;
+
+		gtaoShader->bind();
+		uFocalLengthGTAO.set(focalLength);
+		uInverseProjectionGTAO.set(_renderData.invProjectionMatrix);
+		uAOResGTAO.set(res);
+		uInvAOResGTAO.set(1.0f / res);
+		uNoiseScaleGTAO.set(res * 0.25f);
+		uStrengthGTAO.set(_effects.gtao.strength);
+		uRadiusGTAO.set(_effects.gtao.radius);
+		uMaxRadiusPixelsGTAO.set(_effects.gtao.maxRadiusPixels);
+		uNumDirectionsGTAO.set((float)_effects.gtao.directions);
+		uNumStepsGTAO.set((float)_effects.gtao.steps);
+
+		fullscreenTriangle->getSubMesh()->render();
+
+		ssaoBilateralBlurShader->bind();
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT1);
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
+
+		uSharpnessAOBB.set(_effects.gtao.blurSharpness);
+		uKernelRadiusAOBB.set(_effects.gtao.blurRadius);
 		uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
 
 		fullscreenTriangle->getSubMesh()->render();

@@ -6,6 +6,7 @@ in vec2 vTexCoord;
 
 out vec4 oColor;
 
+layout(binding = 1) uniform sampler2D uNormalMap;
 layout(binding = 3) uniform sampler2D uDepthMap;
 layout(binding = 5) uniform sampler2D uNoiseMap;
 
@@ -18,9 +19,6 @@ uniform vec2 uNoiseScale = vec2(1600.0, 900.0) / 4.0;
 
 uniform float uStrength = 1.9;
 uniform float uRadius = 0.3;
-uniform float uRadius2 = 0.3*0.3;
-uniform float uNegInvR2 = - 1.0 / (0.3*0.3);
-uniform float uTanBias = tan(30.0 * PI / 180.0);
 uniform float uMaxRadiusPixels = 50.0;
 
 uniform float uNumDirections = 4;
@@ -33,98 +31,24 @@ vec3 getViewSpacePos(vec2 uv)
 	vec4 clipSpacePosition = vec4(uv * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
 	vec4 viewSpacePosition = uInverseProjection * clipSpacePosition;
 	viewSpacePosition /= viewSpacePosition.w;
-	viewSpacePosition.z = -viewSpacePosition.z;
+	//viewSpacePosition.z = -viewSpacePosition.z;
 	return viewSpacePosition.xyz;
 }
 
-float tanToSin(float x)
+vec3 decode (vec2 enc)
 {
-	return x * inversesqrt(x * x + 1.0);
-}
-
-float invLength(vec2 v)
-{
-	return inversesqrt(dot(v, v));
-}
-
-float tangent(vec3 T)
-{
-	return -T.z * invLength(T.xy);
-}
-
-float tangent(vec3 P, vec3 S)
-{
-    return (P.z - S.z) * invLength(S.xy - P.xy);
-}
-
-float biasedTangent(vec3 T)
-{
-	return tangent(T) + uTanBias;
-}
-
-float length2(vec3 v)
-{
-	return dot(v, v);
-}
-
-vec3 minDiff(vec3 P, vec3 Pr, vec3 Pl)
-{
-    vec3 V1 = Pr - P;
-    vec3 V2 = P - Pl;
-    return (length2(V1) < length2(V2)) ? V1 : V2;
+    vec2 fenc = enc * 4.0 - 2.0;
+    float f = dot(fenc, fenc);
+    float g = sqrt(1.0 - f * 0.25);
+    vec3 n;
+    n.xy = fenc * g;
+    n.z = 1.0 -f * 0.5;
+    return n;
 }
 
 vec2 snapUVOffset(vec2 uv)
 {
     return round(uv * uAORes) * uInvAORes;
-}
-
-float falloff(float d2)
-{
-	return d2 * uNegInvR2 + 1.0;
-}
-
-float horizonOcclusion(	vec2 deltaUV,
-						vec3 P,
-						vec3 dPdu,
-						vec3 dPdv,
-						float randstep,
-						float numSamples)
-{
-	float ao = 0;
-
-	// Offset the first coord with some noise
-	vec2 uv = vTexCoord + snapUVOffset(randstep * deltaUV);
-	deltaUV = snapUVOffset(deltaUV);
-
-	// Calculate the tangent vector
-	vec3 T = deltaUV.x * dPdu + deltaUV.y * dPdv;
-
-	// Get the angle of the tangent vector from the viewspace axis
-	float tanH = biasedTangent(T);
-	float sinH = tanToSin(tanH);
-
-	// Sample to find the maximum angle
-	for(float s = 1.0; s <= numSamples; ++s)
-	{
-		uv += deltaUV;
-		vec3 S = getViewSpacePos(uv);
-		float tanS = tangent(P, S);
-		float d2 = length2(S - P);
-
-		// Is the sample within the radius and the angle greater?
-		if(d2 < uRadius2 && tanS > tanH)
-		{
-			float sinS = tanToSin(tanS);
-			// Apply falloff based on the distance
-			ao += falloff(d2) * (sinS - sinH);
-
-			tanH = tanS;
-			sinH = sinS;
-		}
-	}
-	
-	return ao;
 }
 
 vec2 rotateDirections(vec2 dir, vec2 cosSin)
@@ -137,8 +61,7 @@ void computeSteps(inout vec2 stepSizeUv, inout float numSteps, float rayRadiusPi
     // Avoid oversampling if numSteps is greater than the kernel radius in pixels
     numSteps = min(uNumSteps, rayRadiusPix);
 
-    // Divide by Ns+1 so that the farthest samples are not fully attenuated
-    float stepSizePix = rayRadiusPix / (numSteps + 1.0);
+    float stepSizePix = rayRadiusPix / numSteps;
 
     // Clamp numSteps if it is greater than the max kernel footprint
     float maxNumSteps = uMaxRadiusPixels / stepSizePix;
@@ -156,14 +79,13 @@ void computeSteps(inout vec2 stepSizeUv, inout float numSteps, float rayRadiusPi
 
 void main(void)
 {
-
-	vec3 P 	= getViewSpacePos(vTexCoord);
+	vec3 P = getViewSpacePos(vTexCoord);
 
     // Get the random samples from the noise texture
 	vec3 random = texture(uNoiseMap, vTexCoord.xy * uNoiseScale).rgb;
 
 	// Calculate the projected size of the hemisphere
-    vec2 rayRadiusUV = 0.5 * uRadius * uFocalLength / P.z;
+    vec2 rayRadiusUV = 0.5 * uRadius * uFocalLength / -P.z;
     float rayRadiusPix = rayRadiusUV.x * uAORes.x;
 
     float ao = 1.0;
@@ -178,17 +100,20 @@ void main(void)
     	computeSteps(stepSizeUV, numSteps, rayRadiusPix, random.z);
 
 		// Sample neighboring pixels
-		vec3 Pr = getViewSpacePos(vTexCoord + vec2( uInvAORes.x, 0));
-		vec3 Pl = getViewSpacePos(vTexCoord + vec2(-uInvAORes.x, 0));
-		vec3 Pt = getViewSpacePos(vTexCoord + vec2( 0, uInvAORes.y));
-		vec3 Pb = getViewSpacePos(vTexCoord + vec2( 0,-uInvAORes.y));
+		//vec3 Pr = getViewSpacePos(vTexCoord + vec2( uInvAORes.x, 0));
+		//vec3 Pl = getViewSpacePos(vTexCoord + vec2(-uInvAORes.x, 0));
+		//vec3 Pt = getViewSpacePos(vTexCoord + vec2( 0, uInvAORes.y));
+		//vec3 Pb = getViewSpacePos(vTexCoord + vec2( 0,-uInvAORes.y));
 
 		// Calculate tangent basis vectors using the minimu difference
-		vec3 dPdu = minDiff(P, Pr, Pl);
-		vec3 dPdv = minDiff(P, Pt, Pb) * (uAORes.y * uInvAORes.x);
+		//vec3 dPdu = minDiff(P, Pr, Pl);
+		//vec3 dPdv = minDiff(P, Pt, Pb) * (uAORes.y * uInvAORes.x);
+		
+		vec3 V = -normalize(P);
+		vec3 N = decode(texture(uNormalMap, vTexCoord).rg);
 
 		ao = 0.0;
-		float alpha = 2.0 * PI / uNumDirections;
+		float alpha = PI / uNumDirections;
 
 		// Calculate the horizon occlusion of each direction
 		for(float d = 0; d < uNumDirections; ++d)
@@ -198,19 +123,58 @@ void main(void)
 			// Apply noise to the direction
 			vec2 dir = rotateDirections(vec2(cos(theta), sin(theta)), random.xy);
 			vec2 deltaUV = dir * stepSizeUV;
+			
+			vec2 horizons = vec2(-1.0);
 
-			// Sample the pixels along the direction
-			ao += horizonOcclusion(	deltaUV,
-									P,
-									dPdu,
-									dPdv,
-									random.z,
-									numSteps);
+			for(float s = 0; s < numSteps; ++s)
+			{
+				vec2 offset = (numSteps + 1.0) * deltaUV;
+				
+				// first horizon
+				{
+					vec3 S = getViewSpacePos(vTexCoord + offset);
+					vec3 D = normalize(S - P);
+					horizons.x = max(max(dot(V, D), 0.0), horizons.x);
+				}
+				
+				// second horizon
+				{
+					vec3 S = getViewSpacePos(vTexCoord - offset);
+					vec3 D = normalize(S - P);
+					horizons.y = max(max(dot(V, D), 0.0), horizons.y);
+				}
+			}
+			
+			horizons = acos(horizons);
+			horizons.x = -horizons.x;
+			
+			vec3 planeN = normalize(cross(V, vec3(dir, 0.0)));
+			vec3 projectedN = N - (dot(N, planeN) / dot(planeN, planeN)) * planeN;
+			float projectedNLength = length(projectedN);
+			float invLength = 1.0 / projectedNLength;
+			projectedN *= invLength;
+			
+			float NdotV = dot(projectedN, V);
+			float gamma = acos(NdotV);
+			float sinGamma2 = sin(gamma) * 2.0;
+			float cosGamma = cos(gamma);
+			
+			// clamp horizons
+			horizons.x = gamma + max(horizons.x - gamma, -PI * 0.5);
+			horizons.y = gamma + min(horizons.y - gamma, PI * 0.5);
+			
+			vec2 horizonCosTerm = (sinGamma2 * horizons - cos(2.0 * horizons - gamma)) + cosGamma;
+			
+			// premultiply
+			projectedNLength *= 0.25;
+			
+			ao += projectedNLength * horizonCosTerm.x;
+			ao += projectedNLength * horizonCosTerm.y;
 		}
 
 		// Average the results and produce the final AO
-		ao = clamp(1.0 - ao / uNumDirections * uStrength, 0.0, 1.0);
+		ao = clamp(ao / uNumDirections, 0.0, 1.0);
 	}
 
-	oColor = vec4(ao, P.z, 0.0, 0.0);
+	oColor = vec4(pow(ao, uStrength), -P.z, 0.0, 0.0);
 }
