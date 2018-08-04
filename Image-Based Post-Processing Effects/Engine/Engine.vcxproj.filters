@@ -933,5 +933,8 @@
     <None Include="..\Application\Resources\Shaders\Renderer\ssaoBilateralBlur.frag">
       <Filter>Resources\Shaders\Renderer</Filter>
     </None>
+    <None Include="..\Application\Resources\Shaders\Renderer\gtao.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
   </ItemGroup>
 </Project>

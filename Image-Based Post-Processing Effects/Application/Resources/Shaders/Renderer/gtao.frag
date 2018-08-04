@@ -46,6 +46,18 @@ vec3 decode (vec2 enc)
     return n;
 }
 
+float length2(vec3 v)
+{
+	return dot(v, v);
+}
+
+vec3 minDiff(vec3 P, vec3 Pr, vec3 Pl)
+{
+    vec3 V1 = Pr - P;
+    vec3 V2 = P - Pl;
+    return (length2(V1) < length2(V2)) ? V1 : V2;
+}
+
 vec2 snapUVOffset(vec2 uv)
 {
     return round(uv * uAORes) * uInvAORes;
@@ -100,17 +112,17 @@ void main(void)
     	computeSteps(stepSizeUV, numSteps, rayRadiusPix, random.z);
 
 		// Sample neighboring pixels
-		//vec3 Pr = getViewSpacePos(vTexCoord + vec2( uInvAORes.x, 0));
-		//vec3 Pl = getViewSpacePos(vTexCoord + vec2(-uInvAORes.x, 0));
-		//vec3 Pt = getViewSpacePos(vTexCoord + vec2( 0, uInvAORes.y));
-		//vec3 Pb = getViewSpacePos(vTexCoord + vec2( 0,-uInvAORes.y));
+		vec3 Pr = getViewSpacePos(vTexCoord + vec2( uInvAORes.x, 0));
+		vec3 Pl = getViewSpacePos(vTexCoord + vec2(-uInvAORes.x, 0));
+		vec3 Pt = getViewSpacePos(vTexCoord + vec2( 0, uInvAORes.y));
+		vec3 Pb = getViewSpacePos(vTexCoord + vec2( 0,-uInvAORes.y));
 
 		// Calculate tangent basis vectors using the minimu difference
-		//vec3 dPdu = minDiff(P, Pr, Pl);
-		//vec3 dPdv = minDiff(P, Pt, Pb) * (uAORes.y * uInvAORes.x);
+		vec3 dPdu = minDiff(P, Pr, Pl);
+		vec3 dPdv = minDiff(P, Pt, Pb) * (uAORes.y * uInvAORes.x);
 		
 		vec3 V = -normalize(P);
-		vec3 N = decode(texture(uNormalMap, vTexCoord).rg);
+		vec3 N = normalize(cross(dPdu, dPdv));//decode(texture(uNormalMap, vTexCoord).rg);
 
 		ao = 0.0;
 		float alpha = PI / uNumDirections;
@@ -151,7 +163,7 @@ void main(void)
 			vec3 planeN = normalize(cross(V, vec3(dir, 0.0)));
 			vec3 projectedN = N - (dot(N, planeN) / dot(planeN, planeN)) * planeN;
 			float projectedNLength = length(projectedN);
-			float invLength = 1.0 / projectedNLength;
+			float invLength = 1.0 / (projectedNLength + 1e-6);
 			projectedN *= invLength;
 			
 			float NdotV = dot(projectedN, V);

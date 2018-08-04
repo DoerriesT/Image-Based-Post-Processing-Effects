@@ -252,6 +252,7 @@
     <None Include="..\Application\Resources\Shaders\Renderer\gBufferPass.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\gBufferPass.vert" />
     <None Include="..\Application\Resources\Shaders\Renderer\globalLightPass.frag" />
+    <None Include="..\Application\Resources\Shaders\Renderer\gtao.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\hbao.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\lightVolume.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\lightVolume.tessc" />
