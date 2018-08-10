@@ -159,7 +159,7 @@ void main()
 	vec3 emissive;
 	if((uMaterial.mapBitField & EMISSIVE) != 0)
     {
-        emissive = texture(emissiveMap, texCoord).rgb;
+        emissive = uMaterial.emissive * texture(emissiveMap, texCoord).rgb;
     }
     else
     {
@@ -242,8 +242,7 @@ void main()
 	// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
 	const float MAX_REFLECTION_LOD = 4.0;
 	vec3 prefilteredColor = textureLod(uPrefilterMap, reflect(-V, N), roughness * MAX_REFLECTION_LOD).rgb;
-	// TODO: find out why brdfLUT is weirdly sampled
-	vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, max(roughness, 0.004))).rg;
+	vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, roughness)).rg;
 	vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 				
 	vec3 ambientLightContribution = vec3((kD * diffuse + specular) * ao);

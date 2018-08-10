@@ -64,6 +64,11 @@ void WindowFramework::init()
 	glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
+#ifdef _DEBUG
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif // _DEBUG
+
+
 	glfwWindowHint(GLFW_RED_BITS, 8);
 	glfwWindowHint(GLFW_GREEN_BITS, 8);
 	glfwWindowHint(GLFW_BLUE_BITS, 8);

@@ -81,6 +81,8 @@ private:
 	GLuint ssaoFbo;
 	GLuint ssaoTextureA;
 	GLuint ssaoTextureB;
+	GLuint ssaoTextureC;
+	GLuint finishedSsaoTexture;
 	GLuint noiseTexture;
 	GLuint noiseTexture2;
 
@@ -170,6 +172,7 @@ private:
 	Uniform<GLfloat> uSharpnessAOBB = Uniform<GLfloat>("uSharpness");
 	Uniform<GLfloat> uKernelRadiusAOBB = Uniform<GLfloat>("uKernelRadius");
 	Uniform<glm::vec2> uInvResolutionDirectionAOBB = Uniform<glm::vec2>("uInvResolutionDirection");
+	Uniform<GLboolean> uTemporalAOBB = Uniform<GLboolean>("uTemporal");
 
 	// hbao
 	Uniform<glm::vec2> uFocalLengthHBAO = Uniform<glm::vec2>("uFocalLength");
@@ -187,15 +190,14 @@ private:
 	Uniform<GLfloat> uNumStepsHBAO = Uniform<GLfloat>("uNumSteps");
 
 	// gtao
-	Uniform<glm::vec2> uFocalLengthGTAO = Uniform<glm::vec2>("uFocalLength");
+	Uniform<GLfloat> uFocalLengthGTAO = Uniform<GLfloat>("uFocalLength");
 	Uniform<glm::mat4> uInverseProjectionGTAO = Uniform<glm::mat4>("uInverseProjection");
 	Uniform<glm::vec2> uAOResGTAO = Uniform<glm::vec2>("uAORes");
 	Uniform<glm::vec2> uInvAOResGTAO = Uniform<glm::vec2>("uInvAORes");
-	Uniform<glm::vec2> uNoiseScaleGTAO = Uniform<glm::vec2>("uNoiseScale");
+	Uniform<GLint> uFrameGTAO = Uniform<GLint>("uFrame");
 	Uniform<GLfloat> uStrengthGTAO = Uniform<GLfloat>("uStrength");
 	Uniform<GLfloat> uRadiusGTAO = Uniform<GLfloat>("uRadius");
 	Uniform<GLfloat> uMaxRadiusPixelsGTAO = Uniform<GLfloat>("uMaxRadiusPixels");
-	Uniform<GLfloat> uNumDirectionsGTAO = Uniform<GLfloat>("uNumDirections");
 	Uniform<GLfloat> uNumStepsGTAO = Uniform<GLfloat>("uNumSteps");
 
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);

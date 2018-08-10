@@ -10,23 +10,24 @@ layout(binding = 1) uniform sampler2D uNormalMap;
 layout(binding = 3) uniform sampler2D uDepthMap;
 layout(binding = 5) uniform sampler2D uNoiseMap;
 
-uniform vec2 uFocalLength;
+uniform float uFocalLength;
 uniform mat4 uInverseProjection;
 
 uniform vec2 uAORes = vec2(1600.0, 900.0);
 uniform vec2 uInvAORes = vec2(1.0/1600.0, 1.0/900.0);
-uniform vec2 uNoiseScale = vec2(1600.0, 900.0) / 4.0;
 
 uniform float uStrength = 1.9;
 uniform float uRadius = 0.3;
 uniform float uMaxRadiusPixels = 50.0;
 
-uniform float uNumDirections = 4;
 uniform float uNumSteps = 4;
+
+uniform int uFrame;
 
 
 vec3 getViewSpacePos(vec2 uv)
 {
+	uv *= uInvAORes;
 	float depth = texture(uDepthMap, uv).r;
 	vec4 clipSpacePosition = vec4(uv * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
 	vec4 viewSpacePosition = uInverseProjection * clipSpacePosition;
@@ -46,146 +47,150 @@ vec3 decode (vec2 enc)
     return n;
 }
 
-float length2(vec3 v)
-{
-	return dot(v, v);
-}
-
 vec3 minDiff(vec3 P, vec3 Pr, vec3 Pl)
 {
     vec3 V1 = Pr - P;
     vec3 V2 = P - Pl;
-    return (length2(V1) < length2(V2)) ? V1 : V2;
+    return (dot(V1, V1) < dot(V2, V2)) ? V1 : V2;
 }
 
-vec2 snapUVOffset(vec2 uv)
-{
-    return round(uv * uAORes) * uInvAORes;
-}
-
-vec2 rotateDirections(vec2 dir, vec2 cosSin)
-{
-    return vec2(dir.x * cosSin.x - dir.y * cosSin.y, dir.x * cosSin.y + dir.y * cosSin.x);
-}
-
-void computeSteps(inout vec2 stepSizeUv, inout float numSteps, float rayRadiusPix, float rand)
+void computeSteps(inout float stepSizePix, inout float numSteps, float rayRadiusPix)
 {
     // Avoid oversampling if numSteps is greater than the kernel radius in pixels
     numSteps = min(uNumSteps, rayRadiusPix);
+    stepSizePix = rayRadiusPix / numSteps;
+}
 
-    float stepSizePix = rayRadiusPix / numSteps;
+// x = spatial direction / y = temporal direction / z = spatial offset / w = temporal offset
+vec4 getNoise()
+{
+	vec4 noise;
+	
+	ivec2 coord = ivec2(gl_FragCoord.xy);
+	
+	noise.x = (1.0 / 16.0) * ((((coord.x + coord.y) & 0x3 ) << 2) + (coord.x & 0x3));
+	noise.z = (1.0 / 4.0) * ((coord.y - coord.x) & 0x3);
 
-    // Clamp numSteps if it is greater than the max kernel footprint
-    float maxNumSteps = uMaxRadiusPixels / stepSizePix;
-    if (maxNumSteps < numSteps)
-    {
-        // Use dithering to avoid AO discontinuities
-        numSteps = floor(maxNumSteps + rand);
-        numSteps = max(numSteps, 1);
-        stepSizePix = uMaxRadiusPixels / numSteps;
-    }
+	float rotations[] = { 60.0, 300.0, 180.0, 240.0, 120.0, 0.0 };
+	noise.y = rotations[uFrame % 6] * (1.0 / 360.0);
+	
+	float offsets[] = { 0.0, 0.5, 0.25, 0.75 };
+	noise.w = offsets[(uFrame / 6 ) % 4];
+	
+	return noise;
+}
 
-    // Step size in uv space
-    stepSizeUv = stepSizePix * uInvAORes;
+float square(float x)
+{
+	return x * x;
+}
+
+float falloff(float dist2)
+{
+	float start = square(uRadius * 0.2);
+	float end = square(uRadius);
+	return 2.0 * clamp((dist2 - start) / (end - start), 0.0, 1.0);
 }
 
 void main(void)
 {
-	vec3 P = getViewSpacePos(vTexCoord);
-
-    // Get the random samples from the noise texture
-	vec3 random = texture(uNoiseMap, vTexCoord.xy * uNoiseScale).rgb;
+	vec3 P = getViewSpacePos(gl_FragCoord.xy);
 
 	// Calculate the projected size of the hemisphere
-    vec2 rayRadiusUV = 0.5 * uRadius * uFocalLength / -P.z;
-    float rayRadiusPix = rayRadiusUV.x * uAORes.x;
+    float rayRadiusUV = 0.5 * uRadius * uFocalLength / -P.z;
+    float rayRadiusPix = rayRadiusUV * uAORes.x;
 
     float ao = 1.0;
 
     // Make sure the radius of the evaluated hemisphere is more than a pixel
     if(rayRadiusPix > 1.0)
     {
-    	float numSteps;
-    	vec2 stepSizeUV;
-
-    	// Compute the number of steps
-    	computeSteps(stepSizeUV, numSteps, rayRadiusPix, random.z);
-
+		ao = 0.0;
+		
 		// Sample neighboring pixels
-		vec3 Pr = getViewSpacePos(vTexCoord + vec2( uInvAORes.x, 0));
-		vec3 Pl = getViewSpacePos(vTexCoord + vec2(-uInvAORes.x, 0));
-		vec3 Pt = getViewSpacePos(vTexCoord + vec2( 0, uInvAORes.y));
-		vec3 Pb = getViewSpacePos(vTexCoord + vec2( 0,-uInvAORes.y));
+		vec3 Pr = getViewSpacePos(gl_FragCoord.xy + vec2(1.0, 0.0));
+		vec3 Pl = getViewSpacePos(gl_FragCoord.xy + vec2(-1.0, 0.0));
+		vec3 Pt = getViewSpacePos(gl_FragCoord.xy + vec2(0.0, 1.0));
+		vec3 Pb = getViewSpacePos(gl_FragCoord.xy + vec2(0.0, -1.0));
 
-		// Calculate tangent basis vectors using the minimu difference
+		// Calculate tangent basis vectors using the minimum difference
 		vec3 dPdu = minDiff(P, Pr, Pl);
-		vec3 dPdv = minDiff(P, Pt, Pb) * (uAORes.y * uInvAORes.x);
+		vec3 dPdv = minDiff(P, Pt, Pb);
+		
+		vec3 N = normalize(cross(dPdu, dPdv));//decode(texture(uNormalMap, vTexCoord).rg);
 		
 		vec3 V = -normalize(P);
-		vec3 N = normalize(cross(dPdu, dPdv));//decode(texture(uNormalMap, vTexCoord).rg);
+		
+		float numSteps;
+    	float stepSizePix;
 
-		ao = 0.0;
-		float alpha = PI / uNumDirections;
+    	// Compute the number of steps
+    	computeSteps(stepSizePix, numSteps, rayRadiusPix);
 
-		// Calculate the horizon occlusion of each direction
-		for(float d = 0; d < uNumDirections; ++d)
+		vec4 noise = getNoise();
+
+		float theta = (noise.x + noise.y) * PI;
+		float jitter = noise.z + noise.w;
+		vec2 dir = vec2(cos(theta), sin(theta));
+		vec2 horizons = vec2(-1.0);
+		
+		float currstep = mod(jitter, 1.0) * (stepSizePix - 1.0) + 1.0;
+
+		for(float s = 0; s < numSteps; ++s)
 		{
-			float theta = alpha * d;
-
-			// Apply noise to the direction
-			vec2 dir = rotateDirections(vec2(cos(theta), sin(theta)), random.xy);
-			vec2 deltaUV = dir * stepSizeUV;
+			vec2 offset = currstep * dir;
+			currstep += stepSizePix;
 			
-			vec2 horizons = vec2(-1.0);
-
-			for(float s = 0; s < numSteps; ++s)
+			// first horizon
 			{
-				vec2 offset = (numSteps + 1.0) * deltaUV;
-				
-				// first horizon
-				{
-					vec3 S = getViewSpacePos(vTexCoord + offset);
-					vec3 D = normalize(S - P);
-					horizons.x = max(max(dot(V, D), 0.0), horizons.x);
-				}
-				
-				// second horizon
-				{
-					vec3 S = getViewSpacePos(vTexCoord - offset);
-					vec3 D = normalize(S - P);
-					horizons.y = max(max(dot(V, D), 0.0), horizons.y);
-				}
+				vec3 S = getViewSpacePos(gl_FragCoord.xy + offset);
+				vec3 D = S - P;
+				float dist2 = dot(D, D);
+				D *= inversesqrt(dist2);
+				float attenuation = falloff(dist2);
+				horizons.x = max(dot(V, D) - attenuation, horizons.x);
 			}
 			
-			horizons = acos(horizons);
-			horizons.x = -horizons.x;
-			
-			vec3 planeN = normalize(cross(V, vec3(dir, 0.0)));
-			vec3 projectedN = N - (dot(N, planeN) / dot(planeN, planeN)) * planeN;
-			float projectedNLength = length(projectedN);
-			float invLength = 1.0 / (projectedNLength + 1e-6);
-			projectedN *= invLength;
-			
-			float NdotV = dot(projectedN, V);
-			float gamma = acos(NdotV);
-			float sinGamma2 = sin(gamma) * 2.0;
-			float cosGamma = cos(gamma);
-			
-			// clamp horizons
-			horizons.x = gamma + max(horizons.x - gamma, -PI * 0.5);
-			horizons.y = gamma + min(horizons.y - gamma, PI * 0.5);
-			
-			vec2 horizonCosTerm = (sinGamma2 * horizons - cos(2.0 * horizons - gamma)) + cosGamma;
-			
-			// premultiply
-			projectedNLength *= 0.25;
-			
-			ao += projectedNLength * horizonCosTerm.x;
-			ao += projectedNLength * horizonCosTerm.y;
+			// second horizon
+			{
+				vec3 S = getViewSpacePos(gl_FragCoord.xy - offset);
+				vec3 D = S - P;
+				float dist2 = dot(D, D);
+				D *= inversesqrt(dist2);
+				float attenuation = falloff(dist2);
+				horizons.y = max(dot(V, D) - attenuation, horizons.y);
+			}
 		}
-
-		// Average the results and produce the final AO
-		ao = clamp(ao / uNumDirections, 0.0, 1.0);
+		
+		horizons = acos(horizons);
+		horizons.x = -horizons.x;
+		
+		// project normal onto slice plane
+		vec3 planeN = normalize(cross(vec3(dir, 0.0), V));
+		vec3 projectedN = N - dot(N, planeN) * planeN;
+		
+		float projectedNLength = length(projectedN);
+		float invLength = 1.0 / (projectedNLength + 1e-6);
+		projectedN *= invLength;
+		
+		// calculate gamma
+		vec3 tangent = cross(V, planeN);
+		float cosGamma	= dot(projectedN, V);
+		float gamma = acos(cosGamma) * sign(-dot(projectedN, tangent));
+		float sinGamma2	= 2.0 * sin(gamma);
+		
+		
+		// clamp horizons
+		horizons.x = gamma + max(horizons.x - gamma, -PI * 0.5);
+		horizons.y = gamma + min(horizons.y - gamma, PI * 0.5);
+		
+		vec2 horizonCosTerm = (sinGamma2 * horizons - cos(2.0 * horizons - gamma)) + cosGamma;
+		
+		// premultiply
+		projectedNLength *= 0.25;
+		
+		ao += projectedNLength * horizonCosTerm.x;
+		ao += projectedNLength * horizonCosTerm.y;
 	}
 
 	oColor = vec4(pow(ao, uStrength), -P.z, 0.0, 0.0);

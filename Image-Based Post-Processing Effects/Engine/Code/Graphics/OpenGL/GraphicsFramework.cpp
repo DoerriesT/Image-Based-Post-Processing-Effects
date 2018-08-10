@@ -68,8 +68,10 @@ void GraphicsFramework::init()
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+#ifdef _DEBUG
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
+#endif // _DEBUG
 
 	sceneRenderer.init();
 	postProcessRenderer.init();

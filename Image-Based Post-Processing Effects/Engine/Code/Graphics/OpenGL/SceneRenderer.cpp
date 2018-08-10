@@ -22,7 +22,7 @@
 #include "Graphics\Scene.h"
 #include "Graphics\Effects.h"
 #include "Graphics\Texture.h"
-
+#include "Input\UserInput.h"
 
 SceneRenderer::SceneRenderer(std::shared_ptr<Window> _window)
 	:window(_window), ocean(false, true), volumetricLighting(window->getWidth(), window->getHeight())
@@ -150,6 +150,7 @@ void SceneRenderer::init()
 	uSharpnessAOBB.create(ssaoBilateralBlurShader);
 	uKernelRadiusAOBB.create(ssaoBilateralBlurShader);
 	uInvResolutionDirectionAOBB.create(ssaoBilateralBlurShader);
+	uTemporalAOBB.create(ssaoBilateralBlurShader);
 
 	// hbao
 	uFocalLengthHBAO.create(hbaoShader);
@@ -171,12 +172,11 @@ void SceneRenderer::init()
 	uInverseProjectionGTAO.create(gtaoShader);
 	uAOResGTAO.create(gtaoShader);
 	uInvAOResGTAO.create(gtaoShader);
-	uNoiseScaleGTAO.create(gtaoShader);
 	uStrengthGTAO.create(gtaoShader);
 	uRadiusGTAO.create(gtaoShader);
 	uMaxRadiusPixelsGTAO.create(gtaoShader);
-	uNumDirectionsGTAO.create(gtaoShader);
 	uNumStepsGTAO.create(gtaoShader);
+	uFrameGTAO.create(gtaoShader);
 
 	// create FBO
 	glGenFramebuffers(1, &gBufferFBO);
@@ -416,7 +416,7 @@ GLuint SceneRenderer::getVelocityTexture() const
 
 GLuint SceneRenderer::getAmbientOcclusionTexture() const
 {
-	return ssaoTextureA;
+	return finishedSsaoTexture;
 }
 
 GLuint SceneRenderer::getBrdfLUT() const
@@ -569,6 +569,15 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, ssaoTextureB, 0);
+
+	glGenTextures(1, &ssaoTextureC);
+	glBindTexture(GL_TEXTURE_2D, ssaoTextureC);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution.first, _resolution.second, 0, GL_RG, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, ssaoTextureC, 0);
 }
 
 void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_scene)
@@ -722,7 +731,7 @@ void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const 
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
+	glBindTexture(GL_TEXTURE_2D, finishedSsaoTexture);
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getIrradianceMap()->getId());
 	glActiveTexture(GL_TEXTURE8);
@@ -1132,6 +1141,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effec
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
 
+		uTemporalAOBB.set(false);
 		uSharpnessAOBB.set(sharpness);
 		uKernelRadiusAOBB.set(kernelRadius);
 		uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
@@ -1145,6 +1155,8 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effec
 		uInvResolutionDirectionAOBB.set(glm::vec2(0.0, 1.0f / _renderData.resolution.second));
 
 		fullscreenTriangle->getSubMesh()->render();
+
+		finishedSsaoTexture = ssaoTextureA;
 
 		break;
 	}
@@ -1212,6 +1224,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effec
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
 
+		uTemporalAOBB.set(false);
 		uSharpnessAOBB.set(_effects.ssao.blurSharpness);
 		uKernelRadiusAOBB.set(_effects.ssao.blurRadius);
 		uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
@@ -1225,6 +1238,9 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effec
 		uInvResolutionDirectionAOBB.set(glm::vec2(0.0, 1.0f / _renderData.resolution.second));
 
 		fullscreenTriangle->getSubMesh()->render();
+
+		finishedSsaoTexture = ssaoTextureA;
+
 		break;
 	}
 	case AmbientOcclusion::HBAO:
@@ -1269,6 +1285,7 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effec
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
 
+		uTemporalAOBB.set(false);
 		uSharpnessAOBB.set(_effects.hbao.blurSharpness);
 		uKernelRadiusAOBB.set(_effects.hbao.blurRadius);
 		uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
@@ -1283,6 +1300,8 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effec
 
 		fullscreenTriangle->getSubMesh()->render();
 
+		finishedSsaoTexture = ssaoTextureA;
+
 		break;
 	}
 	case AmbientOcclusion::GTAO:
@@ -1291,29 +1310,26 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effec
 		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
 		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
 
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_2D, noiseTexture2);
+		glDrawBuffer(finishedSsaoTexture == ssaoTextureA ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0);
 
 		float aspectRatio = _renderData.resolution.second / (float)_renderData.resolution.first;
 		float fovy = 2.0f * glm::atan(glm::tan(glm::radians(window->getFieldOfView()) * 0.5f) * aspectRatio);
-		glm::vec2 focalLength;
-		focalLength.x = 1.0f / tanf(fovy * 0.5f) * aspectRatio;
-		focalLength.y = 1.0f / tanf(fovy * 0.5f);
+		float focalLength;
+		focalLength = 1.0f / tanf(fovy * 0.5f) * aspectRatio;
 
 		glm::vec2 res(_renderData.resolution.first, _renderData.resolution.second);
-		float radius = 0.3f;
+
+		static int currentFrame = 0;
 
 		gtaoShader->bind();
+		uFrameGTAO.set(currentFrame);
 		uFocalLengthGTAO.set(focalLength);
 		uInverseProjectionGTAO.set(_renderData.invProjectionMatrix);
 		uAOResGTAO.set(res);
 		uInvAOResGTAO.set(1.0f / res);
-		uNoiseScaleGTAO.set(res * 0.25f);
 		uStrengthGTAO.set(_effects.gtao.strength);
 		uRadiusGTAO.set(_effects.gtao.radius);
 		uMaxRadiusPixelsGTAO.set(_effects.gtao.maxRadiusPixels);
-		uNumDirectionsGTAO.set((float)_effects.gtao.directions);
 		uNumStepsGTAO.set((float)_effects.gtao.steps);
 
 		fullscreenTriangle->getSubMesh()->render();
@@ -1322,21 +1338,31 @@ void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effec
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT1);
 		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
+		glBindTexture(GL_TEXTURE_2D, finishedSsaoTexture == ssaoTextureA ? ssaoTextureC : ssaoTextureA);
 
+		uTemporalAOBB.set(false);
 		uSharpnessAOBB.set(_effects.gtao.blurSharpness);
 		uKernelRadiusAOBB.set(_effects.gtao.blurRadius);
 		uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
 
 		fullscreenTriangle->getSubMesh()->render();
 
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		glDrawBuffer(finishedSsaoTexture == ssaoTextureA ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0);
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, gVelocityTexture);
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, finishedSsaoTexture);
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
 
+		uTemporalAOBB.set(true || UserInput::getInstance().isKeyPressed(InputKey::T));
 		uInvResolutionDirectionAOBB.set(glm::vec2(0.0, 1.0f / _renderData.resolution.second));
 
 		fullscreenTriangle->getSubMesh()->render();
+
+		currentFrame = (currentFrame + 1) % 12;
+
+		finishedSsaoTexture = finishedSsaoTexture == ssaoTextureA ? ssaoTextureC : ssaoTextureA;
 
 		break;
 	}
