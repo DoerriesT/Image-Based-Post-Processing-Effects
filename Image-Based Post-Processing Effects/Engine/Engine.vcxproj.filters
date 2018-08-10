@@ -419,6 +419,9 @@
     <ClInclude Include="Code\Graphics\Frustum.h">
       <Filter>Code\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">

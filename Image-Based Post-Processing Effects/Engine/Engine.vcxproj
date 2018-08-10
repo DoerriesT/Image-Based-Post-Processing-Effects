@@ -53,6 +53,7 @@
     <ClInclude Include="Code\Graphics\OpenGL\GraphicsFramework.h" />
     <ClInclude Include="Code\Graphics\OpenGL\MediumDescription.h" />
     <ClInclude Include="Code\Graphics\OpenGL\Ocean.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\PostProcessRenderer.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderData.h" />
     <ClInclude Include="Code\Graphics\OpenGL\SceneRenderer.h" />
