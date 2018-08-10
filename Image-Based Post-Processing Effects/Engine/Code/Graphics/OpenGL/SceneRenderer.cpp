@@ -202,7 +202,8 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	currentLightColorTexture = (currentLightColorTexture + 1) % 2;
 
 	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 , lightColorAttachments[currentLightColorTexture], GL_COLOR_ATTACHMENT6 };
-	const GLenum secondPassDrawBuffers[] = { lightColorAttachments[currentLightColorTexture], GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT6 };
+	const GLenum secondPassDrawBuffers[] = { lightColorAttachments[currentLightColorTexture], GL_COLOR_ATTACHMENT6 };
+	const GLenum thirdPassDrawBuffers[] = { lightColorAttachments[currentLightColorTexture], GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT6 };
 	glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
 
 	// bind g-buffer
@@ -270,7 +271,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 		glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
 	}
 
-	glDrawBuffers(sizeof(secondPassDrawBuffers) / sizeof(GLenum), secondPassDrawBuffers);
+	glDrawBuffers(sizeof(thirdPassDrawBuffers) / sizeof(GLenum), thirdPassDrawBuffers);
 
 	// disable writing to depth, since all geometry from now on is only a utility to draw lights
 	glDepthMask(GL_TRUE);
@@ -282,6 +283,8 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	{
 		renderSkybox(_renderData, _level);
 	}
+
+	glDrawBuffers(sizeof(secondPassDrawBuffers) / sizeof(GLenum), secondPassDrawBuffers);
 
 	// disable writing to depth, since all geometry from now on is only a utility to draw lights
 	glDepthMask(GL_FALSE);
@@ -328,7 +331,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 
 	// rebind fbo since VolumetricLighting uses its own
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
-	glDrawBuffers(sizeof(secondPassDrawBuffers) / sizeof(GLenum), secondPassDrawBuffers);
+	glDrawBuffers(sizeof(thirdPassDrawBuffers) / sizeof(GLenum), thirdPassDrawBuffers);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

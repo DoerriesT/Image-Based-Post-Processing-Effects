@@ -71,6 +71,7 @@ void GraphicsFramework::init()
 #ifdef _DEBUG
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 #endif // _DEBUG
 
 	sceneRenderer.init();
