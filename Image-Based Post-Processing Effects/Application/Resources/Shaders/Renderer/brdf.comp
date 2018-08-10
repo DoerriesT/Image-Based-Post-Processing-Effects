@@ -58,8 +58,8 @@ float GeometrySmith(float NdotV, float NdotL, float roughness)
 
 void main()
 {
-	float NdotV = (gl_GlobalInvocationID.x + 0.5) / 512.0;
-	float roughness = (gl_GlobalInvocationID.y + 0.5) / 512.0;
+	float NdotV = (float(gl_GlobalInvocationID.x) + 0.5) / 512.0;
+	float roughness = (float(gl_GlobalInvocationID.y) + 0.5) / 512.0;
 	
 	
 	vec3 V;

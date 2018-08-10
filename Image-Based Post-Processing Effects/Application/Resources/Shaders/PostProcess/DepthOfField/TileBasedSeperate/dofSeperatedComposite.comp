@@ -13,7 +13,7 @@ void main()
 {	
 	vec2 domainSize = textureSize(uColorTexture, 0).xy;
 	vec2 texelSize = vec2(1.0 / domainSize);
-	vec2 texCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * texelSize;
+	vec2 texCoord = vec2(vec2(gl_GlobalInvocationID.xy) + 0.5) * texelSize;
 	
     vec4 dofNear = texture(uNearTexture, texCoord);
 	vec4 dofFar = texture(uFarTexture, texCoord);

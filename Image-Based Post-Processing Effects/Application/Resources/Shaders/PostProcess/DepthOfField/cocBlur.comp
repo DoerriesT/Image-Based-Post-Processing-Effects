@@ -19,7 +19,7 @@ void main()
 	if (!uDirection)
 	{
 		vec2 halfResTexelSize = vec2(1.0 / (textureSize(uCocTexture, 0) * 0.5));
-		vec2 centerCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * halfResTexelSize;
+		vec2 centerCoord = vec2(vec2(vec2(gl_GlobalInvocationID.xy)) + 0.5) * halfResTexelSize;
 		
 		sum = texture(uCocTexture, centerCoord).rg * weights[0];
 		
@@ -32,7 +32,7 @@ void main()
 	else
 	{
 		vec2 halfResTexelSize = vec2(1.0 / (textureSize(uCocTexture, 0)));
-		vec2 centerCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * halfResTexelSize;
+		vec2 centerCoord = vec2(vec2(gl_GlobalInvocationID.xy) + 0.5) * halfResTexelSize;
 		
 		sum = texture(uCocTexture, centerCoord).rg * weights[0];
 		

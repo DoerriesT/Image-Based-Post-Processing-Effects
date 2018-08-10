@@ -18,7 +18,7 @@ void main()
 {
 	vec2 x = gl_FragCoord.xy;
 	float perms[2] = float[]( 1.0, -1.0 );
-	int index = int(mod((int(x.x + x.y)), 2.0));
+	int index = int(mod((floor(x.x + x.y)), 2.0));
 	float perm = perms[index];
 	
 	float hX = texture(uInputXTexture, vTexCoord).r;

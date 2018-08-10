@@ -16,7 +16,7 @@ void main()
 {	
 	vec2 domainSize = textureSize(uColorNearTexture, 0).xy;
 	vec2 texelSize = vec2(1.0 / domainSize);
-	vec2 centerCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * texelSize;
+	vec2 centerCoord = vec2(vec2(gl_GlobalInvocationID.xy) + 0.5) * texelSize;
 	
     vec3 maxValNear = vec3(0.0);
     vec3 maxValFar = vec3(0.0);

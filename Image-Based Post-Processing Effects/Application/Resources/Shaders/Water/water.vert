@@ -44,7 +44,7 @@ void main()
 
 	// snap far end of grid to horizon
 	float t = dot(normalize(cameraForwardDir.xz), worldSpacePos.xz);
-	cameraDistance = mix(cameraDistance, 3000.0 * 2.0, int(sign(t) * attenuation > 0.98));
+	cameraDistance = mix(cameraDistance, 3000.0 * 2.0, float(sign(t) * attenuation > 0.98));
 
 	// snap grid in increments to camera position
 	vec2 positionOffset = uCamPos.xz;

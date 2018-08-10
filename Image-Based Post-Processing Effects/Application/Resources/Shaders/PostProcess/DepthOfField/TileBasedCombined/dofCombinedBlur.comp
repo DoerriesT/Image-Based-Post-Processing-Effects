@@ -40,7 +40,7 @@ void main()
 {	
 	vec2 domainSize = textureSize(uColorTexture, 0).xy;
 	vec2 texelSize = vec2(1.0 / domainSize);
-	vec2 centerCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * texelSize;
+	vec2 centerCoord = vec2(vec2(gl_GlobalInvocationID.xy) + 0.5) * texelSize;
 	
 	vec2 centerCoc = texture(uCocTexture, centerCoord).xy;
 
@@ -58,7 +58,7 @@ void main()
     {
 		vec2 kernelSampleCoord = uSampleCoords[i];
 
-		vec2 sampleCoordTexels = vec2(gl_GlobalInvocationID.xy + tileMaxCoc.x * kernelSampleCoord);
+		vec2 sampleCoordTexels = vec2(vec2(gl_GlobalInvocationID.xy) + tileMaxCoc.x * kernelSampleCoord);
 		vec2 sampleCoord = vec2(sampleCoordTexels + 0.5) * texelSize;
 		vec3 sampleColor = texture(uColorTexture, sampleCoord).rgb;
 		vec2 sampleCocVals = texture(uCocTexture, sampleCoord).xy;

@@ -14,7 +14,7 @@ void main()
 {	
 	vec2 domainSize = textureSize(uColorTexture, 0).xy * 0.5;
 	vec2 texelSize = vec2(1.0 / domainSize);
-	vec2 centerCoord = vec2(gl_GlobalInvocationID.xy + 0.5) * texelSize;
+	vec2 centerCoord = vec2(vec2(gl_GlobalInvocationID.xy) + 0.5) * texelSize;
 	
 	vec2 coc = texture(uCocTexture, centerCoord).xy * 0.5;
 
