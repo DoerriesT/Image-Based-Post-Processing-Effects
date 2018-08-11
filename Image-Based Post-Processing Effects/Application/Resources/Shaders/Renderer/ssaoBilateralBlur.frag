@@ -69,7 +69,7 @@ void main()
 	{
 		vec2 velocity = texture(uVelocityTexture, vTexCoord).rg;
 		float previousAo = texture(uPreviousTexture, vTexCoord - velocity).x;
-		oColor.x = mix(oColor.x, previousAo, (23.0 / 24.0));
+		oColor.x = mix(oColor.x, previousAo, (5.0 / 6.0));
 	}
 }
 

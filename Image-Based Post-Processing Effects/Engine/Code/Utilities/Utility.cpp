@@ -12,14 +12,28 @@
 #include <iomanip>
 #include <algorithm>
 
-std::vector<char> Utility::readTextFile(const std::string & _filename)
+std::vector<char> Utility::readTextFile(const std::string & _filename, bool _create)
 {
 	std::ifstream file(_filename, std::ios::ate);
 	file.exceptions(std::ifstream::badbit);
 
 	if (!file.is_open())
 	{
-		throw std::runtime_error("failed to open file " + _filename + "!");
+		if (_create)
+		{
+			{
+				std::ofstream f(_filename);
+			}
+			file.open(_filename, std::ios::ate);
+			if (!file.is_open())
+			{
+				throw std::runtime_error("failed to open file " + _filename + "!");
+			}
+		}
+		else
+		{
+			throw std::runtime_error("failed to open file " + _filename + "!");
+		}
 	}
 	size_t fileSize = (size_t)file.tellg();
 	std::vector<char> buffer;
@@ -43,13 +57,27 @@ std::vector<char> Utility::readTextFile(const std::string & _filename)
 	return buffer;
 }
 
-std::vector<char> Utility::readBinaryFile(const std::string & _filename)
+std::vector<char> Utility::readBinaryFile(const std::string & _filename, bool _create)
 {
 	std::ifstream file(_filename, std::ios::binary | std::ios::ate);
 
 	if (!file.is_open())
 	{
-		throw std::runtime_error("failed to open file " + _filename + "!");
+		if (_create)
+		{
+			{
+				std::ofstream(_filename);
+			}
+			file.open(_filename, std::ios::binary | std::ios::ate);
+			if (!file.is_open())
+			{
+				throw std::runtime_error("failed to open file " + _filename + "!");
+			}
+		}
+		else
+		{
+			throw std::runtime_error("failed to open file " + _filename + "!");
+		}
 	}
 
 	std::streamsize size = file.tellg();

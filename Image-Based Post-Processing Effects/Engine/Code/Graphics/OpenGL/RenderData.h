@@ -22,4 +22,5 @@ struct RenderData
 	float time;
 	bool shadows;
 	float fov;
+	unsigned int frame;
 };

@@ -6,8 +6,8 @@
 
 namespace Utility
 {
-	std::vector<char> readTextFile(const std::string &_filename);
-	std::vector<char> readBinaryFile(const std::string &_filename);
+	std::vector<char> readTextFile(const std::string &_filename, bool _create = false);
+	std::vector<char> readBinaryFile(const std::string &_filename, bool _create = false);
 
 	/* String manipulation */
 	std::vector<std::string> split(const std::string &str, const std::string &seperator);

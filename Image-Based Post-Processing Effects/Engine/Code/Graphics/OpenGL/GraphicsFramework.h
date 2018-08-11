@@ -49,5 +49,7 @@ private:
 	GLint uInvViewMatrixBlit;
 	GLint uPowerBlit;
 	GLint uPowerValueBlit;
+
+	unsigned int frame;
 };
 

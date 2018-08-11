@@ -23,6 +23,22 @@
 #include "Graphics\Effects.h"
 #include "Graphics\Texture.h"
 #include "Input\UserInput.h"
+#include "RenderPass\GBufferRenderPass.h"
+#include "RenderPass\GBufferCustomRenderPass.h"
+#include "RenderPass\SSAOOriginalRenderPass.h"
+#include "RenderPass\SSAORenderPass.h"
+#include "RenderPass\HBAORenderPass.h"
+#include "RenderPass\GTAORenderPass.h"
+#include "RenderPass\SSAOBlurRenderPass.h"
+#include "RenderPass\SSAOBilateralBlurRenderPass.h"
+#include "RenderPass\SkyboxRenderPass.h"
+#include "RenderPass\AmbientLightRenderPass.h"
+#include "RenderPass\DirectionalLightRenderPass.h"
+#include "RenderPass\PointLightRenderPass.h"
+#include "RenderPass\SpotLightRenderPass.h"
+#include "RenderPass\ForwardRenderPass.h"
+#include "RenderPass\ForwardCustomRenderPass.h"
+#include "RenderPass\OutlineRenderPass.h"
 
 SceneRenderer::SceneRenderer(std::shared_ptr<Window> _window)
 	:window(_window), ocean(false, true), volumetricLighting(window->getWidth(), window->getHeight())
@@ -42,142 +58,6 @@ SceneRenderer::~SceneRenderer()
 
 void SceneRenderer::init()
 {
-	// create shaders
-	outlineShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/outline.vert", "Resources/Shaders/Renderer/outline.frag");
-	gBufferPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/gBufferPass.vert", "Resources/Shaders/Renderer/gBufferPass.frag");
-	environmentLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/globalLightPass.frag");
-	pointLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/pointLightPass.vert", "Resources/Shaders/Renderer/pointLightPass.frag");
-	spotLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/spotLightPass.vert", "Resources/Shaders/Renderer/spotLightPass.frag");
-	directionalLightShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/directionalLightPass.frag");
-	skyboxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/skybox.vert", "Resources/Shaders/Renderer/skybox.frag");
-	transparencyShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/transparencyForward.vert", "Resources/Shaders/Renderer/transparencyForward.frag");
-	ssaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssao.frag");
-	ssaoOriginalShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoOriginal.frag");
-	ssaoBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoBlur.frag");
-	ssaoBilateralBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoBilateralBlur.frag");
-	hbaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/hbao.frag");
-	gtaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/gtao.frag");
-
-	// create uniforms
-
-	// gBufferPass uniforms
-	uMaterialG.create(gBufferPassShader);
-	uModelViewProjectionMatrixG.create(gBufferPassShader);
-	uPrevTransformG.create(gBufferPassShader);
-	uAtlasDataG.create(gBufferPassShader);
-	uVelG.create(gBufferPassShader);
-	uExposureTimeG.create(gBufferPassShader);
-	uMaxVelocityMagG.create(gBufferPassShader);
-	uCurrTransformG.create(gBufferPassShader);
-	uViewMatrixG.create(gBufferPassShader);
-	uModelMatrixG.create(gBufferPassShader);
-	uCamPosG.create(gBufferPassShader);
-
-	// outline uniforms
-	uModelViewProjectionMatrixO.create(outlineShader);
-	uOutlineColorO.create(outlineShader);
-
-	// environmentLightPass uniforms
-	uInverseProjectionE.create(environmentLightPassShader);
-	uInverseViewE.create(environmentLightPassShader);
-	uDirectionalLightE.create(environmentLightPassShader);
-	uShadowsEnabledE.create(environmentLightPassShader);
-	uRenderDirectionalLightE.create(environmentLightPassShader);
-	uSsaoE.create(environmentLightPassShader);
-	uProjectionE.create(environmentLightPassShader);
-	uReProjectionE.create(environmentLightPassShader);
-	uUseSsrE.create(environmentLightPassShader);
-
-
-	// pointLightPass uniforms
-	uModelViewProjectionP.create(pointLightPassShader);
-	uPointLightP.create(pointLightPassShader);
-	uInverseProjectionP.create(pointLightPassShader);
-	uInverseViewP.create(pointLightPassShader);
-	uShadowsEnabledP.create(pointLightPassShader);
-	uViewportSizeP.create(pointLightPassShader);
-
-	// spotLightPass uniforms
-	uModelViewProjectionS.create(spotLightPassShader);
-	uSpotLightS.create(spotLightPassShader);
-	uInverseViewS.create(spotLightPassShader);
-	uInverseProjectionS.create(spotLightPassShader);
-	uShadowsEnabledS.create(spotLightPassShader);
-	uViewportSizeS.create(spotLightPassShader);
-
-	// directionalLightPass uniforms
-	uDirectionalLightD.create(directionalLightShader);
-	uInverseViewD.create(directionalLightShader);
-	uInverseProjectionD.create(directionalLightShader);
-	uShadowsEnabledD.create(directionalLightShader);
-
-	// skybox uniforms
-	uInverseModelViewProjectionB.create(skyboxShader);
-	uColorB.create(skyboxShader);
-	uHasAlbedoMapB.create(skyboxShader);
-	uCurrentToPrevTransformB.create(skyboxShader);
-
-	// transparency uniforms
-	uViewMatrixT.create(transparencyShader);
-	uPrevTransformT.create(transparencyShader);
-	uModelViewProjectionMatrixT.create(transparencyShader);
-	uModelMatrixT.create(transparencyShader);
-	uAtlasDataT.create(transparencyShader);
-	uMaterialT.create(transparencyShader);
-	uDirectionalLightT.create(transparencyShader);
-	uRenderDirectionalLightT.create(transparencyShader);
-	uCamPosT.create(transparencyShader);
-	uShadowsEnabledT.create(transparencyShader);
-	uCurrTransformT.create(transparencyShader);
-
-	// ssao
-	uViewAO.create(ssaoShader);
-	uProjectionAO.create(ssaoShader);
-	uInverseProjectionAO.create(ssaoShader);
-	for (int i = 0; i < 64; ++i)
-	{
-		uSamplesAO.push_back(ssaoShader->createUniform(std::string("uSamples") + "[" + std::to_string(i) + "]"));
-	}
-	uKernelSizeAO.create(ssaoShader);
-	uRadiusAO.create(ssaoShader);
-	uBiasAO.create(ssaoShader);
-	uStrengthAO.create(ssaoShader);
-
-	// ssao blur
-	uBlurSizeAOB.create(ssaoBlurShader);
-
-	// ssao bilateral blur
-	uSharpnessAOBB.create(ssaoBilateralBlurShader);
-	uKernelRadiusAOBB.create(ssaoBilateralBlurShader);
-	uInvResolutionDirectionAOBB.create(ssaoBilateralBlurShader);
-	uTemporalAOBB.create(ssaoBilateralBlurShader);
-
-	// hbao
-	uFocalLengthHBAO.create(hbaoShader);
-	uInverseProjectionHBAO.create(hbaoShader);
-	uAOResHBAO.create(hbaoShader);
-	uInvAOResHBAO.create(hbaoShader);
-	uNoiseScaleHBAO.create(hbaoShader);
-	uStrengthHBAO.create(hbaoShader);
-	uRadiusHBAO.create(hbaoShader);
-	uRadius2HBAO.create(hbaoShader);
-	uNegInvR2HBAO.create(hbaoShader);
-	uTanBiasHBAO.create(hbaoShader);
-	uMaxRadiusPixelsHBAO.create(hbaoShader);
-	uNumDirectionsHBAO.create(hbaoShader);
-	uNumStepsHBAO.create(hbaoShader);
-
-	// gtao
-	uFocalLengthGTAO.create(gtaoShader);
-	uInverseProjectionGTAO.create(gtaoShader);
-	uAOResGTAO.create(gtaoShader);
-	uInvAOResGTAO.create(gtaoShader);
-	uStrengthGTAO.create(gtaoShader);
-	uRadiusGTAO.create(gtaoShader);
-	uMaxRadiusPixelsGTAO.create(gtaoShader);
-	uNumStepsGTAO.create(gtaoShader);
-	uFrameGTAO.create(gtaoShader);
-
 	// create FBO
 	glGenFramebuffers(1, &gBufferFBO);
 	glGenFramebuffers(1, &ssaoFbo);
@@ -186,61 +66,55 @@ void SceneRenderer::init()
 	createFboAttachments(res);
 	createSsaoAttachments(res);
 
-	pointLightMesh = Mesh::createMesh("Resources/Models/pointlight.mesh", 1, true);
-	spotLightMesh = Mesh::createMesh("Resources/Models/spotlight.mesh", 1, true);
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+	gbuffer.albedoTexture = gAlbedoTexture;
+	gbuffer.normalTexture = gNormalTexture;
+	gbuffer.materialTexture = gMRASTexture;
+	gbuffer.lightTextures[0] = gLightColorTextures[0];
+	gbuffer.lightTextures[1] = gLightColorTextures[1];
+	gbuffer.velocityTexture = gVelocityTexture;
+	gbuffer.ssaoTexture = ssaoTextureA;
+	gbuffer.depthStencilTexture = gDepthStencilTexture;
 
 	createBrdfLUT();
 
 	ocean.init();
 	volumetricLighting.init();
+
+	gBufferRenderPass = new GBufferRenderPass(gBufferFBO, res.first, res.second);
+	gBufferCustomRenderPass = new GBufferCustomRenderPass(gBufferFBO, res.first, res.second);
+	ssaoOriginalRenderPass = new SSAOOriginalRenderPass(ssaoFbo, res.first, res.second);
+	ssaoRenderPass = new SSAORenderPass(ssaoFbo, res.first, res.second);
+	hbaoRenderPass = new HBAORenderPass(ssaoFbo, res.first, res.second);
+	gtaoRenderPass = new GTAORenderPass(ssaoFbo, res.first, res.second);
+	ssaoBlurRenderPass = new SSAOBlurRenderPass(ssaoFbo, res.first, res.second);
+	ssaoBilateralBlurRenderPass = new SSAOBilateralBlurRenderPass(ssaoFbo, res.first, res.second);
+	skyboxRenderPass = new SkyboxRenderPass(gBufferFBO, res.first, res.second);
+	ambientLightRenderPass = new AmbientLightRenderPass(gBufferFBO, res.first, res.second);
+	directionalLightRenderPass = new DirectionalLightRenderPass(gBufferFBO, res.first, res.second);
+	pointLightRenderPass = new PointLightRenderPass(gBufferFBO, res.first, res.second);
+	spotLightRenderPass = new SpotLightRenderPass(gBufferFBO, res.first, res.second);
+	forwardRenderPass = new ForwardRenderPass(gBufferFBO, res.first, res.second);
+	forwardCustomRenderPass = new ForwardCustomRenderPass(gBufferFBO, res.first, res.second);
+	outlineRenderPass = new OutlineRenderPass(gBufferFBO, res.first, res.second);
 }
 
 void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
 {
-	// switch current result texture
-	currentLightColorTexture = (currentLightColorTexture + 1) % 2;
+	RenderPass *previousRenderPass = nullptr;
+	frame = _renderData.frame;
 
-	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 , lightColorAttachments[currentLightColorTexture], GL_COLOR_ATTACHMENT6 };
-	const GLenum secondPassDrawBuffers[] = { lightColorAttachments[currentLightColorTexture], GL_COLOR_ATTACHMENT6 };
-	const GLenum thirdPassDrawBuffers[] = { lightColorAttachments[currentLightColorTexture], GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT6 };
-	glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
+	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 , lightColorAttachments[frame % 2], GL_COLOR_ATTACHMENT6 };
 
 	// bind g-buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
 	glDrawBuffers(sizeof(firstPassDrawBuffers) / sizeof(GLenum), firstPassDrawBuffers);
 
 	// enable depth testing and writing and clear all buffers
-	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	// enable stencil testing for outlining technique
-	glEnable(GL_STENCIL_TEST);
-	glStencilFunc(GL_ALWAYS, 1, 0xFF);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-	// render ordinary geometry
-	renderGeometry(_renderData, _scene);
-
-	// render custom opaque geometry
-	renderCustomGeometry(_renderData, _level, _scene, true);
-
-	// disable stencil testing for now; we will continue writing to the stencil when we do transparency
-	glDisable(GL_STENCIL_TEST);
-
-	// ocean
-	if (_level->water.enabled)
-	{
-		ocean.prepareRender(_renderData, _level);
-	}
-
-
-	// bind light fbo and clear color attachment
-	//glBindFramebuffer(GL_FRAMEBUFFER, lightBufferFBO);
-	//glClear(GL_COLOR_BUFFER_BIT);
+	gBufferRenderPass->render(_renderData, _scene, &previousRenderPass);
+	gBufferCustomRenderPass->render(_renderData, _level, _scene, &previousRenderPass);
 
 	// setup all g-buffer textures
 	glActiveTexture(GL_TEXTURE0);
@@ -252,131 +126,62 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, gDepthStencilTexture);
 
-	// disable writing to depth, since all geometry from now on is only a utility to draw lights
-	glDepthMask(GL_FALSE);
-	// disable depth test for the duration of rendering enviroment and directional lights
-	glDisable(GL_DEPTH_TEST);
-
-	// render ssao texture
-	if (_effects.ambientOcclusion != AmbientOcclusion::OFF)
+	switch (_effects.ambientOcclusion)
 	{
-		glDisable(GL_CULL_FACE);
-		renderSsaoTexture(_renderData, _effects);
-		glEnable(GL_CULL_FACE);
+	case AmbientOcclusion::SSAO_ORIGINAL:
+	{
+		ssaoOriginalRenderPass->render(_renderData, _effects, gbuffer, noiseTexture, &previousRenderPass);
+		GLuint ssaoTextures[3] = { ssaoTextureA, ssaoTextureB, ssaoTextureC };
+		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, false, &previousRenderPass);
+		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
+		break;
+	}
+	case AmbientOcclusion::SSAO:
+	{
+		ssaoRenderPass->render(_renderData, _effects, gbuffer, noiseTexture, &previousRenderPass);
+		GLuint ssaoTextures[3] = { ssaoTextureA, ssaoTextureB, ssaoTextureC };
+		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, false, &previousRenderPass);
+		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
+		break;
+	}
+	case AmbientOcclusion::HBAO:
+	{
+		hbaoRenderPass->render(_renderData, _effects, gbuffer, noiseTexture2, &previousRenderPass);
+		GLuint ssaoTextures[3] = { ssaoTextureA, ssaoTextureB, ssaoTextureC };
+		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, false, &previousRenderPass);
+		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
+		break;
+	}
+	case AmbientOcclusion::GTAO:
+	{
+		gtaoRenderPass->render(_renderData, _effects, gbuffer, &previousRenderPass);
+		GLuint ssaoTextures[3] = { ssaoTextureA, ssaoTextureB, ssaoTextureC };
+		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, true, &previousRenderPass);
+		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
+		break;
+	}
+	default:
+		break;
 	}
 
-	if (_effects.ambientOcclusion != AmbientOcclusion::OFF || _level->water.enabled)
-	{
-		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
-		glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
-	}
-
-	glDrawBuffers(sizeof(thirdPassDrawBuffers) / sizeof(GLenum), thirdPassDrawBuffers);
-
-	// disable writing to depth, since all geometry from now on is only a utility to draw lights
-	glDepthMask(GL_TRUE);
-	// disable depth test for the duration of rendering enviroment and directional lights
-	glEnable(GL_DEPTH_TEST);
-
-	// render skybox
-	if (_level->environment.skyboxEntity)
-	{
-		renderSkybox(_renderData, _level);
-	}
-
-	glDrawBuffers(sizeof(secondPassDrawBuffers) / sizeof(GLenum), secondPassDrawBuffers);
-
-	// disable writing to depth, since all geometry from now on is only a utility to draw lights
-	glDepthMask(GL_FALSE);
-	// disable depth test for the duration of rendering enviroment and directional lights
-	glDisable(GL_DEPTH_TEST);
-
-	// enable additive blending for the lights
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
-
-
-	// render environment light and the first directional light, if present
-	if (_level->environment.skyboxEntity)
-	{
-		renderEnvironmentLight(_renderData, _level, _effects);
-	}
-	// render remaining directional lights
-	if (_level->lights.directionalLights.size() > 1 || !_level->environment.skyboxEntity)
-	{
-		renderDirectionalLights(_renderData, _level);
-	}
-
-	//glEnable(GL_DEPTH_TEST);
-
-	// cull front faces because otherwise entering a light sphere will make the light disappear
-	glCullFace(GL_FRONT);
-
-	// render point- and spotlights
-	if (!_level->lights.pointLights.empty() || !_level->lights.spotLights.empty())
-	{
-		if (!_level->lights.pointLights.empty())
-		{
-			renderPointLights(_renderData, _level);
-		}
-		if (!_level->lights.spotLights.empty())
-		{
-			renderSpotLights(_renderData, _level);
-		}
-	}
-
-	glEnable(GL_DEPTH_TEST);
-
-	//volumetricLighting.render(gDepthStencilTexture, _renderData, _level);
-
-	// rebind fbo since VolumetricLighting uses its own
-	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
-	glDrawBuffers(sizeof(thirdPassDrawBuffers) / sizeof(GLenum), thirdPassDrawBuffers);
-
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-
-
-	glDepthMask(GL_TRUE);
-
-	if (_level->water.enabled)
-	{
-		ocean.render(_renderData, _level);
-	}
-
-	// reenable normal face culling
-	glCullFace(GL_BACK);
-
-	// render transparency and outlines
-	if (_scene.getTransparencyCount() || _scene.getOutlineCount() || _scene.getCustomTransparencyCount())
-	{
-		glEnable(GL_STENCIL_TEST);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-
-		renderTransparentGeometry(_renderData, _level, _scene);
-
-		// render custom transparency geometry
-		renderCustomGeometry(_renderData, _level, _scene, false);
-
-		renderOutlines(_renderData, _scene);
-
-		glDisable(GL_STENCIL_TEST);
-	}
-
-	glDepthMask(GL_FALSE);
-
-	// from now on we are only doing fullscreen passes, so disable depth testing too
-	glDisable(GL_DEPTH_TEST);
-
-	// disable blending to save performance
-	glDisable(GL_BLEND);
-	glDisable(GL_CULL_FACE);
+	skyboxRenderPass->render(_renderData, _level, &previousRenderPass);
+	ambientLightRenderPass->render(_renderData, _level, _effects, gbuffer, brdfLUT, &previousRenderPass);
+	directionalLightRenderPass->render(_renderData, _level, gbuffer, &previousRenderPass);
+	pointLightRenderPass->render(_renderData, _level, gbuffer, &previousRenderPass);
+	spotLightRenderPass->render(_renderData, _level, gbuffer, &previousRenderPass);
+	forwardRenderPass->render(_renderData, _level, _scene, &previousRenderPass);
+	forwardCustomRenderPass->render(_renderData, _level, _scene, &previousRenderPass);
+	outlineRenderPass->render(_renderData, _scene, &previousRenderPass);
 
 	// generate mips
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, gLightColorTextures[currentLightColorTexture]);
+	glBindTexture(GL_TEXTURE_2D, gLightColorTextures[frame % 2]);
 	glGenerateMipmap(GL_TEXTURE_2D);
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_STENCIL_TEST);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
 }
 
 void SceneRenderer::resize(const std::pair<unsigned int, unsigned int> &_resolution)
@@ -385,11 +190,37 @@ void SceneRenderer::resize(const std::pair<unsigned int, unsigned int> &_resolut
 	glDeleteTextures(sizeof(textures) / sizeof(GLuint), textures);
 	createFboAttachments(_resolution);
 	volumetricLighting.resize(_resolution.first, _resolution.second);
+
+	gBufferRenderPass->resize(_resolution.first, _resolution.second);
+	gBufferCustomRenderPass->resize(_resolution.first, _resolution.second);
+	ssaoOriginalRenderPass->resize(_resolution.first, _resolution.second);
+	ssaoRenderPass->resize(_resolution.first, _resolution.second);
+	hbaoRenderPass->resize(_resolution.first, _resolution.second);
+	gtaoRenderPass->resize(_resolution.first, _resolution.second);
+	ssaoBlurRenderPass->resize(_resolution.first, _resolution.second);
+	ssaoBilateralBlurRenderPass->resize(_resolution.first, _resolution.second);
+	skyboxRenderPass->resize(_resolution.first, _resolution.second);
+	ambientLightRenderPass->resize(_resolution.first, _resolution.second);
+	directionalLightRenderPass->resize(_resolution.first, _resolution.second);
+	pointLightRenderPass->resize(_resolution.first, _resolution.second);
+	spotLightRenderPass->resize(_resolution.first, _resolution.second);
+	forwardRenderPass->resize(_resolution.first, _resolution.second);
+	forwardCustomRenderPass->resize(_resolution.first, _resolution.second);
+	outlineRenderPass->resize(_resolution.first, _resolution.second);
+
+	gbuffer.albedoTexture = gAlbedoTexture;
+	gbuffer.normalTexture = gNormalTexture;
+	gbuffer.materialTexture = gMRASTexture;
+	gbuffer.lightTextures[0] = gLightColorTextures[0];
+	gbuffer.lightTextures[1] = gLightColorTextures[1];
+	gbuffer.velocityTexture = gVelocityTexture;
+	gbuffer.ssaoTexture = frame % 2 ? ssaoTextureC : ssaoTextureA;
+	gbuffer.depthStencilTexture = gDepthStencilTexture;
 }
 
 GLuint SceneRenderer::getColorTexture() const
 {
-	return gLightColorTextures[currentLightColorTexture];
+	return gLightColorTextures[frame % 2];
 }
 
 GLuint SceneRenderer::getAlbedoTexture() const
@@ -419,7 +250,7 @@ GLuint SceneRenderer::getVelocityTexture() const
 
 GLuint SceneRenderer::getAmbientOcclusionTexture() const
 {
-	return finishedSsaoTexture;
+	return gbuffer.ssaoTexture;
 }
 
 GLuint SceneRenderer::getBrdfLUT() const
@@ -583,797 +414,6 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, ssaoTextureC, 0);
 }
 
-void SceneRenderer::renderGeometry(const RenderData &_renderData, const Scene &_scene)
-{
-	gBufferPassShader->bind();
-
-	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
-
-	std::shared_ptr<SubMesh> currentMesh = nullptr;
-	bool enabledMesh = false;
-
-	for (std::size_t i = 0; i < data.size(); ++i)
-	{
-		const std::unique_ptr<EntityRenderData> &entityRenderData = data[i];
-
-		// skip this iteration if its supposed to be rendered with another method or does not have sufficient components
-		if (entityRenderData->customOpaqueShaderComponent ||
-			entityRenderData->customTransparencyShaderComponent ||
-			!entityRenderData->modelComponent ||
-			!entityRenderData->transformationComponent)
-		{
-			continue;
-		}
-
-		if (currentMesh != entityRenderData->mesh)
-		{
-			currentMesh = entityRenderData->mesh;
-			enabledMesh = false;
-		}
-
-		// skip this mesh if its transparent
-		if (entityRenderData->transparencyComponent && ContainerUtility::contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
-		{
-			continue;
-		}
-
-		// skip this iteration if the mesh is not yet valid
-		if (!currentMesh || !currentMesh->isValid())
-		{
-			continue;
-		}
-
-		glm::mat4 modelMatrix = glm::translate(entityRenderData->transformationComponent->position)
-			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
-			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale));
-
-		int rows = 1;
-		int columns = 1;
-		glm::vec2 textureOffset;
-		TextureAtlasIndexComponent *textureAtlasComponent = entityRenderData->textureAtlasIndexComponent;
-		if (textureAtlasComponent && ContainerUtility::contains(textureAtlasComponent->meshToIndexMap, currentMesh))
-		{
-			rows = textureAtlasComponent->rows;
-			columns = textureAtlasComponent->columns;
-			int texPos = textureAtlasComponent->meshToIndexMap[currentMesh];
-			int col = texPos % columns;
-			int row = texPos / columns;
-			textureOffset = glm::vec2((float)col / columns, (float)row / rows);
-		}
-
-		glm::mat4 mvpTransformation = _renderData.viewProjectionMatrix * modelMatrix;
-		const float cameraMovementStrength = 0.15f;
-		glm::mat4 prevTransformation = glm::mix(_renderData.invJitter * _renderData.viewProjectionMatrix, _renderData.prevInvJitter * _renderData.prevViewProjectionMatrix, cameraMovementStrength) * entityRenderData->transformationComponent->prevTransformation;
-
-		if (cullAABB(mvpTransformation, currentMesh->getAABB()))
-		{
-			continue;
-		}
-
-		uCamPosG.set(_renderData.cameraPosition);
-		uViewMatrixG.set(glm::mat3(_renderData.viewMatrix));
-		uModelMatrixG.set(modelMatrix);
-		uAtlasDataG.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
-		uModelViewProjectionMatrixG.set(mvpTransformation);
-		uPrevTransformG.set(prevTransformation);
-		uCurrTransformG.set(_renderData.invJitter * mvpTransformation);
-		uVelG.set(entityRenderData->transformationComponent->vel / glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
-		const float frameRateTarget = 60.0f;
-		uExposureTimeG.set((float(Engine::getFps()) / frameRateTarget));
-		const float tileSize = 40.0f;
-		uMaxVelocityMagG.set(glm::length(glm::vec2(1.0f) / glm::vec2(_renderData.resolution.first, _renderData.resolution.second)) * tileSize);
-
-		entityRenderData->transformationComponent->prevTransformation = modelMatrix;
-
-		if (entityRenderData->outlineComponent)
-		{
-			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-			glStencilMask(0xFF);
-		}
-
-		if (!enabledMesh)
-		{
-			enabledMesh = true;
-			currentMesh->enableVertexAttribArrays();
-		}
-
-		// we're good to go: render this mesh-entity instance
-		uMaterialG.set(entityRenderData->material);
-		entityRenderData->material->bindTextures();
-
-		currentMesh->render();
-
-		if (entityRenderData->outlineComponent)
-		{
-			glStencilMask(0x00);
-			glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-		}
-	}
-}
-
-void SceneRenderer::renderSkybox(const RenderData &_renderData, const std::shared_ptr<Level> &_level)
-{
-	static const glm::vec4 DEFAULT_ALBEDO_COLOR(1.0);
-	static glm::mat4 prevTransform;
-
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-	skyboxShader->bind();
-
-	EntityManager &entityManager = EntityManager::getInstance();
-
-	uHasAlbedoMapB.set(_level->environment.environmentMap ? true : false);
-	uColorB.set(DEFAULT_ALBEDO_COLOR);
-
-	if (_level->environment.environmentMap)
-	{
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(_level->environment.environmentMap->getTarget(), _level->environment.environmentMap->getId());
-	}
-
-	TransformationComponent *transformationComponent = entityManager.getComponent<TransformationComponent>(_level->environment.skyboxEntity);
-	glm::mat4 mvpMatrix = _renderData.projectionMatrix * glm::mat4(glm::mat3(_renderData.viewMatrix));
-
-	if (transformationComponent)
-	{
-		mvpMatrix *= glm::mat4_cast(transformationComponent->rotation);
-	}
-
-	glm::mat4 invTransform = glm::inverse(mvpMatrix);
-
-	uInverseModelViewProjectionB.set(invTransform);
-	uCurrentToPrevTransformB.set(prevTransform * invTransform);
-
-	prevTransform = mvpMatrix;
-
-	fullscreenTriangle->getSubMesh()->render();
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
-}
-
-void SceneRenderer::renderEnvironmentLight(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects)
-{
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-
-	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, finishedSsaoTexture);
-	glActiveTexture(GL_TEXTURE7);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getIrradianceMap()->getId());
-	glActiveTexture(GL_TEXTURE8);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getReflectanceMap()->getId());
-	glActiveTexture(GL_TEXTURE9);
-	glBindTexture(GL_TEXTURE_2D, brdfLUT);
-	glActiveTexture(GL_TEXTURE10);
-	glBindTexture(GL_TEXTURE_2D, gLightColorTextures[(currentLightColorTexture + 1) % 2]);
-
-	environmentLightPassShader->bind();
-
-	uInverseViewE.set(_renderData.invViewMatrix);
-	uProjectionE.set(_renderData.projectionMatrix);
-	uInverseProjectionE.set(_renderData.invProjectionMatrix);
-	uSsaoE.set(_effects.ambientOcclusion != AmbientOcclusion::OFF);
-	uUseSsrE.set(_effects.screenSpaceReflections.enabled);
-
-	static glm::mat4 prevViewProjection;
-
-	uReProjectionE.set(prevViewProjection * _renderData.invViewProjectionMatrix);
-	prevViewProjection = _renderData.viewProjectionMatrix;
-
-	if (!_level->lights.directionalLights.empty())
-	{
-		std::shared_ptr<DirectionalLight> directionalLight = _level->lights.directionalLights[0];
-		directionalLight->updateViewValues(_renderData.viewMatrix);
-		if (directionalLight->isRenderShadows())
-		{
-			glActiveTexture(GL_TEXTURE5);
-			glBindTexture(GL_TEXTURE_2D_ARRAY, directionalLight->getShadowMap());
-		}
-		uDirectionalLightE.set(directionalLight);
-		uRenderDirectionalLightE.set(true);
-		uShadowsEnabledE.set(_renderData.shadows);
-	}
-	else
-	{
-		uRenderDirectionalLightE.set(false);
-	}
-
-	fullscreenTriangle->getSubMesh()->render();
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
-}
-
-void SceneRenderer::renderDirectionalLights(const RenderData &_renderData, const std::shared_ptr<Level> &_level)
-{
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-
-	directionalLightShader->bind();
-
-	uInverseViewD.set(_renderData.invViewMatrix);
-	uInverseProjectionD.set(_renderData.invProjectionMatrix);
-	uShadowsEnabledD.set(_renderData.shadows);
-
-	for (size_t i = _level->environment.skyboxEntity ? 1 : 0; i < _level->lights.directionalLights.size(); ++i)
-	{
-		std::shared_ptr<DirectionalLight> directionalLight = _level->lights.directionalLights[i];
-		directionalLight->updateViewValues(_renderData.viewMatrix);
-		if (directionalLight->isRenderShadows())
-		{
-			glActiveTexture(GL_TEXTURE4);
-			glBindTexture(GL_TEXTURE_2D_ARRAY, directionalLight->getShadowMap());
-		}
-
-		uDirectionalLightD.set(directionalLight);
-		fullscreenTriangle->getSubMesh()->render();
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-	}
-}
-
-void SceneRenderer::renderPointLights(const RenderData &_renderData, const std::shared_ptr<Level> &_level)
-{
-	pointLightMesh->getSubMesh()->enableVertexAttribArrays();
-
-	pointLightPassShader->bind();
-
-	uInverseViewP.set(_renderData.invViewMatrix);
-	uInverseProjectionP.set(_renderData.invProjectionMatrix);
-	uShadowsEnabledP.set(_renderData.shadows);
-	uViewportSizeP.set(glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
-
-	for (std::shared_ptr<PointLight> pointLight : _level->lights.pointLights)
-	{
-		if (!_renderData.frustum.testSphere(pointLight->getBoundingSphere()))
-		{
-			continue;
-		}
-
-		pointLight->updateViewValues(_renderData.viewMatrix);
-
-		if (pointLight->isRenderShadows())
-		{
-			glActiveTexture(GL_TEXTURE4);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, pointLight->getShadowMap());
-		}
-
-		uModelViewProjectionP.set(_renderData.viewProjectionMatrix * glm::translate(pointLight->getPosition()) * glm::scale(glm::vec3(pointLight->getRadius())));
-		uPointLightP.set(pointLight);
-		pointLightMesh->getSubMesh()->render();
-	}
-}
-
-void SceneRenderer::renderSpotLights(const RenderData &_renderData, const std::shared_ptr<Level> &_level)
-{
-	spotLightMesh->getSubMesh()->enableVertexAttribArrays();
-
-	spotLightPassShader->bind();
-
-	uInverseViewS.set(_renderData.invViewMatrix);
-	uInverseProjectionS.set(_renderData.invProjectionMatrix);
-	uShadowsEnabledS.set(_renderData.shadows);
-	uViewportSizeS.set(glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
-
-	for (std::shared_ptr<SpotLight> spotLight : _level->lights.spotLights)
-	{
-		if (!_renderData.frustum.testSphere(spotLight->getBoundingSphere()))
-		{
-			continue;
-		}
-
-		spotLight->updateViewValues(_renderData.viewMatrix);
-
-		if (spotLight->isRenderShadows())
-		{
-			glActiveTexture(GL_TEXTURE4);
-			glBindTexture(GL_TEXTURE_2D, spotLight->getShadowMap());
-		}
-		if (spotLight->isProjector())
-		{
-			assert(spotLight->getProjectionTexture());
-			glActiveTexture(GL_TEXTURE5);
-			glBindTexture(GL_TEXTURE_2D, spotLight->getProjectionTexture()->getId());
-		}
-
-		// scale a bit larger to correct for proxy geometry not being exactly round
-		float scale = (glm::tan(spotLight->getOuterAngle()) + 0.1f) * spotLight->getRadius();
-
-		const glm::vec3 defaultDirection = glm::vec3(0.0f, -1.0f, 0.0f);
-
-		uModelViewProjectionS.set(_renderData.viewProjectionMatrix
-			* glm::translate(spotLight->getPosition())
-			* glm::mat4_cast(glm::rotation(defaultDirection, spotLight->getDirection()))
-			* glm::scale(glm::vec3(scale, spotLight->getRadius(), scale)));
-		uSpotLightS.set(spotLight);
-		spotLightMesh->getSubMesh()->render();
-	}
-}
-
-void SceneRenderer::renderTransparentGeometry(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Scene &_scene)
-{
-	if (!_scene.getTransparencyCount())
-	{
-		return;
-	}
-
-	transparencyShader->bind();
-
-	if (!_level->lights.directionalLights.empty())
-	{
-		if (_level->lights.directionalLights[0]->isRenderShadows())
-		{
-			glActiveTexture(GL_TEXTURE10);
-			glBindTexture(GL_TEXTURE_2D_ARRAY, _level->lights.directionalLights[0]->getShadowMap());
-		}
-		uRenderDirectionalLightT.set(true);
-		uDirectionalLightT.set(_level->lights.directionalLights[0]);
-	}
-	else
-	{
-		uRenderDirectionalLightT.set(false);
-	}
-	uShadowsEnabledT.set(_renderData.shadows);
-	uCamPosT.set(_renderData.cameraPosition);
-	uViewMatrixT.set(_renderData.viewMatrix);
-
-	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
-
-	std::shared_ptr<SubMesh> currentMesh = nullptr;
-	bool enabledMesh = false;
-
-	for (std::size_t i = 0; i < data.size(); ++i)
-	{
-		const std::unique_ptr<EntityRenderData> &entityRenderData = data[i];
-
-		// skip this iteration if its supposed to be rendered with another method or does not have sufficient components
-		if (entityRenderData->customOpaqueShaderComponent ||
-			entityRenderData->customTransparencyShaderComponent ||
-			!entityRenderData->transparencyComponent ||
-			!entityRenderData->modelComponent ||
-			!entityRenderData->transformationComponent)
-		{
-			continue;
-		}
-
-		if (currentMesh != entityRenderData->mesh)
-		{
-			currentMesh = entityRenderData->mesh;
-			enabledMesh = false;
-		}
-
-		// skip this mesh if its not transparent
-		if (entityRenderData->transparencyComponent && !ContainerUtility::contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
-		{
-			continue;
-		}
-
-		// skip this iteration if the mesh is not yet valid
-		if (!currentMesh || !currentMesh->isValid())
-		{
-			continue;
-		}
-
-		if (!enabledMesh)
-		{
-			enabledMesh = true;
-			currentMesh->enableVertexAttribArrays();
-		}
-
-		// we're good to go: render this mesh-entity instance
-		uMaterialT.set(entityRenderData->material);
-		entityRenderData->material->bindTextures();
-
-		glm::mat4 modelMatrix = glm::translate(entityRenderData->transformationComponent->position)
-			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
-			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale));
-
-		int rows = 1;
-		int columns = 1;
-		glm::vec2 textureOffset;
-		TextureAtlasIndexComponent *textureAtlasComponent = entityRenderData->textureAtlasIndexComponent;
-		if (textureAtlasComponent && ContainerUtility::contains(textureAtlasComponent->meshToIndexMap, currentMesh))
-		{
-			rows = textureAtlasComponent->rows;
-			columns = textureAtlasComponent->columns;
-			int texPos = textureAtlasComponent->meshToIndexMap[currentMesh];
-			int col = texPos % columns;
-			int row = texPos / columns;
-			textureOffset = glm::vec2((float)col / columns, (float)row / rows);
-		}
-
-		glm::mat4 mvpTransformation = _renderData.viewProjectionMatrix * modelMatrix;
-		const float cameraMovementStrength = 0.15f;
-		glm::mat4 prevTransformation = glm::mix(_renderData.invJitter * _renderData.viewProjectionMatrix, _renderData.prevInvJitter * _renderData.prevViewProjectionMatrix, cameraMovementStrength) * entityRenderData->transformationComponent->prevTransformation;
-
-		uAtlasDataT.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
-		uModelMatrixT.set(modelMatrix);
-		uModelViewProjectionMatrixT.set(mvpTransformation);
-		uPrevTransformT.set(prevTransformation);
-		uCurrTransformT.set(_renderData.invJitter * mvpTransformation);
-
-		entityRenderData->transformationComponent->prevTransformation = modelMatrix;
-
-		if (entityRenderData->outlineComponent)
-		{
-			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-			glStencilMask(0xFF);
-		}
-
-		currentMesh->render();
-
-		if (entityRenderData->outlineComponent)
-		{
-			glStencilMask(0x00);
-			glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-		}
-	}
-}
-
-void SceneRenderer::renderOutlines(const RenderData &_renderData, const Scene &_scene)
-{
-	if (!_scene.getOutlineCount())
-	{
-		_scene.getOutlineCount();
-	}
-
-	outlineShader->bind();
-	glStencilMask(0x00);
-	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-
-	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
-
-	std::shared_ptr<SubMesh> currentMesh = nullptr;
-	bool enabledMesh = false;
-
-	for (std::size_t i = 0; i < data.size(); ++i)
-	{
-		const std::unique_ptr<EntityRenderData> &entityRenderData = data[i];
-
-		// skip this iteration if its supposed to be rendered with another method or does not have sufficient components
-		if (!entityRenderData->outlineComponent ||
-			!entityRenderData->modelComponent ||
-			!entityRenderData->transformationComponent)
-		{
-			continue;
-		}
-
-		if (currentMesh != entityRenderData->mesh)
-		{
-			currentMesh = entityRenderData->mesh;
-			enabledMesh = false;
-		}
-
-		// skip this iteration if the mesh is not yet valid
-		if (!currentMesh || !currentMesh->isValid())
-		{
-			continue;
-		}
-
-		if (!enabledMesh)
-		{
-			enabledMesh = true;
-			currentMesh->enableVertexAttribArrays();
-		}
-
-		// we're good to go: render this mesh-entity instance
-		glm::mat4 modelMatrix = glm::translate(entityRenderData->transformationComponent->position)
-			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
-			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale * entityRenderData->outlineComponent->scaleMultiplier));
-
-		uOutlineColorO.set(entityRenderData->outlineComponent->outlineColor);
-		uModelViewProjectionMatrixO.set(_renderData.viewProjectionMatrix * modelMatrix);
-
-		currentMesh->render();
-	}
-
-	glStencilFunc(GL_ALWAYS, 1, 0xFF);
-	glStencilMask(0xFF);
-}
-
-void SceneRenderer::renderCustomGeometry(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Scene &_scene, bool _opaque)
-{
-	if (_opaque && !_scene.getCustomOpaqueCount() || !_opaque && !_scene.getCustomTransparencyCount())
-	{
-		return;
-	}
-
-	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
-
-	std::shared_ptr<SubMesh> currentMesh = nullptr;
-	bool enabledMesh = false;
-
-	for (std::size_t i = 0; i < data.size(); ++i)
-	{
-		const std::unique_ptr<EntityRenderData> &entityRenderData = data[i];
-
-		// skip this iteration if its supposed to be rendered with another method or does not have sufficient components
-		if (!entityRenderData->customOpaqueShaderComponent && !entityRenderData->customTransparencyShaderComponent)
-		{
-			continue;
-		}
-
-		if (currentMesh != entityRenderData->mesh)
-		{
-			currentMesh = entityRenderData->mesh;
-			enabledMesh = false;
-		}
-
-		// skip this iteration if the mesh is not yet valid
-		if (!currentMesh || !currentMesh->isValid())
-		{
-			continue;
-		}
-
-		if (!enabledMesh)
-		{
-			enabledMesh = true;
-			currentMesh->enableVertexAttribArrays();
-		}
-
-		// we're good to go: render this mesh-entity instance
-		if (_opaque && entityRenderData->customOpaqueShaderComponent)
-		{
-			entityRenderData->customOpaqueShaderComponent->opaqueShader->bind();
-			entityRenderData->customOpaqueShaderComponent->renderOpaque(_renderData, _level, entityRenderData);
-		}
-		else if (!_opaque && entityRenderData->customTransparencyShaderComponent)
-		{
-			entityRenderData->customTransparencyShaderComponent->transparencyShader->bind();
-			entityRenderData->customTransparencyShaderComponent->renderTransparency(_renderData, _level, entityRenderData);
-		}
-	}
-}
-
-void SceneRenderer::renderSsaoTexture(const RenderData &_renderData, const Effects &_effects)
-{
-	float sharpness = 1.0f;
-	float kernelRadius = 3.0f;
-	switch (_effects.ambientOcclusion)
-	{
-	case AmbientOcclusion::SSAO_ORIGINAL:
-	{
-		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
-		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_2D, noiseTexture);
-
-		ssaoOriginalShader->bind();
-
-		fullscreenTriangle->getSubMesh()->render();
-
-		ssaoBilateralBlurShader->bind();
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT1);
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
-
-		uTemporalAOBB.set(false);
-		uSharpnessAOBB.set(sharpness);
-		uKernelRadiusAOBB.set(kernelRadius);
-		uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
-
-		fullscreenTriangle->getSubMesh()->render();
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
-
-		uInvResolutionDirectionAOBB.set(glm::vec2(0.0, 1.0f / _renderData.resolution.second));
-
-		fullscreenTriangle->getSubMesh()->render();
-
-		finishedSsaoTexture = ssaoTextureA;
-
-		break;
-	}
-	case AmbientOcclusion::SSAO:
-	{
-		std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0);
-		static std::default_random_engine generator;
-		static std::vector<glm::vec3> ssaoKernel;
-		static bool generateKernel = true;
-		static unsigned int currentKernelSize = 16;
-		if (currentKernelSize != _effects.ssao.kernelSize)
-		{
-			currentKernelSize = _effects.ssao.kernelSize;
-			generateKernel = true;
-		}
-		if (generateKernel)
-		{
-			ssaoKernel.clear();
-			for (unsigned int i = 0; i < currentKernelSize; ++i)
-			{
-				glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
-				sample = glm::normalize(sample);
-				sample *= randomFloats(generator);
-				float scale = float(i) / currentKernelSize;
-
-				// scale samples s.t. they're more aligned to center of kernel
-				scale = glm::mix(0.1f, 1.0f, scale * scale);
-				sample *= scale;
-				ssaoKernel.push_back(sample);
-			}
-		}
-
-		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-
-		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
-		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_2D, noiseTexture);
-
-		ssaoShader->bind();
-		uViewAO.set(_renderData.viewMatrix);
-		uProjectionAO.set(_renderData.projectionMatrix);
-		uInverseProjectionAO.set(_renderData.invProjectionMatrix);
-		uKernelSizeAO.set((int)currentKernelSize);
-		uRadiusAO.set(_effects.ssao.radius);
-		uBiasAO.set(_effects.ssao.bias);
-		uStrengthAO.set(_effects.ssao.strength);
-		if (generateKernel)
-		{
-			generateKernel = false;
-			for (unsigned int i = 0; i < currentKernelSize; ++i)
-			{
-				ssaoShader->setUniform(uSamplesAO[i], ssaoKernel[i]);
-			}
-		}
-
-		fullscreenTriangle->getSubMesh()->render();
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		ssaoBilateralBlurShader->bind();
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT1);
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
-
-		uTemporalAOBB.set(false);
-		uSharpnessAOBB.set(_effects.ssao.blurSharpness);
-		uKernelRadiusAOBB.set(_effects.ssao.blurRadius);
-		uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
-
-		fullscreenTriangle->getSubMesh()->render();
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
-
-		uInvResolutionDirectionAOBB.set(glm::vec2(0.0, 1.0f / _renderData.resolution.second));
-
-		fullscreenTriangle->getSubMesh()->render();
-
-		finishedSsaoTexture = ssaoTextureA;
-
-		break;
-	}
-	case AmbientOcclusion::HBAO:
-	{
-		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
-		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_2D, noiseTexture2);
-
-		float aspectRatio = _renderData.resolution.second / (float)_renderData.resolution.first;
-		float fovy = 2.0f * glm::atan(glm::tan(glm::radians(window->getFieldOfView()) * 0.5f) * aspectRatio);
-		glm::vec2 focalLength;
-		focalLength.x = 1.0f / tanf(fovy * 0.5f) * aspectRatio;
-		focalLength.y = 1.0f / tanf(fovy * 0.5f);
-
-		glm::vec2 res(_renderData.resolution.first, _renderData.resolution.second);
-		float radius = 0.3f;
-
-		hbaoShader->bind();
-		uFocalLengthHBAO.set(focalLength);
-		uInverseProjectionHBAO.set(_renderData.invProjectionMatrix);
-		uAOResHBAO.set(res);
-		uInvAOResHBAO.set(1.0f / res);
-		uNoiseScaleHBAO.set(res * 0.25f);
-		uStrengthHBAO.set(_effects.hbao.strength);
-		uRadiusHBAO.set(_effects.hbao.radius);
-		uRadius2HBAO.set(_effects.hbao.radius * _effects.hbao.radius);
-		uNegInvR2HBAO.set(-1.0f / (_effects.hbao.radius * _effects.hbao.radius));
-		uTanBiasHBAO.set(_effects.hbao.angleBias);
-		uMaxRadiusPixelsHBAO.set(_effects.hbao.maxRadiusPixels);
-		uNumDirectionsHBAO.set((float)_effects.hbao.directions);
-		uNumStepsHBAO.set((float)_effects.hbao.steps);
-
-		fullscreenTriangle->getSubMesh()->render();
-
-		ssaoBilateralBlurShader->bind();
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT1);
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, ssaoTextureA);
-
-		uTemporalAOBB.set(false);
-		uSharpnessAOBB.set(_effects.hbao.blurSharpness);
-		uKernelRadiusAOBB.set(_effects.hbao.blurRadius);
-		uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
-
-		fullscreenTriangle->getSubMesh()->render();
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
-
-		uInvResolutionDirectionAOBB.set(glm::vec2(0.0, 1.0f / _renderData.resolution.second));
-
-		fullscreenTriangle->getSubMesh()->render();
-
-		finishedSsaoTexture = ssaoTextureA;
-
-		break;
-	}
-	case AmbientOcclusion::GTAO:
-	{
-		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFbo);
-		glViewport(0, 0, _renderData.resolution.first, _renderData.resolution.second);
-
-		glDrawBuffer(finishedSsaoTexture == ssaoTextureA ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0);
-
-		float aspectRatio = _renderData.resolution.second / (float)_renderData.resolution.first;
-		float fovy = 2.0f * glm::atan(glm::tan(glm::radians(window->getFieldOfView()) * 0.5f) * aspectRatio);
-		float focalLength;
-		focalLength = 1.0f / tanf(fovy * 0.5f) * aspectRatio;
-
-		glm::vec2 res(_renderData.resolution.first, _renderData.resolution.second);
-
-		static int currentFrame = 0;
-
-		gtaoShader->bind();
-		uFrameGTAO.set(currentFrame);
-		uFocalLengthGTAO.set(focalLength);
-		uInverseProjectionGTAO.set(_renderData.invProjectionMatrix);
-		uAOResGTAO.set(res);
-		uInvAOResGTAO.set(1.0f / res);
-		uStrengthGTAO.set(_effects.gtao.strength);
-		uRadiusGTAO.set(_effects.gtao.radius);
-		uMaxRadiusPixelsGTAO.set(_effects.gtao.maxRadiusPixels);
-		uNumStepsGTAO.set((float)_effects.gtao.steps);
-
-		fullscreenTriangle->getSubMesh()->render();
-
-		ssaoBilateralBlurShader->bind();
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT1);
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, finishedSsaoTexture == ssaoTextureA ? ssaoTextureC : ssaoTextureA);
-
-		uTemporalAOBB.set(false);
-		uSharpnessAOBB.set(_effects.gtao.blurSharpness);
-		uKernelRadiusAOBB.set(_effects.gtao.blurRadius);
-		uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
-
-		fullscreenTriangle->getSubMesh()->render();
-
-		glDrawBuffer(finishedSsaoTexture == ssaoTextureA ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0);
-		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_2D, gVelocityTexture);
-		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_2D, finishedSsaoTexture);
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, ssaoTextureB);
-
-		uTemporalAOBB.set(true || UserInput::getInstance().isKeyPressed(InputKey::T));
-		uInvResolutionDirectionAOBB.set(glm::vec2(0.0, 1.0f / _renderData.resolution.second));
-
-		fullscreenTriangle->getSubMesh()->render();
-
-		currentFrame = (currentFrame + 1) % 12;
-
-		finishedSsaoTexture = finishedSsaoTexture == ssaoTextureA ? ssaoTextureC : ssaoTextureA;
-
-		break;
-	}
-	default:
-		assert(false);
-	}
-}
-
 void SceneRenderer::createBrdfLUT()
 {
 	std::shared_ptr<ShaderProgram> brdfShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/brdf.comp");
@@ -1391,65 +431,4 @@ void SceneRenderer::createBrdfLUT()
 	glBindImageTexture(0, brdfLUT, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
 	glDispatchCompute(512 / 8, 512 / 8, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-}
-
-bool SceneRenderer::cullAABB(const glm::mat4 &_mvp, const AxisAlignedBoundingBox &_aabb)
-{
-	return false;
-	// TODO: properly implement this
-
-
-	glm::vec4 points[8] =
-	{
-		glm::vec4(_aabb.min, 1.0), // xyz
-		glm::vec4(_aabb.max.x, _aabb.min.y, _aabb.min.z, 1.0), // Xyz
-		glm::vec4(_aabb.min.x, _aabb.max.y, _aabb.min.z, 1.0), // xYz
-		glm::vec4(_aabb.max.x, _aabb.max.y, _aabb.min.z, 1.0),// XYz
-		glm::vec4(_aabb.min.x, _aabb.min.y, _aabb.max.z, 1.0), // xyZ
-		glm::vec4(_aabb.max.x, _aabb.min.y, _aabb.max.z, 1.0), // XyZ
-		glm::vec4(_aabb.min.x, _aabb.max.y, _aabb.max.z, 1.0), // xYZ
-		glm::vec4(_aabb.max, 1.0) // XYZ
-	};
-
-	// transform to clipspace and normalize
-	for (size_t i = 0; i < 8; ++i)
-	{
-		points[i] = _mvp * points[i];
-		points[i] /= points[i].w;
-	}
-
-	// check each side
-	for (size_t i = 0; i < 6; ++i)
-	{
-		bool inside = false;
-
-		// check each point
-		for (size_t j = 0; j < 8; ++j)
-		{
-			// first half of sides is positive, second half is negative
-			if (i < 3)
-			{
-				if (points[j][i % 3] <= 1.0)
-				{
-					inside = true;
-					break;
-				}
-			}
-			else
-			{
-				if (points[j][i % 3] >= -1.0)
-				{
-					inside = true;
-					break;
-				}
-			}
-		}
-
-		if (!inside)
-		{
-			return true;
-		}
-	}
-
-	return false;
 }

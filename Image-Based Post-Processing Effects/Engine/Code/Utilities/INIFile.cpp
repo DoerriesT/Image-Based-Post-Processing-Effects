@@ -159,7 +159,7 @@ INIFile::INIFile(const std::string &_filename)
 
 void INIFile::load()
 {
-	parse(Utility::readTextFile(filename).data());
+	parse(Utility::readTextFile(filename, true).data());
 
 #ifdef _DEBUG
 	printf("-- INIFile loaded Data: --\n");

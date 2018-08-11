@@ -98,17 +98,15 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 {
 	static glm::mat4 prevViewProjectionMatrix;
 	static glm::mat4 prevInvJitter;
-	static bool currentJitter = false;
-	static glm::vec2 jitters[] =
+
+	glm::vec2 jitters[] =
 	{
 		glm::vec2(0.25f, -0.25f),
 		glm::vec2(-0.25f, 0.25f)
 	};
 
-	currentJitter = !currentJitter;
-
 	glm::mat4 jitterMatrix = _effects.smaa.enabled && _effects.smaa.temporalAntiAliasing ?
-		glm::translate(glm::mat4(), glm::vec3(jitters[currentJitter].x / float(window->getWidth()), jitters[currentJitter].y / float(window->getHeight()), 0.0f))
+		glm::translate(glm::mat4(), glm::vec3(jitters[frame % 2].x / float(window->getWidth()), jitters[frame % 2].y / float(window->getHeight()), 0.0f))
 		: glm::mat4();
 
 	RenderData renderData;
@@ -128,6 +126,7 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 	renderData.cameraPosition = _camera->getPosition();
 	renderData.viewDirection = _camera->getForwardDirection();
 	renderData.fov = window->getFieldOfView();
+	renderData.frame = ++frame;
 
 	invViewMat = renderData.invViewMatrix;
 
