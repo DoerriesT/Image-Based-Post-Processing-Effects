@@ -20,8 +20,8 @@ OutlineRenderPass::OutlineRenderPass(GLuint _fbo, unsigned int _width, unsigned 
 	state.depthState.enabled = true;
 	state.depthState.func = GL_LEQUAL;
 	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
+	state.stencilState.enabled = true;
+	state.stencilState.frontFunc = state.stencilState.backFunc = GL_NOTEQUAL;
 	state.stencilState.frontRef = state.stencilState.backRef = 1;
 	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
 	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
