@@ -62,6 +62,7 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\ForwardRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\GBufferCustomRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\GBufferRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\GTAODenoiseRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\GTAORenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\HBAORenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\OutlineRenderPass.h" />
@@ -176,6 +177,7 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\ForwardRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\GBufferCustomRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\GBufferRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\GTAODenoiseRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\GTAORenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\HBAORenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\OutlineRenderPass.cpp" />
@@ -288,6 +290,7 @@
     <None Include="..\Application\Resources\Shaders\Renderer\gBufferPass.vert" />
     <None Include="..\Application\Resources\Shaders\Renderer\globalLightPass.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\gtao.frag" />
+    <None Include="..\Application\Resources\Shaders\Renderer\gtaoDenoise.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\hbao.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\lightVolume.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\lightVolume.tessc" />

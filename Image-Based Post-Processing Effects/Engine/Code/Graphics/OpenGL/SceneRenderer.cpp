@@ -29,6 +29,7 @@
 #include "RenderPass\SSAORenderPass.h"
 #include "RenderPass\HBAORenderPass.h"
 #include "RenderPass\GTAORenderPass.h"
+#include "RenderPass\GTAODenoiseRenderPass.h"
 #include "RenderPass\SSAOBlurRenderPass.h"
 #include "RenderPass\SSAOBilateralBlurRenderPass.h"
 #include "RenderPass\SkyboxRenderPass.h"
@@ -86,6 +87,7 @@ void SceneRenderer::init()
 	ssaoRenderPass = new SSAORenderPass(ssaoFbo, res.first, res.second);
 	hbaoRenderPass = new HBAORenderPass(ssaoFbo, res.first, res.second);
 	gtaoRenderPass = new GTAORenderPass(ssaoFbo, res.first, res.second);
+	gtaoDenoiseRenderPass = new GTAODenoiseRenderPass(ssaoFbo, res.first, res.second);
 	ssaoBlurRenderPass = new SSAOBlurRenderPass(ssaoFbo, res.first, res.second);
 	ssaoBilateralBlurRenderPass = new SSAOBilateralBlurRenderPass(ssaoFbo, res.first, res.second);
 	skyboxRenderPass = new SkyboxRenderPass(gBufferFBO, res.first, res.second);
@@ -132,7 +134,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	{
 		ssaoOriginalRenderPass->render(_renderData, _effects, gbuffer, noiseTexture, &previousRenderPass);
 		GLuint ssaoTextures[3] = { ssaoTextureA, ssaoTextureB, ssaoTextureC };
-		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, false, &previousRenderPass);
+		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, 20.0f, 4, &previousRenderPass);
 		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
 		break;
 	}
@@ -140,7 +142,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	{
 		ssaoRenderPass->render(_renderData, _effects, gbuffer, noiseTexture, &previousRenderPass);
 		GLuint ssaoTextures[3] = { ssaoTextureA, ssaoTextureB, ssaoTextureC };
-		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, false, &previousRenderPass);
+		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, _effects.ssao.blurSharpness, _effects.ssao.blurRadius, &previousRenderPass);
 		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
 		break;
 	}
@@ -148,7 +150,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	{
 		hbaoRenderPass->render(_renderData, _effects, gbuffer, noiseTexture2, &previousRenderPass);
 		GLuint ssaoTextures[3] = { ssaoTextureA, ssaoTextureB, ssaoTextureC };
-		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, false, &previousRenderPass);
+		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, _effects.hbao.blurSharpness, _effects.hbao.blurRadius, &previousRenderPass);
 		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
 		break;
 	}
@@ -156,8 +158,8 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	{
 		gtaoRenderPass->render(_renderData, _effects, gbuffer, &previousRenderPass);
 		GLuint ssaoTextures[3] = { ssaoTextureA, ssaoTextureB, ssaoTextureC };
-		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, true, &previousRenderPass);
-		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
+		gtaoDenoiseRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, &previousRenderPass);
+		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[1];
 		break;
 	}
 	default:

@@ -21,6 +21,7 @@ class SSAOOriginalRenderPass;
 class SSAORenderPass;
 class HBAORenderPass;
 class GTAORenderPass;
+class GTAODenoiseRenderPass;
 class SSAOBlurRenderPass;
 class SSAOBilateralBlurRenderPass;
 class SkyboxRenderPass;
@@ -82,6 +83,7 @@ private:
 	SSAORenderPass *ssaoRenderPass;
 	HBAORenderPass *hbaoRenderPass;
 	GTAORenderPass *gtaoRenderPass;
+	GTAODenoiseRenderPass *gtaoDenoiseRenderPass;
 	SSAOBlurRenderPass *ssaoBlurRenderPass;
 	SSAOBilateralBlurRenderPass *ssaoBilateralBlurRenderPass;
 	SkyboxRenderPass *skyboxRenderPass;

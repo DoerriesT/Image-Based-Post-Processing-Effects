@@ -157,8 +157,8 @@ void main()
 
 	oMetallicRoughnessAo.a = 1.0;
 
-	vec2 a = (vCurrentPos.xy / vCurrentPos.w);
-    vec2 b = (vPrevPos.xy / vPrevPos.w);
+	vec2 a = (vCurrentPos.xy / vCurrentPos.w) * 0.5 + 0.5;
+    vec2 b = (vPrevPos.xy / vPrevPos.w) * 0.5 + 0.5;
 	vec2 v = a - b;
 
 	//v *= uExposureTime;

@@ -80,13 +80,10 @@ private:
 	std::shared_ptr<Setting<double>> hbaoAngleBias;
 	std::shared_ptr<Setting<double>> hbaoBlurSharpness;
 	std::shared_ptr<Setting<int>> hbaoBlurRadius;
-	std::shared_ptr<Setting<int>> gtaoDirections;
 	std::shared_ptr<Setting<int>> gtaoSteps;
 	std::shared_ptr<Setting<double>> gtaoStrength;
 	std::shared_ptr<Setting<double>> gtaoRadius;
 	std::shared_ptr<Setting<double>> gtaoMaxRadiusPixels;
-	std::shared_ptr<Setting<double>> gtaoBlurSharpness;
-	std::shared_ptr<Setting<int>> gtaoBlurRadius;
 	std::shared_ptr<Setting<bool>> screenSpaceReflectionsEnabled;
 	std::shared_ptr<Setting<bool>> loadEnvironmentFromFile;
 	std::shared_ptr<Setting<bool>> saveEnvironmentToFile;

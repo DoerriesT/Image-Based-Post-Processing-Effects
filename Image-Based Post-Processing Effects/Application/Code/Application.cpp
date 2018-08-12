@@ -63,13 +63,10 @@ namespace App
 		COMBINED_FUNC_DEF(ssaoBlurSharpness, double)
 		COMBINED_FUNC_DEF(hbaoBlurRadius, int)
 		COMBINED_FUNC_DEF(hbaoBlurSharpness, double)
-		COMBINED_FUNC_DEF(gtaoDirections, int)
 		COMBINED_FUNC_DEF(gtaoSteps, int)
 		COMBINED_FUNC_DEF(gtaoStrength, double)
 		COMBINED_FUNC_DEF(gtaoRadius, double)
 		COMBINED_FUNC_DEF(gtaoMaxRadiusPixels, double)
-		COMBINED_FUNC_DEF(gtaoBlurSharpness, double)
-		COMBINED_FUNC_DEF(gtaoBlurRadius, int)
 
 		void TW_CALL windowResolutionGetCallback(void *value, void *clientData)
 	{
@@ -221,13 +218,10 @@ namespace App
 			hbaoAngleBias = settingsManager.getDoubleSetting("graphics", "hbao_angle_bias", glm::tan(glm::radians(30.0f)));
 			hbaoBlurSharpness = settingsManager.getDoubleSetting("graphics", "hbao_blur_sharpness", 1.0);
 			hbaoBlurRadius = settingsManager.getIntSetting("graphics", "hbao_blur_Radius", 3);
-			gtaoDirections = settingsManager.getIntSetting("graphics", "gtao_directions", 4);
 			gtaoSteps = settingsManager.getIntSetting("graphics", "gtao_steps", 4);
 			gtaoStrength = settingsManager.getDoubleSetting("graphics", "gtao_strength", 0.5);
 			gtaoRadius = settingsManager.getDoubleSetting("graphics", "gtao_radius", 0.3);
 			gtaoMaxRadiusPixels = settingsManager.getDoubleSetting("graphics", "gtao_max_radius_pixels", 50.0);
-			gtaoBlurSharpness = settingsManager.getDoubleSetting("graphics", "gtao_blur_sharpness", 1.0);
-			gtaoBlurRadius = settingsManager.getIntSetting("graphics", "gtao_blur_Radius", 3);
 			screenSpaceReflectionsEnabled = settingsManager.getBoolSetting("graphics", "screen_space_reflections_enabled", false);
 			lensDirtEnabled = settingsManager.getBoolSetting("graphics", "lens_dirt_enabled", false);
 			lensDirtStrength = settingsManager.getDoubleSetting("graphics", "lens_dirt_strength", 2.0);
@@ -386,13 +380,10 @@ namespace App
 				TwAddVarCB(settingsTweakBar, "HBAO Angle Bias", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoAngleBias), GETTER_FUNC_PTR(hbaoAngleBias), this, "group=Ambient_Occlusion min=0.0 max=1.5 step=0.01");
 				TwAddVarCB(settingsTweakBar, "HBAO Blur Radius", TW_TYPE_INT32, SETTER_FUNC_PTR(hbaoBlurRadius), GETTER_FUNC_PTR(hbaoBlurRadius), this, "group=Ambient_Occlusion min=1 max=32 step=1");
 				TwAddVarCB(settingsTweakBar, "HBAO Blur Sharpness", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoBlurSharpness), GETTER_FUNC_PTR(hbaoBlurSharpness), this, "group=Ambient_Occlusion min=0.0 max=50.0 step=0.1");
-				TwAddVarCB(settingsTweakBar, "GTAO Directions", TW_TYPE_INT32, SETTER_FUNC_PTR(gtaoDirections), GETTER_FUNC_PTR(gtaoDirections), this, "group=Ambient_Occlusion min=1 max=32");
 				TwAddVarCB(settingsTweakBar, "GTAO Steps", TW_TYPE_INT32, SETTER_FUNC_PTR(gtaoSteps), GETTER_FUNC_PTR(gtaoSteps), this, "group=Ambient_Occlusion min=1 max=32");
 				TwAddVarCB(settingsTweakBar, "GTAO Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoStrength), GETTER_FUNC_PTR(gtaoStrength), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
 				TwAddVarCB(settingsTweakBar, "GTAO Radius", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoRadius), GETTER_FUNC_PTR(gtaoRadius), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
 				TwAddVarCB(settingsTweakBar, "GTAO Max Radius Pixels", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoMaxRadiusPixels), GETTER_FUNC_PTR(gtaoMaxRadiusPixels), this, "group=Ambient_Occlusion min=1 max=256");
-				TwAddVarCB(settingsTweakBar, "GTAO Blur Radius", TW_TYPE_INT32, SETTER_FUNC_PTR(gtaoBlurRadius), GETTER_FUNC_PTR(gtaoBlurRadius), this, "group=Ambient_Occlusion min=1 max=32 step=1");
-				TwAddVarCB(settingsTweakBar, "GTAO Blur Sharpness", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoBlurSharpness), GETTER_FUNC_PTR(gtaoBlurSharpness), this, "group=Ambient_Occlusion min=0.0 max=50.0 step=0.1");
 			}
 
 			// scene

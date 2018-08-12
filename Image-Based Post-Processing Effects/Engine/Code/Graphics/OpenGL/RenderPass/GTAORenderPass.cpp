@@ -42,7 +42,6 @@ GTAORenderPass::GTAORenderPass(GLuint _fbo, unsigned int _width, unsigned int _h
 
 void GTAORenderPass::render(const RenderData &_renderData, const Effects &_effects, const GBuffer &_gbuffer, RenderPass **_previousRenderPass)
 {
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

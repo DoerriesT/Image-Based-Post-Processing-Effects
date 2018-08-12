@@ -4,16 +4,11 @@ layout(location=0) out vec4 oColor;
 
 in vec2 vTexCoord;
 
-layout(binding=4) uniform sampler2D uVelocityTexture;
-layout(binding=5) uniform sampler2D uPreviousTexture;
 layout(binding=6) uniform sampler2D uInputTexture;
 
 uniform float uSharpness;
 uniform float uKernelRadius;
 uniform vec2 uInvResolutionDirection; // either set x to 1/width or y to 1/height
-uniform bool uTemporal;
-
-
 
 #ifndef AO_BLUR_PRESENT
 #define AO_BLUR_PRESENT 0
@@ -64,13 +59,6 @@ void main()
 #else
 	 oColor = vec4(c_total/w_total, center_d, 0, 0);
 #endif
-
-	if (uTemporal)
-	{
-		vec2 velocity = texture(uVelocityTexture, vTexCoord).rg;
-		float previousAo = texture(uPreviousTexture, vTexCoord - velocity).x;
-		oColor.x = mix(oColor.x, previousAo, (5.0 / 6.0));
-	}
 }
 
 /*-----------------------------------------------------------------------

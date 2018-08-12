@@ -29,12 +29,11 @@ SSAOBilateralBlurRenderPass::SSAOBilateralBlurRenderPass(GLuint _fbo, unsigned i
 	uSharpnessAOBB.create(ssaoBilateralBlurShader);
 	uKernelRadiusAOBB.create(ssaoBilateralBlurShader);
 	uInvResolutionDirectionAOBB.create(ssaoBilateralBlurShader);
-	uTemporalAOBB.create(ssaoBilateralBlurShader);
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-void SSAOBilateralBlurRenderPass::render(const RenderData & _renderData, const Effects & _effects, const GBuffer &_gbuffer, GLuint *_ssaoTextures, bool _temporal, RenderPass **_previousRenderPass)
+void SSAOBilateralBlurRenderPass::render(const RenderData & _renderData, const Effects & _effects, const GBuffer &_gbuffer, GLuint *_ssaoTextures, float _sharpness, float _radius, RenderPass **_previousRenderPass)
 {
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
@@ -44,22 +43,16 @@ void SSAOBilateralBlurRenderPass::render(const RenderData & _renderData, const E
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, _renderData.frame % 2 ? _ssaoTextures[2] : _ssaoTextures[0]);
 
-	uTemporalAOBB.set(false);
-	uSharpnessAOBB.set(_effects.gtao.blurSharpness);
-	uKernelRadiusAOBB.set(_effects.gtao.blurRadius);
+	uSharpnessAOBB.set(_sharpness);
+	uKernelRadiusAOBB.set(_radius);
 	uInvResolutionDirectionAOBB.set(glm::vec2(1.0f / _renderData.resolution.first, 0.0));
 
 	fullscreenTriangle->getSubMesh()->render();
 
 	glDrawBuffer(_renderData.frame % 2 ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0);
-	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, _gbuffer.velocityTexture);
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, _renderData.frame % 2 ? _ssaoTextures[0] : _ssaoTextures[2]);
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, _ssaoTextures[1]);
 
-	uTemporalAOBB.set(_temporal);
 	uInvResolutionDirectionAOBB.set(glm::vec2(0.0, 1.0f / _renderData.resolution.second));
 
 	fullscreenTriangle->getSubMesh()->render();

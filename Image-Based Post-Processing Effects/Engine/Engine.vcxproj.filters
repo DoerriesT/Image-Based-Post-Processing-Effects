@@ -476,6 +476,9 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAOBilateralBlurRenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\GTAODenoiseRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -752,6 +755,9 @@
       <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAOOriginalRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\GTAODenoiseRenderPass.cpp">
       <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1042,6 +1048,9 @@
       <Filter>Resources\Shaders\Renderer</Filter>
     </None>
     <None Include="..\Application\Resources\Shaders\Renderer\gtao.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Renderer\gtaoDenoise.frag">
       <Filter>Resources\Shaders\Renderer</Filter>
     </None>
   </ItemGroup>

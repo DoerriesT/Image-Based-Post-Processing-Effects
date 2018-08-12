@@ -77,13 +77,10 @@ struct HBAO
 
 struct GTAO
 {
-	unsigned int directions;
 	unsigned int steps;
 	float strength;
 	float radius;
 	float maxRadiusPixels;
-	float blurRadius;
-	float blurSharpness;
 };
 
 enum class AmbientOcclusion

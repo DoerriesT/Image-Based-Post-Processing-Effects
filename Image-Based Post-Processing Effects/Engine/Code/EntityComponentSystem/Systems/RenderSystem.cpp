@@ -187,10 +187,6 @@ void RenderSystem::init()
 	hbaoBlurRadius->addListener([&](int _value) { effects.hbao.blurRadius = (float)_value; });
 	effects.hbao.blurRadius = (float)hbaoBlurRadius->get();
 
-	gtaoDirections = settingsManager.getIntSetting("graphics", "gtao_directions", 4);
-	gtaoDirections->addListener([&](int _value) { effects.gtao.directions = _value; });
-	effects.gtao.directions = gtaoDirections->get();
-
 	gtaoSteps = settingsManager.getIntSetting("graphics", "gtao_steps", 4);
 	gtaoSteps->addListener([&](int _value) { effects.gtao.steps = _value; });
 	effects.gtao.steps = gtaoSteps->get();
@@ -206,14 +202,6 @@ void RenderSystem::init()
 	gtaoMaxRadiusPixels = settingsManager.getDoubleSetting("graphics", "gtao_max_radius_pixels", 50.0);
 	gtaoMaxRadiusPixels->addListener([&](double _value) { effects.gtao.maxRadiusPixels = (float)_value; });
 	effects.gtao.maxRadiusPixels = (float)gtaoMaxRadiusPixels->get();
-
-	gtaoBlurSharpness = settingsManager.getDoubleSetting("graphics", "gtao_blur_sharpness", 1.0);
-	gtaoBlurSharpness->addListener([&](double _value) { effects.gtao.blurSharpness = (float)_value; });
-	effects.gtao.blurSharpness = (float)gtaoBlurSharpness->get();
-
-	gtaoBlurRadius = settingsManager.getIntSetting("graphics", "gtao_blur_Radius", 3);
-	gtaoBlurRadius->addListener([&](int _value) { effects.gtao.blurRadius = (float)_value; });
-	effects.gtao.blurRadius = (float)gtaoBlurRadius->get();
 
 	motionBlur = settingsManager.getIntSetting("graphics", "motion_blur", 0);
 	motionBlur->addListener([&](int _value) { effects.motionBlur = static_cast<MotionBlur>(_value); });

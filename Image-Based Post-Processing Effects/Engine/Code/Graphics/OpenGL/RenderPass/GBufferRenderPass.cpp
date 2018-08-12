@@ -110,7 +110,7 @@ void GBufferRenderPass::render(const RenderData &_renderData, const Scene &_scen
 		}
 
 		glm::mat4 mvpTransformation = _renderData.viewProjectionMatrix * modelMatrix;
-		const float cameraMovementStrength = 0.25f;
+		const float cameraMovementStrength = 1.0f;
 		glm::mat4 prevTransformation = glm::mix(_renderData.invJitter * _renderData.viewProjectionMatrix, _renderData.prevInvJitter * _renderData.prevViewProjectionMatrix, cameraMovementStrength) * entityRenderData->transformationComponent->prevTransformation;
 
 
