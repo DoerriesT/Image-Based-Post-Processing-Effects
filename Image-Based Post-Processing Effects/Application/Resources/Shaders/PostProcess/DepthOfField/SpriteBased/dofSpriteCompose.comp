@@ -21,8 +21,8 @@ void main()
 	vec3 downsampledColor = textureLod(uColorTexture, texCoord, 1).rgb;
 	vec2 cocVals = texture(uCocTexture, texCoord).xy;
 	
-	farPlane.rgb /= farPlane.a;
-	nearPlane.rgb /= nearPlane.a;
+	farPlane.rgb = farPlane.a > 0.0 ? farPlane.rgb / farPlane.a : farPlane.rgb;
+	nearPlane.rgb = nearPlane.a > 0.0 ? nearPlane.rgb / nearPlane.a : nearPlane.rgb;
 	
 	color = mix(color, downsampledColor, clamp(max(cocVals.x, cocVals.y) - 1.0, 0.0, 1.0));
 	color = mix(color, farPlane.rgb, clamp(farPlane.a, 0.0, 1.0));
