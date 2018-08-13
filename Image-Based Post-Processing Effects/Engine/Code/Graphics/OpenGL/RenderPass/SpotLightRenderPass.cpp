@@ -72,7 +72,7 @@ void SpotLightRenderPass::render(const RenderData &_renderData, const std::share
 
 		if (spotLight->isRenderShadows())
 		{
-			glActiveTexture(GL_TEXTURE4);
+			glActiveTexture(GL_TEXTURE14);
 			glBindTexture(GL_TEXTURE_2D, spotLight->getShadowMap());
 		}
 		if (spotLight->isProjector())

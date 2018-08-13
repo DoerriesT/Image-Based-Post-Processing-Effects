@@ -62,7 +62,7 @@ void SkyboxRenderPass::render(const RenderData &_renderData, const std::shared_p
 
 	if (_level->environment.environmentMap)
 	{
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE11);
 		glBindTexture(_level->environment.environmentMap->getTarget(), _level->environment.environmentMap->getId());
 	}
 

@@ -5,7 +5,7 @@ layout(location = 1) out vec4 oVelocity;
 
 in vec4 vRay;
 
-layout(binding = 0) uniform samplerCube uAlbedoMap;
+layout(binding = 11) uniform samplerCube uAlbedoMap;
 
 uniform vec4 uColor;
 uniform bool uHasAlbedoMap;

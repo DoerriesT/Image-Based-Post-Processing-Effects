@@ -71,7 +71,7 @@ void PointLightRenderPass::render(const RenderData &_renderData, const std::shar
 
 		if (pointLight->isRenderShadows())
 		{
-			glActiveTexture(GL_TEXTURE4);
+			glActiveTexture(GL_TEXTURE14);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, pointLight->getShadowMap());
 		}
 

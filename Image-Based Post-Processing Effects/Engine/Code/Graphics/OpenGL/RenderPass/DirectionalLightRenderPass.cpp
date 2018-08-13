@@ -59,7 +59,7 @@ void DirectionalLightRenderPass::render(const RenderData &_renderData, const std
 		directionalLight->updateViewValues(_renderData.viewMatrix);
 		if (directionalLight->isRenderShadows())
 		{
-			glActiveTexture(GL_TEXTURE4);
+			glActiveTexture(GL_TEXTURE15);
 			glBindTexture(GL_TEXTURE_2D_ARRAY, directionalLight->getShadowMap());
 		}
 

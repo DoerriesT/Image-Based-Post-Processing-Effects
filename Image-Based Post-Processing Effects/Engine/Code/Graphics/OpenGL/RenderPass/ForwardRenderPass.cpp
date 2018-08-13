@@ -64,7 +64,7 @@ void ForwardRenderPass::render(const RenderData & _renderData, const std::shared
 	{
 		if (_level->lights.directionalLights[0]->isRenderShadows())
 		{
-			glActiveTexture(GL_TEXTURE10);
+			glActiveTexture(GL_TEXTURE15);
 			glBindTexture(GL_TEXTURE_2D_ARRAY, _level->lights.directionalLights[0]->getShadowMap());
 		}
 		uRenderDirectionalLightT.set(true);

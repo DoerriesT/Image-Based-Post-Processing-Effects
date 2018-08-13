@@ -45,9 +45,9 @@ layout(binding = 3) uniform sampler2D roughnessMap;
 layout(binding = 4) uniform sampler2D aoMap;
 layout(binding = 5) uniform sampler2D emissiveMap;
 layout(binding = 6) uniform sampler2D uDisplacementMap;
-layout(binding = 10) uniform sampler2DArrayShadow uShadowMap;
-layout(binding = 7) uniform samplerCube uIrradianceMap;
-layout(binding = 8) uniform samplerCube uPrefilterMap;
+layout(binding = 15) uniform sampler2DArrayShadow uShadowMap;
+layout(binding = 12) uniform samplerCube uIrradianceMap;
+layout(binding = 13) uniform samplerCube uPrefilterMap;
 layout(binding = 9) uniform sampler2D uBrdfLUT;
 
 uniform Material uMaterial;

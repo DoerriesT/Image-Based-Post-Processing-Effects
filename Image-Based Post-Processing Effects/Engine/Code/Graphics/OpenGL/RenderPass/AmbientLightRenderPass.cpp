@@ -51,9 +51,9 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, _gbuffer.ssaoTexture);
-	glActiveTexture(GL_TEXTURE7);
+	glActiveTexture(GL_TEXTURE12);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getIrradianceMap()->getId());
-	glActiveTexture(GL_TEXTURE8);
+	glActiveTexture(GL_TEXTURE13);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getReflectanceMap()->getId());
 	glActiveTexture(GL_TEXTURE9);
 	glBindTexture(GL_TEXTURE_2D, _brdfLUT);
@@ -79,7 +79,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 		directionalLight->updateViewValues(_renderData.viewMatrix);
 		if (directionalLight->isRenderShadows())
 		{
-			glActiveTexture(GL_TEXTURE5);
+			glActiveTexture(GL_TEXTURE15);
 			glBindTexture(GL_TEXTURE_2D_ARRAY, directionalLight->getShadowMap());
 		}
 		uDirectionalLightE.set(directionalLight);
