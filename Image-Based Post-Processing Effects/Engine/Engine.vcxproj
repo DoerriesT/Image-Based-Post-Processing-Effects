@@ -65,6 +65,7 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\GTAODenoiseRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\GTAORenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\HBAORenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LightProbeRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\OutlineRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\PointLightRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\RenderPass.h" />
@@ -180,6 +181,7 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\GTAODenoiseRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\GTAORenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\HBAORenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LightProbeRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\OutlineRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\PointLightRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\RenderPass.cpp" />

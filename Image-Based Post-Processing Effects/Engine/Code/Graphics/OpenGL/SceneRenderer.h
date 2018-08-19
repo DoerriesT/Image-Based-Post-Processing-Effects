@@ -32,6 +32,7 @@ class SpotLightRenderPass;
 class ForwardRenderPass;
 class ForwardCustomRenderPass;
 class OutlineRenderPass;
+class LightProbeRenderPass;
 
 class SceneRenderer
 {
@@ -94,6 +95,7 @@ private:
 	ForwardRenderPass *forwardRenderPass;
 	ForwardCustomRenderPass *forwardCustomRenderPass;
 	OutlineRenderPass *outlineRenderPass;
+	LightProbeRenderPass *lightProbeRenderPass;
 
 
 	// ssao fbo

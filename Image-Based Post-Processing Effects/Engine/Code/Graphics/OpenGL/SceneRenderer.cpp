@@ -40,6 +40,7 @@
 #include "RenderPass\ForwardRenderPass.h"
 #include "RenderPass\ForwardCustomRenderPass.h"
 #include "RenderPass\OutlineRenderPass.h"
+#include "RenderPass\LightProbeRenderPass.h"
 
 SceneRenderer::SceneRenderer(std::shared_ptr<Window> _window)
 	:window(_window), ocean(false, true), volumetricLighting(window->getWidth(), window->getHeight())
@@ -98,6 +99,7 @@ void SceneRenderer::init()
 	forwardRenderPass = new ForwardRenderPass(gBufferFBO, res.first, res.second);
 	forwardCustomRenderPass = new ForwardCustomRenderPass(gBufferFBO, res.first, res.second);
 	outlineRenderPass = new OutlineRenderPass(gBufferFBO, res.first, res.second);
+	lightProbeRenderPass = new LightProbeRenderPass(gBufferFBO, res.first, res.second);
 }
 
 void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
@@ -174,6 +176,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	forwardRenderPass->render(_renderData, _level, _scene, &previousRenderPass);
 	forwardCustomRenderPass->render(_renderData, _level, _scene, &previousRenderPass);
 	outlineRenderPass->render(_renderData, _scene, &previousRenderPass);
+	lightProbeRenderPass->render(_renderData, _level, &previousRenderPass);
 
 	// generate mips
 	glActiveTexture(GL_TEXTURE0);
@@ -226,6 +229,7 @@ void SceneRenderer::resize(const std::pair<unsigned int, unsigned int> &_resolut
 	forwardRenderPass->resize(_resolution.first, _resolution.second);
 	forwardCustomRenderPass->resize(_resolution.first, _resolution.second);
 	outlineRenderPass->resize(_resolution.first, _resolution.second);
+	lightProbeRenderPass->resize(_resolution.first, _resolution.second);
 
 	gbuffer.albedoTexture = gAlbedoTexture;
 	gbuffer.normalTexture = gNormalTexture;

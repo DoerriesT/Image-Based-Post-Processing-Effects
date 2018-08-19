@@ -4,7 +4,7 @@ layout(location = 0) out vec4 oFragColor;
 
 in vec3 vNormal;
 
-layout(binding = 8) uniform samplerCube uLightProbe;
+layout(binding = 13) uniform samplerCube uLightProbe;
 
 void main()
 {

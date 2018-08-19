@@ -6,7 +6,6 @@ out vec3 vNormal;
 
 uniform mat4 uModelViewProjectionMatrix;
 
-
 void main()
 {
 	vNormal = aPosition;
