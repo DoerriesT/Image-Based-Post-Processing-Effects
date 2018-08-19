@@ -245,11 +245,11 @@ void RenderSystem::render()
 		level->environment.environmentMap = graphicsFramework->render(level->environment.atmosphereParams);
 		level->environment.isAtmosphereValid = true;
 	}
+	
 	if (!level->environment.environmentProbe->isValid() && level->loaded && !loadEnvironmentFromFile->get())
 	{
 		graphicsFramework->render(level->environment.environmentProbe, scene, level, effects);
-		// render twice to use the first rendering as ambient lighting for the second rendering
-		graphicsFramework->render(level->environment.environmentProbe, scene, level, effects);
+		
 		level->environment.environmentProbe->setValid(true);
 		if (saveEnvironmentToFile->get())
 		{

@@ -188,9 +188,25 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 
 void SceneRenderer::resize(const std::pair<unsigned int, unsigned int> &_resolution)
 {
-	GLuint textures[] = { gAlbedoTexture, gNormalTexture, gMRASTexture, gDepthStencilTexture, gLightColorTextures[0], gLightColorTextures[1], gVelocityTexture, ssaoTextureA, ssaoTextureB };
+	GLuint textures[] = 
+	{ 
+		gAlbedoTexture, 
+		gNormalTexture,
+		gMRASTexture,
+		gLightColorTextures[0],
+		gLightColorTextures[1],
+		gVelocityTexture,
+		gDepthStencilTexture,    
+		ssaoTextureA, 
+		ssaoTextureB, 
+		ssaoTextureC,
+		noiseTexture,
+		noiseTexture2
+	};
+
 	glDeleteTextures(sizeof(textures) / sizeof(GLuint), textures);
 	createFboAttachments(_resolution);
+	createSsaoAttachments(_resolution);
 	volumetricLighting.resize(_resolution.first, _resolution.second);
 
 	gBufferRenderPass->resize(_resolution.first, _resolution.second);
@@ -199,6 +215,7 @@ void SceneRenderer::resize(const std::pair<unsigned int, unsigned int> &_resolut
 	ssaoRenderPass->resize(_resolution.first, _resolution.second);
 	hbaoRenderPass->resize(_resolution.first, _resolution.second);
 	gtaoRenderPass->resize(_resolution.first, _resolution.second);
+	gtaoDenoiseRenderPass->resize(_resolution.first, _resolution.second);
 	ssaoBlurRenderPass->resize(_resolution.first, _resolution.second);
 	ssaoBilateralBlurRenderPass->resize(_resolution.first, _resolution.second);
 	skyboxRenderPass->resize(_resolution.first, _resolution.second);

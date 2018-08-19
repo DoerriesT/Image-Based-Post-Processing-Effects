@@ -15,7 +15,7 @@
 #include "Window\Window.h"
 
 ShadowRenderer::ShadowRenderer()
-	:skipCascadeOptimization(true)
+	:skipCascadeOptimization(false)
 {
 }
 
@@ -36,7 +36,7 @@ void ShadowRenderer::init()
 }
 
 
-void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects, const std::shared_ptr<Camera> &_camera)
+void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
 {
 	// bind shadow shader
 	shadowShader->bind();

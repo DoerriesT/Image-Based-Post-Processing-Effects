@@ -125,7 +125,7 @@ void EnvironmentRenderer::calculateReflectance(const std::shared_ptr<Environment
 	glBindFramebuffer(GL_FRAMEBUFFER, convolutionFbo);
 
 	reflectanceShader->bind();
-	uEnvironmentResolutionR.set(512);
+	uEnvironmentResolutionR.set(ENVIRONMENT_MAP_SIZE);
 
 	unsigned int maxMipLevels = 5;// glm::log2(EnvironmentProbe::REFLECTANCE_RESOLUTION);
 	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)

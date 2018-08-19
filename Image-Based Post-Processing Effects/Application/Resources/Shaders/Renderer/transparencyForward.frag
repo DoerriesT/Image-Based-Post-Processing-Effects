@@ -249,8 +249,8 @@ void main()
 
 	oFragColor = vec4(directionalLightContribution + ambientLightContribution + emissive, albedo.a);
 
-	vec2 a = (vCurrentPos.xy / vCurrentPos.w);
-    vec2 b = (vPrevPos.xy / vPrevPos.w);
+	vec2 a = (vCurrentPos.xy / vCurrentPos.w) * 0.5 + 0.5;
+    vec2 b = (vPrevPos.xy / vPrevPos.w) * 0.5 + 0.5;
 	vec2 v = a - b;
 	//v = pow(v, vec2(3.0));
 	oVelocity = vec4(v, 0.0, 0.0); // vec4(a - b, 0.0, 0.0); //vec4(pow((a - b) * 0.5 + 0.5, vec2(3.0)), 0.0, 0.0);

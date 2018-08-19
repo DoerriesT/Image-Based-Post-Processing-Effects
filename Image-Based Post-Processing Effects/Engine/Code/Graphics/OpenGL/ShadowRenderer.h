@@ -25,7 +25,7 @@ public:
 	ShadowRenderer &operator= (const ShadowRenderer &&) = delete;
 	~ShadowRenderer();
 	void init();
-	void renderShadows(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects, const std::shared_ptr<Camera> &_camera);
+	void renderShadows(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects);
 
 private:
 	std::shared_ptr<ShaderProgram> shadowShader;

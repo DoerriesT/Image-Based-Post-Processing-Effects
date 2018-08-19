@@ -29,8 +29,8 @@ displacementPath:
 
 name: hull
 albedo: 1.0/1.0/1.0/1.0
-metallic: 1.0
-roughness: 0.4
+metallic: 0.0
+roughness: 0.07
 emissive: 0.0/0.0/0.0
 albedoPath: 
 normalPath: 

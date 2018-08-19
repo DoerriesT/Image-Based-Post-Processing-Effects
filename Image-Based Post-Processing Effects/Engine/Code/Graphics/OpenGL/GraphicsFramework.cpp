@@ -135,7 +135,7 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 
 	if (renderData.shadows)
 	{
-		shadowRenderer.renderShadows(renderData, _scene, _level, _effects, _camera);
+		shadowRenderer.renderShadows(renderData, _scene, _level, _effects);
 	}
 	sceneRenderer.render(renderData, _scene, _level, _effects);
 	postProcessRenderer.render(renderData, _level, _effects, sceneRenderer.getColorTexture(), sceneRenderer.getDepthStencilTexture(), sceneRenderer.getVelocityTexture(), _camera);
@@ -145,7 +145,6 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 
 void GraphicsFramework::render(const std::shared_ptr<EnvironmentProbe> &_environmentProbe, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
 {
-	assert(window->getWidth() >= ENVIRONMENT_MAP_SIZE && window->getHeight() >= ENVIRONMENT_MAP_SIZE); // we're reusing the same fbo(s), we use for normal rendering, so make sure our cubemap rendering fits inside
 	glm::vec3 position = _environmentProbe->getPosition();
 	glm::mat4 viewMatrices[] =
 	{
@@ -157,28 +156,45 @@ void GraphicsFramework::render(const std::shared_ptr<EnvironmentProbe> &_environ
 		glm::lookAt(position, position + glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 	};
 
-	RenderData renderData;
+	RenderData renderData = {};
+
 	renderData.projectionMatrix = glm::perspective(glm::radians(90.0f), 1.0f, Window::NEAR_PLANE, Window::FAR_PLANE);
-	renderData.resolution = std::make_pair(512, 512);
-	renderData.shadows = _effects.shadowQuality != ShadowQuality::OFF;
+	renderData.invProjectionMatrix = glm::inverse(renderData.projectionMatrix);
+	renderData.resolution = std::make_pair(ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
+	renderData.shadows = true;
 	renderData.time = (float)Engine::getTime();
 	renderData.cameraPosition = position;
-	renderData.fov = window->getFieldOfView();
+	renderData.frame = 1;
+	
+	renderData.fov = 90.0f;
 
 	Effects effects = _effects;
-	effects.ambientOcclusion = AmbientOcclusion::OFF;
+	effects.ambientOcclusion = AmbientOcclusion::HBAO;
 
+	sceneRenderer.resize(renderData.resolution);
 
-	for (unsigned int i = 0; i < 6; ++i)
+	for (unsigned int bounce = 0; bounce < 10; ++bounce)
 	{
-		renderData.viewMatrix = viewMatrices[i];
-		renderData.viewProjectionMatrix = renderData.projectionMatrix * renderData.viewMatrix;
-		sceneRenderer.render(renderData, _scene, _level, effects);
-		environmentRenderer.updateCubeSide(i, sceneRenderer.getColorTexture());
+		for (unsigned int i = 0; i < 6; ++i)
+		{
+			renderData.viewMatrix = viewMatrices[i];
+			renderData.invViewMatrix = glm::inverse(renderData.viewMatrix);
+			renderData.viewProjectionMatrix = renderData.projectionMatrix * renderData.viewMatrix;
+			renderData.prevViewProjectionMatrix = renderData.viewProjectionMatrix;
+			renderData.invViewProjectionMatrix = glm::inverse(renderData.viewProjectionMatrix);
+			renderData.viewDirection = -glm::transpose(renderData.viewMatrix)[2];
+			renderData.frustum.update(renderData.viewProjectionMatrix);
+
+			shadowRenderer.renderShadows(renderData, _scene, _level, _effects);
+			sceneRenderer.render(renderData, _scene, _level, effects);
+			environmentRenderer.updateCubeSide(i, sceneRenderer.getColorTexture());
+		}
+		environmentRenderer.generateMipmaps();
+		environmentRenderer.calculateReflectance(_environmentProbe);
+		environmentRenderer.calculateIrradiance(_environmentProbe);
 	}
-	environmentRenderer.generateMipmaps();
-	environmentRenderer.calculateReflectance(_environmentProbe);
-	environmentRenderer.calculateIrradiance(_environmentProbe);
+
+	sceneRenderer.resize(std::make_pair<>(window->getWidth(), window->getHeight()));
 }
 
 std::shared_ptr<Texture> GraphicsFramework::render(const AtmosphereParams &_params)

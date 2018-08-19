@@ -144,7 +144,7 @@ void ForwardRenderPass::render(const RenderData & _renderData, const std::shared
 		}
 
 		glm::mat4 mvpTransformation = _renderData.viewProjectionMatrix * modelMatrix;
-		const float cameraMovementStrength = 0.15f;
+		const float cameraMovementStrength = 1.0f;
 		glm::mat4 prevTransformation = glm::mix(_renderData.invJitter * _renderData.viewProjectionMatrix, _renderData.prevInvJitter * _renderData.prevViewProjectionMatrix, cameraMovementStrength) * entityRenderData->transformationComponent->prevTransformation;
 
 		uAtlasDataT.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
