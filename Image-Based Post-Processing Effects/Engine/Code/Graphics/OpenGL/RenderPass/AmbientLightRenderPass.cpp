@@ -52,9 +52,9 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, _gbuffer.ssaoTexture);
 	glActiveTexture(GL_TEXTURE12);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getIrradianceMap()->getId());
+	glBindTexture(GL_TEXTURE_2D, _level->environment.environmentProbes[0]->getIrradianceMap()->getId());
 	glActiveTexture(GL_TEXTURE13);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getReflectanceMap()->getId());
+	glBindTexture(GL_TEXTURE_2D, _level->environment.environmentProbes[0]->getReflectanceMap()->getId());
 	glActiveTexture(GL_TEXTURE9);
 	glBindTexture(GL_TEXTURE_2D, _brdfLUT);
 	glActiveTexture(GL_TEXTURE10);

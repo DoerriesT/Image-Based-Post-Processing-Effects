@@ -24,7 +24,7 @@ public:
 	GraphicsFramework &operator= (const GraphicsFramework &&) = delete;
 	void init();
 	void render(const std::shared_ptr<Camera> &_camera, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects);
-	void render(const std::shared_ptr<EnvironmentProbe> &_environmentProbe, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects);
+	void render(const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects);
 	std::shared_ptr<Texture> render(const AtmosphereParams &_params);
 	void blitToScreen();
 	void setShadowQuality(const ShadowQuality &_shadowQuality);

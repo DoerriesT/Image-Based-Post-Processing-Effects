@@ -15,7 +15,7 @@
 #include "Window\Window.h"
 
 ShadowRenderer::ShadowRenderer()
-	:skipCascadeOptimization(false)
+	:cascadeSkipOptimization(true)
 {
 }
 
@@ -70,7 +70,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 			glm::mat4 lightViewProjections[SHADOW_CASCADES];
 			for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 			{
-				if (i <= frameCounter || !skipCascadeOptimization)
+				if (i <= frameCounter || !cascadeSkipOptimization)
 				{
 					lightViewProjections[i] = calculateLightViewProjection(_renderData, sceneAABB, directionalLight->getDirection(), i == 0 ? 0.05f : splits[i - 1], splits[i], true);
 				}
@@ -85,7 +85,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 			unsigned int shadowMapResolution = directionalLight->getShadowMapResolution();
 			glViewport(0, 0, shadowMapResolution, shadowMapResolution);
 
-			for (unsigned int i = 0; i < SHADOW_CASCADES && (i <= frameCounter || !skipCascadeOptimization); ++i)
+			for (unsigned int i = 0; i < SHADOW_CASCADES && (i <= frameCounter || !cascadeSkipOptimization); ++i)
 			{
 				glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, directionalLight->getShadowMap(), 0, i);
 
@@ -137,6 +137,11 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 	glDepthMask(GL_FALSE);
 
 	frameCounter = (frameCounter + 1) % 4;
+}
+
+void ShadowRenderer::setCascadeSkipOptimization(bool _enabled)
+{
+	cascadeSkipOptimization = _enabled;
 }
 
 void ShadowRenderer::render(const glm::mat4 &_viewProjectionMatrix, const Scene &_scene)

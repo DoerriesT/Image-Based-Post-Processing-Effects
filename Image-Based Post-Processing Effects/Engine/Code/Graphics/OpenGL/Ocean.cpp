@@ -219,7 +219,7 @@ void Ocean::render(const RenderData &_renderData, const std::shared_ptr<Level> &
 		uViewWT.set(_renderData.viewMatrix);
 		uCamPosWT.set(_renderData.cameraPosition);
 		uTexCoordShiftWT.set(glm::vec2(-1.5, 0.75) * _renderData.time * 0.25);
-		uUseEnvironmentWT.set(_level->environment.environmentProbe->isValid());
+		uUseEnvironmentWT.set(_level->environment.environmentProbes[0]->isValid());
 		uWaterLevelWT.set(_level->water.level);
 		if (_level->lights.directionalLights.empty())
 		{
@@ -245,7 +245,7 @@ void Ocean::render(const RenderData &_renderData, const std::shared_ptr<Level> &
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, foamTexture->getId());
 		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getReflectanceMap()->getId());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbes[0]->getReflectanceMap()->getId()); // TODO: this is now an octahedral map
 
 		uTileSizeWT.set(1.0f);
 
@@ -277,7 +277,7 @@ void Ocean::render(const RenderData &_renderData, const std::shared_ptr<Level> &
 		uViewW.set(_renderData.viewMatrix);
 		uCamPosW.set(_renderData.cameraPosition);
 		uTexCoordShiftW.set(glm::vec2(-1.5, 0.75) * _renderData.time * 0.25);
-		uUseEnvironmentW.set(_level->environment.environmentProbe->isValid());
+		uUseEnvironmentW.set(_level->environment.environmentProbes[0]->isValid());
 		uWaterLevelW.set(_level->water.level);
 		if (_level->lights.directionalLights.empty())
 		{
@@ -297,7 +297,7 @@ void Ocean::render(const RenderData &_renderData, const std::shared_ptr<Level> &
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, foamTexture->getId());
 		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getReflectanceMap()->getId());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbes[0]->getReflectanceMap()->getId()); // TODO: this is now an octahedral map
 
 		glDisable(GL_CULL_FACE);
 		glBindVertexArray(waterVAO);

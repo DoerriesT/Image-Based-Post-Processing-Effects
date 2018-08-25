@@ -26,10 +26,11 @@ public:
 	~ShadowRenderer();
 	void init();
 	void renderShadows(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects);
+	void setCascadeSkipOptimization(bool _enabled);
 
 private:
 	std::shared_ptr<ShaderProgram> shadowShader;
-	bool skipCascadeOptimization;
+	bool cascadeSkipOptimization;
 	unsigned int frameCounter;
 
 	// fbo

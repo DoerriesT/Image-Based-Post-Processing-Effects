@@ -25,8 +25,8 @@ layout(binding = 3) uniform sampler2D uDepthMap;
 layout(binding = 4) uniform sampler2D uSsaoMap;
 layout(binding = 9) uniform sampler2D uBrdfLUT;
 layout(binding = 10) uniform sampler2D uPrevFrame;
-layout(binding = 12) uniform samplerCube uIrradianceMap;
-layout(binding = 13) uniform samplerCube uPrefilterMap;
+layout(binding = 12) uniform sampler2D uIrradianceMap;
+layout(binding = 13) uniform sampler2D uPrefilterMap;
 layout(binding = 15) uniform sampler2DArrayShadow uShadowMap;
 
 uniform mat4 uInverseView;
@@ -55,6 +55,22 @@ float linearDepth(float depth)
 {
     float z_n = 2.0 * depth - 1.0;
     return 2.0 * Z_NEAR * Z_FAR / (Z_FAR + Z_NEAR - z_n * (Z_FAR - Z_NEAR));
+}
+
+vec2 signNotZero(vec2 v) 
+{
+	return vec2((v.x >= 0.0) ? +1.0 : -1.0, (v.y >= 0.0) ? +1.0 : -1.0);
+}
+
+/** Assumes that v is a unit vector. The result is an octahedral vector on the [-1, +1] square. */
+vec2 octEncode(in vec3 v) 
+{
+    float l1norm = abs(v.x) + abs(v.y) + abs(v.z);
+    vec2 result = v.xy * (1.0 / l1norm);
+    if (v.z < 0.0) {
+        result = (1.0 - abs(result.yx)) * signNotZero(result.xy);
+    }
+    return result;
 }
 
 vec3 project(vec3 vsCoord)
@@ -246,7 +262,7 @@ void main()
 
 			vec3 worldNormal = (uInverseView * vec4(N, 0.0)).xyz;
 
-			vec3 irradiance = texture(uIrradianceMap, worldNormal).rgb;
+			vec3 irradiance = textureLod(uIrradianceMap, octEncode(worldNormal) * 0.5 + 0.5, 0.0).rgb;
 			vec3 diffuse = irradiance * albedo;
 
 			vec3 prefilteredColor = vec3(0.0);
@@ -272,14 +288,14 @@ void main()
 				reprojected.xy = reprojected.xy * 0.5 + 0.5;
 
 				vec3 ssrColor = textureLod(uPrevFrame, reprojected.xy, metallicRoughnessAoShaded.g * log2(textureSize(uPrevFrame, 0).x)).rgb;
-				vec3 cubeColor = textureLod(uPrefilterMap, (uInverseView * vec4(reflect(-V, N), 0.0)).xyz, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
+				vec3 cubeColor = textureLod(uPrefilterMap, octEncode((uInverseView * vec4(reflect(-V, N), 0.0)).xyz) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
 				prefilteredColor = mix(cubeColor, ssrColor, float(hit) * edgeFactor);
 
 			}
 			else
 			{
 				// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-				prefilteredColor = textureLod(uPrefilterMap, (uInverseView * vec4(reflect(-V, N), 0.0)).xyz, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
+				prefilteredColor = textureLod(uPrefilterMap, octEncode((uInverseView * vec4(reflect(-V, N), 0.0)).xyz) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
 			}
 
 			vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, metallicRoughnessAoShaded.g)).rg;

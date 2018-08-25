@@ -41,11 +41,11 @@ std::shared_ptr<Level> App::loadDefaultLevel()
 	//oceanLevel->environment.environmentMap = Texture::createTexture("Resources/Textures/oceanskybox.dds", true);
 	if (SettingsManager::getInstance().getBoolSetting("graphics", "load_environment_from_file", true)->get())
 	{
-		level->environment.environmentProbe = EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 2.0f, 0.0f), Texture::createTexture(level->filepath + "reflectance.dds", true), Texture::createTexture(level->filepath + "irradiance.dds", true));
+		level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 2.0f, 0.0f), Texture::createTexture(level->filepath + "reflectance.dds", true), Texture::createTexture(level->filepath + "irradiance.dds", true)));
 	}
 	else
 	{
-		level->environment.environmentProbe = EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 2.0f, 0.0f));
+		level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 2.0f, 0.0f)));
 	}
 
 	AtmosphereParams params;
@@ -200,11 +200,23 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	//oceanLevel->environment.environmentMap = Texture::createTexture("Resources/Textures/oceanskybox.dds", true);
 	if (SettingsManager::getInstance().getBoolSetting("graphics", "load_environment_from_file", true)->get())
 	{
-		level->environment.environmentProbe = EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 2.0f, 0.0f), Texture::createTexture(level->filepath + "reflectance.dds", true), Texture::createTexture(level->filepath + "irradiance.dds", true));
+		level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 2.0f, 0.0f), Texture::createTexture(level->filepath + "reflectance.dds", true), Texture::createTexture(level->filepath + "irradiance.dds", true)));
 	}
 	else
 	{
-		level->environment.environmentProbe = EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 2.0f, 0.0f));
+		for (int x = -12; x <= 12; x += 4)
+		{
+			for (int y = 3; y < 10; y += 4)
+			{
+				for (int z = -5; z <= 5; z += 5)
+				{
+					level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 2.0f, 0.0f)));
+					break;
+				}
+				break;
+			}
+			break;
+		}
 	}
 
 	AtmosphereParams params;
@@ -391,11 +403,11 @@ std::shared_ptr<Level> App::loadSibenikLevel()
 	//oceanLevel->environment.environmentMap = Texture::createTexture("Resources/Textures/oceanskybox.dds", true);
 	if (SettingsManager::getInstance().getBoolSetting("graphics", "load_environment_from_file", true)->get())
 	{
-		level->environment.environmentProbe = EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 10.0f, 0.0f), Texture::createTexture(level->filepath + "reflectance.dds", true), Texture::createTexture(level->filepath + "irradiance.dds", true));
+		level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 10.0f, 0.0f), Texture::createTexture(level->filepath + "reflectance.dds", true), Texture::createTexture(level->filepath + "irradiance.dds", true)));
 	}
 	else
 	{
-		level->environment.environmentProbe = EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 10.0f, 0.0f));
+		level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 10.0f, 0.0f)));
 	}
 
 	AtmosphereParams params;

@@ -246,14 +246,14 @@ void RenderSystem::render()
 		level->environment.isAtmosphereValid = true;
 	}
 	
-	if (!level->environment.environmentProbe->isValid() && level->loaded && !loadEnvironmentFromFile->get())
+	if (!level->environment.environmentProbes[0]->isValid() && level->loaded && !loadEnvironmentFromFile->get())
 	{
-		graphicsFramework->render(level->environment.environmentProbe, scene, level, effects);
-		
-		level->environment.environmentProbe->setValid(true);
+		graphicsFramework->render(scene, level, effects);
+
+		level->environment.environmentProbes[0]->setValid(true);
 		if (saveEnvironmentToFile->get())
 		{
-			level->environment.environmentProbe->saveToFile(level->filepath + "reflectance.dds", level->filepath + "irradiance.dds");
+			level->environment.environmentProbes[0]->saveToFile(level->filepath + "reflectance.dds", level->filepath + "irradiance.dds");
 		}
 	}
 	graphicsFramework->render(level->cameras[level->activeCameraIndex], scene, level, effects);

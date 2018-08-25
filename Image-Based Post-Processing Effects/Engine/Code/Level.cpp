@@ -420,7 +420,7 @@ void unloadLevel(Level &_level)
 		entityManager.destroyEntity(_level.environment.skyboxEntity);
 	}
 	_level.environment.environmentMap.reset();
-	_level.environment.environmentProbe.reset();
+	_level.environment.environmentProbes.clear();
 	for (auto &v : _level.lights.directionalLights)
 	{
 		v.reset();

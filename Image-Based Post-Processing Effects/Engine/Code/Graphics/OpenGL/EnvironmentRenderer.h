@@ -10,7 +10,7 @@ class Texture;
 struct Level;
 
 const unsigned int ATMOSPHERE_MAP_SIZE = 1024;
-const unsigned int ENVIRONMENT_MAP_SIZE = 512;
+const unsigned int ENVIRONMENT_MAP_SIZE = 1024;
 const unsigned int BRDF_LUT_SIZE = 512;
 
 class EnvironmentRenderer
@@ -25,7 +25,6 @@ public:
 	void init();
 	void updateCubeSide(unsigned int _side, GLuint _source);
 	void generateMipmaps();
-	void calculateBrdfLUT();
 	void calculateReflectance(const std::shared_ptr<EnvironmentProbe> &_environmentProbe);
 	void calculateIrradiance(const std::shared_ptr<EnvironmentProbe> &_environmentProbe);
 	std::shared_ptr<Texture> calculateAtmosphere(const AtmosphereParams &_atmosphereParams);
@@ -34,9 +33,9 @@ public:
 private:
 	// shaders
 	std::shared_ptr<ShaderProgram> atmosphereShader;
-	std::shared_ptr<ShaderProgram> reflectanceShader;
-	std::shared_ptr<ShaderProgram> irradianceShader;
 	std::shared_ptr<ShaderProgram> blitShader;
+	std::shared_ptr<ShaderProgram> reflectanceOctShader;
+	std::shared_ptr<ShaderProgram> irradianceOctShader;
 
 	// fullscreenTriangle
 	std::shared_ptr<Mesh> fullscreenTriangle;
@@ -50,14 +49,12 @@ private:
 	GLint uScreenTextureBlit;
 
 	// irradiance
-	Uniform<glm::mat3> uRotationI = Uniform<glm::mat3>("uRotation"); 
-	Uniform<glm::mat4> uInverseProjectionI = Uniform<glm::mat4>("uInverseProjection");
+	Uniform<glm::vec2> uImageSizeIO = Uniform<glm::vec2>("uImageSize");
 
 	// reflectance
-	Uniform<GLint> uEnvironmentResolutionR = Uniform<GLint>("uEnvironmentResolution");
-	Uniform<GLfloat> uRoughness = Uniform<GLfloat>("uRoughness");
-	Uniform<glm::mat3> uRotationR = Uniform<glm::mat3>("uRotation");
-	Uniform<glm::mat4> uInverseProjectionR = Uniform<glm::mat4>("uInverseProjection");
+	Uniform<GLint> uEnvironmentResolutionRO = Uniform<GLint>("uEnvironmentResolution");
+	Uniform<GLfloat> uRoughnessRO = Uniform<GLfloat>("uRoughness");
+	Uniform<glm::vec2> uImageSizeRO = Uniform<glm::vec2>("uImageSize");
 
 	// atmosphere
 	Uniform<glm::mat3> uRotationA = Uniform<glm::mat3>("uRotation");

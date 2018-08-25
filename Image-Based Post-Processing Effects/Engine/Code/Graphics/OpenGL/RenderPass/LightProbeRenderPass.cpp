@@ -10,6 +10,7 @@
 #include "EntityComponentSystem\Component.h"
 #include "Utilities\ContainerUtility.h"
 #include "Graphics\Texture.h"
+#include "Input\UserInput.h"
 
 LightProbeRenderPass::LightProbeRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -42,7 +43,7 @@ LightProbeRenderPass::LightProbeRenderPass(GLuint _fbo, unsigned int _width, uns
 
 void LightProbeRenderPass::render(const RenderData & _renderData, const std::shared_ptr<Level>& _level, RenderPass ** _previousRenderPass)
 {
-	if (!_level->environment.environmentProbe)
+	if (_level->environment.environmentProbes.empty())
 	{
 		return;
 	}
@@ -52,11 +53,18 @@ void LightProbeRenderPass::render(const RenderData & _renderData, const std::sha
 
 	lightProbeShader->bind();
 
-	glActiveTexture(GL_TEXTURE13);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbe->getReflectanceMap()->getId());
-
-	uModelViewProjectionMatrix.set(_renderData.viewProjectionMatrix * glm::translate(_level->environment.environmentProbe->getPosition()) * glm::scale(glm::vec3(0.2f)));
-
 	sphereMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
-	sphereMesh->getSubMesh()->render();
+
+	
+
+	for (std::shared_ptr<EnvironmentProbe> environmentProbe : _level->environment.environmentProbes)
+	{
+		glActiveTexture(GL_TEXTURE13);
+		glBindTexture(GL_TEXTURE_2D, environmentProbe->getIrradianceMap()->getId());
+
+		uModelViewProjectionMatrix.set(_renderData.viewProjectionMatrix * glm::translate(environmentProbe->getPosition()) * glm::scale(glm::vec3(0.2f)));
+
+		sphereMesh->getSubMesh()->render();
+	}
+	
 }
