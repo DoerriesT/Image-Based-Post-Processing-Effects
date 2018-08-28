@@ -193,5 +193,5 @@ void main(void)
 		ao += projectedNLength * horizonCosTerm.y;
 	}
 
-	oColor = vec4(pow(ao, uStrength), -P.z, 0.0, 0.0);
+	oColor = vec4(ao, -P.z, 0.0, 0.0);
 }
