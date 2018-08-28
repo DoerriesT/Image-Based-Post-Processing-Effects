@@ -37,7 +37,7 @@ void main()
 	
 	for(int i = uTileSize / -2; i < uTileSize / 2; ++i)
 	{
-		vMax(texture(uVelocityTexture, vTexCoord + i * texelSize).rg, maxVelocity, maxMagnitude);
+		vMax(abs(texture(uVelocityTexture, vTexCoord + i * texelSize).rg), maxVelocity, maxMagnitude);
 	}
 	
 	oColor = vec4(maxVelocity, 0.0, 0.0);
