@@ -326,33 +326,33 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 			}
 		}
 
-		/*{
+		{
 		const Entity *teapotEntity = entityManager.createEntity();
-		level->entityMap["teapot"] = teapotEntity;
+		level->entityMap["teapot_mb0"] = teapotEntity;
 		Model model("Resources/Models/teapot.meshmat", true);
 		model[0].second.setAlbedo(glm::vec4(1.0, 0.0, 0.0, 1.0));
 		model[0].second.setRoughness(1.0f);
 		model[0].second.setMetallic(0.0f);
 		entityManager.addComponent<ModelComponent>(teapotEntity, model);
-		auto *tc = entityManager.addComponent<TransformationComponent>(teapotEntity, glm::vec3(1.0, 0.0, -5.0), glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(1.0f));
-		entityManager.addComponent<RenderableComponent>(teapotEntity);
+		auto *tc = entityManager.addComponent<TransformationComponent>(teapotEntity, glm::vec3(0.25, 0.0, -0.5), glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(2.0f));
+		//entityManager.addComponent<RenderableComponent>(teapotEntity);
 
 		tc->vel = glm::vec2(40.0, 0.0);
 		}
 
 		{
 		const Entity *teapotEntity = entityManager.createEntity();
-		level->entityMap["teapot"] = teapotEntity;
+		level->entityMap["teapot_mb1"] = teapotEntity;
 		Model model("Resources/Models/teapot.meshmat", true);
 		model[0].second.setAlbedo(glm::vec4(0.0, 1.0, 0.0, 1.0));
 		model[0].second.setRoughness(1.0f);
 		model[0].second.setMetallic(0.0f);
 		entityManager.addComponent<ModelComponent>(teapotEntity, model);
-		auto *tc = entityManager.addComponent<TransformationComponent>(teapotEntity, glm::vec3(), glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(1.0f));
-		entityManager.addComponent<RenderableComponent>(teapotEntity);
+		auto *tc = entityManager.addComponent<TransformationComponent>(teapotEntity, glm::vec3(), glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(2.0f));
+		//entityManager.addComponent<RenderableComponent>(teapotEntity);
 
 		tc->vel = glm::vec2(0.0, 40.0);
-		}*/
+		}
 	}
 
 	level->id = (size_t)1;

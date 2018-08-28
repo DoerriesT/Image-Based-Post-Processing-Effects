@@ -130,7 +130,7 @@ namespace App
 		EntityManager &entityManager = EntityManager::getInstance();
 		std::default_random_engine e;
 		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-		std::uniform_real_distribution<float> dist1(1.0f, 3.0f);
+		std::uniform_real_distribution<float> dist1(0.5f, 2.0f);
 
 		for (int i = 0; i < 10; ++i)
 		{

@@ -106,20 +106,25 @@ void main()
 
 	if (uMotionBlur == 1)
 	{
-		vec2 texelSize = 1.0/vec2(textureSize(uScreenTexture, 0));
+		vec2 texSize = textureSize(uScreenTexture, 0);
 	
-		vec2 velocity = texture(uVelocityTexture, vTexCoord).rg;
+		vec2 velocity = texture(uVelocityTexture, vTexCoord).rg * texSize;
 
-		float speed = length(velocity / texelSize);
-		float sampleCount = clamp(floor(speed), 1.0, MAX_SAMPLES);
+		float speed = length(velocity);
+		float sampleCount = min(floor(speed), MAX_SAMPLES);
 		
-		for (float i = 1; i < sampleCount; ++i) 
+		if(sampleCount >= 1.0)
 		{
-			vec2 offset = velocity * (i / (sampleCount - 1) - 0.5);
-			color += texture(uScreenTexture, vTexCoord + offset).rgb;
+			color = vec3(0.0);
+			for (float i = 0; i < sampleCount; ++i) 
+			{
+				float t = mix(-1.0, 1.0, i / (sampleCount -1.0));
+				ivec2 offset = ivec2(velocity * t);
+				color += texelFetch(uScreenTexture, ivec2(gl_FragCoord.xy) + offset, 0).rgb;
+			}
+			
+			color /= sampleCount;
 		}
-		
-		color /= sampleCount;
 	}
 	else if (uMotionBlur == 2)
 	{
