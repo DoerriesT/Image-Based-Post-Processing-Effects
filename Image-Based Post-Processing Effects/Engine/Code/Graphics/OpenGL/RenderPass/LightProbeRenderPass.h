@@ -19,4 +19,6 @@ private:
 	std::shared_ptr<Mesh> sphereMesh;
 
 	Uniform<glm::mat4> uModelViewProjectionMatrix = Uniform<glm::mat4>("uModelViewProjectionMatrix");
+	Uniform<GLboolean> uSH = Uniform<GLboolean>("uSH");
+	Uniform<GLint> uIndex = Uniform<GLint>("uIndex");
 };

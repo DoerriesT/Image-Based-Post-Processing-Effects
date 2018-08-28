@@ -1,10 +1,12 @@
 #pragma once
 #include <glad\glad.h>
 #include "Uniform.h"
+#include "Graphics\EnvironmentProbe.h"
 
 struct AtmosphereParams;
 class ShaderProgram;
 class EnvironmentProbe;
+class IrradianceVolume;
 class Mesh;
 class Texture;
 struct Level;
@@ -27,6 +29,7 @@ public:
 	void generateMipmaps();
 	void calculateReflectance(const std::shared_ptr<EnvironmentProbe> &_environmentProbe);
 	void calculateIrradiance(const std::shared_ptr<EnvironmentProbe> &_environmentProbe);
+	void calculateIrradiance(const std::shared_ptr<IrradianceVolume> &_irradianceVolume, const glm::ivec3 &_index);
 	std::shared_ptr<Texture> calculateAtmosphere(const AtmosphereParams &_atmosphereParams);
 	GLuint getEnvironmentMap() const;
 
@@ -36,6 +39,8 @@ private:
 	std::shared_ptr<ShaderProgram> blitShader;
 	std::shared_ptr<ShaderProgram> reflectanceOctShader;
 	std::shared_ptr<ShaderProgram> irradianceOctShader;
+
+	std::unique_ptr<float[]> cubeFaceBuffer;
 
 	// fullscreenTriangle
 	std::shared_ptr<Mesh> fullscreenTriangle;

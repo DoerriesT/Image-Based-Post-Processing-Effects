@@ -8,6 +8,7 @@
 #include "Level.h"
 
 EnvironmentRenderer::EnvironmentRenderer()
+	:cubeFaceBuffer(std::make_unique<float[]>(ENVIRONMENT_MAP_SIZE * ENVIRONMENT_MAP_SIZE * 3))
 {
 	rotations[0] = glm::mat3(glm::rotate(glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0))) * glm::mat3(glm::rotate(glm::radians(180.0f), glm::vec3(0.0, 0.0, -1.0)));
 	rotations[1] = glm::mat3(glm::rotate(glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0))) * glm::mat3(glm::rotate(glm::radians(180.0f), glm::vec3(0.0, 0.0, 1.0)));
@@ -28,7 +29,7 @@ void EnvironmentRenderer::init()
 	blitShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Shared/blit.frag");
 	reflectanceOctShader = ShaderProgram::createShaderProgram("Resources/Shaders/Environment/reflectance.comp");
 	irradianceOctShader = ShaderProgram::createShaderProgram("Resources/Shaders/Environment/irradiance.comp");
-	
+
 	// uniforms
 	uScreenTextureBlit = blitShader->createUniform("uScreenTexture");
 
@@ -58,7 +59,7 @@ void EnvironmentRenderer::init()
 	atmosphereShader->bind();
 	uInverseProjectionA.set(invProjection);
 
-	
+
 
 	glGenFramebuffers(1, &environmentFbo);
 	glGenFramebuffers(1, &convolutionFbo);
@@ -96,7 +97,7 @@ void EnvironmentRenderer::updateCubeSide(unsigned int _side, GLuint _source)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _source);
 	blitShader->bind();
-	blitShader->setUniform(uScreenTextureBlit, 0); 
+	blitShader->setUniform(uScreenTextureBlit, 0);
 
 	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -142,6 +143,120 @@ void EnvironmentRenderer::calculateIrradiance(const std::shared_ptr<EnvironmentP
 	glBindImageTexture(0, _environmentProbe->getIrradianceMap()->getId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
 	glDispatchCompute(EnvironmentProbe::IRRADIANCE_RESOLUTION / 8, EnvironmentProbe::IRRADIANCE_RESOLUTION / 8, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+void EnvironmentRenderer::calculateIrradiance(const std::shared_ptr<IrradianceVolume> &_irradianceVolume, const glm::ivec3 &_index)
+{
+	IrradianceVolume::GLSLData sh = {};
+	float totalWeight = 0.0f;
+
+	const float fB = -1.0f + 1.0f / ENVIRONMENT_MAP_SIZE;
+	const float fS = (2.0f*(1.0f - 1.0f / ENVIRONMENT_MAP_SIZE) / (ENVIRONMENT_MAP_SIZE - 1.0f));
+	const float invSize = 1.0f / ENVIRONMENT_MAP_SIZE;
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap);
+
+	for (unsigned int face = 0; face < 6; ++face)
+	{
+		glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_RGB, GL_FLOAT, cubeFaceBuffer.get());
+
+		for (unsigned int y = 0; y < ENVIRONMENT_MAP_SIZE; ++y)
+		{
+			const float v = ((y + 0.5f) / ENVIRONMENT_MAP_SIZE) * 2.0f - 1.0f;
+			for (unsigned int x = 0; x < ENVIRONMENT_MAP_SIZE; ++x)
+			{
+				const float u = ((x + 0.5f) / ENVIRONMENT_MAP_SIZE) * 2.0f - 1.0f;
+
+				float ix, iy, iz;
+				switch (face)
+				{
+				case 0: // Positive X
+					iz = 1.0f - (2.0f * (float)x + 1.0f) * invSize;
+					iy = 1.0f - (2.0f * (float)y + 1.0f) * invSize;
+					ix = 1.0f;
+					break;
+
+				case 1: // Negative X
+					iz = -1.0f + (2.0f * (float)x + 1.0f) * invSize;
+					iy = 1.0f - (2.0f * (float)y + 1.0f) * invSize;
+					ix = -1;
+					break;
+
+				case 2: // Positive Y
+					iz = -1.0f + (2.0f * (float)y + 1.0f) * invSize;
+					iy = 1.0f;
+					ix = -1.0f + (2.0f * (float)x + 1.0f) * invSize;
+					break;
+
+				case 3: // Negative Y
+					iz = 1.0f - (2.0f * (float)y + 1.0f) * invSize;
+					iy = -1.0f;
+					ix = -1.0f + (2.0f * (float)x + 1.0f) * invSize;
+					break;
+
+				case 4: // Positive Z
+					iz = 1.0f;
+					iy = 1.0f - (2.0f * (float)y + 1.0f) * invSize;
+					ix = -1.0f + (2.0f * (float)x + 1.0f) * invSize;
+					break;
+
+				case 5: // Negative Z
+					iz = -1.0f;
+					iy = 1.0f - (2.0f * (float)y + 1.0f) * invSize;
+					ix = 1.0f - (2.0f * (float)x + 1.0f) * invSize;
+					break;
+
+				default:
+					ix = iy = iz = 0.f;
+					assert(false);
+					break;
+				}
+
+				glm::vec3 dir = glm::normalize(glm::vec3(ix, iy, iz));
+
+				glm::vec3 color =
+				{
+					cubeFaceBuffer[(y * ENVIRONMENT_MAP_SIZE + x) * 3 + 0],
+					cubeFaceBuffer[(y * ENVIRONMENT_MAP_SIZE + x) * 3 + 1],
+					cubeFaceBuffer[(y * ENVIRONMENT_MAP_SIZE + x) * 3 + 2],
+				};
+
+				const float tmp = 1.0f + u * u + v * v;
+				const float weight = 0.25f * (sqrt(tmp) * tmp);
+				totalWeight += weight;
+
+				float shBuff[9] = {};
+
+				// Band 0
+				shBuff[0] = 0.282095f;
+
+				// Band 1
+				shBuff[1] = 0.488603f * dir.y;
+				shBuff[2] = 0.488603f * dir.z;
+				shBuff[3] = 0.488603f * dir.x;
+
+				// Band 2
+				shBuff[4] = 1.092548f * dir.x * dir.y;
+				shBuff[5] = 1.092548f * dir.y * dir.z;
+				shBuff[6] = 0.315392f * (3.0f * dir.z * dir.z - 1.0f);
+				shBuff[7] = 1.092548f * dir.x * dir.z;
+				shBuff[8] = 0.546274f * (dir.x * dir.x - dir.y * dir.y);
+
+				for (unsigned int i = 0; i < 9; ++i)
+				{
+					sh.c[i] += color * weight * shBuff[i];
+				}
+			}
+		}
+	}
+
+	for (unsigned int i = 0; i < 9; ++i)
+	{
+		sh.c[i] *= (4.0f * glm::pi<float>()) / totalWeight;
+	}
+
+	_irradianceVolume->updateProbeData(_index, sh);
 }
 
 std::shared_ptr<Texture> EnvironmentRenderer::calculateAtmosphere(const AtmosphereParams &_atmosphereParams)

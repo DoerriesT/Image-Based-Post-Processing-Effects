@@ -249,17 +249,17 @@ emissivePath:
 displacementPath: 
 
 name: 
-albedo: 1.0/1.0/1.0/1.0
+albedo: 0.0/0.0/0.0/1.0
 metallic: 0.0
 roughness: 0.5
 emissive: 0.0/0.0/0.0
-albedoPath: Resources/Textures/cobblestone_a.dds
-normalPath: Resources/Textures/cobblestone_n.dds
+albedoPath: Resources/Textures/Sponza/floor_a_a.dds
+normalPath: 
 metallicPath: 
-roughnessPath: Resources/Textures/cobblestone_r.dds
-aoPath: Resources/Textures/cobblestone_ao.dds
+roughnessPath: Resources/Textures/Sponza/floor_a_r.dds
+aoPath: 
 emissivePath: 
-displacementPath: Resources/Textures/cobblestone_d.dds
+displacementPath: 
 
 name: 
 albedo: 1.0/1.0/1.0/1.0

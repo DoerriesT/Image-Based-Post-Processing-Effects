@@ -37,12 +37,15 @@ LightProbeRenderPass::LightProbeRenderPass(GLuint _fbo, unsigned int _width, uns
 	lightProbeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/lightProbe.vert", "Resources/Shaders/Renderer/lightProbe.frag");
 
 	uModelViewProjectionMatrix.create(lightProbeShader);
+	uSH.create(lightProbeShader);
+	uIndex.create(lightProbeShader);
 
 	sphereMesh = Mesh::createMesh("Resources/Models/sphere.mesh", 1, true);
 }
 
 void LightProbeRenderPass::render(const RenderData & _renderData, const std::shared_ptr<Level>& _level, RenderPass ** _previousRenderPass)
 {
+	return;
 	if (_level->environment.environmentProbes.empty())
 	{
 		return;
@@ -55,16 +58,40 @@ void LightProbeRenderPass::render(const RenderData & _renderData, const std::sha
 
 	sphereMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
 
-	
+	glm::ivec3 dims = _level->environment.irradianceVolume->getDimensions();
+	glm::vec3 origin = _level->environment.irradianceVolume->getOrigin();
+	float spacing = _level->environment.irradianceVolume->getSpacing();
 
-	for (std::shared_ptr<EnvironmentProbe> environmentProbe : _level->environment.environmentProbes)
+	glActiveTexture(GL_TEXTURE13);
+	glBindTexture(GL_TEXTURE_2D, _level->environment.irradianceVolume->getProbeTexture()->getId());
+
+	for (unsigned int z = 0; z < dims.z; ++z)
 	{
-		glActiveTexture(GL_TEXTURE13);
-		glBindTexture(GL_TEXTURE_2D, environmentProbe->getIrradianceMap()->getId());
+		for (unsigned int y = 0; y < dims.y; ++y)
+		{
+			for (unsigned int x = 0; x < dims.x; ++x)
+			{
+				glm::vec3 position = origin + glm::vec3(x, y, z) * spacing;
+				uModelViewProjectionMatrix.set(_renderData.viewProjectionMatrix * glm::translate(position) * glm::scale(glm::vec3(0.2f)));
+				int index = z * (dims.x * dims.y) + y * dims.x + x;
+				uIndex.set(index);
 
-		uModelViewProjectionMatrix.set(_renderData.viewProjectionMatrix * glm::translate(environmentProbe->getPosition()) * glm::scale(glm::vec3(0.2f)));
+				auto data = _level->environment.irradianceVolume->getProbeData({x, y, z});
 
-		sphereMesh->getSubMesh()->render();
+				sphereMesh->getSubMesh()->render();
+			}
+		}
 	}
+
+	//for (std::shared_ptr<EnvironmentProbe> environmentProbe : _level->environment.environmentProbes)
+	//{
+	//	glActiveTexture(GL_TEXTURE13);
+	//	glBindTexture(GL_TEXTURE_2D, environmentProbe->getIrradianceMap()->getId());
+	//
+	//	uModelViewProjectionMatrix.set(_renderData.viewProjectionMatrix * glm::translate(environmentProbe->getPosition()) * glm::scale(glm::vec3(0.2f)));
+	//	uSH.set(UserInput::getInstance().isKeyPressed(InputKey::H));
+	//
+	//	sphereMesh->getSubMesh()->render();
+	//}
 	
 }

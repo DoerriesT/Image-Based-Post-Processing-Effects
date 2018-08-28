@@ -2,6 +2,7 @@
 #include <gli\gli.hpp>
 #include <gli\convert.hpp>
 #include "Texture.h"
+#include "OpenGL\GLUtility.h"
 
 const unsigned int EnvironmentProbe::REFLECTANCE_RESOLUTION = 1024;
 const unsigned int EnvironmentProbe::IRRADIANCE_RESOLUTION = 64;
@@ -115,4 +116,66 @@ EnvironmentProbe::EnvironmentProbe(const glm::vec3 &_position, const std::shared
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+
+std::shared_ptr<IrradianceVolume> IrradianceVolume::createIrradianceVolume(const glm::vec3 &_origin, const glm::ivec3 &_dimensions, float _spacing)
+{
+	return std::shared_ptr<IrradianceVolume>(new IrradianceVolume(_origin, _dimensions, _spacing));
+}
+
+IrradianceVolume::IrradianceVolume(const glm::vec3 &_origin, const glm::ivec3 &_dimensions, float _spacing)
+	:origin(_origin),
+	dimensions(_dimensions),
+	spacing(_spacing),
+	data(dimensions.x * dimensions.y * dimensions.z)
+{
+	GLuint texId;
+	glGenTextures(1, &texId);
+	glBindTexture(GL_TEXTURE_2D, texId);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 9, dimensions.x * dimensions.y * dimensions.z, 0, GL_RGB, GL_FLOAT, data.data());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	probeTexture = Texture::createTexture(texId, GL_TEXTURE_2D);
+}
+
+glm::vec3 IrradianceVolume::getOrigin() const
+{
+	return origin;
+}
+
+glm::ivec3 IrradianceVolume::getDimensions() const
+{
+	return dimensions;
+}
+
+float IrradianceVolume::getSpacing() const
+{
+	return spacing;
+}
+
+std::shared_ptr<Texture> IrradianceVolume::getProbeTexture() const
+{
+	return probeTexture;
+}
+
+IrradianceVolume::GLSLData IrradianceVolume::getProbeData(glm::ivec3 _index)
+{
+	unsigned int probeOffset = _index.z * (dimensions.x * dimensions.y) + _index.y * dimensions.x + _index.x;
+	return data[probeOffset];
+}
+
+void IrradianceVolume::updateProbeData(const glm::ivec3 &_index, const GLSLData &_probeData)
+{
+	unsigned int probeOffset = _index.z * (dimensions.x * dimensions.y) + _index.y * dimensions.x + _index.x;
+	data[probeOffset] = _probeData;
+}
+
+void IrradianceVolume::flushToGpu()
+{
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, probeTexture->getId());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 9, dimensions.x * dimensions.y * dimensions.z, 0, GL_RGB, GL_FLOAT, data.data());
+	glBindTexture(GL_TEXTURE_2D, 0);
 }

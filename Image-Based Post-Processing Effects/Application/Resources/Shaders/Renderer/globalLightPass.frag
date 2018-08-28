@@ -51,6 +51,24 @@ const float Z_FAR = 3000.0;
 #define BS_MAX_ITERATIONS		30						// Maximal number of iterations for bineary search
 #define BS_DELTA_EPSILON 0.0001
 
+vec3 parallaxCorrect(vec3 R, vec3 P)
+{
+	const vec3 boxMin = vec3(-9.5, -0.01, -2.4);
+	const vec3 boxMax = vec3(9.5, 15.0, 2.4);
+	const vec3 probePos = vec3(0.0, 2.0, 0.0);
+	
+	vec3 firstPlaneIntersect = (boxMax - P) / R;
+	vec3 secondPlaneIntersect = (boxMin - P) / R;
+	
+	vec3 furthestPlane = max(firstPlaneIntersect, secondPlaneIntersect);
+
+	float dist = min(min(furthestPlane.x, furthestPlane.y), furthestPlane.z);
+	
+	vec3 intersectPos = P + R * dist;
+
+	return (P.x >= boxMin.x && P.y >= boxMin.y && P.z >= boxMin.z && P.x <= boxMax.x && P.y <= boxMax.y && P.z <= boxMax.z) ? normalize(intersectPos - probePos) : R;
+}
+
 float linearDepth(float depth)
 {
     float z_n = 2.0 * depth - 1.0;
@@ -262,7 +280,7 @@ void main()
 
 			vec3 worldNormal = (uInverseView * vec4(N, 0.0)).xyz;
 
-			vec3 irradiance = textureLod(uIrradianceMap, octEncode(worldNormal) * 0.5 + 0.5, 0.0).rgb;
+			vec3 irradiance = vec3(0.05);//textureLod(uIrradianceMap, octEncode(worldNormal) * 0.5 + 0.5, 0.0).rgb;
 			vec3 diffuse = irradiance * albedo;
 
 			vec3 prefilteredColor = vec3(0.0);
@@ -288,14 +306,19 @@ void main()
 				reprojected.xy = reprojected.xy * 0.5 + 0.5;
 
 				vec3 ssrColor = textureLod(uPrevFrame, reprojected.xy, metallicRoughnessAoShaded.g * log2(textureSize(uPrevFrame, 0).x)).rgb;
-				vec3 cubeColor = textureLod(uPrefilterMap, octEncode((uInverseView * vec4(reflect(-V, N), 0.0)).xyz) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
+
+				vec4 worldPos4 = uInverseView * viewSpacePosition;
+				vec3 correctedTexCoord = parallaxCorrect((uInverseView * vec4(reflect(-V, N), 0.0)).xyz, worldPos4.xyz / worldPos4.w);
+				vec3 cubeColor = textureLod(uPrefilterMap, octEncode(correctedTexCoord) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
 				prefilteredColor = mix(cubeColor, ssrColor, float(hit) * edgeFactor);
 
 			}
 			else
 			{
+				vec4 worldPos4 = uInverseView * viewSpacePosition;
+				vec3 correctedTexCoord = parallaxCorrect((uInverseView * vec4(reflect(-V, N), 0.0)).xyz, worldPos4.xyz / worldPos4.w);
 				// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-				prefilteredColor = textureLod(uPrefilterMap, octEncode((uInverseView * vec4(reflect(-V, N), 0.0)).xyz) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
+				prefilteredColor = textureLod(uPrefilterMap, octEncode(correctedTexCoord) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
 			}
 
 			vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, metallicRoughnessAoShaded.g)).rg;

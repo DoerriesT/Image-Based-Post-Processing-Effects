@@ -223,6 +223,11 @@ void ShaderProgram::setUniform(const GLint &_location, const glm::vec3 &_value) 
 	glUniform3f(_location, _value.x, _value.y, _value.z);
 }
 
+void ShaderProgram::setUniform(const GLint & _location, const glm::ivec3 & _value) const
+{
+	glUniform3i(_location, _value.x, _value.y, _value.z);
+}
+
 void ShaderProgram::setUniform(const GLint &_location, const glm::vec4 &_value) const
 {
 	glUniform4f(_location, _value.x, _value.y, _value.z, _value.w);

@@ -57,6 +57,7 @@ struct Environment
 	const Entity *skyboxEntity;
 	std::shared_ptr<const Texture> environmentMap;
 	std::vector<std::shared_ptr<EnvironmentProbe>> environmentProbes;
+	std::shared_ptr<IrradianceVolume> irradianceVolume;
 	bool useAtmosphere;
 	bool isAtmosphereValid;
 	AtmosphereParams atmosphereParams;

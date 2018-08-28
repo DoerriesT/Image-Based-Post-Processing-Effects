@@ -46,8 +46,8 @@ layout(binding = 4) uniform sampler2D aoMap;
 layout(binding = 5) uniform sampler2D emissiveMap;
 layout(binding = 6) uniform sampler2D uDisplacementMap;
 layout(binding = 15) uniform sampler2DArrayShadow uShadowMap;
-layout(binding = 12) uniform samplerCube uIrradianceMap;
-layout(binding = 13) uniform samplerCube uPrefilterMap;
+layout(binding = 12) uniform sampler2D uIrradianceMap;
+layout(binding = 13) uniform sampler2D uPrefilterMap;
 layout(binding = 9) uniform sampler2D uBrdfLUT;
 
 uniform Material uMaterial;
@@ -59,6 +59,40 @@ uniform mat4 uViewMatrix;
 
 #include "brdf.h"
 #include "TBN.h"
+
+vec3 parallaxCorrect(vec3 R, vec3 P)
+{
+	const vec3 boxMin = vec3(-9.5, -0.01, -2.4);
+	const vec3 boxMax = vec3(9.5, 15.0, 2.4);
+	const vec3 probePos = vec3(0.0, 2.0, 0.0);
+	
+	vec3 firstPlaneIntersect = (boxMax - P) / R;
+	vec3 secondPlaneIntersect = (boxMin - P) / R;
+	
+	vec3 furthestPlane = max(firstPlaneIntersect, secondPlaneIntersect);
+
+	float dist = min(min(furthestPlane.x, furthestPlane.y), furthestPlane.z);
+	
+	vec3 intersectPos = P + R * dist;
+
+	return (P.x >= boxMin.x && P.y >= boxMin.y && P.z >= boxMin.z && P.x <= boxMax.x && P.y <= boxMax.y && P.z <= boxMax.z) ? normalize(intersectPos - probePos) : R;
+}
+
+vec2 signNotZero(vec2 v) 
+{
+	return vec2((v.x >= 0.0) ? +1.0 : -1.0, (v.y >= 0.0) ? +1.0 : -1.0);
+}
+
+/** Assumes that v is a unit vector. The result is an octahedral vector on the [-1, +1] square. */
+vec2 octEncode(in vec3 v) 
+{
+    float l1norm = abs(v.x) + abs(v.y) + abs(v.z);
+    vec2 result = v.xy * (1.0 / l1norm);
+    if (v.z < 0.0) {
+        result = (1.0 - abs(result.yx)) * signNotZero(result.xy);
+    }
+    return result;
+}
 
 void main()
 {
@@ -236,12 +270,13 @@ void main()
 	vec3 kD = 1.0 - kS;
 	kD *= 1.0 - metallic;
 
-	vec3 irradiance = texture(uIrradianceMap, N).rgb;
+	vec3 irradiance = vec3(0.05);//texture(uIrradianceMap, N).rgb;
 	vec3 diffuse = irradiance * albedo.rgb;
 
 	// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
 	const float MAX_REFLECTION_LOD = 4.0;
-	vec3 prefilteredColor = textureLod(uPrefilterMap, reflect(-V, N), roughness * MAX_REFLECTION_LOD).rgb;
+	vec3 correctedTexCoord = parallaxCorrect(reflect(-V, N), vWorldPos);
+	vec3 prefilteredColor = textureLod(uPrefilterMap, octEncode(correctedTexCoord) * 0.5 + 0.5, roughness * MAX_REFLECTION_LOD).rgb;
 	vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, roughness)).rg;
 	vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 				

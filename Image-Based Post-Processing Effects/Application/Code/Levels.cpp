@@ -219,6 +219,8 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 		}
 	}
 
+	level->environment.irradianceVolume = nullptr;// IrradianceVolume::createIrradianceVolume(glm::vec3(-12.0f, 1.0f, -5.0f), glm::ivec3(3, 2, 3), 2.0f);
+
 	AtmosphereParams params;
 	params.intensity = glm::vec3(1.0f, 1.0f, 1.0f);
 	params.lightDir = level->sun.direction;

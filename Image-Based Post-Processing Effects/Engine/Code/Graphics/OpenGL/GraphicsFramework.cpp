@@ -162,25 +162,26 @@ void GraphicsFramework::render(const Scene &_scene, const std::shared_ptr<Level>
 	sceneRenderer.resize(renderData.resolution);
 	shadowRenderer.setCascadeSkipOptimization(false);
 
-	for (std::shared_ptr<EnvironmentProbe> environmentProbe : _level->environment.environmentProbes)
+	for (unsigned int bounce = 0; bounce < 2; ++bounce)
 	{
-		glm::vec3 position = environmentProbe->getPosition();
-		glm::mat4 viewMatrices[] =
+		// bake reflections
+		for (std::shared_ptr<EnvironmentProbe> environmentProbe : _level->environment.environmentProbes)
 		{
-			glm::lookAt(position, position + glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-			glm::lookAt(position, position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-			glm::lookAt(position, position + glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
-			glm::lookAt(position, position + glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
-			glm::lookAt(position, position + glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-			glm::lookAt(position, position + glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
-		};
+			glm::vec3 position = environmentProbe->getPosition();
+			glm::mat4 viewMatrices[] =
+			{
+				glm::lookAt(position, position + glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+				glm::lookAt(position, position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+				glm::lookAt(position, position + glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+				glm::lookAt(position, position + glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+				glm::lookAt(position, position + glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+				glm::lookAt(position, position + glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+			};
 
 
-		renderData.cameraPosition = position;
+			renderData.cameraPosition = position;
 
 
-		for (unsigned int bounce = 0; bounce < 10; ++bounce)
-		{
 			for (unsigned int i = 0; i < 6; ++i)
 			{
 				renderData.viewMatrix = viewMatrices[i];
@@ -199,8 +200,54 @@ void GraphicsFramework::render(const Scene &_scene, const std::shared_ptr<Level>
 			environmentRenderer.calculateReflectance(environmentProbe);
 			environmentRenderer.calculateIrradiance(environmentProbe);
 		}
+
+		// bake irradiance volume
+		if(_level->environment.irradianceVolume)
+		{
+			glm::ivec3 dims = _level->environment.irradianceVolume->getDimensions();
+			glm::vec3 origin = _level->environment.irradianceVolume->getOrigin();
+			float spacing = _level->environment.irradianceVolume->getSpacing();
+
+			for (unsigned int z = 0; z < dims.z; ++z)
+			{
+				for (unsigned int y = 0; y < dims.y; ++y)
+				{
+					for (unsigned int x = 0; x < dims.x; ++x)
+					{
+						glm::vec3 position = origin + glm::vec3(x, y, z) * spacing;
+						glm::mat4 viewMatrices[] =
+						{
+							glm::lookAt(position, position + glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+							glm::lookAt(position, position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+							glm::lookAt(position, position + glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+							glm::lookAt(position, position + glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+							glm::lookAt(position, position + glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+							glm::lookAt(position, position + glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+						};
+
+						renderData.cameraPosition = position;
+						for (unsigned int i = 0; i < 6; ++i)
+						{
+							renderData.viewMatrix = viewMatrices[i];
+							renderData.invViewMatrix = glm::inverse(renderData.viewMatrix);
+							renderData.viewProjectionMatrix = renderData.projectionMatrix * renderData.viewMatrix;
+							renderData.prevViewProjectionMatrix = renderData.viewProjectionMatrix;
+							renderData.invViewProjectionMatrix = glm::inverse(renderData.viewProjectionMatrix);
+							renderData.viewDirection = -glm::transpose(renderData.viewMatrix)[2];
+							renderData.frustum.update(renderData.viewProjectionMatrix);
+
+							shadowRenderer.renderShadows(renderData, _scene, _level, _effects);
+							sceneRenderer.render(renderData, _scene, _level, effects);
+							environmentRenderer.updateCubeSide(i, sceneRenderer.getColorTexture());
+						}
+						environmentRenderer.calculateIrradiance(_level->environment.irradianceVolume, glm::ivec3(x, y, z));
+					}
+				}
+			}
+			_level->environment.irradianceVolume->flushToGpu();
+		}
 	}
-	
+
 	sceneRenderer.resize(std::make_pair<>(window->getWidth(), window->getHeight()));
 	shadowRenderer.setCascadeSkipOptimization(true);
 }
@@ -300,7 +347,7 @@ void GraphicsFramework::blitToScreen()
 	// bind finished frame texture
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	
+
 
 	// draw to back buffer
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
