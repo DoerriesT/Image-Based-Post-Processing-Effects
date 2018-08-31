@@ -39,6 +39,10 @@ uniform bool uRenderDirectionalLight;
 uniform bool uSsao;
 uniform bool uUseSsr;
 
+uniform vec3 uVolumeOrigin;
+uniform ivec3 uVolumeDimensions;
+uniform float uSpacing;
+
 const float Z_NEAR = 0.1;
 const float Z_FAR = 3000.0;
 
@@ -50,6 +54,98 @@ const float Z_FAR = 3000.0;
 #define LRM_MAX_ITERATIONS		100						// Maximal number of iterations for linear ray-marching
 #define BS_MAX_ITERATIONS		30						// Maximal number of iterations for bineary search
 #define BS_DELTA_EPSILON 0.0001
+
+const float Pi = 3.141592654f;
+const float CosineA0 = Pi;
+const float CosineA1 = (2.0f * Pi) / 3.0f;
+const float CosineA2 = Pi * 0.25f;
+
+struct SH9
+{
+    float c[9];
+};
+
+struct SH9Color
+{
+    vec3 c[9];
+};
+
+SH9 SHCosineLobe(in vec3 dir)
+{
+    SH9 sh;
+
+    // Band 0
+    sh.c[0] = 0.282095f * CosineA0;
+
+    // Band 1
+    sh.c[1] = 0.488603f * dir.y * CosineA1;
+    sh.c[2] = 0.488603f * dir.z * CosineA1;
+    sh.c[3] = 0.488603f * dir.x * CosineA1;
+
+    // Band 2
+    sh.c[4] = 1.092548f * dir.x * dir.y * CosineA2;
+    sh.c[5] = 1.092548f * dir.y * dir.z * CosineA2;
+    sh.c[6] = 0.315392f * (3.0f * dir.z * dir.z - 1.0f) * CosineA2;
+    sh.c[7] = 1.092548f * dir.x * dir.z * CosineA2;
+    sh.c[8] = 0.546274f * (dir.x * dir.x - dir.y * dir.y) * CosineA2;
+
+    return sh;
+}
+
+vec3 sphericalHarmonicsIrradiance(vec3 P, vec3 N)
+{
+	vec3 minCorner = uVolumeOrigin;
+	vec3 maxCorner = vec3(uVolumeDimensions - ivec3(1)) * uSpacing.xxx + minCorner;
+	P = clamp(P, minCorner, maxCorner);
+	
+	ivec3 baseGridCoord = ivec3((P - minCorner) / uSpacing);
+
+	float weights[8];
+	float totalWeight = 0.0;
+	
+	for (int i = 0; i < 8; ++i)
+	{
+		ivec3 offset = ivec3(i, i >> 1, i >> 2) & ivec3(1);
+		ivec3 probeCoord = baseGridCoord + offset;
+		vec3 probePos = uSpacing * vec3(probeCoord) + minCorner;
+		vec3 toProbe = probePos - P;
+		vec3 alpha = 1.0 - (abs(toProbe) / uSpacing);
+		weights[i] = alpha.x * alpha.y * alpha.z * float(probeCoord == clamp(probeCoord, ivec3(0), uVolumeDimensions - ivec3(1))) * max(0.005, dot(normalize(toProbe), N));
+		totalWeight += weights[i];
+	}
+	
+	SH9Color coeffs;
+	for (int i = 0; i < 9; ++i)
+	{
+		coeffs.c[i] = vec3(0.0);
+	}
+	
+	ivec3 dims = uVolumeDimensions;
+
+	for (int i = 0; i < 8; ++i)
+	{
+		ivec3 coord  = baseGridCoord + (ivec3(i, i >> 1, i >> 2) & ivec3(1));
+		int index = coord.z * (dims.x * dims.y) + coord.y * dims.x + coord.x;
+
+		for (int j = 0; j < 9; ++j)
+		{
+			coeffs.c[j] += weights[i] * texelFetch(uIrradianceMap, ivec2(j, index), 0).rgb;
+		}
+	}
+
+	 // Compute the cosine lobe in SH, oriented about the normal direction
+    SH9 shCosine = SHCosineLobe(N);
+
+    // Compute the SH dot product to get irradiance
+    vec3 irradiance = vec3(0.0);
+	float rcpTotalWeight = 1.0 / totalWeight;
+    for(int i = 0; i < 9; ++i)
+    {
+		irradiance += coeffs.c[i] * rcpTotalWeight * shCosine.c[i];
+	}
+
+    return irradiance;
+}
 
 vec3 parallaxCorrect(vec3 R, vec3 P)
 {
@@ -198,7 +294,7 @@ void main()
 		
     if (metallicRoughnessAoShaded.a > 0.0)
     {
-		vec3 N = decode(texture(uNormalMap, texCoord).xy);
+		vec3 N = texture(uNormalMap, texCoord).xyz;//decode(texture(uNormalMap, texCoord).xy);
 		
 		float depth = texture(uDepthMap, texCoord).r;
 		vec4 clipSpacePosition = vec4(vTexCoord * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
@@ -279,8 +375,9 @@ void main()
 			kD *= 1.0 - metallicRoughnessAoShaded.r;
 
 			vec3 worldNormal = (uInverseView * vec4(N, 0.0)).xyz;
+			vec4 worldPos4 = uInverseView * viewSpacePosition;
 
-			vec3 irradiance = vec3(0.05);//textureLod(uIrradianceMap, octEncode(worldNormal) * 0.5 + 0.5, 0.0).rgb;
+			vec3 irradiance = sphericalHarmonicsIrradiance(worldPos4.xyz / worldPos4.w, worldNormal);//vec3(0.05);//textureLod(uIrradianceMap, octEncode(worldNormal) * 0.5 + 0.5, 0.0).rgb;
 			vec3 diffuse = irradiance * albedo;
 
 			vec3 prefilteredColor = vec3(0.0);

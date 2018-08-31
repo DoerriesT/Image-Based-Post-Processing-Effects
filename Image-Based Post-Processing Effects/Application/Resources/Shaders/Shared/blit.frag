@@ -29,7 +29,7 @@ void main()
 
 	if(uNormalMode)
 	{
-		vec3 normal = decode(oFragColor.rg);
+		vec3 normal = oFragColor.rgb;//decode(oFragColor.rg);
 		oFragColor.rgb = uInvViewMatrix * normal;
 	}
 

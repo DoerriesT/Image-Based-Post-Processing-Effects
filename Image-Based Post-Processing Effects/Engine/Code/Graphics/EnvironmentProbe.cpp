@@ -123,6 +123,11 @@ std::shared_ptr<IrradianceVolume> IrradianceVolume::createIrradianceVolume(const
 	return std::shared_ptr<IrradianceVolume>(new IrradianceVolume(_origin, _dimensions, _spacing));
 }
 
+std::shared_ptr<IrradianceVolume> IrradianceVolume::createIrradianceVolume(const glm::vec3 & _origin, const glm::ivec3 & _dimensions, float _spacing, const std::shared_ptr<Texture> &_probeTexture)
+{
+	return std::shared_ptr<IrradianceVolume>(new IrradianceVolume(_origin, _dimensions, _spacing, _probeTexture));
+}
+
 IrradianceVolume::IrradianceVolume(const glm::vec3 &_origin, const glm::ivec3 &_dimensions, float _spacing)
 	:origin(_origin),
 	dimensions(_dimensions),
@@ -138,6 +143,20 @@ IrradianceVolume::IrradianceVolume(const glm::vec3 &_origin, const glm::ivec3 &_
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	probeTexture = Texture::createTexture(texId, GL_TEXTURE_2D);
+}
+
+IrradianceVolume::IrradianceVolume(const glm::vec3 & _origin, const glm::ivec3 & _dimensions, float _spacing, const std::shared_ptr<Texture>& _probeTexture)
+	:origin(_origin),
+	dimensions(_dimensions),
+	spacing(_spacing),
+	data(dimensions.x * dimensions.y * dimensions.z),
+	probeTexture(_probeTexture)
+{
+	glBindTexture(GL_TEXTURE_2D, probeTexture->getId());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 glm::vec3 IrradianceVolume::getOrigin() const
@@ -178,4 +197,26 @@ void IrradianceVolume::flushToGpu()
 	glBindTexture(GL_TEXTURE_2D, probeTexture->getId());
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 9, dimensions.x * dimensions.y * dimensions.z, 0, GL_RGB, GL_FLOAT, data.data());
 	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void IrradianceVolume::saveToFile(const std::string &_filepath)
+{
+	const int width = 9;
+	const int height = dimensions.x * dimensions.y * dimensions.z;
+	std::unique_ptr<glm::vec3[]> buffer = std::make_unique<glm::vec3[]>(width * height);
+
+	gli::texture2d texture = gli::texture2d(gli::format::FORMAT_RGB32_SFLOAT_PACK32, gli::extent2d(width, height), 1);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, probeTexture->getId());
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, buffer.get());
+
+	for (unsigned int y = 0; y < height; ++y)
+	{
+		for (unsigned int x = 0; x < width; ++x)
+		{
+			texture.store<glm::vec3>(gli::extent2d(x, y), 0, buffer[(x + y * width)]);
+		}
+	}
+	gli::save_dds(texture, _filepath);
 }

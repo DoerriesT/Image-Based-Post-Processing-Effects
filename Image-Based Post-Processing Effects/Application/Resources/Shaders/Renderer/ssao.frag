@@ -47,7 +47,7 @@ void main()
 	viewSpacePos /= viewSpacePos.w;
 	
     vec3 fragPos = viewSpacePos.xyz;
-    vec3 N = decode(texture(uNormalTexture, texCoord).xy);
+    vec3 N = texture(uNormalTexture, texCoord).xyz;//decode(texture(uNormalTexture, texCoord).xy);
     vec3 randomVec = texture(uNoiseTexture, texCoord * noiseScale).xyz;
 	randomVec.z = 0.0;
 	randomVec = normalize(randomVec);

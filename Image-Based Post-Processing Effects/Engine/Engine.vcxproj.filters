@@ -1059,5 +1059,14 @@
     <None Include="..\Application\Resources\Shaders\Renderer\gtaoDenoise.frag">
       <Filter>Resources\Shaders\Renderer</Filter>
     </None>
+    <None Include="..\Application\Resources\Shaders\Renderer\lightProbe.frag">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Renderer\lightProbe.vert">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Renderer\lightVolumeBase.vert">
+      <Filter>Resources\Shaders\Renderer</Filter>
+    </None>
   </ItemGroup>
 </Project>

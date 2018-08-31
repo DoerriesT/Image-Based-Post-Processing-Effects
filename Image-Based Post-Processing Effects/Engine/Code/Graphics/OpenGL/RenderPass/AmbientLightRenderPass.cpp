@@ -38,6 +38,10 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 	uReProjectionE.create(environmentLightPassShader);
 	uUseSsrE.create(environmentLightPassShader);
 
+	uVolumeOrigin.create(environmentLightPassShader);
+	uVolumeDimensions.create(environmentLightPassShader);
+	uSpacing.create(environmentLightPassShader);
+
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
@@ -52,7 +56,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, _gbuffer.ssaoTexture);
 	glActiveTexture(GL_TEXTURE12);
-	glBindTexture(GL_TEXTURE_2D, _level->environment.environmentProbes[0]->getIrradianceMap()->getId());
+	glBindTexture(GL_TEXTURE_2D, _level->environment.irradianceVolume->getProbeTexture()->getId());
 	glActiveTexture(GL_TEXTURE13);
 	glBindTexture(GL_TEXTURE_2D, _level->environment.environmentProbes[0]->getReflectanceMap()->getId());
 	glActiveTexture(GL_TEXTURE9);
@@ -67,6 +71,10 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	uInverseProjectionE.set(_renderData.invProjectionMatrix);
 	uSsaoE.set(_effects.ambientOcclusion != AmbientOcclusion::OFF);
 	uUseSsrE.set(_effects.screenSpaceReflections.enabled);
+
+	uVolumeOrigin.set(_level->environment.irradianceVolume->getOrigin());
+	uVolumeDimensions.set(_level->environment.irradianceVolume->getDimensions());
+	uSpacing.set(_level->environment.irradianceVolume->getSpacing());
 
 	static glm::mat4 prevViewProjection;
 

@@ -254,6 +254,7 @@ void RenderSystem::render()
 		if (saveEnvironmentToFile->get())
 		{
 			level->environment.environmentProbes[0]->saveToFile(level->filepath + "reflectance.dds", level->filepath + "irradiance.dds");
+			level->environment.irradianceVolume->saveToFile(level->filepath + "probes.dds");
 		}
 	}
 	graphicsFramework->render(level->cameras[level->activeCameraIndex], scene, level, effects);

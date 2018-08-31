@@ -29,4 +29,8 @@ private:
 	Uniform<GLboolean> uRenderDirectionalLightE = Uniform<GLboolean>("uRenderDirectionalLight");
 	Uniform<GLboolean> uSsaoE = Uniform<GLboolean>("uSsao");
 	Uniform<GLboolean> uUseSsrE = Uniform<GLboolean>("uUseSsr");
+
+	Uniform<glm::vec3> uVolumeOrigin = Uniform<glm::vec3>("uVolumeOrigin");
+	Uniform<glm::ivec3> uVolumeDimensions = Uniform<glm::ivec3>("uVolumeDimensions");
+	Uniform<GLfloat> uSpacing = Uniform<GLfloat>("uSpacing");
 };

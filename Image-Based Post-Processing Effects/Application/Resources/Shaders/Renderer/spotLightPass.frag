@@ -66,7 +66,7 @@ void main()
     
     if (metallicRoughnessAoShaded.a > 0.0 && dot(-L, uSpotLight.direction) >= uSpotLight.outerAngle)
     {
-		vec3 N = decode(texture(uNormalMap, texCoord).xy);
+		vec3 N = texture(uNormalMap, texCoord).xyz;//decode(texture(uNormalMap, texCoord).xy);
 		
 				
 		vec3 V = -normalize(viewSpacePosition.xyz);

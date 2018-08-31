@@ -294,10 +294,13 @@
     <None Include="..\Application\Resources\Shaders\Renderer\gtao.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\gtaoDenoise.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\hbao.frag" />
+    <None Include="..\Application\Resources\Shaders\Renderer\lightProbe.frag" />
+    <None Include="..\Application\Resources\Shaders\Renderer\lightProbe.vert" />
     <None Include="..\Application\Resources\Shaders\Renderer\lightVolume.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\lightVolume.tessc" />
     <None Include="..\Application\Resources\Shaders\Renderer\lightVolume.tesse" />
     <None Include="..\Application\Resources\Shaders\Renderer\lightVolume.vert" />
+    <None Include="..\Application\Resources\Shaders\Renderer\lightVolumeBase.vert" />
     <None Include="..\Application\Resources\Shaders\Renderer\outline.frag" />
     <None Include="..\Application\Resources\Shaders\Renderer\outline.vert" />
     <None Include="..\Application\Resources\Shaders\Renderer\phaseLookup.comp" />

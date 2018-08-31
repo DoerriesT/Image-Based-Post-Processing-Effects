@@ -29,6 +29,7 @@
 #define SETTER_FUNC_PTR(name) name##SetCallback
 
 extern bool disp;
+bool renderLightProbes = false;
 extern GBufferDisplayMode displayMode;
 
 namespace App
@@ -393,6 +394,7 @@ namespace App
 			}
 
 			TwAddVarRW(settingsTweakBar, "Parallax Occlusion Mapping", TW_TYPE_BOOLCPP, &disp, nullptr);
+			TwAddVarRW(settingsTweakBar, "Show Light Probes", TW_TYPE_BOOLCPP, &renderLightProbes, nullptr);
 
 			{
 				TwEnumVal displayOptions[] = {

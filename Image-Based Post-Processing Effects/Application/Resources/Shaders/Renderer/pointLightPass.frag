@@ -61,7 +61,7 @@ void main()
 		
     if (metallicRoughnessAoShaded.a > 0.0)
     {
-		vec3 N = decode(texture(uNormalMap, texCoord).xy);
+		vec3 N = texture(uNormalMap, texCoord).xyz;//decode(texture(uNormalMap, texCoord).xy);
 		
 		float depth = texture(uDepthMap, texCoord).r;
 		vec4 clipSpacePosition = vec4((gl_FragCoord.xy / uViewportSize) * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);

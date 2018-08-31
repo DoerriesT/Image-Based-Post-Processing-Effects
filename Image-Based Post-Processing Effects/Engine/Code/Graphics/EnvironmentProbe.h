@@ -60,6 +60,7 @@ public:
 	};
 
 	static std::shared_ptr<IrradianceVolume> createIrradianceVolume(const glm::vec3 &_origin, const glm::ivec3 &_dimensions, float _spacing);
+	static std::shared_ptr<IrradianceVolume> createIrradianceVolume(const glm::vec3 &_origin, const glm::ivec3 &_dimensions, float _spacing, const std::shared_ptr<Texture> &_probeTexture);
 	IrradianceVolume(const IrradianceVolume &) = delete;
 	IrradianceVolume(const IrradianceVolume &&) = delete;
 	IrradianceVolume &operator= (const IrradianceVolume &) = delete;
@@ -71,6 +72,7 @@ public:
 	GLSLData getProbeData(glm::ivec3 _index);
 	void updateProbeData(const glm::ivec3 &_index, const GLSLData &_probeData);
 	void flushToGpu();
+	void saveToFile(const std::string &_filepath);
 
 private:
 	glm::vec3 origin;
@@ -80,4 +82,5 @@ private:
 	std::vector<GLSLData> data;
 
 	explicit IrradianceVolume(const glm::vec3 &_origin, const glm::ivec3 &_dimensions, float _spacing);
+	explicit IrradianceVolume(const glm::vec3 &_origin, const glm::ivec3 &_dimensions, float _spacing, const std::shared_ptr<Texture> &_probeTexture);
 };

@@ -117,7 +117,7 @@ void main()
         N = normalize(TBN * tangentSpaceNormal);
     }
 	// we save normals in view space
-	oNormal = vec4(encode(uViewMatrix * N), 0.0, 0.0);
+	oNormal = vec4(uViewMatrix * N, 0.0);
 
     if((uMaterial.mapBitField & METALLIC) != 0)
     {

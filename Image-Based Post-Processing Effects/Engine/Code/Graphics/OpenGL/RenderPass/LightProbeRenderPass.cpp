@@ -43,10 +43,11 @@ LightProbeRenderPass::LightProbeRenderPass(GLuint _fbo, unsigned int _width, uns
 	sphereMesh = Mesh::createMesh("Resources/Models/sphere.mesh", 1, true);
 }
 
+extern bool renderLightProbes;
+
 void LightProbeRenderPass::render(const RenderData & _renderData, const std::shared_ptr<Level>& _level, RenderPass ** _previousRenderPass)
 {
-	return;
-	if (_level->environment.environmentProbes.empty())
+	if (!_level->environment.irradianceVolume || !renderLightProbes)
 	{
 		return;
 	}
