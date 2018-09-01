@@ -42,8 +42,12 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 	uVolumeDimensions.create(environmentLightPassShader);
 	uSpacing.create(environmentLightPassShader);
 
+	uFlatAmbient.create(environmentLightPassShader);
+
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
+
+bool flatAmbient;
 
 void AmbientLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, RenderPass **_previousRenderPass)
 {
@@ -75,6 +79,8 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	uVolumeOrigin.set(_level->environment.irradianceVolume->getOrigin());
 	uVolumeDimensions.set(_level->environment.irradianceVolume->getDimensions());
 	uSpacing.set(_level->environment.irradianceVolume->getSpacing());
+
+	uFlatAmbient.set(flatAmbient);
 
 	static glm::mat4 prevViewProjection;
 

@@ -43,6 +43,8 @@ uniform vec3 uVolumeOrigin;
 uniform ivec3 uVolumeDimensions;
 uniform float uSpacing;
 
+uniform bool uFlatAmbient;
+
 const float Z_NEAR = 0.1;
 const float Z_FAR = 3000.0;
 
@@ -377,7 +379,7 @@ void main()
 			vec3 worldNormal = (uInverseView * vec4(N, 0.0)).xyz;
 			vec4 worldPos4 = uInverseView * viewSpacePosition;
 
-			vec3 irradiance = sphericalHarmonicsIrradiance(worldPos4.xyz / worldPos4.w, worldNormal);//vec3(0.05);//textureLod(uIrradianceMap, octEncode(worldNormal) * 0.5 + 0.5, 0.0).rgb;
+			vec3 irradiance = uFlatAmbient ? vec3(0.05) : sphericalHarmonicsIrradiance(worldPos4.xyz / worldPos4.w, worldNormal);//vec3(0.05);//textureLod(uIrradianceMap, octEncode(worldNormal) * 0.5 + 0.5, 0.0).rgb;
 			vec3 diffuse = irradiance * albedo;
 
 			vec3 prefilteredColor = vec3(0.0);

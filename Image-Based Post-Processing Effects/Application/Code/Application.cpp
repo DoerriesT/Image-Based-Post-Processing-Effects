@@ -31,6 +31,7 @@
 extern bool disp;
 bool renderLightProbes = false;
 extern GBufferDisplayMode displayMode;
+extern bool flatAmbient;
 
 namespace App
 {
@@ -395,6 +396,7 @@ namespace App
 
 			TwAddVarRW(settingsTweakBar, "Parallax Occlusion Mapping", TW_TYPE_BOOLCPP, &disp, nullptr);
 			TwAddVarRW(settingsTweakBar, "Show Light Probes", TW_TYPE_BOOLCPP, &renderLightProbes, nullptr);
+			TwAddVarRW(settingsTweakBar, "Flat Ambient", TW_TYPE_BOOLCPP, &flatAmbient, nullptr);
 
 			{
 				TwEnumVal displayOptions[] = {

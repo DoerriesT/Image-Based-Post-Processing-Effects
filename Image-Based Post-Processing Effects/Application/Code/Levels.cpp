@@ -201,7 +201,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	if (SettingsManager::getInstance().getBoolSetting("graphics", "load_environment_from_file", true)->get())
 	{
 		level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(glm::vec3(0.0f, 2.0f, 0.0f), Texture::createTexture(level->filepath + "reflectance.dds", true), Texture::createTexture(level->filepath + "irradiance.dds", true)));
-		level->environment.irradianceVolume = IrradianceVolume::createIrradianceVolume(glm::vec3(-12.0f, 1.0f, -5.0f), glm::ivec3(13, 6, 6), 2.0f, Texture::createTexture(level->filepath + "probes.dds", true));
+		level->environment.irradianceVolume = IrradianceVolume::createIrradianceVolume(glm::vec3(-12.5f, 0.5f, -5.0f), glm::ivec3(26, 12, 12), 1.0f, Texture::createTexture(level->filepath + "probes.dds", true));
 	}
 	else
 	{
@@ -218,7 +218,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 			}
 			break;
 		}
-		level->environment.irradianceVolume = IrradianceVolume::createIrradianceVolume(glm::vec3(-12.0f, 1.0f, -5.0f), glm::ivec3(13, 6, 6), 2.0f);
+		level->environment.irradianceVolume = IrradianceVolume::createIrradianceVolume(glm::vec3(-12.5f, 0.5f, -5.0f), glm::ivec3(26, 12, 12), 1.0f);
 	}
 
 	
