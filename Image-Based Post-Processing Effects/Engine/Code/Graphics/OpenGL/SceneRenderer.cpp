@@ -258,7 +258,7 @@ GLuint SceneRenderer::getColorTexture() const
 
 GLuint SceneRenderer::getAlbedoTexture() const
 {
-	return ocean.getDisplacement();
+	return gAlbedoTexture;
 }
 
 GLuint SceneRenderer::getNormalTexture() const
