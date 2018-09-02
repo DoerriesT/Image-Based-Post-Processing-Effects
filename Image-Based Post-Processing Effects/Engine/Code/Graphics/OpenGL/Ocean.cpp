@@ -203,7 +203,7 @@ void Ocean::createWaterAttachments(unsigned int _resolution)
 
 	glGenTextures(1, &tildeH0kTexture);
 	glBindTexture(GL_TEXTURE_2D, tildeH0kTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -212,7 +212,7 @@ void Ocean::createWaterAttachments(unsigned int _resolution)
 
 	glGenTextures(1, &tildeH0minusKTexture);
 	glBindTexture(GL_TEXTURE_2D, tildeH0minusKTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -221,7 +221,7 @@ void Ocean::createWaterAttachments(unsigned int _resolution)
 
 	glGenTextures(1, &tildeHktDxTexture);
 	glBindTexture(GL_TEXTURE_2D, tildeHktDxTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -230,7 +230,7 @@ void Ocean::createWaterAttachments(unsigned int _resolution)
 
 	glGenTextures(1, &tildeHktDyTexture);
 	glBindTexture(GL_TEXTURE_2D, tildeHktDyTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -239,7 +239,7 @@ void Ocean::createWaterAttachments(unsigned int _resolution)
 
 	glGenTextures(1, &tildeHktDzTexture);
 	glBindTexture(GL_TEXTURE_2D, tildeHktDzTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -248,7 +248,7 @@ void Ocean::createWaterAttachments(unsigned int _resolution)
 
 	glGenTextures(1, &pingPongTextureA);
 	glBindTexture(GL_TEXTURE_2D, pingPongTextureA);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -257,7 +257,7 @@ void Ocean::createWaterAttachments(unsigned int _resolution)
 
 	glGenTextures(1, &pingPongTextureB);
 	glBindTexture(GL_TEXTURE_2D, pingPongTextureB);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -266,7 +266,7 @@ void Ocean::createWaterAttachments(unsigned int _resolution)
 
 	glGenTextures(1, &pingPongTextureC);
 	glBindTexture(GL_TEXTURE_2D, pingPongTextureC);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, _resolution, _resolution, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -278,7 +278,7 @@ void Ocean::createWaterAttachments(unsigned int _resolution)
 
 	glGenTextures(1, &twiddleIndicesTexture);
 	glBindTexture(GL_TEXTURE_2D, twiddleIndicesTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, glm::log2(_resolution), _resolution, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, glm::log2(_resolution), _resolution, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -482,7 +482,7 @@ void Ocean::computeFft(const Water & _water, RenderPass **_previousRenderPass)
 
 		tildeHktRenderPass->render(_water, tildeH0kTexture, tildeH0minusKTexture, _previousRenderPass);
 		butterflyComputeRenderPass->render(_water, twiddleIndicesTexture, readTextures, _previousRenderPass);
-		inversePermuteRenderPass->render(_water, (glm::log2(_water.simulationResolution) % 2 == 1) ? readTextures + 3 : readTextures, waterDisplacementFoldingTexture, _previousRenderPass);
+		inversePermuteRenderPass->render(_water, readTextures, waterDisplacementFoldingTexture, _previousRenderPass);
 		oceanNormalRenderPass->render(_water, waterDisplacementFoldingTexture, waterNormalTexture, _previousRenderPass);
 	}
 }

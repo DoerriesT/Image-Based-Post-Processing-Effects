@@ -20,7 +20,7 @@ uniform vec2 uWindDirection;
 uniform float uWindSpeed;
 uniform float uWaveSuppressionExp = 4.0;
 
-const float g = 9.81;
+const float g = 981.0;
 
 // Box-Muller-Method
 vec4 gaussRND()
@@ -51,7 +51,7 @@ void main()
 	mag = max(mag, 0.00001);
 	float magSq = mag * mag;
 
-	float fraction = uL / 2000.0;
+	float fraction = uL / 1000.0;
 	float baseTerm = (uA / (magSq * magSq))
 					* exp(-(1.0/(magSq * L_ * L_)))
 					* exp(-magSq * fraction * fraction);

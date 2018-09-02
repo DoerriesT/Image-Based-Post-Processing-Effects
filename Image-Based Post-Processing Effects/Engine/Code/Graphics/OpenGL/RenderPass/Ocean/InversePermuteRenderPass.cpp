@@ -40,7 +40,7 @@ void InversePermuteRenderPass::render(const Water & _water, GLuint *_inputTextur
 
 	inversePermuteShader->bind();
 	uSimulationResolutionIP.set(_water.simulationResolution);
-	uChoppinessIP.set(_water.waveChoppiness);
+	uChoppinessIP.set(-_water.waveChoppiness);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _inputTextures[0]);

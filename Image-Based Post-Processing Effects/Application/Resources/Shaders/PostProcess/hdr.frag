@@ -24,7 +24,7 @@ uniform float uBloomDirtStrength = 0.5;
 uniform float uExposure = 1.0;
 uniform float uVelocityScale;
 uniform float uHalfPixelWidth = 0.0003125;
-uniform float uKeyValue = 0.12;
+uniform float uKeyValue = 0.5;
 uniform float uLensDirtStrength;
 uniform bool uAutoExposure = true;
 uniform bool uGodRays = true;

@@ -16,8 +16,6 @@ uniform int uStage;
 uniform int uDirection;
 uniform int uPingPong;
 
-const float g = 9.81;
-
 struct Complex
 {
 	float real;

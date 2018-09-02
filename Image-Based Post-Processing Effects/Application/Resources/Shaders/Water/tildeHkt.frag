@@ -16,7 +16,7 @@ uniform int uN;
 uniform int uL;
 uniform float uTime;
 
-const float g = 9.81;
+const float g = 981.0;
 
 struct Complex
 {

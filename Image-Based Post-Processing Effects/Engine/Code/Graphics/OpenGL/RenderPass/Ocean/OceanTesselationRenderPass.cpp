@@ -3,6 +3,7 @@
 #include "Graphics\OpenGL\RenderData.h"
 #include "Graphics\Texture.h"
 #include "Graphics\OpenGL\TileRing.h"
+#include "Engine.h"
 
 OceanTesselationRenderPass::OceanTesselationRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -43,6 +44,9 @@ OceanTesselationRenderPass::OceanTesselationRenderPass(GLuint _fbo, unsigned int
 	uTesselatedTriWidthWT.create(oceanTesselationShader);
 	uTexCoordScaleWT.create(oceanTesselationShader);
 	uDisplacementScaleWT.create(oceanTesselationShader);
+	uPerlinMovement.create(oceanTesselationShader);
+
+	perlinNoiseTexture = Texture::createTexture("Resources/Textures/perlin_noise.dds", true);
 }
 
 void OceanTesselationRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, GLuint _displacementTexture, GLuint _normalTexture, TileRing **_tileRings, bool _wireframe, RenderPass ** _previousRenderPass)
@@ -75,13 +79,17 @@ void OceanTesselationRenderPass::render(const RenderData &_renderData, const std
 	uViewDirWT.set(_renderData.viewDirection);
 	uScreenSizeWT.set(glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
 	uTesselatedTriWidthWT.set(20);
-	uTexCoordScaleWT.set(1.0f / 10.0f);
+	uTexCoordScaleWT.set(1.0f / 20.0f);
 	uDisplacementScaleWT.set(1.0f);
+
+	uPerlinMovement.set(_level->water.normalizedWindDirection * float(Engine::getTime()) * -0.01f);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _normalTexture);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, _displacementTexture);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, perlinNoiseTexture->getId());
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentMap->getId());
 

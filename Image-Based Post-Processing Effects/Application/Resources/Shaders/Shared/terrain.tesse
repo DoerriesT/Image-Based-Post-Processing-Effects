@@ -7,10 +7,18 @@ out vec2 vTexCoord;
 out vec3 vWorldPos;
 
 layout(binding = 1) uniform sampler2D uDisplacementTexture;
+layout(binding = 2) uniform sampler2D uPerlinNoiseTexture;
 
 uniform mat4 uViewProjection;
 uniform float uTexCoordScale = 1.0;
 uniform float uDisplacementScale = 1.0;
+uniform vec3 uPerlinOctave = vec3(1.12, 0.23, 0.59);
+uniform vec2 uPerlinMovement;
+uniform vec3 uPerlinAmplitude = vec3(0.35, 0.57, 0.42);
+uniform vec3 uCamPos;
+
+const float NOISE_START = 30.0;
+const float NOISE_END = 400.0;
 
 // A very simple, regular procedural terrain for debugging cracks etc.
 float debugSineHills(vec2 uv)
@@ -36,6 +44,16 @@ void main()
 	vTexCoord = position.xz * uTexCoordScale;
 	
 	vec3 displacement = texture(uDisplacementTexture, vTexCoord).xyz;
+
+	float perlin0 = texture(uPerlinNoiseTexture, vTexCoord * uPerlinOctave.x + uPerlinMovement).w;
+	float perlin1 = texture(uPerlinNoiseTexture, vTexCoord * uPerlinOctave.y + uPerlinMovement).w;
+	float perlin2 = texture(uPerlinNoiseTexture, vTexCoord * uPerlinOctave.z + uPerlinMovement).w;
+	
+	float perlin = perlin0 * uPerlinAmplitude.x + perlin1 * uPerlinAmplitude.y + perlin2 * uPerlinAmplitude.z;
+
+	float noiseBlendFactor = (distance(position.xz, uCamPos.xz) - NOISE_START) / (NOISE_END - NOISE_START);
+
+	displacement = mix(displacement, vec3(0.0, perlin, 0.0), clamp(noiseBlendFactor, 0.0, 1.0));
 	
 	position += displacement * uDisplacementScale;
 	

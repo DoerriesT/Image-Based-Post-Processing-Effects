@@ -16,6 +16,7 @@ public:
 
 private:
 	std::shared_ptr<ShaderProgram> oceanTesselationShader;
+	std::shared_ptr<Texture> perlinNoiseTexture;
 
 	Uniform<glm::mat4> uViewProjectionWT = Uniform<glm::mat4>("uViewProjection");
 	Uniform<glm::mat4> uProjectionWT = Uniform<glm::mat4>("uProjection");
@@ -32,4 +33,5 @@ private:
 	Uniform<GLint> uTesselatedTriWidthWT = Uniform<GLint>("uTesselatedTriWidth");
 	Uniform<GLfloat> uTexCoordScaleWT = Uniform<GLfloat>("uTexCoordScale");
 	Uniform<GLfloat> uDisplacementScaleWT = Uniform<GLfloat>("uDisplacementScale");
+	Uniform<glm::vec2> uPerlinMovement = Uniform<glm::vec2>("uPerlinMovement");
 };

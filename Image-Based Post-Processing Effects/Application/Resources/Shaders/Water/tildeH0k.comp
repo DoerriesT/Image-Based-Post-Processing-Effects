@@ -19,7 +19,7 @@ uniform vec2 uWindDirection;
 uniform float uWindSpeed;
 uniform float uWaveSuppressionExp = 4.0;
 
-const float g = 9.81;
+const float g = 981.0;
 
 // Box-Muller-Method
 vec4 gaussRND()

@@ -179,15 +179,15 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	Water water = { };
 	water.enabled = false;
 	water.level = 0.0f;
-	water.normalizedWindDirection = glm::normalize(glm::vec2(1.0f, 1.0f));
-	water.normalStrength = 5.5f;
-	water.simulationResolution = 256;
-	water.timeScale = 1.25f;
-	water.waveAmplitude = 4.0f;
-	water.waveChoppiness = 0.65f;
+	water.normalizedWindDirection = glm::normalize(glm::vec2(0.8f, 0.6f));
+	water.normalStrength = 0.1f;
+	water.simulationResolution = 512;
+	water.timeScale = 0.4f;
+	water.waveAmplitude = 0.65f;
+	water.waveChoppiness = 1.3f;
 	water.waveSuppressionExponent = 6.0f;
-	water.windSpeed = 26.0f;
-	water.worldSize = 500;
+	water.windSpeed = 600.0f;
+	water.worldSize = 2000;
 	level->water = water;
 
 	// sun

@@ -10,8 +10,6 @@ in vec2 vTexCoord;
 uniform int uJ[512];
 uniform int uN;
 
-const float g = 9.81;
-
 struct Complex
 {
 	float real;
