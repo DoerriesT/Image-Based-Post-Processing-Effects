@@ -5,6 +5,14 @@
 #include "TileRing.h"
 #include "Graphics\Mesh.h"
 #include "RenderData.h"
+#include "Graphics\OpenGL\RenderPass\Ocean\ButterflyComputeRenderPass.h"
+#include "Graphics\OpenGL\RenderPass\Ocean\ButterflyPrecomputeRenderPass.h"
+#include "Graphics\OpenGL\RenderPass\Ocean\InversePermuteRenderPass.h"
+#include "Graphics\OpenGL\RenderPass\Ocean\OceanNormalRenderPass.h"
+#include "Graphics\OpenGL\RenderPass\Ocean\OceanRenderPass.h"
+#include "Graphics\OpenGL\RenderPass\Ocean\OceanTesselationRenderPass.h"
+#include "Graphics\OpenGL\RenderPass\Ocean\TildeH0kRenderPass.h"
+#include "Graphics\OpenGL\RenderPass\Ocean\TildeHktRenderPass.h"
 
 Ocean::Ocean(bool _useCompute, bool _useTesselation, bool _wireframe)
 	:useCompute(_useCompute), useTesselation(_useTesselation), wireframe(_wireframe)
@@ -33,16 +41,9 @@ Ocean::~Ocean()
 	}
 }
 
-void Ocean::init()
+void Ocean::init(GLuint _gbufferFbo, unsigned int _width, unsigned int _height)
 {
-	// fragment
-	tildeH0kShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/tildeH0k.frag");
-	tildeHktShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/tildeHkt.frag");
-	butterflyPrecomputeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/butterflyPrecompute.frag");
-	butterflyComputeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/butterflyCompute.frag");
-	inversePermuteShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/inversePermute.frag");
-	waterNormalShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/normal.frag");
-	
+
 	// compute
 	tildeH0kCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/tildeH0k.comp");
 	tildeHktCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/tildeHkt.comp");
@@ -51,125 +52,57 @@ void Ocean::init()
 	inversePermuteCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/inversePermute.comp");
 	waterNormalCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/normal.comp");
 
-	// world space grid
-	waterShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/water.vert", "Resources/Shaders/Water/Water.frag");
-	
-	// tesselation
-	waterTessShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/terrain.vert", "Resources/Shaders/Water/water.frag", "Resources/Shaders/Shared/terrain.tessc", "Resources/Shaders/Shared/terrain.tesse");
+	// tildeh0k compute
+	uSimulationResolutionH0C.create(tildeH0kCompShader);
+	uWorldSizeH0C.create(tildeH0kCompShader);
+	uWaveAmplitudeH0C.create(tildeH0kCompShader);
+	uWindDirectionH0C.create(tildeH0kCompShader);
+	uWindSpeedH0C.create(tildeH0kCompShader);
+	uWaveSuppressionExpH0C.create(tildeH0kCompShader);
 
-	// fragment uniforms
+	// tildehkt compute
+	uSimulationResolutionHTC.create(tildeHktCompShader);
+	uWorldSizeHTC.create(tildeHktCompShader);
+	uTimeHTC.create(tildeHktCompShader);
+
+	// butterflyPrecompute compute
+	for (int i = 0; i < 512; ++i)
 	{
-		// tildeh0k
-		uSimulationResolutionH0.create(tildeH0kShader);
-		uWorldSizeH0.create(tildeH0kShader);
-		uWaveAmplitudeH0.create(tildeH0kShader);
-		uWindDirectionH0.create(tildeH0kShader);
-		uWindSpeedH0.create(tildeH0kShader);
-
-		// tildehkt
-		uSimulationResolutionHT.create(tildeHktShader);
-		uWorldSizeHT.create(tildeHktShader);
-		uTimeHT.create(tildeHktShader);
-
-		// butterfly precompute
-		for (int i = 0; i < 512; ++i)
-		{
-			uJBP.push_back(butterflyPrecomputeShader->createUniform(std::string("uJ") + "[" + std::to_string(i) + "]"));
-		}
-		uSimulationResolutionBP.create(butterflyPrecomputeShader);
-
-		// butterfly compute
-		uSimulationResolutionBC.create(butterflyComputeShader);
-		uStageBC.create(butterflyComputeShader);
-		uStagesBC.create(butterflyComputeShader);
-		uDirectionBC.create(butterflyComputeShader);
-
-		// inverse / permute
-		uSimulationResolutionIP.create(inversePermuteShader);
-		uChoppinessIP.create(inversePermuteShader);
-
-		// water normal
-		uNormalStrengthN.create(waterNormalShader);
+		uJBPC.push_back(butterflyPrecomputeCompShader->createUniform(std::string("uJ") + "[" + std::to_string(i) + "]"));
 	}
-	
-	// compute uniforms
-	{
-		// tildeh0k compute
-		uSimulationResolutionH0C.create(tildeH0kCompShader);
-		uWorldSizeH0C.create(tildeH0kCompShader);
-		uWaveAmplitudeH0C.create(tildeH0kCompShader);
-		uWindDirectionH0C.create(tildeH0kCompShader);
-		uWindSpeedH0C.create(tildeH0kCompShader);
-		uWaveSuppressionExpH0C.create(tildeH0kCompShader);
+	uSimulationResolutionBPC.create(butterflyPrecomputeCompShader);
 
-		// tildehkt compute
-		uSimulationResolutionHTC.create(tildeHktCompShader);
-		uWorldSizeHTC.create(tildeHktCompShader);
-		uTimeHTC.create(tildeHktCompShader);
+	// butterflyCompute compute
+	uStageBCC.create(butterflyComputeCompShader);
+	uDirectionBCC.create(butterflyComputeCompShader);
+	uPingPongBCC.create(butterflyComputeCompShader);
 
-		// butterflyPrecompute compute
-		for (int i = 0; i < 512; ++i)
-		{
-			uJBPC.push_back(butterflyPrecomputeCompShader->createUniform(std::string("uJ") + "[" + std::to_string(i) + "]"));
-		}
-		uSimulationResolutionBPC.create(butterflyPrecomputeCompShader);
+	// inverse/permute compute
+	uSimulationResolutionIPC.create(inversePermuteCompShader);
+	uPingPongIPC.create(inversePermuteCompShader);
+	uChoppinessIPC.create(inversePermuteCompShader);
 
-		// butterflyCompute compute
-		uStageBCC.create(butterflyComputeCompShader);
-		uDirectionBCC.create(butterflyComputeCompShader);
-		uPingPongBCC.create(butterflyComputeCompShader);
-
-		// inverse/permute compute
-		uSimulationResolutionIPC.create(inversePermuteCompShader);
-		uPingPongIPC.create(inversePermuteCompShader);
-		uChoppinessIPC.create(inversePermuteCompShader);
-
-		// water normal compute
-		uNormalStrengthNC.create(waterNormalCompShader);
-	}
-
-	// world space grid
-	{
-		// water
-		uProjectionW.create(waterShader);
-		uViewW.create(waterShader);
-		uCamPosW.create(waterShader);
-		uTexCoordShiftW.create(waterShader);
-		uUseEnvironmentW.create(waterShader);
-		uWaterLevelW.create(waterShader);
-		uLightDirW.create(waterShader);
-		uLightColorW.create(waterShader);
-	}
-
-	// tesselated grid
-	{
-		// water tesselated
-		uViewProjectionWT.create(waterTessShader);
-		uProjectionWT.create(waterTessShader);
-		uViewWT.create(waterTessShader);
-		uCamPosWT.create(waterTessShader);
-		uTexCoordShiftWT.create(waterTessShader);
-		uUseEnvironmentWT.create(waterTessShader);
-		uWaterLevelWT.create(waterTessShader);
-		uLightDirWT.create(waterTessShader);
-		uLightColorWT.create(waterTessShader);
-		uTileSizeWT.create(waterTessShader);
-		uViewDirWT.create(waterTessShader);
-		uScreenSizeWT.create(waterTessShader);
-		uTesselatedTriWidthWT.create(waterTessShader);
-		uTexCoordScaleWT.create(waterTessShader);
-		uDisplacementScaleWT.create(waterTessShader);
-	}
+	// water normal compute
+	uNormalStrengthNC.create(waterNormalCompShader);
 
 	// create FBO
 	glGenFramebuffers(1, &fftFbo);
 	glGenFramebuffers(1, &twiddleIndicesFbo);
 	glGenFramebuffers(1, &waterFbo);
 
+	butterflyComputeRenderPass = new ButterflyComputeRenderPass(fftFbo, currentWaterConfig.simulationResolution, currentWaterConfig.simulationResolution);
+	butterflyPrecomputeRenderPass = new ButterflyPrecomputeRenderPass(twiddleIndicesFbo, glm::log2(currentWaterConfig.simulationResolution), currentWaterConfig.simulationResolution);
+	inversePermuteRenderPass = new InversePermuteRenderPass(waterFbo, currentWaterConfig.simulationResolution, currentWaterConfig.simulationResolution);
+	oceanNormalRenderPass = new OceanNormalRenderPass(waterFbo, currentWaterConfig.simulationResolution, currentWaterConfig.simulationResolution);
+	oceanRenderPass = new OceanRenderPass(_gbufferFbo, _width, _height);
+	oceanTesselationRenderPass = new OceanTesselationRenderPass(_gbufferFbo, _width, _height);
+	tildeH0kRenderPass = new TildeH0kRenderPass(fftFbo, currentWaterConfig.simulationResolution, currentWaterConfig.simulationResolution);
+	tildeHktRenderPass = new TildeHktRenderPass(fftFbo, currentWaterConfig.simulationResolution, currentWaterConfig.simulationResolution);
+
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-void Ocean::prepareRender(const RenderData &_renderData, const std::shared_ptr<Level> &_level)
+void Ocean::prepareRender(const RenderData &_renderData, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass)
 {
 	bool recompute = false;
 
@@ -178,6 +111,13 @@ void Ocean::prepareRender(const RenderData &_renderData, const std::shared_ptr<L
 		currentWaterConfig.simulationResolution = _level->water.simulationResolution;
 		recompute = true;
 		createWaterAttachments(currentWaterConfig.simulationResolution);
+
+		butterflyComputeRenderPass->resize(currentWaterConfig.simulationResolution, currentWaterConfig.simulationResolution);
+		butterflyPrecomputeRenderPass->resize(glm::log2(currentWaterConfig.simulationResolution), currentWaterConfig.simulationResolution);
+		inversePermuteRenderPass->resize(currentWaterConfig.simulationResolution, currentWaterConfig.simulationResolution);
+		oceanNormalRenderPass->resize(currentWaterConfig.simulationResolution, currentWaterConfig.simulationResolution);
+		tildeH0kRenderPass->resize(currentWaterConfig.simulationResolution, currentWaterConfig.simulationResolution);
+		tildeHktRenderPass->resize(currentWaterConfig.simulationResolution, currentWaterConfig.simulationResolution);
 	}
 
 	if (currentWaterConfig.normalizedWindDirection != _level->water.normalizedWindDirection ||
@@ -191,18 +131,15 @@ void Ocean::prepareRender(const RenderData &_renderData, const std::shared_ptr<L
 
 	currentWaterConfig = _level->water;
 
-	glDisable(GL_CULL_FACE);
-
 	if (recompute)
 	{
-		precomputeFftTextures(currentWaterConfig);
+		precomputeFftTextures(currentWaterConfig, _previousRenderPass);
 	}
 
-	computeFft(currentWaterConfig);
-	glEnable(GL_CULL_FACE);
+	computeFft(currentWaterConfig, _previousRenderPass);
 }
 
-void Ocean::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level)
+void Ocean::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass)
 {
 	static std::shared_ptr<Texture> foamTexture = Texture::createTexture("Resources/Textures/foam.dds", true);
 
@@ -213,57 +150,7 @@ void Ocean::render(const RenderData &_renderData, const std::shared_ptr<Level> &
 			createTileRings();
 		}
 
-		waterTessShader->bind();
-		uViewProjectionWT.set(_renderData.viewProjectionMatrix);
-		uProjectionWT.set(_renderData.projectionMatrix);
-		uViewWT.set(_renderData.viewMatrix);
-		uCamPosWT.set(_renderData.cameraPosition);
-		uTexCoordShiftWT.set(glm::vec2(-1.5, 0.75) * _renderData.time * 0.25);
-		uUseEnvironmentWT.set(_level->environment.environmentProbes[0]->isValid());
-		uWaterLevelWT.set(_level->water.level);
-		if (_level->lights.directionalLights.empty())
-		{
-			uLightDirWT.set(glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
-			uLightColorWT.set(glm::vec3(1.5f, 0.575f, 0.5f));
-		}
-		else
-		{
-			uLightDirWT.set(_level->lights.directionalLights[0]->getDirection());
-			uLightColorWT.set(_level->lights.directionalLights[0]->getColor());
-		}
-
-		uViewDirWT.set(_renderData.viewDirection);
-		uScreenSizeWT.set(glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
-		uTesselatedTriWidthWT.set(20);
-		uTexCoordScaleWT.set(0.1f);
-		uDisplacementScaleWT.set(1.0f);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, waterNormalTexture);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, foamTexture->getId());
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbes[0]->getReflectanceMap()->getId()); // TODO: this is now an octahedral map
-
-		uTileSizeWT.set(1.0f);
-
-		glDisable(GL_CULL_FACE);
-		if (wireframe)
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
-		for (int i = 0; i < 6; ++i)
-		{
-			uTileSizeWT.set(tileRings[i]->getTileSize());
-			tileRings[i]->render();
-		}
-		if (wireframe)
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
-		glEnable(GL_CULL_FACE);
+		oceanTesselationRenderPass->render(_renderData, _level, waterDisplacementFoldingTexture, waterNormalTexture, tileRings, wireframe, _previousRenderPass);
 	}
 	else
 	{
@@ -272,45 +159,7 @@ void Ocean::render(const RenderData &_renderData, const std::shared_ptr<Level> &
 			createWaterPlane();
 		}
 
-		waterShader->bind();
-		uProjectionW.set(_renderData.projectionMatrix);
-		uViewW.set(_renderData.viewMatrix);
-		uCamPosW.set(_renderData.cameraPosition);
-		uTexCoordShiftW.set(glm::vec2(-1.5, 0.75) * _renderData.time * 0.25);
-		uUseEnvironmentW.set(_level->environment.environmentProbes[0]->isValid());
-		uWaterLevelW.set(_level->water.level);
-		if (_level->lights.directionalLights.empty())
-		{
-			uLightDirW.set(glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
-			uLightColorW.set(glm::vec3(1.5f, 0.575f, 0.5f));
-		}
-		else
-		{
-			uLightDirW.set(_level->lights.directionalLights[0]->getDirection());
-			uLightColorW.set(_level->lights.directionalLights[0]->getColor());
-		}
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, waterNormalTexture);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, foamTexture->getId());
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentProbes[0]->getReflectanceMap()->getId()); // TODO: this is now an octahedral map
-
-		glDisable(GL_CULL_FACE);
-		glBindVertexArray(waterVAO);
-		if (wireframe)
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
-		glDrawElements(GL_TRIANGLES, (GLsizei)(300 * 300 * 6), GL_UNSIGNED_INT, 0);
-		if (wireframe)
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
-		glEnable(GL_CULL_FACE);
+		oceanRenderPass->render(_renderData, _level, waterDisplacementFoldingTexture, waterNormalTexture, waterVAO, 300, wireframe, _previousRenderPass);
 	}
 }
 
@@ -458,35 +307,35 @@ void Ocean::createWaterAttachments(unsigned int _resolution)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, waterNormalTexture, 0);
 }
 
-void Ocean::precomputeFftTextures(const Water & _water)
+void Ocean::precomputeFftTextures(const Water & _water, RenderPass **_previousRenderPass)
 {
-	std::shared_ptr<Texture> noise0;
-	std::shared_ptr<Texture> noise1;
-	std::shared_ptr<Texture> noise2;
-	std::shared_ptr<Texture> noise3;
-
-	// consider keeping these textures permanently in memory
-	switch (_water.simulationResolution)
-	{
-	case 512:
-		noise0 = Texture::createTexture("Resources/Textures/Noise512_0.dds", true);
-		noise1 = Texture::createTexture("Resources/Textures/Noise512_1.dds", true);
-		noise2 = Texture::createTexture("Resources/Textures/Noise512_2.dds", true);
-		noise3 = Texture::createTexture("Resources/Textures/Noise512_3.dds", true);
-		break;
-	case 256:
-	default:
-		noise0 = Texture::createTexture("Resources/Textures/Noise256_0.dds", true);
-		noise1 = Texture::createTexture("Resources/Textures/Noise256_1.dds", true);
-		noise2 = Texture::createTexture("Resources/Textures/Noise256_2.dds", true);
-		noise3 = Texture::createTexture("Resources/Textures/Noise256_3.dds", true);
-		break;
-	}
-
 	if (useCompute)
 	{
 		// tildeh0k/minusk
 		{
+			std::shared_ptr<Texture> noise0;
+			std::shared_ptr<Texture> noise1;
+			std::shared_ptr<Texture> noise2;
+			std::shared_ptr<Texture> noise3;
+
+			// consider keeping these textures permanently in memory
+			switch (_water.simulationResolution)
+			{
+			case 512:
+				noise0 = Texture::createTexture("Resources/Textures/Noise512_0.dds", true);
+				noise1 = Texture::createTexture("Resources/Textures/Noise512_1.dds", true);
+				noise2 = Texture::createTexture("Resources/Textures/Noise512_2.dds", true);
+				noise3 = Texture::createTexture("Resources/Textures/Noise512_3.dds", true);
+				break;
+			case 256:
+			default:
+				noise0 = Texture::createTexture("Resources/Textures/Noise256_0.dds", true);
+				noise1 = Texture::createTexture("Resources/Textures/Noise256_1.dds", true);
+				noise2 = Texture::createTexture("Resources/Textures/Noise256_2.dds", true);
+				noise3 = Texture::createTexture("Resources/Textures/Noise256_3.dds", true);
+				break;
+			}
+
 			tildeH0kCompShader->bind();
 
 			uSimulationResolutionH0C.set(_water.simulationResolution);
@@ -538,70 +387,12 @@ void Ocean::precomputeFftTextures(const Water & _water)
 	}
 	else
 	{
-		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-
-		// tildeh0k/minusk
-		{
-			tildeH0kShader->bind();
-
-			uSimulationResolutionH0.set(_water.simulationResolution);
-			uWorldSizeH0.set(_water.worldSize);
-			uWaveAmplitudeH0.set(_water.waveAmplitude);
-			uWindDirectionH0.set(_water.normalizedWindDirection);
-			uWindSpeedH0.set(_water.windSpeed);
-			uWaveSuppressionExpH0.set(_water.waveSuppressionExponent);
-
-
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, noise0->getId());
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, noise1->getId());
-			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, noise2->getId());
-			glActiveTexture(GL_TEXTURE3);
-			glBindTexture(GL_TEXTURE_2D, noise3->getId());
-
-			glBindFramebuffer(GL_FRAMEBUFFER, fftFbo);
-			glViewport(0, 0, _water.simulationResolution, _water.simulationResolution);
-
-			GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-			glDrawBuffers(2, drawBuffers);
-
-			fullscreenTriangle->getSubMesh()->render();
-			//glDrawArrays(GL_TRIANGLES, 0, 3);
-		}
-
-		// butterfly precompute
-		{
-			std::uint32_t *bitReversedIndices = new std::uint32_t[_water.simulationResolution];
-
-			for (std::uint32_t i = 0; i < _water.simulationResolution; ++i)
-			{
-				std::uint32_t x = glm::bitfieldReverse(i);
-				x = glm::bitfieldRotateRight(x, glm::log2(_water.simulationResolution));
-				bitReversedIndices[i] = x;
-			}
-
-			butterflyPrecomputeShader->bind();
-			uSimulationResolutionBP.set(_water.simulationResolution);
-			for (unsigned int i = 0; i < _water.simulationResolution; ++i)
-			{
-				butterflyPrecomputeShader->setUniform(uJBP[i], (int)bitReversedIndices[i]);
-			}
-
-			delete[] bitReversedIndices;
-
-			glBindFramebuffer(GL_FRAMEBUFFER, twiddleIndicesFbo);
-			glViewport(0, 0, glm::log2(_water.simulationResolution), _water.simulationResolution);
-
-			fullscreenTriangle->getSubMesh()->render();
-			//glDrawArrays(GL_TRIANGLES, 0, 3);
-		}
+		tildeH0kRenderPass->render(_water, _previousRenderPass);
+		butterflyPrecomputeRenderPass->render(_water, _previousRenderPass);
 	}
 }
 
-void Ocean::computeFft(const Water & _water)
+void Ocean::computeFft(const Water & _water, RenderPass **_previousRenderPass)
 {
 	if (useCompute)
 	{
@@ -687,113 +478,12 @@ void Ocean::computeFft(const Water & _water)
 	}
 	else
 	{
-		fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-		// tildehkt
-		{
-			tildeHktShader->bind();
-			uSimulationResolutionHT.set(_water.simulationResolution);
-			uWorldSizeHT.set(_water.worldSize);
-			uTimeHT.set((float)Engine::getTime() * _water.timeScale);
+		GLuint readTextures[] = { tildeHktDxTexture, tildeHktDyTexture, tildeHktDzTexture , pingPongTextureA, pingPongTextureB, pingPongTextureC };
 
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, tildeH0kTexture);
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, tildeH0minusKTexture);
-
-			glBindFramebuffer(GL_FRAMEBUFFER, fftFbo);
-			glViewport(0, 0, _water.simulationResolution, _water.simulationResolution);
-
-			GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
-			glDrawBuffers(3, drawBuffers);
-
-			fullscreenTriangle->getSubMesh()->render();
-			//glDrawArrays(GL_TRIANGLES, 0, 3);
-		}
-
-		// butterfly computation/ inversion
-		{
-			butterflyComputeShader->bind();
-			uSimulationResolutionBC.set(_water.simulationResolution);
-			uStagesBC.set(glm::log2(_water.simulationResolution));
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, twiddleIndicesTexture);
-			glActiveTexture(GL_TEXTURE1);
-
-			GLenum pingPongDrawBuffers[] = { GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7 };
-			GLenum sourceDrawBuffers[] = { GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
-			GLuint pingPongReadBuffers[] = { pingPongTextureA, pingPongTextureB, pingPongTextureC };
-			GLuint sourceReadBuffers[] = { tildeHktDxTexture, tildeHktDyTexture, tildeHktDzTexture };
-
-			GLenum *drawBuffers[] = { pingPongDrawBuffers, sourceDrawBuffers };
-			GLuint *inputTextures[] = { sourceReadBuffers, pingPongReadBuffers };
-			unsigned int drawBuffer = 0;
-
-			for (int i = 0; i < 2; ++i)
-			{
-				uDirectionBC.set(i);
-
-				for (int j = 0; unsigned int(j) < glm::log2(_water.simulationResolution); ++j)
-				{
-					uStageBC.set(j);
-					glActiveTexture(GL_TEXTURE1);
-					glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][0]);
-					glActiveTexture(GL_TEXTURE2);
-					glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][1]);
-					glActiveTexture(GL_TEXTURE3);
-					glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][2]);
-					glDrawBuffers(3, drawBuffers[drawBuffer]);
-
-					fullscreenTriangle->getSubMesh()->render();
-					//glDrawArrays(GL_TRIANGLES, 0, 3);
-					drawBuffer = 1 - drawBuffer;
-				}
-			}
-
-			// inverse/permute
-			{
-				glBindFramebuffer(GL_FRAMEBUFFER, waterFbo);
-				glViewport(0, 0, _water.simulationResolution, _water.simulationResolution);
-
-				inversePermuteShader->bind();
-				uSimulationResolutionIP.set(_water.simulationResolution);
-
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][0]);
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][1]);
-				glActiveTexture(GL_TEXTURE2);
-				glBindTexture(GL_TEXTURE_2D, inputTextures[drawBuffer][2]);
-
-				glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
-				fullscreenTriangle->getSubMesh()->render();
-				//glDrawArrays(GL_TRIANGLES, 0, 3);
-
-				// generate mips
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
-				glGenerateMipmap(GL_TEXTURE_2D);
-			}
-
-			// normal
-			{
-				waterNormalShader->bind();
-
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, waterDisplacementFoldingTexture);
-
-				glDrawBuffer(GL_COLOR_ATTACHMENT1);
-
-				fullscreenTriangle->getSubMesh()->render();
-				//glDrawArrays(GL_TRIANGLES, 0, 3);
-
-				// generate mips
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, waterNormalTexture);
-				glGenerateMipmap(GL_TEXTURE_2D);
-			}
-		}
+		tildeHktRenderPass->render(_water, tildeH0kTexture, tildeH0minusKTexture, _previousRenderPass);
+		butterflyComputeRenderPass->render(_water, twiddleIndicesTexture, readTextures, _previousRenderPass);
+		inversePermuteRenderPass->render(_water, (glm::log2(_water.simulationResolution) % 2 == 1) ? readTextures + 3 : readTextures, waterDisplacementFoldingTexture, _previousRenderPass);
+		oceanNormalRenderPass->render(_water, waterDisplacementFoldingTexture, waterNormalTexture, _previousRenderPass);
 	}
 }
 

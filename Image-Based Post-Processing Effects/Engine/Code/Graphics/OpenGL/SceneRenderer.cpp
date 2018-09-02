@@ -23,24 +23,24 @@
 #include "Graphics\Effects.h"
 #include "Graphics\Texture.h"
 #include "Input\UserInput.h"
-#include "RenderPass\GBufferRenderPass.h"
-#include "RenderPass\GBufferCustomRenderPass.h"
-#include "RenderPass\SSAOOriginalRenderPass.h"
-#include "RenderPass\SSAORenderPass.h"
-#include "RenderPass\HBAORenderPass.h"
-#include "RenderPass\GTAORenderPass.h"
-#include "RenderPass\GTAODenoiseRenderPass.h"
-#include "RenderPass\SSAOBlurRenderPass.h"
-#include "RenderPass\SSAOBilateralBlurRenderPass.h"
-#include "RenderPass\SkyboxRenderPass.h"
-#include "RenderPass\AmbientLightRenderPass.h"
-#include "RenderPass\DirectionalLightRenderPass.h"
-#include "RenderPass\PointLightRenderPass.h"
-#include "RenderPass\SpotLightRenderPass.h"
-#include "RenderPass\ForwardRenderPass.h"
-#include "RenderPass\ForwardCustomRenderPass.h"
-#include "RenderPass\OutlineRenderPass.h"
-#include "RenderPass\LightProbeRenderPass.h"
+#include "RenderPass\Geometry\GBufferRenderPass.h"
+#include "RenderPass\Geometry\GBufferCustomRenderPass.h"
+#include "RenderPass\SSAO\SSAOOriginalRenderPass.h"
+#include "RenderPass\SSAO\SSAORenderPass.h"
+#include "RenderPass\SSAO\HBAORenderPass.h"
+#include "RenderPass\SSAO\GTAORenderPass.h"
+#include "RenderPass\SSAO\GTAODenoiseRenderPass.h"
+#include "RenderPass\SSAO\SSAOBlurRenderPass.h"
+#include "RenderPass\SSAO\SSAOBilateralBlurRenderPass.h"
+#include "RenderPass\Geometry\SkyboxRenderPass.h"
+#include "RenderPass\Lighting\AmbientLightRenderPass.h"
+#include "RenderPass\Lighting\DirectionalLightRenderPass.h"
+#include "RenderPass\Lighting\PointLightRenderPass.h"
+#include "RenderPass\Lighting\SpotLightRenderPass.h"
+#include "RenderPass\Geometry\ForwardRenderPass.h"
+#include "RenderPass\Geometry\ForwardCustomRenderPass.h"
+#include "RenderPass\Geometry\OutlineRenderPass.h"
+#include "RenderPass\Geometry\LightProbeRenderPass.h"
 
 SceneRenderer::SceneRenderer(std::shared_ptr<Window> _window)
 	:window(_window), ocean(false, true), volumetricLighting(window->getWidth(), window->getHeight())
@@ -79,7 +79,7 @@ void SceneRenderer::init()
 
 	createBrdfLUT();
 
-	ocean.init();
+	ocean.init(gBufferFBO, res.first, res.second);
 	volumetricLighting.init();
 
 	gBufferRenderPass = new GBufferRenderPass(gBufferFBO, res.first, res.second);
@@ -106,6 +106,11 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 {
 	RenderPass *previousRenderPass = nullptr;
 	frame = _renderData.frame;
+
+	if (_level->water.enabled)
+	{
+		ocean.prepareRender(_renderData, _level, &previousRenderPass);
+	}
 
 	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 , lightColorAttachments[frame % 2], GL_COLOR_ATTACHMENT6 };
 
@@ -178,6 +183,11 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	outlineRenderPass->render(_renderData, _scene, &previousRenderPass);
 	lightProbeRenderPass->render(_renderData, _level, &previousRenderPass);
 
+	if (_level->water.enabled)
+	{
+		ocean.render(_renderData, _level, &previousRenderPass);
+	}
+
 	// generate mips
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, gLightColorTextures[frame % 2]);
@@ -248,7 +258,7 @@ GLuint SceneRenderer::getColorTexture() const
 
 GLuint SceneRenderer::getAlbedoTexture() const
 {
-	return gAlbedoTexture;
+	return ocean.getDisplacement();
 }
 
 GLuint SceneRenderer::getNormalTexture() const

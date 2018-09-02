@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderPass.h"
+#include "Graphics\OpenGL\RenderPass\RenderPass.h"
 #include "Graphics\OpenGL\ShaderProgram.h"
 #include "Graphics\OpenGL\Uniform.h"
 #include "Graphics\Mesh.h"

@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderPass.h"
+#include "Graphics\OpenGL\RenderPass\RenderPass.h"
 #include <memory>
 
 struct RenderData;

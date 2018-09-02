@@ -114,6 +114,18 @@
     <Filter Include="Code\Graphics\OpenGL\RenderPass">
       <UniqueIdentifier>{cbbb0270-0863-4f4d-80d8-abb9d7242ab0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Graphics\OpenGL\RenderPass\SSAO">
+      <UniqueIdentifier>{a91006e6-729c-4a71-82f4-6b8d9fb5256e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Graphics\OpenGL\RenderPass\Lighting">
+      <UniqueIdentifier>{717fe048-600b-4872-92a2-215fd45703a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Graphics\OpenGL\RenderPass\Geometry">
+      <UniqueIdentifier>{084c7d3e-9e9d-4e9f-91ef-bceb91cb2e83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Graphics\OpenGL\RenderPass\Ocean">
+      <UniqueIdentifier>{e8d931bd-3942-4c2b-b85c-7100df284ad3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Engine.h">
@@ -422,65 +434,89 @@
     <ClInclude Include="Code\Graphics\Frustum.h">
       <Filter>Code\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\GBufferCustomRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\GBufferRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\RenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\ForwardRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\ForwardCustomRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAORenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AmbientLightRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\DirectionalLightRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\PointLightRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SpotLightRenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
     </ClInclude>
     <ClInclude Include="Code\Graphics\OpenGL\GBuffer.h">
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SkyboxRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAODenoiseRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\OutlineRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAORenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\HBAORenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\HBAORenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAOOriginalRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOBilateralBlurRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\GTAORenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOBlurRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAOBlurRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOOriginalRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAOBilateralBlurRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAORenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\GTAODenoiseRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\AmbientLightRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LightProbeRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\DirectionalLightRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\PointLightRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\SpotLightRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Geometry\ForwardCustomRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Geometry\ForwardRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Geometry\GBufferCustomRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Geometry\GBufferRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Geometry\LightProbeRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Geometry\OutlineRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Geometry\SkyboxRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\ButterflyPrecomputeRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\ButterflyComputeRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\TildeH0kRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\TildeHktRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\InversePermuteRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\OceanNormalRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\OceanRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\OceanTesselationRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -709,62 +745,86 @@
     <ClCompile Include="Code\Graphics\Frustum.cpp">
       <Filter>Code\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\GBufferRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\RenderPass.cpp">
       <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\GBufferCustomRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAODenoiseRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\ForwardRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAORenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\ForwardCustomRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\HBAORenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAORenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOBilateralBlurRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AmbientLightRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOBlurRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\DirectionalLightRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOOriginalRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\PointLightRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAORenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SpotLightRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\AmbientLightRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SkyboxRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\DirectionalLightRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\OutlineRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\PointLightRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\HBAORenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\SpotLightRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\GTAORenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\ForwardCustomRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAOBlurRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\ForwardRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAOBilateralBlurRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\GBufferCustomRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAOOriginalRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\GBufferRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\GTAODenoiseRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\LightProbeRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LightProbeRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\OutlineRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\SkyboxRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\ButterflyPrecomputeRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\ButterflyComputeRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\TildeH0kRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\TildeHktRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\InversePermuteRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\OceanNormalRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\OceanRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\OceanTesselationRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
