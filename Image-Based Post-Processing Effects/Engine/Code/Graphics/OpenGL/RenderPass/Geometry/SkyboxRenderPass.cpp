@@ -28,7 +28,7 @@ SkyboxRenderPass::SkyboxRenderPass(GLuint _fbo, unsigned int _width, unsigned in
 
 	resize(_width, _height);
 
-	skyboxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/skybox.vert", "Resources/Shaders/Renderer/skybox.frag");
+	skyboxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Geometry/skybox.vert", "Resources/Shaders/Geometry/skybox.frag");
 
 	uInverseModelViewProjectionB.create(skyboxShader);
 	uColorB.create(skyboxShader);

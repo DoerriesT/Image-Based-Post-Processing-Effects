@@ -23,7 +23,7 @@ OceanNormalRenderPass::OceanNormalRenderPass(GLuint _fbo, unsigned int _width, u
 
 	resize(_width, _height);
 
-	oceanNormalShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/normal.frag");
+	oceanNormalShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Ocean/normal.frag");
 
 	uNormalStrengthN.create(oceanNormalShader);
 

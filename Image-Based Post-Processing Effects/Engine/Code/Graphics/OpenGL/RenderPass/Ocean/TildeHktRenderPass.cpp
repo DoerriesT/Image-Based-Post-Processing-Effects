@@ -24,7 +24,7 @@ TildeHktRenderPass::TildeHktRenderPass(GLuint _fbo, unsigned int _width, unsigne
 
 	resize(_width, _height);
 
-	tildeHktShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/tildeHkt.frag");
+	tildeHktShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Ocean/tildeHkt.frag");
 
 	uSimulationResolutionHT.create(tildeHktShader);
 	uWorldSizeHT.create(tildeHktShader);

@@ -24,7 +24,7 @@ SSAOBilateralBlurRenderPass::SSAOBilateralBlurRenderPass(GLuint _fbo, unsigned i
 
 	resize(_width, _height);
 
-	ssaoBilateralBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoBilateralBlur.frag");
+	ssaoBilateralBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/ssaoBilateralBlur.frag");
 
 	uSharpnessAOBB.create(ssaoBilateralBlurShader);
 	uKernelRadiusAOBB.create(ssaoBilateralBlurShader);

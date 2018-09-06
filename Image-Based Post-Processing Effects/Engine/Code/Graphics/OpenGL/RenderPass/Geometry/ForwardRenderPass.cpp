@@ -32,7 +32,7 @@ ForwardRenderPass::ForwardRenderPass(GLuint _fbo, unsigned int _width, unsigned 
 
 	resize(_width, _height);
 
-	transparencyShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/transparencyForward.vert", "Resources/Shaders/Renderer/transparencyForward.frag");
+	transparencyShader = ShaderProgram::createShaderProgram("Resources/Shaders/Geometry/forward.vert", "Resources/Shaders/Geometry/forward.frag");
 
 	uViewMatrixT.create(transparencyShader);
 	uPrevTransformT.create(transparencyShader);

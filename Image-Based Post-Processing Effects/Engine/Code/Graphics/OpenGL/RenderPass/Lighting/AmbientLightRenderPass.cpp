@@ -26,7 +26,7 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 
 	resize(_width, _height);
 
-	environmentLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/globalLightPass.frag");
+	environmentLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Lighting/ambientLightPass.frag");
 
 	uInverseProjectionE.create(environmentLightPassShader);
 	uInverseViewE.create(environmentLightPassShader);

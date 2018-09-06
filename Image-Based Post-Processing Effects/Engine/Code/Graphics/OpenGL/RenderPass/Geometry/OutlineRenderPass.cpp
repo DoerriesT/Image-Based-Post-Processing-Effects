@@ -30,7 +30,7 @@ OutlineRenderPass::OutlineRenderPass(GLuint _fbo, unsigned int _width, unsigned 
 
 	resize(_width, _height);
 
-	outlineShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/outline.vert", "Resources/Shaders/Renderer/outline.frag");
+	outlineShader = ShaderProgram::createShaderProgram("Resources/Shaders/Geometry/outline.vert", "Resources/Shaders/Geometry/outline.frag");
 
 	uModelViewProjectionMatrixO.create(outlineShader);
 	uOutlineColorO.create(outlineShader);

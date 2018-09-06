@@ -32,7 +32,7 @@ GBufferRenderPass::GBufferRenderPass(GLuint _fbo, unsigned int _width, unsigned 
 
 	resize(_width, _height);
 
-	gBufferPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/gBufferPass.vert", "Resources/Shaders/Renderer/gBufferPass.frag");
+	gBufferPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Geometry/gBufferPass.vert", "Resources/Shaders/Geometry/gBufferPass.frag");
 
 	uMaterialG.create(gBufferPassShader);
 	uModelViewProjectionMatrixG.create(gBufferPassShader);

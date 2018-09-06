@@ -34,7 +34,7 @@ LightProbeRenderPass::LightProbeRenderPass(GLuint _fbo, unsigned int _width, uns
 
 	resize(_width, _height);
 
-	lightProbeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/lightProbe.vert", "Resources/Shaders/Renderer/lightProbe.frag");
+	lightProbeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Geometry/lightProbe.vert", "Resources/Shaders/Geometry/lightProbe.frag");
 
 	uModelViewProjectionMatrix.create(lightProbeShader);
 	uSH.create(lightProbeShader);

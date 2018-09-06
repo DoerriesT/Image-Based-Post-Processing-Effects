@@ -22,7 +22,7 @@ LightPropagationRenderPass::LightPropagationRenderPass(GLuint _fbo, unsigned int
 
 	resize(_width, _height);
 
-	lightPropagationShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/lightPropagation.vert", "Resources/Shaders/Renderer/lightPropagation.frag");
+	lightPropagationShader = ShaderProgram::createShaderProgram("Resources/Shaders/LPV/lightPropagation.vert", "Resources/Shaders/LPV/lightPropagation.frag");
 
 	uGridSize.create(lightPropagationShader);
 

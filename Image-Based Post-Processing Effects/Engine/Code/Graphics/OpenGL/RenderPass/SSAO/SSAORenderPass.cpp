@@ -25,7 +25,7 @@ SSAORenderPass::SSAORenderPass(GLuint _fbo, unsigned int _width, unsigned int _h
 
 	resize(_width, _height);
 
-	ssaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssao.frag");
+	ssaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/ssao.frag");
 
 	uViewAO.create(ssaoShader);
 	uProjectionAO.create(ssaoShader);

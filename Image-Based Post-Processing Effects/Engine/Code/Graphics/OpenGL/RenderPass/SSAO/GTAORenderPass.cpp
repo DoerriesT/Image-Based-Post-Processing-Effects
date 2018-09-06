@@ -25,7 +25,7 @@ GTAORenderPass::GTAORenderPass(GLuint _fbo, unsigned int _width, unsigned int _h
 
 	resize(_width, _height);
 
-	gtaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/gtao.frag");
+	gtaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/gtao.frag");
 
 	uFocalLengthGTAO.create(gtaoShader);
 	uInverseProjectionGTAO.create(gtaoShader);

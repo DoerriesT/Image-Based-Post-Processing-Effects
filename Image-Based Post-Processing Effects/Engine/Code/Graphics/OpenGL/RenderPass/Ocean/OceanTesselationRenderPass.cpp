@@ -27,7 +27,7 @@ OceanTesselationRenderPass::OceanTesselationRenderPass(GLuint _fbo, unsigned int
 
 	resize(_width, _height);
 
-	oceanTesselationShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/terrain.vert", "Resources/Shaders/Water/water.frag", "Resources/Shaders/Shared/terrain.tessc", "Resources/Shaders/Shared/terrain.tesse");
+	oceanTesselationShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/terrain.vert", "Resources/Shaders/Ocean/water.frag", "Resources/Shaders/Shared/terrain.tessc", "Resources/Shaders/Shared/terrain.tesse");
 
 	uViewProjectionWT.create(oceanTesselationShader);
 	uProjectionWT.create(oceanTesselationShader);

@@ -22,7 +22,7 @@ LightInjectionRenderPass::LightInjectionRenderPass(GLuint _fbo, unsigned int _wi
 
 	resize(_width, _height);
 
-	lightInjectionShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/lightInjection.vert", "Resources/Shaders/Renderer/lightInjection.frag");
+	lightInjectionShader = ShaderProgram::createShaderProgram("Resources/Shaders/LPV/lightInjection.vert", "Resources/Shaders/LPV/lightInjection.frag");
 
 	uInvViewProjection.create(lightInjectionShader);
 	uRsmWidth.create(lightInjectionShader);

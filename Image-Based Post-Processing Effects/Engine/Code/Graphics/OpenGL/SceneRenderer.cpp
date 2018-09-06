@@ -454,7 +454,7 @@ void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned
 
 void SceneRenderer::createBrdfLUT()
 {
-	std::shared_ptr<ShaderProgram> brdfShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/brdf.comp");
+	std::shared_ptr<ShaderProgram> brdfShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/brdf.comp");
 
 	glGenTextures(1, &brdfLUT);
 

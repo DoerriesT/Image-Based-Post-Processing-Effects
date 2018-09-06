@@ -30,7 +30,7 @@ ShadowRenderPass::ShadowRenderPass(GLuint _fbo, unsigned int _width, unsigned in
 
 	resize(_width, _height);
 
-	shadowShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shadows/shadow.vert", "Resources/Shaders/Shadows/shadow.frag");
+	shadowShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shadow/shadow.vert", "Resources/Shaders/Shadow/shadow.frag");
 
 	uModelViewProjectionMatrix.create(shadowShader);
 }

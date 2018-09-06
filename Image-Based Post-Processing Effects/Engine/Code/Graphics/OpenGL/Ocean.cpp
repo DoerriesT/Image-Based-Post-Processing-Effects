@@ -45,12 +45,12 @@ void Ocean::init(GLuint _gbufferFbo, unsigned int _width, unsigned int _height)
 {
 
 	// compute
-	tildeH0kCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/tildeH0k.comp");
-	tildeHktCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/tildeHkt.comp");
-	butterflyPrecomputeCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/butterflyPrecompute.comp");
-	butterflyComputeCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/butterflyCompute.comp");
-	inversePermuteCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/inversePermute.comp");
-	waterNormalCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/normal.comp");
+	tildeH0kCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Ocean/tildeH0k.comp");
+	tildeHktCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Ocean/tildeHkt.comp");
+	butterflyPrecomputeCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Ocean/butterflyPrecompute.comp");
+	butterflyComputeCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Ocean/butterflyCompute.comp");
+	inversePermuteCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Ocean/inversePermute.comp");
+	waterNormalCompShader = ShaderProgram::createShaderProgram("Resources/Shaders/Ocean/normal.comp");
 
 	// tildeh0k compute
 	uSimulationResolutionH0C.create(tildeH0kCompShader);

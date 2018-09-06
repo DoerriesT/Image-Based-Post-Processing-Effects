@@ -29,7 +29,7 @@ SpotLightRenderPass::SpotLightRenderPass(GLuint _fbo, unsigned int _width, unsig
 
 	resize(_width, _height);
 
-	spotLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/spotLightPass.vert", "Resources/Shaders/Renderer/spotLightPass.frag");
+	spotLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/spotLightPass.vert", "Resources/Shaders/Lighting/spotLightPass.frag");
 
 	uModelViewProjectionS.create(spotLightPassShader);
 	uSpotLightS.create(spotLightPassShader);

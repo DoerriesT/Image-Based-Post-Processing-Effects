@@ -25,7 +25,7 @@ OceanRenderPass::OceanRenderPass(GLuint _fbo, unsigned int _width, unsigned int 
 
 	resize(_width, _height);
 
-	oceanShader = ShaderProgram::createShaderProgram("Resources/Shaders/Water/water.vert", "Resources/Shaders/Water/Water.frag");
+	oceanShader = ShaderProgram::createShaderProgram("Resources/Shaders/Ocean/water.vert", "Resources/Shaders/Ocean/Water.frag");
 
 	uProjectionW.create(oceanShader);
 	uViewW.create(oceanShader);

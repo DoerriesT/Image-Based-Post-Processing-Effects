@@ -24,7 +24,7 @@ GTAODenoiseRenderPass::GTAODenoiseRenderPass(GLuint _fbo, unsigned int _width, u
 
 	resize(_width, _height);
 
-	gtaoDenoiseShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/gtaoDenoise.frag");
+	gtaoDenoiseShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/gtaoDenoise.frag");
 
 	uFrame.create(gtaoDenoiseShader);
 

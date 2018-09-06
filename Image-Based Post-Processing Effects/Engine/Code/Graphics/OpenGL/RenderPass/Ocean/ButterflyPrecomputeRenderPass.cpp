@@ -24,7 +24,7 @@ ButterflyPrecomputeRenderPass::ButterflyPrecomputeRenderPass(GLuint _fbo, unsign
 
 	resize(_width, _height);
 
-	butterflyPrecomputeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/butterflyPrecompute.frag");
+	butterflyPrecomputeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Ocean/butterflyPrecompute.frag");
 
 	for (int i = 0; i < 512; ++i)
 	{

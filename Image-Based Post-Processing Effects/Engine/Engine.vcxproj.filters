@@ -45,23 +45,11 @@
     <Filter Include="Resources\Shaders\PostProcess">
       <UniqueIdentifier>{ff480144-1269-4aae-9ff8-2a92397ca37d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resources\Shaders\Renderer">
-      <UniqueIdentifier>{dc3a3c67-e8b1-485b-843b-fd7cb0ca4208}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Shaders\Shadows">
-      <UniqueIdentifier>{a52c87ac-4bf9-446d-bdfa-b2e1acb9fb2d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources\Shaders\Gui">
       <UniqueIdentifier>{45cf55af-09c7-4ea3-a2be-b10bf29dd37a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resources\Shaders\Environment">
       <UniqueIdentifier>{814409e0-b28b-4b8b-b55b-ab5d3c9dd8c9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Shaders\Water">
-      <UniqueIdentifier>{fe4e8533-1997-40ab-96aa-d217dd0a1681}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Shaders\Custom">
-      <UniqueIdentifier>{7d9e075f-bc31-497f-9c83-a2e6a359f951}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\Input">
       <UniqueIdentifier>{c289388a-c2ce-4012-8ea7-2da7b6559b91}</UniqueIdentifier>
@@ -131,6 +119,27 @@
     </Filter>
     <Filter Include="Code\Graphics\OpenGL\RenderPass\Shadow">
       <UniqueIdentifier>{7d9d1429-49f0-451d-a596-b9eff7359786}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Geometry">
+      <UniqueIdentifier>{58ec0f3e-dfaa-494e-a2a5-d7818a541964}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Lighting">
+      <UniqueIdentifier>{0ffccddc-5d8c-4801-9b76-057fc1b46c30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\LPV">
+      <UniqueIdentifier>{7d9fa5a2-f8bf-4583-a344-757131e6b6a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Ocean">
+      <UniqueIdentifier>{f20be4a3-7bd7-431e-92e9-661c4f8ebc38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\SSAO">
+      <UniqueIdentifier>{77ae2fbb-deab-4042-8da4-eaa34e1b6c7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Shadow">
+      <UniqueIdentifier>{a832040e-45d1-4aba-8e27-bd86d06d1554}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\VolumetricLighting">
+      <UniqueIdentifier>{85e92e93-bd8c-4e9d-bc22-90acb05cc2fd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -861,24 +870,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Application\Resources\Shaders\Custom\atmosphere.frag">
-      <Filter>Resources\Shaders\Custom</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Custom\atmosphere.vert">
-      <Filter>Resources\Shaders\Custom</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Custom\earth.frag">
-      <Filter>Resources\Shaders\Custom</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Custom\earth.vert">
-      <Filter>Resources\Shaders\Custom</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Custom\sun.frag">
-      <Filter>Resources\Shaders\Custom</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Custom\sun.vert">
-      <Filter>Resources\Shaders\Custom</Filter>
-    </None>
     <None Include="..\Application\Resources\Shaders\Environment\atmosphere.frag">
       <Filter>Resources\Shaders\Environment</Filter>
     </None>
@@ -912,119 +903,14 @@
     <None Include="..\Application\Resources\Shaders\PostProcess\upsample.frag">
       <Filter>Resources\Shaders\PostProcess</Filter>
     </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\directionalLightPass.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\gBufferPass.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\gBufferPass.vert">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\globalLightPass.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\outline.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\outline.vert">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\pointLightPass.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\pointLightPass.vert">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\skybox.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\skybox.vert">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\spotLightPass.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\spotLightPass.vert">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\ssao.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\ssaoBlur.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\transparencyForward.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\transparencyForward.vert">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Shadows\shadow.frag">
-      <Filter>Resources\Shaders\Shadows</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Shadows\shadow.vert">
-      <Filter>Resources\Shaders\Shadows</Filter>
-    </None>
     <None Include="..\Application\Resources\Shaders\Shared\blit.frag">
       <Filter>Resources\Shaders\Shared</Filter>
     </None>
     <None Include="..\Application\Resources\Shaders\Shared\fullscreenTriangle.vert">
       <Filter>Resources\Shaders\Shared</Filter>
     </None>
-    <None Include="..\Application\Resources\Shaders\Water\butterflyCompute.frag">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Water\butterflyPrecompute.frag">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Water\inversePermute.frag">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Water\normal.frag">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Water\tildeH0k.frag">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Water\tildeHkt.frag">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Water\water.frag">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Water\water.vert">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\ssaoOriginal.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\hbao.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
     <None Include="..\Application\Resources\Shaders\Environment\brdf.frag">
       <Filter>Resources\Shaders\Environment</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\brdf.comp">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Water\butterflyCompute.comp">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Water\butterflyPrecompute.comp">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Water\inversePermute.comp">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Water\normal.comp">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Water\tildeH0k.comp">
-      <Filter>Resources\Shaders\Water</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Water\tildeHkt.comp">
-      <Filter>Resources\Shaders\Water</Filter>
     </None>
     <None Include="..\Application\Resources\Shaders\Shared\terrain.frag">
       <Filter>Resources\Shaders\Shared</Filter>
@@ -1037,24 +923,6 @@
     </None>
     <None Include="..\Application\Resources\Shaders\Shared\terrain.vert">
       <Filter>Resources\Shaders\Shared</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\lightVolume.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\lightVolume.tessc">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\lightVolume.tesse">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\lightVolume.vert">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\phaseLookup.comp">
-      <Filter>Resources\Shaders\Renderer</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Shadows\shadow.geom">
-      <Filter>Resources\Shaders\Shadows</Filter>
     </None>
     <None Include="..\Application\Resources\Shaders\PostProcess\luminanceAdaption.comp">
       <Filter>Resources\Shaders\PostProcess</Filter>
@@ -1143,23 +1011,164 @@
     <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaResolve.frag">
       <Filter>Resources\Shaders\PostProcess\AA</Filter>
     </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\ssaoBilateralBlur.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
+    <None Include="..\Application\Resources\Shaders\Geometry\forward.frag">
+      <Filter>Resources\Shaders\Geometry</Filter>
     </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\gtao.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
+    <None Include="..\Application\Resources\Shaders\Geometry\forward.vert">
+      <Filter>Resources\Shaders\Geometry</Filter>
     </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\gtaoDenoise.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
+    <None Include="..\Application\Resources\Shaders\Geometry\gBufferPass.frag">
+      <Filter>Resources\Shaders\Geometry</Filter>
     </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\lightProbe.frag">
-      <Filter>Resources\Shaders\Renderer</Filter>
+    <None Include="..\Application\Resources\Shaders\Geometry\gBufferPass.vert">
+      <Filter>Resources\Shaders\Geometry</Filter>
     </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\lightProbe.vert">
-      <Filter>Resources\Shaders\Renderer</Filter>
+    <None Include="..\Application\Resources\Shaders\Geometry\lightProbe.frag">
+      <Filter>Resources\Shaders\Geometry</Filter>
     </None>
-    <None Include="..\Application\Resources\Shaders\Renderer\lightVolumeBase.vert">
-      <Filter>Resources\Shaders\Renderer</Filter>
+    <None Include="..\Application\Resources\Shaders\Geometry\lightProbe.vert">
+      <Filter>Resources\Shaders\Geometry</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Geometry\outline.frag">
+      <Filter>Resources\Shaders\Geometry</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Geometry\outline.vert">
+      <Filter>Resources\Shaders\Geometry</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Geometry\skybox.frag">
+      <Filter>Resources\Shaders\Geometry</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Geometry\skybox.vert">
+      <Filter>Resources\Shaders\Geometry</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Lighting\ambientLightPass.frag">
+      <Filter>Resources\Shaders\Lighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Lighting\brdf.comp">
+      <Filter>Resources\Shaders\Lighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Lighting\directionalLightPass.frag">
+      <Filter>Resources\Shaders\Lighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Lighting\pointLightPass.frag">
+      <Filter>Resources\Shaders\Lighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Lighting\pointLightPass.vert">
+      <Filter>Resources\Shaders\Lighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Lighting\spotLightPass.frag">
+      <Filter>Resources\Shaders\Lighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Lighting\spotLightPass.vert">
+      <Filter>Resources\Shaders\Lighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\LPV\lightInjection.frag">
+      <Filter>Resources\Shaders\LPV</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\LPV\lightInjection.vert">
+      <Filter>Resources\Shaders\LPV</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\LPV\lightPropagation.frag">
+      <Filter>Resources\Shaders\LPV</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\LPV\lightPropagation.vert">
+      <Filter>Resources\Shaders\LPV</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\LPV\rsm.frag">
+      <Filter>Resources\Shaders\LPV</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\LPV\rsm.vert">
+      <Filter>Resources\Shaders\LPV</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\butterflyCompute.comp">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\butterflyCompute.frag">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\butterflyPrecompute.comp">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\butterflyPrecompute.frag">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\inversePermute.comp">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\inversePermute.frag">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\normal.comp">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\normal.frag">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\tildeH0k.comp">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\tildeH0k.frag">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\tildeHkt.comp">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\tildeHkt.frag">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\water.frag">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\water.geom">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Ocean\water.vert">
+      <Filter>Resources\Shaders\Ocean</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\SSAO\gtao.frag">
+      <Filter>Resources\Shaders\SSAO</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\SSAO\gtaoDenoise.frag">
+      <Filter>Resources\Shaders\SSAO</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\SSAO\hbao.frag">
+      <Filter>Resources\Shaders\SSAO</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\SSAO\ssao.frag">
+      <Filter>Resources\Shaders\SSAO</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\SSAO\ssaoBilateralBlur.frag">
+      <Filter>Resources\Shaders\SSAO</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\SSAO\ssaoBlur.frag">
+      <Filter>Resources\Shaders\SSAO</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\SSAO\ssaoOriginal.frag">
+      <Filter>Resources\Shaders\SSAO</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Shadow\shadow.frag">
+      <Filter>Resources\Shaders\Shadow</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Shadow\shadow.vert">
+      <Filter>Resources\Shaders\Shadow</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolume.frag">
+      <Filter>Resources\Shaders\VolumetricLighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolume.tessc">
+      <Filter>Resources\Shaders\VolumetricLighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolume.tesse">
+      <Filter>Resources\Shaders\VolumetricLighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolume.vert">
+      <Filter>Resources\Shaders\VolumetricLighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolumeBase.vert">
+      <Filter>Resources\Shaders\VolumetricLighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\VolumetricLighting\phaseLookup.comp">
+      <Filter>Resources\Shaders\VolumetricLighting</Filter>
     </None>
   </ItemGroup>
 </Project>

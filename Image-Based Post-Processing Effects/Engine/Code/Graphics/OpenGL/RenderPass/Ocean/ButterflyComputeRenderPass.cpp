@@ -24,7 +24,7 @@ ButterflyComputeRenderPass::ButterflyComputeRenderPass(GLuint _fbo, unsigned int
 
 	resize(_width, _height);
 
-	butterflyComputeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/butterflyCompute.frag");
+	butterflyComputeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Ocean/butterflyCompute.frag");
 
 	uSimulationResolutionBC.create(butterflyComputeShader);
 	uStageBC.create(butterflyComputeShader);

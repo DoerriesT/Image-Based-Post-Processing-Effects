@@ -24,7 +24,7 @@ DirectionalLightRenderPass::DirectionalLightRenderPass(GLuint _fbo, unsigned int
 
 	resize(_width, _height);
 
-	directionalLightShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/directionalLightPass.frag");
+	directionalLightShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Lighting/directionalLightPass.frag");
 
 	uDirectionalLightD.create(directionalLightShader);
 	uInverseViewD.create(directionalLightShader);

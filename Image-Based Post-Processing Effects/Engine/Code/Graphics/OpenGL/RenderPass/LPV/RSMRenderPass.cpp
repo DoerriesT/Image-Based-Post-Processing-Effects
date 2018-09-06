@@ -32,7 +32,7 @@ RSMRenderPass::RSMRenderPass(GLuint _fbo, unsigned int _width, unsigned int _hei
 
 	resize(_width, _height);
 
-	rsmPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/rsm.vert", "Resources/Shaders/Renderer/rsm.frag");
+	rsmPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/LPV/rsm.vert", "Resources/Shaders/LPV/rsm.frag");
 
 	uModelMatrix.create(rsmPassShader);
 	uModelViewProjectionMatrix.create(rsmPassShader);

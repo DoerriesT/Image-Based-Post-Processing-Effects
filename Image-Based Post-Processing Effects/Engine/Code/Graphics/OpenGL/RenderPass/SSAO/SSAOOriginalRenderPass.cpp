@@ -23,7 +23,7 @@ SSAOOriginalRenderPass::SSAOOriginalRenderPass(GLuint _fbo, unsigned int _width,
 
 	resize(_width, _height);
 
-	ssaoOriginalShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoOriginal.frag");
+	ssaoOriginalShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/ssaoOriginal.frag");
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }

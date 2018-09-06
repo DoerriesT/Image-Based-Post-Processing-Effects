@@ -22,7 +22,7 @@ SSAOBlurRenderPass::SSAOBlurRenderPass(GLuint _fbo, unsigned int _width, unsigne
 
 	resize(_width, _height);
 
-	ssaoBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/ssaoBlur.frag");
+	ssaoBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/ssaoBlur.frag");
 
 	uBlurSizeAOB.create(ssaoBlurShader);
 

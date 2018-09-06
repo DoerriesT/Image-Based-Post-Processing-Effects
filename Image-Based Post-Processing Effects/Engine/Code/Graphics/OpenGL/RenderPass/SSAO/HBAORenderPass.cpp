@@ -25,7 +25,7 @@ HBAORenderPass::HBAORenderPass(GLuint _fbo, unsigned int _width, unsigned int _h
 
 	resize(_width, _height);
 
-	hbaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Renderer/hbao.frag");
+	hbaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/hbao.frag");
 
 	uFocalLengthHBAO.create(hbaoShader);
 	uInverseProjectionHBAO.create(hbaoShader);

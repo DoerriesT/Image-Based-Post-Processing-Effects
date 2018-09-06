@@ -18,9 +18,9 @@ VolumetricLighting::~VolumetricLighting()
 
 void VolumetricLighting::init()
 {
-	lightVolumeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/lightVolume.vert", "Resources/Shaders/Renderer/lightVolume.frag", "Resources/Shaders/Renderer/lightVolume.tessc", "Resources/Shaders/Renderer/lightVolume.tesse");
-	lightVolumeBaseShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/lightVolumeBase.vert", "Resources/Shaders/Renderer/lightVolume.frag");
-	phaseLUTShader = ShaderProgram::createShaderProgram("Resources/Shaders/Renderer/phaseLookup.comp");
+	lightVolumeShader = ShaderProgram::createShaderProgram("Resources/Shaders/VolumetricLighting/lightVolume.vert", "Resources/Shaders/VolumetricLighting/lightVolume.frag", "Resources/Shaders/VolumetricLighting/lightVolume.tessc", "Resources/Shaders/VolumetricLighting/lightVolume.tesse");
+	lightVolumeBaseShader = ShaderProgram::createShaderProgram("Resources/Shaders/VolumetricLighting/lightVolumeBase.vert", "Resources/Shaders/VolumetricLighting/lightVolume.frag");
+	phaseLUTShader = ShaderProgram::createShaderProgram("Resources/Shaders/VolumetricLighting/phaseLookup.comp");
 
 	// light volume
 	uDisplacementTextureLV.create(lightVolumeShader);

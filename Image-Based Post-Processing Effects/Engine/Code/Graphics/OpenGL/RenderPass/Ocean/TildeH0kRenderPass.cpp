@@ -24,7 +24,7 @@ TildeH0kRenderPass::TildeH0kRenderPass(GLuint _fbo, unsigned int _width, unsigne
 
 	resize(_width, _height);
 
-	tildeH0kShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/tildeH0k.frag");
+	tildeH0kShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Ocean/tildeH0k.frag");
 
 	uSimulationResolutionH0.create(tildeH0kShader);
 	uWorldSizeH0.create(tildeH0kShader);

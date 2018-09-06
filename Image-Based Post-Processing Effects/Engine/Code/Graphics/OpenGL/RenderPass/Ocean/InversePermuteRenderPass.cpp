@@ -23,7 +23,7 @@ InversePermuteRenderPass::InversePermuteRenderPass(GLuint _fbo, unsigned int _wi
 
 	resize(_width, _height);
 
-	inversePermuteShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Water/inversePermute.frag");
+	inversePermuteShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Ocean/inversePermute.frag");
 
 	uSimulationResolutionIP.create(inversePermuteShader);
 	uChoppinessIP.create(inversePermuteShader);
