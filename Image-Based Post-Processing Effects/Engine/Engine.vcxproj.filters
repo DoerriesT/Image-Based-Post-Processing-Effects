@@ -126,6 +126,9 @@
     <Filter Include="Code\Graphics\OpenGL\RenderPass\Ocean">
       <UniqueIdentifier>{e8d931bd-3942-4c2b-b85c-7100df284ad3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Graphics\OpenGL\RenderPass\LPV">
+      <UniqueIdentifier>{b2cc59ac-ba4b-4065-aa26-41ba330c23aa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Engine.h">
@@ -518,6 +521,18 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\OceanTesselationRenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\LightPropagationVolumes.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\RSMRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\LPV</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\LightInjectionRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\LPV</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\LightPropagationRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\LPV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -825,6 +840,18 @@
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\OceanTesselationRenderPass.cpp">
       <Filter>Code\Graphics\OpenGL\RenderPass\Ocean</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\LightPropagationVolumes.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\RSMRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\LPV</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\LightInjectionRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\LPV</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\LightPropagationRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\LPV</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

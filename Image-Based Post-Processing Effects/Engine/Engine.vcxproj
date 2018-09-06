@@ -52,6 +52,7 @@
     <ClInclude Include="Code\Graphics\OpenGL\GBuffer.h" />
     <ClInclude Include="Code\Graphics\OpenGL\GLUtility.h" />
     <ClInclude Include="Code\Graphics\OpenGL\GraphicsFramework.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\LightPropagationVolumes.h" />
     <ClInclude Include="Code\Graphics\OpenGL\MediumDescription.h" />
     <ClInclude Include="Code\Graphics\OpenGL\Ocean.h" />
     <ClInclude Include="Code\Graphics\OpenGL\PostProcessRenderer.h" />
@@ -67,6 +68,9 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\DirectionalLightRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\PointLightRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\SpotLightRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\LightInjectionRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\LightPropagationRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\RSMRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\ButterflyComputeRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\ButterflyPrecomputeRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\InversePermuteRenderPass.h" />
@@ -178,6 +182,7 @@
     <ClCompile Include="Code\Graphics\OpenGL\glad.c" />
     <ClCompile Include="Code\Graphics\OpenGL\GLUtility.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\GraphicsFramework.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\LightPropagationVolumes.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\Ocean.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\PostProcessRenderer.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\ForwardCustomRenderPass.cpp" />
@@ -191,6 +196,9 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\DirectionalLightRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\PointLightRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\SpotLightRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\LightInjectionRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\LightPropagationRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\RSMRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\ButterflyComputeRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\ButterflyPrecomputeRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\InversePermuteRenderPass.cpp" />
