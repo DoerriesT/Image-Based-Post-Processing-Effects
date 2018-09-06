@@ -23,7 +23,6 @@ GraphicsFramework::GraphicsFramework(std::shared_ptr<Window> _window)
 	:sceneRenderer(_window),
 	postProcessRenderer(_window),
 	window(_window),
-	shadowRenderer(),
 	environmentRenderer()
 {
 	window->addResizeListener(this);
@@ -77,7 +76,6 @@ void GraphicsFramework::init()
 
 	sceneRenderer.init();
 	postProcessRenderer.init();
-	shadowRenderer.init();
 	environmentRenderer.init();
 
 	blitShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Shared/blit.frag");
@@ -134,10 +132,6 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 	prevViewProjectionMatrix = renderData.viewProjectionMatrix;
 	prevInvJitter = renderData.invJitter;
 
-	if (renderData.shadows)
-	{
-		shadowRenderer.renderShadows(renderData, _scene, _level, _effects);
-	}
 	sceneRenderer.render(renderData, _scene, _level, _effects);
 	postProcessRenderer.render(renderData, _level, _effects, sceneRenderer.getColorTexture(), sceneRenderer.getDepthStencilTexture(), sceneRenderer.getVelocityTexture(), _camera);
 
@@ -160,7 +154,6 @@ void GraphicsFramework::render(const Scene &_scene, const std::shared_ptr<Level>
 	effects.ambientOcclusion = AmbientOcclusion::HBAO;
 
 	sceneRenderer.resize(renderData.resolution);
-	shadowRenderer.setCascadeSkipOptimization(false);
 
 	for (unsigned int bounce = 0; bounce < 2; ++bounce)
 	{
@@ -192,7 +185,6 @@ void GraphicsFramework::render(const Scene &_scene, const std::shared_ptr<Level>
 				renderData.viewDirection = -glm::transpose(renderData.viewMatrix)[2];
 				renderData.frustum.update(renderData.viewProjectionMatrix);
 
-				shadowRenderer.renderShadows(renderData, _scene, _level, _effects);
 				sceneRenderer.render(renderData, _scene, _level, effects);
 				environmentRenderer.updateCubeSide(i, sceneRenderer.getColorTexture());
 			}
@@ -236,7 +228,6 @@ void GraphicsFramework::render(const Scene &_scene, const std::shared_ptr<Level>
 							renderData.viewDirection = -glm::transpose(renderData.viewMatrix)[2];
 							renderData.frustum.update(renderData.viewProjectionMatrix);
 
-							shadowRenderer.renderShadows(renderData, _scene, _level, _effects);
 							sceneRenderer.render(renderData, _scene, _level, effects);
 							environmentRenderer.updateCubeSide(i, sceneRenderer.getColorTexture());
 						}
@@ -249,7 +240,6 @@ void GraphicsFramework::render(const Scene &_scene, const std::shared_ptr<Level>
 	}
 
 	sceneRenderer.resize(std::make_pair<>(window->getWidth(), window->getHeight()));
-	shadowRenderer.setCascadeSkipOptimization(true);
 }
 
 std::shared_ptr<Texture> GraphicsFramework::render(const AtmosphereParams &_params)

@@ -46,6 +46,8 @@
     <ClInclude Include="Code\Graphics\Effects.h" />
     <ClInclude Include="Code\Graphics\EntityRenderData.h" />
     <ClInclude Include="Code\Graphics\Frustum.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.h" />
+    <ClInclude Include="Code\Graphics\Volume.h" />
     <ClInclude Include="Code\Graphics\Model.h" />
     <ClInclude Include="Code\Graphics\OpenGL\Buffer.h" />
     <ClInclude Include="Code\Graphics\OpenGL\EnvironmentRenderer.h" />
@@ -89,7 +91,6 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAORenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\SceneRenderer.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ShaderProgram.h" />
-    <ClInclude Include="Code\Graphics\OpenGL\ShadowRenderer.h" />
     <ClInclude Include="Code\Graphics\OpenGL\TileRing.h" />
     <ClInclude Include="Code\Graphics\OpenGL\Uniform.h" />
     <ClInclude Include="Code\Graphics\OpenGL\VolumetricLighting.h" />
@@ -208,6 +209,7 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\TildeH0kRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\TildeHktRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\RenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAODenoiseRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAORenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\HBAORenderPass.cpp" />
@@ -217,7 +219,6 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAORenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\SceneRenderer.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ShaderProgram.cpp" />
-    <ClCompile Include="Code\Graphics\OpenGL\ShadowRenderer.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\TileRing.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\Uniform.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\VolumetricLighting.cpp" />

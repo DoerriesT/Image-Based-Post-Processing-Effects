@@ -15,6 +15,7 @@ class ShaderProgram;
 struct RenderData;
 struct AxisAlignedBoundingBox;
 struct Water;
+class ShadowRenderPass;
 class GBufferRenderPass;
 class GBufferCustomRenderPass;
 class SSAOOriginalRenderPass;
@@ -78,6 +79,7 @@ private:
 
 	GLenum lightColorAttachments[2];
 
+	ShadowRenderPass *shadowRenderPass;
 	GBufferRenderPass *gBufferRenderPass;
 	GBufferCustomRenderPass *gBufferCustomRenderPass;
 	SSAOOriginalRenderPass *ssaoOriginalRenderPass;
@@ -105,6 +107,8 @@ private:
 	GLuint ssaoTextureC;
 	GLuint noiseTexture;
 	GLuint noiseTexture2;
+
+	GLuint shadowFbo;
 
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
 	void createSsaoAttachments(const std::pair<unsigned int, unsigned int> &_resolution);

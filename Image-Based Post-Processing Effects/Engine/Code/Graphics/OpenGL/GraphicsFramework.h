@@ -1,7 +1,6 @@
 #pragma once
 #include "SceneRenderer.h"
 #include "PostProcessRenderer.h"
-#include "ShadowRenderer.h"
 #include "EnvironmentRenderer.h"
 #include "Window\GLFW\IWindowResizeListener.h"
 
@@ -34,7 +33,6 @@ public:
 private:
 	SceneRenderer sceneRenderer;
 	PostProcessRenderer postProcessRenderer;
-	ShadowRenderer shadowRenderer;
 	EnvironmentRenderer environmentRenderer;
 	std::shared_ptr<ShaderProgram> blitShader;
 	std::shared_ptr<Window> window;

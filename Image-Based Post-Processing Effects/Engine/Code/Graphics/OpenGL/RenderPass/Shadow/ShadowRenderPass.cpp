@@ -1,53 +1,54 @@
-#include "ShadowRenderer.h"
+#include "ShadowRenderPass.h"
+#include "Window\Window.h"
+#include "Level.h"
+#include "Graphics\OpenGL\RenderData.h"
+#include "Graphics\Scene.h"
+#include "Graphics\EntityRenderData.h"
 #include "Utilities\ContainerUtility.h"
+#include "Graphics\Mesh.h"
 #include <glm\mat4x4.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\ext.hpp>
-#include "Graphics\Mesh.h"
-#include "EntityComponentSystem\Component.h"
-#include "ShaderProgram.h"
-#include "Graphics\Camera.h"
-#include "Graphics\Scene.h"
-#include "RenderData.h"
-#include "Level.h"
-#include "Graphics\Effects.h"
-#include "Graphics\EntityRenderData.h"
-#include "Window\Window.h"
 
-ShadowRenderer::ShadowRenderer()
-	:cascadeSkipOptimization(true)
+ShadowRenderPass::ShadowRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-}
+	fbo = _fbo;
+	drawBuffers = { GL_NONE };
+	state.blendState.enabled = false;
+	state.cullFaceState.enabled = true;
+	state.cullFaceState.face = GL_BACK;
+	state.depthState.enabled = true;
+	state.depthState.func = GL_LEQUAL;
+	state.depthState.mask = GL_TRUE;
+	state.stencilState.enabled = false;
+	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
+	state.stencilState.frontRef = state.stencilState.backRef = 1;
+	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
+	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
+	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
+	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
 
-ShadowRenderer::~ShadowRenderer()
-{
-	deleteFbos();
-}
+	resize(_width, _height);
 
-void ShadowRenderer::init()
-{
 	shadowShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shadows/shadow.vert", "Resources/Shaders/Shadows/shadow.frag");
 
-	// create uniforms
-	uModelViewProjectionMatrix = shadowShader->createUniform("uModelViewProjectionMatrix");
-
-	// create FBO
-	glGenFramebuffers(1, &shadowFbo);
+	uModelViewProjectionMatrix.create(shadowShader);
 }
 
-
-void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
+void ShadowRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Scene & _scene, bool _cascadeSkipOptimization, RenderPass ** _previousRenderPass)
 {
-	// bind shadow shader
+	if (!_renderData.shadows)
+	{
+		return;
+	}
+	RenderPass::begin(*_previousRenderPass);
+	*_previousRenderPass = this;
+
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
 	shadowShader->bind();
 
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
-
-	// render shadowmaps for all light sources that cast shadows
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	glDisable(GL_BLEND);
+	unsigned int frameCounter = _renderData.frame % 4;
 
 	AxisAlignedBoundingBox sceneAABB = calculateSceneAABB(_scene);
 
@@ -70,7 +71,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 			glm::mat4 lightViewProjections[SHADOW_CASCADES];
 			for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 			{
-				if (i <= frameCounter || !cascadeSkipOptimization)
+				if (i <= frameCounter || !_cascadeSkipOptimization)
 				{
 					lightViewProjections[i] = calculateLightViewProjection(_renderData, sceneAABB, directionalLight->getDirection(), i == 0 ? 0.05f : splits[i - 1], splits[i], true);
 				}
@@ -85,14 +86,14 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 			unsigned int shadowMapResolution = directionalLight->getShadowMapResolution();
 			glViewport(0, 0, shadowMapResolution, shadowMapResolution);
 
-			for (unsigned int i = 0; i < SHADOW_CASCADES && (i <= frameCounter || !cascadeSkipOptimization); ++i)
+			for (unsigned int i = 0; i < SHADOW_CASCADES && (i <= frameCounter || !_cascadeSkipOptimization); ++i)
 			{
 				glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, directionalLight->getShadowMap(), 0, i);
 
 				glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 				glClear(GL_DEPTH_BUFFER_BIT);
 				glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-				render(*(directionalLight->getViewProjectionMatrices() + i), _scene);
+				renderShadows(*(directionalLight->getViewProjectionMatrices() + i), _scene);
 			}
 		}
 	}
@@ -109,7 +110,7 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 			glm::mat4 viewProj = spotLight->getViewProjectionMatrix();
-			render(viewProj, _scene);
+			renderShadows(viewProj, _scene);
 		}
 	}
 
@@ -127,24 +128,17 @@ void ShadowRenderer::renderShadows(const RenderData &_renderData, const Scene &_
 				glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 				glClear(GL_DEPTH_BUFFER_BIT);
 				glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-				render(*(pointLight->getViewProjectionMatrices() + i), _scene);
+				renderShadows(*(pointLight->getViewProjectionMatrices() + i), _scene);
 			}
 		}
 	}
 
+	// reset these manually
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(GL_FALSE);
-
-	frameCounter = (frameCounter + 1) % 4;
+	glViewport(state.viewportState.x, state.viewportState.y, state.viewportState.width, state.viewportState.height);
 }
 
-void ShadowRenderer::setCascadeSkipOptimization(bool _enabled)
-{
-	cascadeSkipOptimization = _enabled;
-}
-
-void ShadowRenderer::render(const glm::mat4 &_viewProjectionMatrix, const Scene &_scene)
+void ShadowRenderPass::renderShadows(const glm::mat4 & _viewProjectionMatrix, const Scene & _scene)
 {
 	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
 
@@ -170,7 +164,6 @@ void ShadowRenderer::render(const glm::mat4 &_viewProjectionMatrix, const Scene 
 			enabledMesh = false;
 		}
 
-
 		// skip this mesh if its transparent
 		if (entityRenderData->transparencyComponent && ContainerUtility::contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
 		{
@@ -189,25 +182,19 @@ void ShadowRenderer::render(const glm::mat4 &_viewProjectionMatrix, const Scene 
 			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
 			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale));
 
-		shadowShader->setUniform(uModelViewProjectionMatrix, _viewProjectionMatrix * modelMatrix);
+		uModelViewProjectionMatrix.set(_viewProjectionMatrix * modelMatrix);
 
 		if (!enabledMesh)
 		{
 			enabledMesh = true;
 			currentMesh->enableVertexAttribArraysPositionOnly();
 		}
-		//currentMesh->render();
+
 		glDrawElements(GL_TRIANGLES, currentMesh->getIndices().size(), GL_UNSIGNED_INT, NULL);
 	}
 }
 
-void ShadowRenderer::deleteFbos()
-{
-	GLuint frameBuffers[] = { shadowFbo };
-	glDeleteFramebuffers(sizeof(frameBuffers) / sizeof(GLuint), frameBuffers);
-}
-
-glm::mat4 ShadowRenderer::calculateLightViewProjection(const RenderData & _renderData, const AxisAlignedBoundingBox &_sceneAABB, const glm::vec3 &_lightDir, float _nearPlane, float _farPlane, bool _useAABB)
+glm::mat4 ShadowRenderPass::calculateLightViewProjection(const RenderData & _renderData, const AxisAlignedBoundingBox & _sceneAABB, const glm::vec3 & _lightDir, float _nearPlane, float _farPlane, bool _useAABB)
 {
 	glm::mat4 cameraProjection = glm::perspective(glm::radians(_renderData.fov), _renderData.resolution.first / (float)_renderData.resolution.second, _nearPlane, _farPlane);
 	glm::mat4 invProjectionViewMatrix = glm::inverse(cameraProjection * _renderData.viewMatrix);
@@ -278,7 +265,7 @@ glm::mat4 ShadowRenderer::calculateLightViewProjection(const RenderData & _rende
 		}
 		/*if (viewAABBMax.z < maxCorner.z && viewAABBMax.z > minCorner.z)
 		{
-			maxCorner.z = viewAABBMax.z;
+		maxCorner.z = viewAABBMax.z;
 		}*/
 
 		if (viewAABBMax.x < maxCorner.x && viewAABBMax.x > minCorner.x)
@@ -291,7 +278,7 @@ glm::mat4 ShadowRenderer::calculateLightViewProjection(const RenderData & _rende
 		}
 		/*if (viewAABBMax.z < maxCorner.z && viewAABBMax.z > minCorner.z)
 		{
-			maxCorner.z = viewAABBMax.z;
+		maxCorner.z = viewAABBMax.z;
 		}*/
 	}
 
@@ -300,7 +287,7 @@ glm::mat4 ShadowRenderer::calculateLightViewProjection(const RenderData & _rende
 	return glm::ortho(minCorner.x, maxCorner.x, minCorner.y, maxCorner.y, 0.0f, projFarPlane) * lightView;
 }
 
-AxisAlignedBoundingBox ShadowRenderer::calculateSceneAABB(const Scene &_scene)
+AxisAlignedBoundingBox ShadowRenderPass::calculateSceneAABB(const Scene & _scene)
 {
 	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
 

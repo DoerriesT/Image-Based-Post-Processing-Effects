@@ -23,6 +23,7 @@
 #include "Graphics\Effects.h"
 #include "Graphics\Texture.h"
 #include "Input\UserInput.h"
+#include "RenderPass\Shadow\ShadowRenderPass.h"
 #include "RenderPass\Geometry\GBufferRenderPass.h"
 #include "RenderPass\Geometry\GBufferCustomRenderPass.h"
 #include "RenderPass\SSAO\SSAOOriginalRenderPass.h"
@@ -53,7 +54,7 @@ SceneRenderer::~SceneRenderer()
 		gVelocityTexture, brdfLUT };
 	glDeleteTextures(sizeof(textures) / sizeof(GLuint), textures);
 
-	GLuint fbos[] = { gBufferFBO, ssaoFbo };
+	GLuint fbos[] = { gBufferFBO, ssaoFbo, shadowFbo };
 
 	glDeleteFramebuffers(sizeof(fbos) / sizeof(GLuint), fbos);
 }
@@ -63,6 +64,7 @@ void SceneRenderer::init()
 	// create FBO
 	glGenFramebuffers(1, &gBufferFBO);
 	glGenFramebuffers(1, &ssaoFbo);
+	glGenFramebuffers(1, &shadowFbo);
 
 	auto res = std::make_pair(window->getWidth(), window->getHeight());
 	createFboAttachments(res);
@@ -82,6 +84,7 @@ void SceneRenderer::init()
 	ocean.init(gBufferFBO, res.first, res.second);
 	volumetricLighting.init();
 
+	shadowRenderPass = new ShadowRenderPass(shadowFbo, 1, 1); // viewport is reconfigured for every light so the constructor value does not matter
 	gBufferRenderPass = new GBufferRenderPass(gBufferFBO, res.first, res.second);
 	gBufferCustomRenderPass = new GBufferCustomRenderPass(gBufferFBO, res.first, res.second);
 	ssaoOriginalRenderPass = new SSAOOriginalRenderPass(ssaoFbo, res.first, res.second);
@@ -106,6 +109,8 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 {
 	RenderPass *previousRenderPass = nullptr;
 	frame = _renderData.frame;
+
+	shadowRenderPass->render(_renderData, _level, _scene, true, &previousRenderPass);
 
 	if (_level->water.enabled)
 	{

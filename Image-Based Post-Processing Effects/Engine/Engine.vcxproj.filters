@@ -129,6 +129,9 @@
     <Filter Include="Code\Graphics\OpenGL\RenderPass\LPV">
       <UniqueIdentifier>{b2cc59ac-ba4b-4065-aa26-41ba330c23aa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Graphics\OpenGL\RenderPass\Shadow">
+      <UniqueIdentifier>{7d9d1429-49f0-451d-a596-b9eff7359786}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Engine.h">
@@ -377,9 +380,6 @@
     <ClInclude Include="Code\Graphics\OpenGL\ShaderProgram.h">
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\ShadowRenderer.h">
-      <Filter>Code\Graphics\OpenGL</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Graphics\OpenGL\TileRing.h">
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClInclude>
@@ -532,6 +532,12 @@
     </ClInclude>
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\LightPropagationRenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass\LPV</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\Volume.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Shadow</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -715,9 +721,6 @@
     <ClCompile Include="Code\Graphics\OpenGL\ShaderProgram.cpp">
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\ShadowRenderer.cpp">
-      <Filter>Code\Graphics\OpenGL</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\TileRing.cpp">
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClCompile>
@@ -852,6 +855,9 @@
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\LightPropagationRenderPass.cpp">
       <Filter>Code\Graphics\OpenGL\RenderPass\LPV</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Shadow</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
