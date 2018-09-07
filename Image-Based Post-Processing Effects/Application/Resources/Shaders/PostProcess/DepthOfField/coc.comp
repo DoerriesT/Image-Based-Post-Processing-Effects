@@ -9,6 +9,7 @@ layout(binding = 0) uniform sampler2D uDepthTexture;
 uniform float uFocalLength;
 uniform float uApertureSize;
 uniform vec2 uNearFar;
+uniform float uScale = 4.0;
 
 float linearDepth(float depth)
 {
@@ -24,6 +25,9 @@ void main()
 	float nominator = uFocalLength * (centerDepth - depth);
 	float denominator = depth * (centerDepth - uFocalLength);
 	float coc = uApertureSize * (nominator / denominator);
+
+	vec2 resolution = textureSize(uDepthTexture, 0).xy;
+	coc *= max(resolution.x * (1.0 / 1920), resolution.y * (1.0 / 1080)) * uScale;
 	
 	vec4 cocData = vec4(abs(step(coc, 0.0) * coc), abs(step(0.0, coc) * coc), 0.0, 0.0);
 	
