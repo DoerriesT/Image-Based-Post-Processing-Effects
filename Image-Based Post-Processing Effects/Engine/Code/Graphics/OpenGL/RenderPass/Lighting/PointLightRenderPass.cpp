@@ -18,9 +18,9 @@ PointLightRenderPass::PointLightRenderPass(GLuint _fbo, unsigned int _width, uns
 	state.depthState.enabled = false;
 	state.depthState.func = GL_LEQUAL;
 	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
+	state.stencilState.enabled = true;
+	state.stencilState.frontFunc = state.stencilState.backFunc = GL_NOTEQUAL;
+	state.stencilState.frontRef = state.stencilState.backRef = 0;
 	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
 	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
 	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
@@ -28,7 +28,7 @@ PointLightRenderPass::PointLightRenderPass(GLuint _fbo, unsigned int _width, uns
 
 	resize(_width, _height);
 
-	pointLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/pointLightPass.vert", "Resources/Shaders/Lighting/pointLightPass.frag");
+	pointLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/lightProxy.vert", "Resources/Shaders/Lighting/pointLightPass.frag");
 
 	uModelViewProjectionP.create(pointLightPassShader);
 	uPointLightP.create(pointLightPassShader);

@@ -54,7 +54,7 @@ void RenderPass::begin(const RenderPass *_previousRenderPass)
 				|| _previousRenderPass->state.stencilState.backOpZfail != state.stencilState.backOpZfail
 				|| _previousRenderPass->state.stencilState.backOpZpass != state.stencilState.backOpZpass)
 			{
-				glStencilOpSeparate(GL_FRONT, state.stencilState.backOpFail, state.stencilState.backOpZfail, state.stencilState.backOpZpass);
+				glStencilOpSeparate(GL_BACK, state.stencilState.backOpFail, state.stencilState.backOpZfail, state.stencilState.backOpZpass);
 			}
 		}
 	}

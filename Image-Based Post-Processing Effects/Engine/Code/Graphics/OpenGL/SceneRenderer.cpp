@@ -36,6 +36,7 @@
 #include "RenderPass\Geometry\SkyboxRenderPass.h"
 #include "RenderPass\Lighting\AmbientLightRenderPass.h"
 #include "RenderPass\Lighting\DirectionalLightRenderPass.h"
+#include "RenderPass\Lighting\StencilRenderPass.h"
 #include "RenderPass\Lighting\PointLightRenderPass.h"
 #include "RenderPass\Lighting\SpotLightRenderPass.h"
 #include "RenderPass\Geometry\ForwardRenderPass.h"
@@ -97,6 +98,7 @@ void SceneRenderer::init()
 	skyboxRenderPass = new SkyboxRenderPass(gBufferFBO, res.first, res.second);
 	ambientLightRenderPass = new AmbientLightRenderPass(gBufferFBO, res.first, res.second);
 	directionalLightRenderPass = new DirectionalLightRenderPass(gBufferFBO, res.first, res.second);
+	stencilRenderPass = new StencilRenderPass(gBufferFBO, res.first, res.second);
 	pointLightRenderPass = new PointLightRenderPass(gBufferFBO, res.first, res.second);
 	spotLightRenderPass = new SpotLightRenderPass(gBufferFBO, res.first, res.second);
 	forwardRenderPass = new ForwardRenderPass(gBufferFBO, res.first, res.second);
@@ -181,6 +183,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	skyboxRenderPass->render(_renderData, _level, &previousRenderPass);
 	ambientLightRenderPass->render(_renderData, _level, _effects, gbuffer, brdfLUT, &previousRenderPass);
 	directionalLightRenderPass->render(_renderData, _level, gbuffer, &previousRenderPass);
+	stencilRenderPass->render(_renderData, _level, gbuffer, &previousRenderPass);
 	pointLightRenderPass->render(_renderData, _level, gbuffer, &previousRenderPass);
 	spotLightRenderPass->render(_renderData, _level, gbuffer, &previousRenderPass);
 	forwardRenderPass->render(_renderData, _level, _scene, &previousRenderPass);
@@ -239,6 +242,7 @@ void SceneRenderer::resize(const std::pair<unsigned int, unsigned int> &_resolut
 	skyboxRenderPass->resize(_resolution.first, _resolution.second);
 	ambientLightRenderPass->resize(_resolution.first, _resolution.second);
 	directionalLightRenderPass->resize(_resolution.first, _resolution.second);
+	stencilRenderPass->resize(_resolution.first, _resolution.second);
 	pointLightRenderPass->resize(_resolution.first, _resolution.second);
 	spotLightRenderPass->resize(_resolution.first, _resolution.second);
 	forwardRenderPass->resize(_resolution.first, _resolution.second);

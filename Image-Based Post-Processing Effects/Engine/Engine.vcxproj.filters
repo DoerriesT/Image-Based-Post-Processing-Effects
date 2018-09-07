@@ -548,6 +548,9 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass\Shadow</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\StencilRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -868,6 +871,9 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.cpp">
       <Filter>Code\Graphics\OpenGL\RenderPass\Shadow</Filter>
     </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\StencilRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Application\Resources\Shaders\Environment\atmosphere.frag">
@@ -1053,13 +1059,7 @@
     <None Include="..\Application\Resources\Shaders\Lighting\pointLightPass.frag">
       <Filter>Resources\Shaders\Lighting</Filter>
     </None>
-    <None Include="..\Application\Resources\Shaders\Lighting\pointLightPass.vert">
-      <Filter>Resources\Shaders\Lighting</Filter>
-    </None>
     <None Include="..\Application\Resources\Shaders\Lighting\spotLightPass.frag">
-      <Filter>Resources\Shaders\Lighting</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\Lighting\spotLightPass.vert">
       <Filter>Resources\Shaders\Lighting</Filter>
     </None>
     <None Include="..\Application\Resources\Shaders\LPV\lightInjection.frag">
@@ -1169,6 +1169,12 @@
     </None>
     <None Include="..\Application\Resources\Shaders\VolumetricLighting\phaseLookup.comp">
       <Filter>Resources\Shaders\VolumetricLighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Lighting\lightProxy.vert">
+      <Filter>Resources\Shaders\Lighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Lighting\stencilPass.frag">
+      <Filter>Resources\Shaders\Lighting</Filter>
     </None>
   </ItemGroup>
 </Project>

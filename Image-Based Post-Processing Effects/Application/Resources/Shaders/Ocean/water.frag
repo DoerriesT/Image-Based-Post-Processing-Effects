@@ -2,6 +2,8 @@
 
 layout(location = 0) out vec4 oAlbedo;
 
+layout(early_fragment_tests) in;
+
 in vec2 vTexCoord;
 in vec3 vWorldPos;
 

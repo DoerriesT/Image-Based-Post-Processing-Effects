@@ -13,6 +13,8 @@ layout(location = 2) out vec4 oMetallicRoughnessAo;
 layout(location = 3) out vec4 oVelocity;
 layout(location = 4) out vec4 oEmissive;
 
+layout(early_fragment_tests) in;
+
 in vec2 vTexCoord;
 in vec3 vNormal;
 in vec4 vCurrentPos;

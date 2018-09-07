@@ -2,6 +2,8 @@
 
 layout(location = 0) out vec4 oFragColor;
 
+layout(early_fragment_tests) in;
+
 in vec3 vNormal;
 
 layout(binding = 13) uniform sampler2D uLightProbe;

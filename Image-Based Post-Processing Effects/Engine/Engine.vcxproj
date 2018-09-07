@@ -46,6 +46,7 @@
     <ClInclude Include="Code\Graphics\Effects.h" />
     <ClInclude Include="Code\Graphics\EntityRenderData.h" />
     <ClInclude Include="Code\Graphics\Frustum.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\StencilRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.h" />
     <ClInclude Include="Code\Graphics\Volume.h" />
     <ClInclude Include="Code\Graphics\Model.h" />
@@ -197,6 +198,7 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\DirectionalLightRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\PointLightRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\SpotLightRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\StencilRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\LightInjectionRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\LightPropagationRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\RSMRenderPass.cpp" />
@@ -284,10 +286,10 @@
     <None Include="..\Application\Resources\Shaders\Lighting\ambientLightPass.frag" />
     <None Include="..\Application\Resources\Shaders\Lighting\brdf.comp" />
     <None Include="..\Application\Resources\Shaders\Lighting\directionalLightPass.frag" />
+    <None Include="..\Application\Resources\Shaders\Lighting\lightProxy.vert" />
     <None Include="..\Application\Resources\Shaders\Lighting\pointLightPass.frag" />
-    <None Include="..\Application\Resources\Shaders\Lighting\pointLightPass.vert" />
     <None Include="..\Application\Resources\Shaders\Lighting\spotLightPass.frag" />
-    <None Include="..\Application\Resources\Shaders\Lighting\spotLightPass.vert" />
+    <None Include="..\Application\Resources\Shaders\Lighting\stencilPass.frag" />
     <None Include="..\Application\Resources\Shaders\LPV\lightInjection.frag" />
     <None Include="..\Application\Resources\Shaders\LPV\lightInjection.vert" />
     <None Include="..\Application\Resources\Shaders\LPV\lightPropagation.frag" />

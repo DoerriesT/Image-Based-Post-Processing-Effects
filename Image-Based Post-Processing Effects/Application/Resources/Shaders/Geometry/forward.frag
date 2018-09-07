@@ -11,6 +11,8 @@ const int EMISSIVE = 32;
 layout(location = 0) out vec4 oFragColor;
 layout(location = 1) out vec4 oVelocity;
 
+layout(early_fragment_tests) in;
+
 in vec2 vTexCoord;
 in vec3 vNormal;
 in vec4 vCurrentPos;

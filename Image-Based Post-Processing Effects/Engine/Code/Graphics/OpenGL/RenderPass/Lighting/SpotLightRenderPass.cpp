@@ -19,9 +19,9 @@ SpotLightRenderPass::SpotLightRenderPass(GLuint _fbo, unsigned int _width, unsig
 	state.depthState.enabled = false;
 	state.depthState.func = GL_LEQUAL;
 	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
+	state.stencilState.enabled = true;
+	state.stencilState.frontFunc = state.stencilState.backFunc = GL_NOTEQUAL;
+	state.stencilState.frontRef = state.stencilState.backRef = 0;
 	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
 	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
 	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
@@ -29,7 +29,7 @@ SpotLightRenderPass::SpotLightRenderPass(GLuint _fbo, unsigned int _width, unsig
 
 	resize(_width, _height);
 
-	spotLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/spotLightPass.vert", "Resources/Shaders/Lighting/spotLightPass.frag");
+	spotLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/lightProxy.vert", "Resources/Shaders/Lighting/spotLightPass.frag");
 
 	uModelViewProjectionS.create(spotLightPassShader);
 	uSpotLightS.create(spotLightPassShader);

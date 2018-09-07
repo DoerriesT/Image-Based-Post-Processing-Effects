@@ -3,6 +3,8 @@
 layout(location = 0) out vec4 oAlbedo;
 layout(location = 1) out vec4 oVelocity;
 
+layout(early_fragment_tests) in;
+
 in vec4 vRay;
 
 layout(binding = 11) uniform samplerCube uAlbedoMap;

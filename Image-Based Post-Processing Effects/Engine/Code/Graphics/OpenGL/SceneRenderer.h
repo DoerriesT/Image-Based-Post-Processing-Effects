@@ -28,6 +28,7 @@ class SSAOBilateralBlurRenderPass;
 class SkyboxRenderPass;
 class AmbientLightRenderPass;
 class DirectionalLightRenderPass;
+class StencilRenderPass;
 class PointLightRenderPass;
 class SpotLightRenderPass;
 class ForwardRenderPass;
@@ -92,6 +93,7 @@ private:
 	SkyboxRenderPass *skyboxRenderPass;
 	AmbientLightRenderPass *ambientLightRenderPass;
 	DirectionalLightRenderPass *directionalLightRenderPass;
+	StencilRenderPass *stencilRenderPass;
 	PointLightRenderPass *pointLightRenderPass;
 	SpotLightRenderPass *spotLightRenderPass;
 	ForwardRenderPass *forwardRenderPass;
