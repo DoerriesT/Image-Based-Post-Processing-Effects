@@ -167,7 +167,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	level->filepath = "Resources/Levels/sponza/";
 
 	// camera(s)
-	std::shared_ptr<Camera> camera0 = std::make_shared<Camera>(glm::vec3(4.81539774f, 5.86095524f, 1.85534108f), glm::quat(0.386821985f, -0.184476748f, 0.815521121f, -0.388924748f));
+	std::shared_ptr<Camera> camera0 = std::make_shared<Camera>(glm::vec3(12.0f, 1.8f, 0.0f), glm::quat(glm::vec3(0.0f, glm::radians(-90.0f), 0.0f)));
 
 	level->cameras.push_back(camera0);
 	level->activeCameraIndex = 0;
@@ -250,9 +250,6 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f + 6.0f, 0.7f, -0.8f), glm::vec3(-1.0f, -0.25f, -0.1f), outerAngle, innerAngle, range, true));
 	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f + 6.0f, 0.7f, 0.8f), glm::vec3(-1.0f, -0.25f, 0.1f), outerAngle, innerAngle, range, true));
 	//level->lights.pointLights.push_back(PointLight::createPointLight(glm::vec3(100.0f), glm::vec3(0.0, 3.0, 0.0), 15.0f, true));
-
-	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(0.0f, 1.7f, 0.0f), glm::vec3(1.0f, 0.5f, 0.0f), outerAngle, innerAngle, range, true, SpotLight::DEFAULT_SHADOW_MAP_RESOLUTION, true, Texture::createTexture("Resources/Textures/opengllogo.dds", true)));
-
 
 	// objects
 	{
