@@ -17,8 +17,10 @@ public:
 	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> environmentLightPassShader;
+	std::shared_ptr<ShaderProgram> ambientLightShader;
 	std::shared_ptr<Mesh> fullscreenTriangle;
+
+	UniformDirectionalLight uDirectionalLight = UniformDirectionalLight("uDirectionalLight");
 
 	Uniform<glm::mat4> uProjectionE = Uniform<glm::mat4>("uProjection");
 	Uniform<glm::mat4> uInverseProjectionE = Uniform<glm::mat4>("uInverseProjection");

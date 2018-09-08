@@ -21,7 +21,7 @@ layout(binding = 0) uniform sampler2D uAlbedoMap;
 layout(binding = 1) uniform sampler2D uNormalMap;
 layout(binding = 2) uniform sampler2D uMetallicRoughnessAoMap;
 layout(binding = 3) uniform sampler2D uDepthMap;
-layout(binding = 4) uniform sampler2DArrayShadow uShadowMap;
+layout(binding = 15) uniform sampler2DArrayShadow uShadowMap;
 
 uniform DirectionalLight uDirectionalLight;
 uniform mat4 uInverseView;

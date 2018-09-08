@@ -411,7 +411,6 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 	glBindTexture(GL_TEXTURE_2D, halfResolutionGodRayTexB);
 
 	// shader permutations
-	if (_renderData.frame % 10 == 0)
 	{
 		const auto curDefines = hdrShader->getDefines();
 

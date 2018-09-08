@@ -29,7 +29,7 @@ StencilRenderPass::StencilRenderPass(GLuint _fbo, unsigned int _width, unsigned 
 
 	resize(_width, _height);
 
-	stencilPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/lightProxy.vert", "Resources/Shaders/Lighting/stencilPass.frag");
+	stencilPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/lightProxy.vert", "Resources/Shaders/Lighting/stencil.frag");
 
 	uModelViewProjection.create(stencilPassShader);
 

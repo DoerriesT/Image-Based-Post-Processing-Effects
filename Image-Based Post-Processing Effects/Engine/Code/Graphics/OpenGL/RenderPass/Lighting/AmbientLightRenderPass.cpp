@@ -4,6 +4,8 @@
 #include "Graphics\Effects.h"
 #include "Graphics\Texture.h"
 
+static const char *DIRECTIONAL_LIGHT_ENABLED = "DIRECTIONAL_LIGHT_ENABLED";
+static const char *SHADOWS_ENABLED = "SHADOWS_ENABLED";
 static const char *SSAO_ENABLED = "SSAO_ENABLED";
 static const char *SSR_ENABLED = "SSR_ENABLED";
 static const char *IRRADIANCE_VOLUME = "IRRADIANCE_VOLUME";
@@ -30,14 +32,16 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 
 	resize(_width, _height);
 
-	environmentLightPassShader = ShaderProgram::createShaderProgram(
+	ambientLightShader = ShaderProgram::createShaderProgram(
 		{ 
+		{ ShaderProgram::ShaderType::FRAGMENT, DIRECTIONAL_LIGHT_ENABLED, 1 },
+		{ ShaderProgram::ShaderType::FRAGMENT, SHADOWS_ENABLED, 1 },
 		{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, 0 },
 		{ ShaderProgram::ShaderType::FRAGMENT, SSR_ENABLED, 0 },
 		{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_VOLUME, 1 },
 		}, 
 		"Resources/Shaders/Shared/fullscreenTriangle.vert", 
-		"Resources/Shaders/Lighting/ambientLightPass.frag");
+		"Resources/Shaders/Lighting/ambientLight.frag");
 
 	createUniforms();
 
@@ -53,10 +57,11 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	*_previousRenderPass = this;
 
 	// shader permutations
-	if (_renderData.frame % 10 == 0)
 	{
-		const auto curDefines = environmentLightPassShader->getDefines();
+		const auto curDefines = ambientLightShader->getDefines();
 
+		bool directionalLightEnabled = false;
+		bool shadowsEnabled = false;
 		bool ssaoEnabled = false;
 		bool ssrEnabled = false;
 		bool irradianceVolume = false;
@@ -65,7 +70,15 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 		{
 			if (std::get<0>(define) == ShaderProgram::ShaderType::FRAGMENT)
 			{
-				if (std::get<1>(define) == SSAO_ENABLED && std::get<2>(define))
+				if (std::get<1>(define) == DIRECTIONAL_LIGHT_ENABLED && std::get<2>(define))
+				{
+					directionalLightEnabled = true;
+				}
+				else if (std::get<1>(define) == SHADOWS_ENABLED && std::get<2>(define))
+				{
+					shadowsEnabled = true;
+				}
+				else if (std::get<1>(define) == SSAO_ENABLED && std::get<2>(define))
 				{
 					ssaoEnabled = true;
 				}
@@ -80,12 +93,16 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 			}
 		}
 
-		if (ssaoEnabled != (_effects.ambientOcclusion != AmbientOcclusion::OFF)
+		if (directionalLightEnabled != (!_level->lights.directionalLights.empty())
+			|| shadowsEnabled != _renderData.shadows
+			|| ssaoEnabled != (_effects.ambientOcclusion != AmbientOcclusion::OFF)
 			|| ssrEnabled != _effects.screenSpaceReflections.enabled
 			|| irradianceVolume != !flatAmbient)
 		{
-			environmentLightPassShader->setDefines(
+			ambientLightShader->setDefines(
 				{
+				{ ShaderProgram::ShaderType::FRAGMENT, DIRECTIONAL_LIGHT_ENABLED, (!_level->lights.directionalLights.empty()) },
+				{ ShaderProgram::ShaderType::FRAGMENT, SHADOWS_ENABLED, _renderData.shadows },
 				{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, (_effects.ambientOcclusion != AmbientOcclusion::OFF) },
 				{ ShaderProgram::ShaderType::FRAGMENT, SSR_ENABLED, _effects.screenSpaceReflections.enabled },
 				{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_VOLUME, !flatAmbient },
@@ -108,7 +125,19 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	glActiveTexture(GL_TEXTURE10);
 	glBindTexture(GL_TEXTURE_2D, _gbuffer.lightTextures[(_renderData.frame + 1) % 2]);
 
-	environmentLightPassShader->bind();
+	ambientLightShader->bind();
+
+	if (!_level->lights.directionalLights.empty())
+	{
+		const auto light = _level->lights.directionalLights[0];
+		light->updateViewValues(_renderData.viewMatrix);
+		if (light->isRenderShadows())
+		{
+			glActiveTexture(GL_TEXTURE15);
+			glBindTexture(GL_TEXTURE_2D_ARRAY, light->getShadowMap());
+		}
+		uDirectionalLight.set(light);
+	}
 
 	uInverseViewE.set(_renderData.invViewMatrix);
 	uInverseProjectionE.set(_renderData.invProjectionMatrix);
@@ -132,12 +161,14 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 
 void AmbientLightRenderPass::createUniforms()
 {
-	uInverseProjectionE.create(environmentLightPassShader);
-	uInverseViewE.create(environmentLightPassShader);
-	uProjectionE.create(environmentLightPassShader);
-	uReProjectionE.create(environmentLightPassShader);
+	uDirectionalLight.create(ambientLightShader);
 
-	uVolumeOrigin.create(environmentLightPassShader);
-	uVolumeDimensions.create(environmentLightPassShader);
-	uSpacing.create(environmentLightPassShader);
+	uInverseProjectionE.create(ambientLightShader);
+	uInverseViewE.create(ambientLightShader);
+	uProjectionE.create(ambientLightShader);
+	uReProjectionE.create(ambientLightShader);
+
+	uVolumeOrigin.create(ambientLightShader);
+	uVolumeDimensions.create(ambientLightShader);
+	uSpacing.create(ambientLightShader);
 }

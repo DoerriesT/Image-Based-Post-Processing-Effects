@@ -28,7 +28,7 @@ PointLightRenderPass::PointLightRenderPass(GLuint _fbo, unsigned int _width, uns
 
 	resize(_width, _height);
 
-	pointLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/lightProxy.vert", "Resources/Shaders/Lighting/pointLightPass.frag");
+	pointLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/lightProxy.vert", "Resources/Shaders/Lighting/pointLight.frag");
 
 	uModelViewProjectionP.create(pointLightPassShader);
 	uPointLightP.create(pointLightPassShader);
