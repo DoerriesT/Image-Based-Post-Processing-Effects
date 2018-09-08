@@ -36,7 +36,7 @@ DirectionalLightRenderPass::DirectionalLightRenderPass(GLuint _fbo, unsigned int
 
 void DirectionalLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const GBuffer &_gbuffer, RenderPass **_previousRenderPass)
 {
-	if (_level->lights.directionalLights.size() <= 1)
+	if (_level->lights.directionalLights.empty())
 	{
 		return;
 	}

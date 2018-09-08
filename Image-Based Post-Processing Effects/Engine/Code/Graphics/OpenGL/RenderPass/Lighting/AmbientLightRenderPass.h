@@ -24,14 +24,10 @@ private:
 	Uniform<glm::mat4> uInverseProjectionE = Uniform<glm::mat4>("uInverseProjection");
 	Uniform<glm::mat4> uInverseViewE = Uniform<glm::mat4>("uInverseView");
 	Uniform<glm::mat4> uReProjectionE = Uniform<glm::mat4>("uReProjection");
-	UniformDirectionalLight uDirectionalLightE = UniformDirectionalLight("uDirectionalLight");
-	Uniform<GLboolean> uShadowsEnabledE = Uniform<GLboolean>("uShadowsEnabled");
-	Uniform<GLboolean> uRenderDirectionalLightE = Uniform<GLboolean>("uRenderDirectionalLight");
-	Uniform<GLboolean> uSsaoE = Uniform<GLboolean>("uSsao");
-	Uniform<GLboolean> uUseSsrE = Uniform<GLboolean>("uUseSsr");
 
 	Uniform<glm::vec3> uVolumeOrigin = Uniform<glm::vec3>("uVolumeOrigin");
 	Uniform<glm::ivec3> uVolumeDimensions = Uniform<glm::ivec3>("uVolumeDimensions");
 	Uniform<GLfloat> uSpacing = Uniform<GLfloat>("uSpacing");
-	Uniform<GLboolean> uFlatAmbient = Uniform<GLboolean>("uFlatAmbient");
+
+	void createUniforms();
 };

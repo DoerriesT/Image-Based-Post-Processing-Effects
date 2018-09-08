@@ -35,6 +35,7 @@ inline void Uniform<Type>::create(const std::shared_ptr<ShaderProgram> &_shaderP
 {
 	shaderProgram = _shaderProgram;
 	location = shaderProgram->createUniform(name);
+	firstTime = true;
 	//assert(isValid());
 }
 

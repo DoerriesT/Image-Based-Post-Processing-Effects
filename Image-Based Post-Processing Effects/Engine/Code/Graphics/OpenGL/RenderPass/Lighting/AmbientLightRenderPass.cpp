@@ -4,6 +4,10 @@
 #include "Graphics\Effects.h"
 #include "Graphics\Texture.h"
 
+static const char *SSAO_ENABLED = "SSAO_ENABLED";
+static const char *SSR_ENABLED = "SSR_ENABLED";
+static const char *IRRADIANCE_VOLUME = "IRRADIANCE_VOLUME";
+
 AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
 	fbo = _fbo;
@@ -26,23 +30,16 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 
 	resize(_width, _height);
 
-	environmentLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Lighting/ambientLightPass.frag");
+	environmentLightPassShader = ShaderProgram::createShaderProgram(
+		{ 
+		{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, 0 },
+		{ ShaderProgram::ShaderType::FRAGMENT, SSR_ENABLED, 0 },
+		{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_VOLUME, 1 },
+		}, 
+		"Resources/Shaders/Shared/fullscreenTriangle.vert", 
+		"Resources/Shaders/Lighting/ambientLightPass.frag");
 
-	uInverseProjectionE.create(environmentLightPassShader);
-	uInverseViewE.create(environmentLightPassShader);
-	uDirectionalLightE.create(environmentLightPassShader);
-	uShadowsEnabledE.create(environmentLightPassShader);
-	uRenderDirectionalLightE.create(environmentLightPassShader);
-	uSsaoE.create(environmentLightPassShader);
-	uProjectionE.create(environmentLightPassShader);
-	uReProjectionE.create(environmentLightPassShader);
-	uUseSsrE.create(environmentLightPassShader);
-
-	uVolumeOrigin.create(environmentLightPassShader);
-	uVolumeDimensions.create(environmentLightPassShader);
-	uSpacing.create(environmentLightPassShader);
-
-	uFlatAmbient.create(environmentLightPassShader);
+	createUniforms();
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
@@ -54,6 +51,48 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
+
+	// shader permutations
+	{
+		const auto curDefines = environmentLightPassShader->getDefines();
+
+		bool ssaoEnabled = false;
+		bool ssrEnabled = false;
+		bool irradianceVolume = false;
+
+		for (const auto &define : curDefines)
+		{
+			if (std::get<0>(define) == ShaderProgram::ShaderType::FRAGMENT)
+			{
+				if (std::get<1>(define) == SSAO_ENABLED && std::get<2>(define))
+				{
+					ssaoEnabled = true;
+				}
+				else if (std::get<1>(define) == SSR_ENABLED && std::get<2>(define))
+				{
+					ssrEnabled = true;
+				}
+				else if (std::get<1>(define) == IRRADIANCE_VOLUME && std::get<2>(define))
+				{
+					irradianceVolume = true;
+				}
+			}
+		}
+
+		if (ssaoEnabled != (_effects.ambientOcclusion != AmbientOcclusion::OFF)
+			|| ssrEnabled != _effects.screenSpaceReflections.enabled
+			|| irradianceVolume != !flatAmbient)
+		{
+			environmentLightPassShader->setDefines(
+				{
+				{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, (_effects.ambientOcclusion != AmbientOcclusion::OFF) },
+				{ ShaderProgram::ShaderType::FRAGMENT, SSR_ENABLED, _effects.screenSpaceReflections.enabled },
+				{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_VOLUME, !flatAmbient },
+				}
+			);
+			createUniforms();
+		}
+	}
 
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
@@ -71,39 +110,33 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	environmentLightPassShader->bind();
 
 	uInverseViewE.set(_renderData.invViewMatrix);
-	uProjectionE.set(_renderData.projectionMatrix);
 	uInverseProjectionE.set(_renderData.invProjectionMatrix);
-	uSsaoE.set(_effects.ambientOcclusion != AmbientOcclusion::OFF);
-	uUseSsrE.set(_effects.screenSpaceReflections.enabled);
 
 	uVolumeOrigin.set(_level->environment.irradianceVolume->getOrigin());
 	uVolumeDimensions.set(_level->environment.irradianceVolume->getDimensions());
 	uSpacing.set(_level->environment.irradianceVolume->getSpacing());
 
-	uFlatAmbient.set(flatAmbient);
-
 	static glm::mat4 prevViewProjection;
 
-	uReProjectionE.set(prevViewProjection * _renderData.invViewProjectionMatrix);
+	if (!flatAmbient)
+	{
+		uProjectionE.set(_renderData.projectionMatrix);
+		uReProjectionE.set(prevViewProjection * _renderData.invViewProjectionMatrix);
+	}
+
 	prevViewProjection = _renderData.viewProjectionMatrix;
 
-	if (!_level->lights.directionalLights.empty())
-	{
-		std::shared_ptr<DirectionalLight> directionalLight = _level->lights.directionalLights[0];
-		directionalLight->updateViewValues(_renderData.viewMatrix);
-		if (directionalLight->isRenderShadows())
-		{
-			glActiveTexture(GL_TEXTURE15);
-			glBindTexture(GL_TEXTURE_2D_ARRAY, directionalLight->getShadowMap());
-		}
-		uDirectionalLightE.set(directionalLight);
-		uRenderDirectionalLightE.set(true);
-		uShadowsEnabledE.set(_renderData.shadows);
-	}
-	else
-	{
-		uRenderDirectionalLightE.set(false);
-	}
-
 	fullscreenTriangle->getSubMesh()->render();
+}
+
+void AmbientLightRenderPass::createUniforms()
+{
+	uInverseProjectionE.create(environmentLightPassShader);
+	uInverseViewE.create(environmentLightPassShader);
+	uProjectionE.create(environmentLightPassShader);
+	uReProjectionE.create(environmentLightPassShader);
+
+	uVolumeOrigin.create(environmentLightPassShader);
+	uVolumeDimensions.create(environmentLightPassShader);
+	uSpacing.create(environmentLightPassShader);
 }
