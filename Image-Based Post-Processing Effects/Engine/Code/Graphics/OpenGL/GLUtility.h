@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 
 namespace GLUtility
 {
@@ -10,4 +11,5 @@ namespace GLUtility
 	bool glDispatchComputeHelper(unsigned int _domainX, unsigned int _domainY, unsigned int _domainZ, unsigned int _localSizeX, unsigned int _localSizeY, unsigned int _localSizeZ);
 
 	std::string shaderIncludeResolve(const std::string &_sourceCode);
+	std::string shaderDefineInjection(const std::string &_sourceCode, const std::vector<std::pair<std::string, int>> &_defines);
 }

@@ -2,6 +2,7 @@
 #include <glad\glad.h>
 #include <iostream>
 #include <sstream>
+#include <cassert>
 #include "Utilities\Utility.h"
 #include "Utilities\ContainerUtility.h"
 
@@ -125,5 +126,25 @@ std::string GLUtility::shaderIncludeResolve(const std::string & _sourceCode)
 		pos = result.find("#include", pos + 1);
 	}
 
+	return result;
+}
+
+std::string GLUtility::shaderDefineInjection(const std::string &_sourceCode, const std::vector<std::pair<std::string, int>> &_defines)
+{
+	assert(!_sourceCode.empty());
+	std::string result = _sourceCode;
+
+	size_t offset = 0;
+
+	// skip past #version line ()
+	// TODO: find better alternative, as this may easily break
+	while (result[offset++] != '\n');
+
+	for (const auto &define : _defines)
+	{
+		std::string insertion = "#define " + define.first + " " + std::to_string(define.second) + "\n";
+		result.insert(offset, insertion);
+		offset += insertion.size();
+	}
 	return result;
 }

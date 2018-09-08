@@ -225,28 +225,23 @@ void EnvironmentRenderer::calculateIrradiance(const std::shared_ptr<IrradianceVo
 				const float tmp = 1.0f + u * u + v * v;
 				const float weight = 0.25f * (sqrt(tmp) * tmp);
 				totalWeight += weight;
+				color *= weight;
 
-				float shBuff[9] = {};
 
 				// Band 0
-				shBuff[0] = 0.282095f;
+				sh.c[0] += 0.282095f * color;
 
 				// Band 1
-				shBuff[1] = 0.488603f * dir.y;
-				shBuff[2] = 0.488603f * dir.z;
-				shBuff[3] = 0.488603f * dir.x;
+				sh.c[1] += 0.488603f * dir.y * (2.0f / 3.0f) * color;
+				sh.c[2] += 0.488603f * dir.z * (2.0f / 3.0f) * color;
+				sh.c[3] += 0.488603f * dir.x * (2.0f / 3.0f) * color;
 
 				// Band 2
-				shBuff[4] = 1.092548f * dir.x * dir.y;
-				shBuff[5] = 1.092548f * dir.y * dir.z;
-				shBuff[6] = 0.315392f * (3.0f * dir.z * dir.z - 1.0f);
-				shBuff[7] = 1.092548f * dir.x * dir.z;
-				shBuff[8] = 0.546274f * (dir.x * dir.x - dir.y * dir.y);
-
-				for (unsigned int i = 0; i < 9; ++i)
-				{
-					sh.c[i] += color * weight * shBuff[i];
-				}
+				sh.c[4] += 1.092548f * dir.x * dir.y * 0.25f * color;
+				sh.c[5] += 1.092548f * dir.y * dir.z * 0.25f * color;
+				sh.c[6] += 0.315392f * (3.0f * dir.z * dir.z - 1.0f) * 0.25f * color;
+				sh.c[7] += 1.092548f * dir.x * dir.z * 0.25 * color;
+				sh.c[8] += 0.546274f * (dir.x * dir.x - dir.y * dir.y) * 0.25f * color;
 			}
 		}
 	}

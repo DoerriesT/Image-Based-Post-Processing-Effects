@@ -57,43 +57,6 @@ const float Z_FAR = 3000.0;
 #define BS_MAX_ITERATIONS		30						// Maximal number of iterations for bineary search
 #define BS_DELTA_EPSILON 0.0001
 
-const float Pi = 3.141592654f;
-const float CosineA0 = Pi;
-const float CosineA1 = (2.0f * Pi) / 3.0f;
-const float CosineA2 = Pi * 0.25f;
-
-struct SH9
-{
-    float c[9];
-};
-
-struct SH9Color
-{
-    vec3 c[9];
-};
-
-SH9 SHCosineLobe(in vec3 dir)
-{
-    SH9 sh;
-
-    // Band 0
-    sh.c[0] = 0.282095f * CosineA0;
-
-    // Band 1
-    sh.c[1] = 0.488603f * dir.y * CosineA1;
-    sh.c[2] = 0.488603f * dir.z * CosineA1;
-    sh.c[3] = 0.488603f * dir.x * CosineA1;
-
-    // Band 2
-    sh.c[4] = 1.092548f * dir.x * dir.y * CosineA2;
-    sh.c[5] = 1.092548f * dir.y * dir.z * CosineA2;
-    sh.c[6] = 0.315392f * (3.0f * dir.z * dir.z - 1.0f) * CosineA2;
-    sh.c[7] = 1.092548f * dir.x * dir.z * CosineA2;
-    sh.c[8] = 0.546274f * (dir.x * dir.x - dir.y * dir.y) * CosineA2;
-
-    return sh;
-}
-
 vec3 sphericalHarmonicsIrradiance(vec3 P, vec3 N)
 {
 	vec3 minCorner = uVolumeOrigin;
@@ -102,8 +65,9 @@ vec3 sphericalHarmonicsIrradiance(vec3 P, vec3 N)
 	
 	ivec3 baseGridCoord = ivec3((P - minCorner) / uSpacing);
 
-	float weights[8];
 	float totalWeight = 0.0;
+
+	vec3 irradiance = vec3(0.0);
 	
 	for (int i = 0; i < 8; ++i)
 	{
@@ -112,41 +76,23 @@ vec3 sphericalHarmonicsIrradiance(vec3 P, vec3 N)
 		vec3 probePos = uSpacing * vec3(probeCoord) + minCorner;
 		vec3 toProbe = probePos - P;
 		vec3 alpha = 1.0 - (abs(toProbe) / uSpacing);
-		weights[i] = alpha.x * alpha.y * alpha.z * float(probeCoord == clamp(probeCoord, ivec3(0), uVolumeDimensions - ivec3(1))) * max(0.005, dot(normalize(toProbe), N));
-		totalWeight += weights[i];
-	}
-	
-	SH9Color coeffs;
-	for (int i = 0; i < 9; ++i)
-	{
-		coeffs.c[i] = vec3(0.0);
-	}
-	
-	ivec3 dims = uVolumeDimensions;
+		float weight = alpha.x * alpha.y * alpha.z * float(probeCoord == clamp(probeCoord, ivec3(0), uVolumeDimensions - ivec3(1))) * max(0.005, dot(normalize(toProbe), N));
+		totalWeight += weight;
 
-	for (int i = 0; i < 8; ++i)
-	{
-		ivec3 coord  = baseGridCoord + (ivec3(i, i >> 1, i >> 2) & ivec3(1));
-		int index = coord.z * (dims.x * dims.y) + coord.y * dims.x + coord.x;
+		int index = probeCoord.z * (uVolumeDimensions.x * uVolumeDimensions.y) + probeCoord.y * uVolumeDimensions.x + probeCoord.x;
 
-		for (int j = 0; j < 9; ++j)
-		{
-			coeffs.c[j] += weights[i] * texelFetch(uIrradianceMap, ivec2(j, index), 0).rgb;
-		}
+		irradiance += weight * texelFetch(uIrradianceMap, ivec2(0, index), 0).rgb * 0.282095f;
+		irradiance += weight * texelFetch(uIrradianceMap, ivec2(1, index), 0).rgb * 0.488603f * N.y;
+		irradiance += weight * texelFetch(uIrradianceMap, ivec2(2, index), 0).rgb * 0.488603f * N.z;
+		irradiance += weight * texelFetch(uIrradianceMap, ivec2(3, index), 0).rgb * 0.488603f * N.x;
+		irradiance += weight * texelFetch(uIrradianceMap, ivec2(4, index), 0).rgb * 1.092548f * N.x * N.y;
+		irradiance += weight * texelFetch(uIrradianceMap, ivec2(5, index), 0).rgb * 1.092548f * N.y * N.z;
+		irradiance += weight * texelFetch(uIrradianceMap, ivec2(6, index), 0).rgb * 0.315392f * (3.0f * N.z * N.z - 1.0f);
+		irradiance += weight * texelFetch(uIrradianceMap, ivec2(7, index), 0).rgb * 1.092548f * N.x * N.z;
+		irradiance += weight * texelFetch(uIrradianceMap, ivec2(8, index), 0).rgb * 0.546274f * (N.x * N.x - N.y * N.y);
 	}
 
-	 // Compute the cosine lobe in SH, oriented about the normal direction
-    SH9 shCosine = SHCosineLobe(N);
-
-    // Compute the SH dot product to get irradiance
-    vec3 irradiance = vec3(0.0);
-	float rcpTotalWeight = 1.0 / totalWeight;
-    for(int i = 0; i < 9; ++i)
-    {
-		irradiance += coeffs.c[i] * rcpTotalWeight * shCosine.c[i];
-	}
-
-    return irradiance;
+    return irradiance * (1.0 / totalWeight);
 }
 
 vec3 parallaxCorrect(vec3 R, vec3 P)
@@ -311,60 +257,60 @@ void main()
 
 		if(uRenderDirectionalLight)
 		{
-			// shadow
-			float shadow = 0.0;
+		// shadow
+		float shadow = 0.0;
 			if(uDirectionalLight.renderShadows && uShadowsEnabled)
-			{		
-				float split = SHADOW_CASCADES - 1.0;
-				for (float i = 0.0; i < SHADOW_CASCADES; ++i)
+		{		
+			float split = SHADOW_CASCADES - 1.0;
+			for (float i = 0.0; i < SHADOW_CASCADES; ++i)
+			{
+				if(-viewSpacePosition.z < uDirectionalLight.splits[int(i)])
 				{
-					if(-viewSpacePosition.z < uDirectionalLight.splits[int(i)])
-					{
-						split = i;
-						break;
-					}
+					split = i;
+					break;
 				}
-
-				vec4 worldPos4 = uInverseView * viewSpacePosition;
-				worldPos4 /= worldPos4.w;
-				vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * worldPos4;
-				vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
-				projCoords = projCoords * 0.5 + 0.5; 
-				vec2 invShadowMapSize = vec2(1.0 / (textureSize(uShadowMap, 0).xy));
-
-				float count = 0.0;
-				float radius = 2.0;
-				for(float row = -radius; row <= radius; ++row)
-				{
-					for(float col = -radius; col <= radius; ++col)
-					{
-						++count;
-						shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.001)).x;
-					}
-				}
-				shadow *= 1.0 / count;
 			}
 
-			vec3 L = normalize(uDirectionalLight.direction);
-			vec3 H = normalize(V + L);
-			float NdotL = max(dot(N, L), 0.0);
+			vec4 worldPos4 = uInverseView * viewSpacePosition;
+			worldPos4 /= worldPos4.w;
+			vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * worldPos4;
+			vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
+			projCoords = projCoords * 0.5 + 0.5; 
+			vec2 invShadowMapSize = vec2(1.0 / (textureSize(uShadowMap, 0).xy));
 
-			// Cook-Torrance BRDF
-			float NDF = DistributionGGX(N, H, metallicRoughnessAoShaded.g);
-			float G = GeometrySmith(NdotV, NdotL, metallicRoughnessAoShaded.g);
-			vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+			float count = 0.0;
+			float radius = 2.0;
+			for(float row = -radius; row <= radius; ++row)
+			{
+				for(float col = -radius; col <= radius; ++col)
+				{
+					++count;
+					shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.001)).x;
+				}
+			}
+			shadow *= 1.0 / count;
+		}
 
-			vec3 nominator = NDF * G * F;
-			float denominator = max(4 * NdotV * NdotL, 0.0000001);
+		vec3 L = normalize(uDirectionalLight.direction);
+		vec3 H = normalize(V + L);
+		float NdotL = max(dot(N, L), 0.0);
 
-			vec3 specular = nominator / denominator;
+		// Cook-Torrance BRDF
+		float NDF = DistributionGGX(N, H, metallicRoughnessAoShaded.g);
+		float G = GeometrySmith(NdotV, NdotL, metallicRoughnessAoShaded.g);
+		vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
-			// because of energy conversion kD and kS must add up to 1.0
-			vec3 kD = vec3(1.0) - F;
-			// multiply kD by the inverse metalness so if a material is metallic, it has no diffuse lighting (and otherwise a blend)
-			kD *= 1.0 - metallicRoughnessAoShaded.r;
-				
-			directionalLightContribution = vec3((kD * albedo.rgb / PI + specular) * uDirectionalLight.color * NdotL * (1.0 - shadow));
+		vec3 nominator = NDF * G * F;
+		float denominator = max(4 * NdotV * NdotL, 0.0000001);
+
+		vec3 specular = nominator / denominator;
+
+		// because of energy conversion kD and kS must add up to 1.0
+		vec3 kD = vec3(1.0) - F;
+		// multiply kD by the inverse metalness so if a material is metallic, it has no diffuse lighting (and otherwise a blend)
+		kD *= 1.0 - metallicRoughnessAoShaded.r;
+			
+		directionalLightContribution = vec3((kD * albedo.rgb / PI + specular) * uDirectionalLight.color * NdotL * (1.0 - shadow));
 		}
 		
 		vec3 ambientLightContribution = vec3(0.0);
@@ -387,28 +333,28 @@ void main()
 			// Screenspace Reflections
 			if(uUseSsr)
 			{
-				vec3 ssPosition = vec3(vTexCoord, texture(uDepthMap, vTexCoord).x);
-				vec3 vsPosition = unproject(ssPosition);
-				vec3 vsDir = normalize(vsPosition);
-				vec3 vsR = reflect(vsDir, N);
-				vec3 ssO = project(vsPosition + vsR * Z_NEAR);
-				vec3 R = ssO - ssPosition;
+			vec3 ssPosition = vec3(vTexCoord, texture(uDepthMap, vTexCoord).x);
+			vec3 vsPosition = unproject(ssPosition);
+			vec3 vsDir = normalize(vsPosition);
+			vec3 vsR = reflect(vsDir, N);
+			vec3 ssO = project(vsPosition + vsR * Z_NEAR);
+			vec3 R = ssO - ssPosition;
 
-				bool hit = linearRayTrace(ssPosition, R);
+			bool hit = linearRayTrace(ssPosition, R);
 
-				vec2 dCoords = smoothstep(0.2, 0.5, abs(vec2(0.5) - ssPosition.xy));
-				float edgeFactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
+			vec2 dCoords = smoothstep(0.2, 0.5, abs(vec2(0.5) - ssPosition.xy));
+			float edgeFactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
 
-				// reproject
-				vec4 reprojected = uReProjection * vec4(ssPosition * 2.0 - 1.0, 1.0);
-				reprojected.xy /= reprojected.w;
-				reprojected.xy = reprojected.xy * 0.5 + 0.5;
+			// reproject
+			vec4 reprojected = uReProjection * vec4(ssPosition * 2.0 - 1.0, 1.0);
+			reprojected.xy /= reprojected.w;
+			reprojected.xy = reprojected.xy * 0.5 + 0.5;
 
-				vec3 ssrColor = textureLod(uPrevFrame, reprojected.xy, metallicRoughnessAoShaded.g * log2(textureSize(uPrevFrame, 0).x)).rgb;
+			vec3 ssrColor = textureLod(uPrevFrame, reprojected.xy, metallicRoughnessAoShaded.g * log2(textureSize(uPrevFrame, 0).x)).rgb;
 
 				vec4 worldPos4 = uInverseView * viewSpacePosition;
 				vec3 correctedTexCoord = parallaxCorrect((uInverseView * vec4(reflect(-V, N), 0.0)).xyz, worldPos4.xyz / worldPos4.w);
-				vec3 cubeColor = textureLod(uPrefilterMap, octEncode(correctedTexCoord) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
+			vec3 cubeColor = textureLod(uPrefilterMap, octEncode(correctedTexCoord) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
 				prefilteredColor = mix(cubeColor, ssrColor, float(hit) * edgeFactor);
 
 			}
@@ -416,7 +362,7 @@ void main()
 			{
 				vec4 worldPos4 = uInverseView * viewSpacePosition;
 				vec3 correctedTexCoord = parallaxCorrect((uInverseView * vec4(reflect(-V, N), 0.0)).xyz, worldPos4.xyz / worldPos4.w);
-				// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+			// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
 				prefilteredColor = textureLod(uPrefilterMap, octEncode(correctedTexCoord) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
 			}
 
