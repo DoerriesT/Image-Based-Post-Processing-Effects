@@ -11,6 +11,13 @@
 #include "Level.h"
 #include "RenderData.h"
 
+static const char *BLOOM_ENABLED = "BLOOM_ENABLED";
+static const char *FLARES_ENABLED = "FLARES_ENABLED";
+static const char *DIRT_ENABLED = "DIRT_ENABLED";
+static const char *GOD_RAYS_ENABLED = "GOD_RAYS_ENABLED";
+static const char *AUTO_EXPOSURE_ENABLED = "AUTO_EXPOSURE_ENABLED";
+static const char *MOTION_BLUR = "MOTION_BLUR";
+
 PostProcessRenderer::PostProcessRenderer(std::shared_ptr<Window> _window)
 	:window(_window)
 {
@@ -60,7 +67,6 @@ void PostProcessRenderer::init()
 {
 	// create shaders
 	singlePassEffectsShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/singlePassEffects.frag");
-	hdrShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/hdr.frag");
 	fxaaShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/fxaa.frag");
 	lensFlareGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/LensFlares/lensFlareGen.frag");
 	lensFlareBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/LensFlares/lensFlareBlur.frag");
@@ -90,6 +96,17 @@ void PostProcessRenderer::init()
 	smaaNeighborhoodBlendingShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/AA/smaaNeighborhoodBlending.vert", "Resources/Shaders/PostProcess/AA/smaaNeighborhoodBlending.frag");
 	smaaResolveShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/AA/smaaResolve.frag");
 
+	hdrShader = ShaderProgram::createShaderProgram(
+		{
+		{ ShaderProgram::ShaderType::FRAGMENT, BLOOM_ENABLED, 0 },
+		{ ShaderProgram::ShaderType::FRAGMENT, FLARES_ENABLED, 0 },
+		{ ShaderProgram::ShaderType::FRAGMENT, DIRT_ENABLED, 0 },
+		{ ShaderProgram::ShaderType::FRAGMENT, GOD_RAYS_ENABLED, 0 },
+		{ ShaderProgram::ShaderType::FRAGMENT, AUTO_EXPOSURE_ENABLED, 0 },
+		{ ShaderProgram::ShaderType::FRAGMENT, MOTION_BLUR, 0 },
+		},
+		"Resources/Shaders/Shared/fullscreenTriangle.vert", 
+		"Resources/Shaders/PostProcess/hdr.frag");
 
 	// create uniforms
 
@@ -103,14 +120,9 @@ void PostProcessRenderer::init()
 
 	// hdr
 	uStarburstOffsetH.create(hdrShader);
-	uLensFlaresH.create(hdrShader);
-	uBloomH.create(hdrShader);
 	uBloomStrengthH.create(hdrShader);
 	uLensDirtStrengthH.create(hdrShader);
 	uExposureH.create(hdrShader);
-	uMotionBlurH.create(hdrShader);
-	uGodRaysH.create(hdrShader);
-	uLensDirtH.create(hdrShader);
 
 	// fxaa
 	uInverseResolutionF.create(fxaaShader);
@@ -398,16 +410,78 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 	glActiveTexture(GL_TEXTURE9);
 	glBindTexture(GL_TEXTURE_2D, halfResolutionGodRayTexB);
 
+	// shader permutations
+	if (_renderData.frame % 10 == 0)
+	{
+		const auto curDefines = hdrShader->getDefines();
+
+		bool bloomEnabled = false;
+		bool flaresEnabled = false;
+		bool dirtEnabled = false;
+		bool godRaysEnabled = false;
+		bool autoExposureEnabled = false;
+		int motionBlur = 0;
+
+		for (const auto &define : curDefines)
+		{
+			if (std::get<0>(define) == ShaderProgram::ShaderType::FRAGMENT)
+			{
+				if (std::get<1>(define) == BLOOM_ENABLED && std::get<2>(define))
+				{
+					bloomEnabled = true;
+				}
+				else if (std::get<1>(define) == FLARES_ENABLED && std::get<2>(define))
+				{
+					flaresEnabled = true;
+				}
+				else if (std::get<1>(define) == DIRT_ENABLED && std::get<2>(define))
+				{
+					dirtEnabled = true;
+				}
+				else if (std::get<1>(define) == GOD_RAYS_ENABLED && std::get<2>(define))
+				{
+					godRaysEnabled = true;
+				}
+				else if (std::get<1>(define) == AUTO_EXPOSURE_ENABLED && std::get<2>(define))
+				{
+					autoExposureEnabled = true;
+				}
+				else if (std::get<1>(define) == MOTION_BLUR)
+				{
+					motionBlur = std::get<2>(define);
+				}
+			}
+		}
+
+		if (bloomEnabled != _effects.bloom.enabled
+			|| flaresEnabled != _effects.lensFlares.enabled
+			|| dirtEnabled != _effects.lensDirt.enabled
+			|| godRaysEnabled != godrays
+			|| autoExposureEnabled != true
+			|| motionBlur != int(_effects.motionBlur))
+		{
+			hdrShader->setDefines(
+				{
+				{ ShaderProgram::ShaderType::FRAGMENT, BLOOM_ENABLED, _effects.bloom.enabled },
+				{ ShaderProgram::ShaderType::FRAGMENT, FLARES_ENABLED, _effects.lensFlares.enabled },
+				{ ShaderProgram::ShaderType::FRAGMENT, DIRT_ENABLED, _effects.lensDirt.enabled },
+				{ ShaderProgram::ShaderType::FRAGMENT, GOD_RAYS_ENABLED, godrays },
+				{ ShaderProgram::ShaderType::FRAGMENT, AUTO_EXPOSURE_ENABLED, 1 },
+				{ ShaderProgram::ShaderType::FRAGMENT, MOTION_BLUR, int(_effects.motionBlur) },
+				}
+			);
+			uStarburstOffsetH.create(hdrShader);
+			uBloomStrengthH.create(hdrShader);
+			uLensDirtStrengthH.create(hdrShader);
+			uExposureH.create(hdrShader);
+		}
+	}
+
 	hdrShader->bind();
 
 	uStarburstOffsetH.set(glm::dot(glm::vec3(1.0), _camera->getForwardDirection()));
-	uLensFlaresH.set(_effects.lensFlares.enabled);
-	uBloomH.set(_effects.bloom.enabled);
 	uBloomStrengthH.set(_effects.bloom.strength);
 	uExposureH.set(_effects.exposure);
-	uMotionBlurH.set(GLint(_effects.motionBlur));
-	uGodRaysH.set(godrays);
-	uLensDirtH.set(_effects.lensDirt.enabled);
 	uLensDirtStrengthH.set(_effects.lensDirt.strength);
 
 	fullscreenTriangle->getSubMesh()->render();

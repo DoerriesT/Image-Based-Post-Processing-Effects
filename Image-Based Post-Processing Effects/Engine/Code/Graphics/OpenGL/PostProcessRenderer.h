@@ -144,14 +144,9 @@ private:
 
 	// hdr uniform
 	Uniform<GLfloat> uStarburstOffsetH = Uniform<GLfloat>("uStarburstOffset");
-	Uniform<GLboolean> uLensFlaresH = Uniform<GLboolean>("uLensFlares");
-	Uniform<GLboolean> uBloomH = Uniform<GLboolean>("uBloom");
-	Uniform<GLint> uMotionBlurH = Uniform<GLint>("uMotionBlur");
 	Uniform<GLfloat> uBloomStrengthH = Uniform<GLfloat>("uBloomStrength");
 	Uniform<GLfloat> uLensDirtStrengthH = Uniform<GLfloat>("uLensDirtStrength");
 	Uniform<GLfloat> uExposureH = Uniform<GLfloat>("uExposure");
-	Uniform<GLboolean> uGodRaysH = Uniform<GLboolean>("uGodRays");
-	Uniform<GLboolean> uLensDirtH = Uniform<GLboolean>("uLensDirt");
 
 	// fxaa uniforms
 	Uniform<glm::vec2> uInverseResolutionF = Uniform<glm::vec2>("uInverseResolution");

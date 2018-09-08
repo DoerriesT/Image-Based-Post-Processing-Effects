@@ -53,6 +53,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	*_previousRenderPass = this;
 
 	// shader permutations
+	if (_renderData.frame % 10 == 0)
 	{
 		const auto curDefines = environmentLightPassShader->getDefines();
 
