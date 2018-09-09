@@ -87,6 +87,7 @@ void GraphicsFramework::init()
 	uInvViewMatrixBlit = blitShader->createUniform("uInvViewMatrix");
 	uPowerBlit = blitShader->createUniform("uPower");
 	uPowerValueBlit = blitShader->createUniform("uPowerValue");
+	uYCRMode = blitShader->createUniform("uYCRMode");
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
@@ -285,6 +286,7 @@ void GraphicsFramework::blitToScreen()
 		blitShader->setUniform(uRedToWhiteBlit, false);
 		blitShader->setUniform(uNormalModeBlit, false);
 		blitShader->setUniform(uPowerBlit, false);
+		blitShader->setUniform(uYCRMode, false);
 		break;
 	case GBufferDisplayMode::ALBEDO:
 		texture = sceneRenderer.getAlbedoTexture();
@@ -292,6 +294,7 @@ void GraphicsFramework::blitToScreen()
 		blitShader->setUniform(uRedToWhiteBlit, false);
 		blitShader->setUniform(uNormalModeBlit, false);
 		blitShader->setUniform(uPowerBlit, false);
+		blitShader->setUniform(uYCRMode, true);
 		break;
 	case GBufferDisplayMode::NORMAL:
 		texture = sceneRenderer.getNormalTexture();
@@ -300,13 +303,15 @@ void GraphicsFramework::blitToScreen()
 		blitShader->setUniform(uNormalModeBlit, true);
 		blitShader->setUniform(uInvViewMatrixBlit, invViewMat);
 		blitShader->setUniform(uPowerBlit, false);
+		blitShader->setUniform(uYCRMode, false);
 		break;
 	case GBufferDisplayMode::MATERIAL:
-		texture = sceneRenderer.getMaterialTexture();
+		texture = sceneRenderer.getAlbedoTexture();
 		blitShader->setUniform(uScaleBlit, 1.0f);
 		blitShader->setUniform(uRedToWhiteBlit, false);
 		blitShader->setUniform(uNormalModeBlit, false);
 		blitShader->setUniform(uPowerBlit, false);
+		blitShader->setUniform(uYCRMode, false);
 		break;
 	case GBufferDisplayMode::DEPTH:
 		texture = sceneRenderer.getDepthStencilTexture();
@@ -315,6 +320,7 @@ void GraphicsFramework::blitToScreen()
 		blitShader->setUniform(uNormalModeBlit, false);
 		blitShader->setUniform(uPowerBlit, true);
 		blitShader->setUniform(uPowerValueBlit, 30.0f);
+		blitShader->setUniform(uYCRMode, false);
 		break;
 	case GBufferDisplayMode::VELOCITY:
 		texture = sceneRenderer.getVelocityTexture();
@@ -322,6 +328,7 @@ void GraphicsFramework::blitToScreen()
 		blitShader->setUniform(uRedToWhiteBlit, false);
 		blitShader->setUniform(uNormalModeBlit, false);
 		blitShader->setUniform(uPowerBlit, false);
+		blitShader->setUniform(uYCRMode, false);
 		break;
 	case GBufferDisplayMode::AMBIENT_OCCLUSION:
 		texture = sceneRenderer.getAmbientOcclusionTexture();
@@ -329,6 +336,7 @@ void GraphicsFramework::blitToScreen()
 		blitShader->setUniform(uRedToWhiteBlit, true);
 		blitShader->setUniform(uNormalModeBlit, false);
 		blitShader->setUniform(uPowerBlit, false);
+		blitShader->setUniform(uYCRMode, false);
 		break;
 	default:
 		break;

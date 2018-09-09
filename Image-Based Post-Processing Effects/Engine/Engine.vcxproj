@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="..\Application\Resources\Shaders\Include\brdf.h" />
     <ClInclude Include="..\Application\Resources\Shaders\Include\SMAA.h" />
+    <ClInclude Include="..\Application\Resources\Shaders\Include\TBN.h" />
     <ClInclude Include="Code\DebugMacro.h" />
     <ClInclude Include="Code\EasingFunctions.h" />
     <ClInclude Include="Code\Engine.h" />

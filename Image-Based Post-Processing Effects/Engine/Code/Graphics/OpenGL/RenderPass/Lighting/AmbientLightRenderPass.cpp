@@ -13,7 +13,7 @@ static const char *IRRADIANCE_VOLUME = "IRRADIANCE_VOLUME";
 AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
 	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT4 };
+	drawBuffers = { GL_COLOR_ATTACHMENT3 };
 	state.blendState.enabled = true;
 	state.blendState.sFactor = GL_ONE;
 	state.blendState.dFactor = GL_ONE;
@@ -52,7 +52,7 @@ bool flatAmbient;
 
 void AmbientLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, RenderPass **_previousRenderPass)
 {
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
+	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT4 : GL_COLOR_ATTACHMENT3;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

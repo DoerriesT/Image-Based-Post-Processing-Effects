@@ -51,7 +51,7 @@ SceneRenderer::SceneRenderer(std::shared_ptr<Window> _window)
 
 SceneRenderer::~SceneRenderer()
 {
-	GLuint textures[] = { gAlbedoTexture, gNormalTexture, gMRASTexture, gDepthStencilTexture, gLightColorTextures[0], gLightColorTextures[1],
+	GLuint textures[] = { gAlbedoRMSTexture, gNormalAoTexture, gDepthStencilTexture, gLightColorTextures[0], gLightColorTextures[1],
 		gVelocityTexture, brdfLUT };
 	glDeleteTextures(sizeof(textures) / sizeof(GLuint), textures);
 
@@ -71,9 +71,9 @@ void SceneRenderer::init()
 	createFboAttachments(res);
 	createSsaoAttachments(res);
 
-	gbuffer.albedoTexture = gAlbedoTexture;
-	gbuffer.normalTexture = gNormalTexture;
-	gbuffer.materialTexture = gMRASTexture;
+	gbuffer.albedoTexture = 0;
+	gbuffer.normalTexture = 0;
+	gbuffer.materialTexture = 0;
 	gbuffer.lightTextures[0] = gLightColorTextures[0];
 	gbuffer.lightTextures[1] = gLightColorTextures[1];
 	gbuffer.velocityTexture = gVelocityTexture;
@@ -112,14 +112,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	RenderPass *previousRenderPass = nullptr;
 	frame = _renderData.frame;
 
-	shadowRenderPass->render(_renderData, _level, _scene, true, &previousRenderPass);
-
-	if (_level->water.enabled)
-	{
-		ocean.prepareRender(_renderData, _level, &previousRenderPass);
-	}
-
-	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 , lightColorAttachments[frame % 2], GL_COLOR_ATTACHMENT6 };
+	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, lightColorAttachments[frame % 2] };
 
 	// bind g-buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
@@ -129,16 +122,21 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	glDepthMask(GL_TRUE);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+	shadowRenderPass->render(_renderData, _level, _scene, true, &previousRenderPass);
+
+	if (_level->water.enabled)
+	{
+		ocean.prepareRender(_renderData, _level, &previousRenderPass);
+	}
+
 	gBufferRenderPass->render(_renderData, _scene, &previousRenderPass);
 	gBufferCustomRenderPass->render(_renderData, _level, _scene, &previousRenderPass);
 
 	// setup all g-buffer textures
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, gAlbedoTexture);
+	glBindTexture(GL_TEXTURE_2D, gAlbedoRMSTexture);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, gNormalTexture);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, gMRASTexture);
+	glBindTexture(GL_TEXTURE_2D, gNormalAoTexture);
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, gDepthStencilTexture);
 
@@ -211,9 +209,8 @@ void SceneRenderer::resize(const std::pair<unsigned int, unsigned int> &_resolut
 {
 	GLuint textures[] = 
 	{ 
-		gAlbedoTexture, 
-		gNormalTexture,
-		gMRASTexture,
+		gAlbedoRMSTexture, 
+		gNormalAoTexture,
 		gLightColorTextures[0],
 		gLightColorTextures[1],
 		gVelocityTexture,
@@ -250,9 +247,9 @@ void SceneRenderer::resize(const std::pair<unsigned int, unsigned int> &_resolut
 	outlineRenderPass->resize(_resolution.first, _resolution.second);
 	lightProbeRenderPass->resize(_resolution.first, _resolution.second);
 
-	gbuffer.albedoTexture = gAlbedoTexture;
-	gbuffer.normalTexture = gNormalTexture;
-	gbuffer.materialTexture = gMRASTexture;
+	gbuffer.albedoTexture = 0;
+	gbuffer.normalTexture = 0;
+	gbuffer.materialTexture = 0;
 	gbuffer.lightTextures[0] = gLightColorTextures[0];
 	gbuffer.lightTextures[1] = gLightColorTextures[1];
 	gbuffer.velocityTexture = gVelocityTexture;
@@ -267,17 +264,12 @@ GLuint SceneRenderer::getColorTexture() const
 
 GLuint SceneRenderer::getAlbedoTexture() const
 {
-	return gAlbedoTexture;
+	return gAlbedoRMSTexture;
 }
 
 GLuint SceneRenderer::getNormalTexture() const
 {
-	return gNormalTexture;
-}
-
-GLuint SceneRenderer::getMaterialTexture() const
-{
-	return gMRASTexture;
+	return gNormalAoTexture;
 }
 
 GLuint SceneRenderer::getDepthStencilTexture() const
@@ -304,32 +296,23 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
 
-	glGenTextures(1, &gAlbedoTexture);
-	glBindTexture(GL_TEXTURE_2D, gAlbedoTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, _resolution.first, _resolution.second, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glGenTextures(1, &gAlbedoRMSTexture);
+	glBindTexture(GL_TEXTURE_2D, gAlbedoRMSTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, _resolution.first, _resolution.second, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gAlbedoTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gAlbedoRMSTexture, 0);
 
-	glGenTextures(1, &gNormalTexture);
-	glBindTexture(GL_TEXTURE_2D, gNormalTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, _resolution.first, _resolution.second, 0, GL_RGB, GL_FLOAT, NULL);
+	glGenTextures(1, &gNormalAoTexture);
+	glBindTexture(GL_TEXTURE_2D, gNormalAoTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, _resolution.first, _resolution.second, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormalTexture, 0);
-
-	glGenTextures(1, &gMRASTexture);
-	glBindTexture(GL_TEXTURE_2D, gMRASTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _resolution.first, _resolution.second, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gMRASTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormalAoTexture, 0);
 
 	glGenTextures(1, &gVelocityTexture);
 	glBindTexture(GL_TEXTURE_2D, gVelocityTexture);
@@ -338,7 +321,7 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gVelocityTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gVelocityTexture, 0);
 
 	glGenTextures(1, &gLightColorTextures[0]);
 	glBindTexture(GL_TEXTURE_2D, gLightColorTextures[0]);
@@ -347,7 +330,7 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, gLightColorTextures[0], 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gLightColorTextures[0], 0);
 
 	glGenTextures(1, &gLightColorTextures[1]);
 	glBindTexture(GL_TEXTURE_2D, gLightColorTextures[1]);
@@ -356,10 +339,10 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, gLightColorTextures[1], 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, gLightColorTextures[1], 0);
 
-	lightColorAttachments[0] = GL_COLOR_ATTACHMENT4;
-	lightColorAttachments[1] = GL_COLOR_ATTACHMENT5;
+	lightColorAttachments[0] = GL_COLOR_ATTACHMENT3;
+	lightColorAttachments[1] = GL_COLOR_ATTACHMENT4;
 
 	glGenTextures(1, &gDepthStencilTexture);
 	glBindTexture(GL_TEXTURE_2D, gDepthStencilTexture);

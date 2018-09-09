@@ -551,6 +551,9 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\StencilRenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
     </ClInclude>
+    <ClInclude Include="..\Application\Resources\Shaders\Include\TBN.h">
+      <Filter>Resources\Shaders\Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">

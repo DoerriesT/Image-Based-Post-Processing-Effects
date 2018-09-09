@@ -9,7 +9,7 @@
 PointLightRenderPass::PointLightRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
 	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT4 };
+	drawBuffers = { GL_COLOR_ATTACHMENT3 };
 	state.blendState.enabled = true;
 	state.blendState.sFactor = GL_ONE;
 	state.blendState.dFactor = GL_ONE;
@@ -47,7 +47,7 @@ void PointLightRenderPass::render(const RenderData &_renderData, const std::shar
 		return;
 	}
 
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
+	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT4 : GL_COLOR_ATTACHMENT3;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

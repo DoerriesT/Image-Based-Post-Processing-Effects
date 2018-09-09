@@ -7,11 +7,10 @@ const int ROUGHNESS = 8;
 const int AO = 16;
 const int EMISSIVE = 32;
 
-layout(location = 0) out vec4 oAlbedo;
-layout(location = 1) out vec4 oNormal;
-layout(location = 2) out vec4 oMetallicRoughnessAo;
-layout(location = 3) out vec4 oVelocity;
-layout(location = 4) out vec4 oEmissive;
+layout(location = 0) out vec4 oAlbedoRMS;
+layout(location = 1) out vec4 oNormalAo;
+layout(location = 2) out vec4 oVelocity;
+layout(location = 3) out vec4 oEmissive;
 
 layout(early_fragment_tests) in;
 
@@ -54,6 +53,41 @@ vec2 encode (vec3 n)
 {
     float f = sqrt(8.0 * n.z + 8.0);
     return n.xy / f + 0.5;
+}
+
+vec3 RGB2YCoCg(vec3 c)
+{
+	return vec3(
+	0.25 * c.r + 0.5 * c.g + 0.25 * c.b, 
+	0.5 * c.r - 0.5  * c.b + 0.5, 
+	-0.25 * c.r + 0.5 * c.g - 0.25 * c.b + 0.5);
+}
+
+vec2 signNotZero(vec2 v) 
+{
+	return vec2((v.x >= 0.0) ? +1.0 : -1.0, (v.y >= 0.0) ? +1.0 : -1.0);
+}
+
+/** Assumes that v is a unit vector. The result is an octahedral vector on the [-1, +1] square. */
+vec2 octEncode(in vec3 v) 
+{
+    float l1norm = abs(v.x) + abs(v.y) + abs(v.z);
+    vec2 result = v.xy * (1.0 / l1norm);
+    if (v.z < 0.0) 
+	{
+        result = (1.0 - abs(result.yx)) * signNotZero(result.xy);
+    }
+    return result;
+}
+
+vec3 snorm12x2ToUnorm8x3(vec2 f)
+{
+	vec2 u = vec2(round(clamp(f, -1.0, 1.0) * 2047 + 2047));
+	float t = floor(u.y * (1.0 / 256));
+
+	return floor(vec3(u.x * (1.0 / 16.0),
+				fract(u.x * (1.0 / 16.0)) * 256.0 + t,
+				u.y - t * 256.0)) * (1.0 / 255.0);
 }
 
 void main()
@@ -104,14 +138,8 @@ void main()
 		texCoord = mix(currentTexCoord, currentTexCoord + deltaTexCoord, weight);
 	}
 
-    if((uMaterial.mapBitField & ALBEDO) != 0)
-    {
-		oAlbedo = vec4(texture(uAlbedoMap, texCoord).rgb, 1.0);
-    }
-	else
-	{
-		oAlbedo = uMaterial.albedo;
-	}
+	vec3 albedoColor = ((uMaterial.mapBitField & ALBEDO) != 0) ? texture(uAlbedoMap, texCoord).rgb : uMaterial.albedo.rgb;
+	albedoColor = RGB2YCoCg(albedoColor);
 
     if((uMaterial.mapBitField & NORMAL) != 0)
     {
@@ -119,45 +147,21 @@ void main()
         N = normalize(TBN * tangentSpaceNormal);
     }
 	// we save normals in view space
-	oNormal = vec4(uViewMatrix * N, 0.0);
+	N = uViewMatrix * N;
+	
+	float metallic = ((uMaterial.mapBitField & METALLIC) != 0) ? texture(uMetallicMap, texCoord).r : uMaterial.metallic;
+	float roughness = ((uMaterial.mapBitField & ROUGHNESS) != 0) ? texture(uRoughnessMap, texCoord).r : uMaterial.roughness;
+	float ao = ((uMaterial.mapBitField & AO) != 0) ? texture(uAoMap, texCoord).r : 1.0;
 
-    if((uMaterial.mapBitField & METALLIC) != 0)
-    {
-        oMetallicRoughnessAo.r  = texture(uMetallicMap, texCoord).r;
-    }
-    else
-    {
-        oMetallicRoughnessAo.r = uMaterial.metallic;
-    }
+	ivec2 crd = ivec2(gl_FragCoord.xy);
+	const bool pattern = ((crd.x & 1) == (crd.y & 1));
+	oAlbedoRMS = vec4(pattern ? albedoColor.rb : albedoColor.rg, roughness, metallic);
+	oNormalAo = vec4(snorm12x2ToUnorm8x3(octEncode(N)), ao);
 
-    if((uMaterial.mapBitField & ROUGHNESS) != 0)
-    {
-        oMetallicRoughnessAo.g = texture(uRoughnessMap, texCoord).r;
-    }
-    else
-    {
-        oMetallicRoughnessAo.g = uMaterial.roughness;
-    }
+	vec3 emissive = uMaterial.emissive;
+	emissive *= ((uMaterial.mapBitField & EMISSIVE) != 0) ? texture(uEmissiveMap, texCoord).rgb : vec3(1.0);
 
-    if((uMaterial.mapBitField & AO) != 0)
-    {
-        oMetallicRoughnessAo.b = texture(uAoMap, texCoord).r;
-    }
-    else
-    {
-        oMetallicRoughnessAo.b = 1.0;
-    }
-
-	if((uMaterial.mapBitField & EMISSIVE) != 0)
-    {
-        oEmissive = vec4(uMaterial.emissive * texture(uEmissiveMap, texCoord).rgb, 1.0);
-    }
-    else
-    {
-        oEmissive = vec4(uMaterial.emissive, 0.0);
-    }
-
-	oMetallicRoughnessAo.a = 1.0;
+	oEmissive = vec4(emissive, 1.0);
 
 	vec2 a = (vCurrentPos.xy / vCurrentPos.w) * 0.5 + 0.5;
     vec2 b = (vPrevPos.xy / vPrevPos.w) * 0.5 + 0.5;
