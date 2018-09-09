@@ -19,29 +19,15 @@ uniform float uStrength = 1.0;
 const float NEAR_PLANE = 0.1;
 const float FAR_PLANE = 3000.0;
 
-vec2 signNotZero(vec2 v) 
+vec3 decode (vec2 enc)
 {
-	return vec2((v.x >= 0.0) ? +1.0 : -1.0, (v.y >= 0.0) ? +1.0 : -1.0);
-}
-
-/** Returns a unit vector. Argument o is an octahedral vector packed via octEncode,
-    on the [-1, +1] square*/
-vec3 octDecode(vec2 o) 
-{
-    vec3 v = vec3(o.x, o.y, 1.0 - abs(o.x) - abs(o.y));
-    if (v.z < 0.0) 
-	{
-        v.xy = (1.0 - abs(v.yx)) * signNotZero(v.xy);
-    }
-    return normalize(v);
-}
-
-vec2 unorm8x3ToSnorm12x2(vec3 u)
-{
-	u *= 255.0;
-	u.y *= (1.0 / 16.0);
-	vec2 s = vec2(u.x * 16.0 + floor(u.y), fract(u.y) * (16.0 * 256.0) + u.z);
-	return clamp(s * (1.0 / 2047.0) - 1.0, vec2(-1.0), vec2(1.0));
+    vec2 fenc = enc * 4.0 - 2.0;
+    float f = dot(fenc, fenc);
+    float g = sqrt(1.0 - f * 0.25);
+    vec3 n;
+    n.xy = fenc * g;
+    n.z = 1.0 -f * 0.5;
+    return n;
 }
 
 float getLinearDepth(float depth)
@@ -61,7 +47,7 @@ void main()
 	viewSpacePos /= viewSpacePos.w;
 	
     vec3 fragPos = viewSpacePos.xyz;
-    vec3 N = octDecode(unorm8x3ToSnorm12x2(texture(uNormalTexture, texCoord).xyz));
+    vec3 N = texture(uNormalTexture, texCoord).xyz;//decode(texture(uNormalTexture, texCoord).xy);
     vec3 randomVec = texture(uNoiseTexture, texCoord * noiseScale).xyz;
 	randomVec.z = 0.0;
 	randomVec = normalize(randomVec);

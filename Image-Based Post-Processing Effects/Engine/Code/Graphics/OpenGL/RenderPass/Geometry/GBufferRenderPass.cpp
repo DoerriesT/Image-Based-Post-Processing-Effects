@@ -15,7 +15,7 @@
 GBufferRenderPass::GBufferRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
 	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT0 , GL_COLOR_ATTACHMENT1 , GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+	drawBuffers = { GL_COLOR_ATTACHMENT0 , GL_COLOR_ATTACHMENT1 , GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
 	state.blendState.enabled = false;
 	state.cullFaceState.enabled = true;
 	state.cullFaceState.face = GL_BACK;
@@ -49,7 +49,7 @@ GBufferRenderPass::GBufferRenderPass(GLuint _fbo, unsigned int _width, unsigned 
 
 void GBufferRenderPass::render(const RenderData &_renderData, const Scene &_scene, RenderPass **_previousRenderPass)
 {
-	drawBuffers[3] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT4 : GL_COLOR_ATTACHMENT3;
+	drawBuffers[4] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

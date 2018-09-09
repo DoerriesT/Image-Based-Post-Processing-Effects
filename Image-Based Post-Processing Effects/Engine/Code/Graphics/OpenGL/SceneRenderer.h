@@ -51,6 +51,7 @@ public:
 	GLuint getColorTexture() const;
 	GLuint getAlbedoTexture() const;
 	GLuint getNormalTexture() const;
+	GLuint getMaterialTexture() const;
 	GLuint getDepthStencilTexture() const;
 	GLuint getVelocityTexture() const;
 	GLuint getAmbientOcclusionTexture() const;
@@ -68,8 +69,9 @@ private:
 
 	// g-buffer
 	GLuint gBufferFBO;
-	GLuint gAlbedoRMSTexture; // albedo | roughness | metallic | shading model
-	GLuint gNormalAoTexture; // normal | ao
+	GLuint gAlbedoTexture;
+	GLuint gNormalTexture;
+	GLuint gMRASTexture; // metallic | roughness | ambient occlusion | shaded
 	GLuint gLightColorTextures[2];
 	GLuint gVelocityTexture;
 	GLuint gDepthStencilTexture;

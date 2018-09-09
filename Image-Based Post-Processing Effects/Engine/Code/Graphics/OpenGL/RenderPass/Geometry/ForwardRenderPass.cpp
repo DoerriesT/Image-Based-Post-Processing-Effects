@@ -13,7 +13,7 @@
 ForwardRenderPass::ForwardRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
 	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT2 };
+	drawBuffers = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT3 };
 	state.blendState.enabled = true;
 	state.blendState.sFactor = GL_SRC_ALPHA;
 	state.blendState.dFactor = GL_ONE_MINUS_SRC_ALPHA;
@@ -54,7 +54,7 @@ void ForwardRenderPass::render(const RenderData & _renderData, const std::shared
 		return;
 	}
 
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT4 : GL_COLOR_ATTACHMENT3;
+	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

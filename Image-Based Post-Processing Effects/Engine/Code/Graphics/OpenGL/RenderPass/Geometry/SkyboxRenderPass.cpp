@@ -11,7 +11,7 @@
 SkyboxRenderPass::SkyboxRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
 	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT2 };
+	drawBuffers = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT3 };
 	state.blendState.enabled = false;
 	state.cullFaceState.enabled = false;
 	state.cullFaceState.face = GL_BACK;
@@ -45,7 +45,7 @@ void SkyboxRenderPass::render(const RenderData &_renderData, const std::shared_p
 		return;
 	}
 
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT4 : GL_COLOR_ATTACHMENT3;
+	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
