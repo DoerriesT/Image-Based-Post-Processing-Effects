@@ -13,7 +13,7 @@ layout(location = 2) out vec4 oMetallicRoughnessAo;
 layout(location = 3) out vec4 oVelocity;
 layout(location = 4) out vec4 oEmissive;
 
-layout(early_fragment_tests) in;
+//layout(early_fragment_tests) in;
 
 in vec2 vTexCoord;
 in vec3 vNormal;
@@ -47,6 +47,8 @@ uniform vec2 uVel;
 uniform vec3 uCamPos;
 
 const float MAX_VELOCITY = 25 * 0.000625; // tilesize * pixel width
+const float ALPHA_CUTOFF = 0.5;
+const float MIP_SCALE = 0.25;
 
 #include "TBN.h"
 
@@ -106,7 +108,13 @@ void main()
 
     if((uMaterial.mapBitField & ALBEDO) != 0)
     {
-		oAlbedo = vec4(texture(uAlbedoMap, texCoord).rgb, 1.0);
+		vec4 albedo = texture(uAlbedoMap, texCoord).rgba;
+		albedo.a *= 1.0 + textureQueryLod(uAlbedoMap, texCoord).x * MIP_SCALE;
+		if(albedo.a < ALPHA_CUTOFF)
+		{
+			discard;
+		}
+		oAlbedo = vec4(albedo.rgb, 1.0);
     }
 	else
 	{
