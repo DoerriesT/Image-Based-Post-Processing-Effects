@@ -31,7 +31,8 @@
 extern bool disp;
 bool renderLightProbes = false;
 extern GBufferDisplayMode displayMode;
-extern bool flatAmbient;
+extern int irradianceSource;
+extern float occAmp;
 
 namespace App
 {
@@ -178,6 +179,18 @@ namespace App
 
 			}
 		}
+	}
+
+	void TW_CALL lightDirGetCallback(void *value, void *clientData)
+	{
+		*(float *)value = (*(std::shared_ptr<DirectionalLight> *)clientData)->getDirection().z;
+	}
+
+	void TW_CALL lightDirSetCallback(const void *value, void *clientData)
+	{
+		auto dir = (*(std::shared_ptr<DirectionalLight> *)clientData)->getDirection();
+		dir.z = *(float *)value;
+		(*(std::shared_ptr<DirectionalLight> *)clientData)->setDirection(glm::normalize(dir));
 	}
 
 	Application::Application()
@@ -396,7 +409,9 @@ namespace App
 
 			TwAddVarRW(settingsTweakBar, "Parallax Occlusion Mapping", TW_TYPE_BOOLCPP, &disp, nullptr);
 			TwAddVarRW(settingsTweakBar, "Show Light Probes", TW_TYPE_BOOLCPP, &renderLightProbes, nullptr);
-			TwAddVarRW(settingsTweakBar, "Flat Ambient", TW_TYPE_BOOLCPP, &flatAmbient, nullptr);
+			TwAddVarRW(settingsTweakBar, "Irradiance Source", TW_TYPE_INT32, &irradianceSource, "min=0 max=2");
+			TwAddVarRW(settingsTweakBar, "Occlusion Amplifier", TW_TYPE_FLOAT, &occAmp, "min=0.0 max=100.0 step=0.1");
+			TwAddVarCB(settingsTweakBar, "Light Dir", TW_TYPE_FLOAT, SETTER_FUNC_PTR(lightDir), GETTER_FUNC_PTR(lightDir), &level->lights.directionalLights[0], "min=-1.0 max=1.0 step=0.01");
 
 			{
 				TwEnumVal displayOptions[] = {

@@ -5,19 +5,18 @@
 
 struct Volume;
 
-class LightInjectionRenderPass : public RenderPass
+class GeometryInjectionRenderPass : public RenderPass
 {
 public:
-	explicit LightInjectionRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height);
-	void render(const Volume &_lightPropagationVolume, 
-		const glm::mat4 &_invViewProjection, 
-		GLint _depthTexture, 
-		GLint _fluxTexture, 
+	explicit GeometryInjectionRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height);
+	void render(const Volume &_geometryVolume,
+		const glm::mat4 &_invViewProjection,
 		GLint _normalTexture,
+		const glm::vec3 &_lightDir,
 		RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> lightInjectionShader;
+	std::shared_ptr<ShaderProgram> geometryInjectionShader;
 	GLuint VAO;
 	GLuint VBO;
 
@@ -26,5 +25,6 @@ private:
 	Uniform<glm::vec3> uGridOrigin = Uniform<glm::vec3>("uGridOrigin");
 	Uniform<glm::vec3> uGridSize = Uniform<glm::vec3>("uGridSize");
 	Uniform<glm::vec2> uGridSpacing = Uniform<glm::vec2>("uGridSpacing"); // spacing, 1.0 / spacing
-	
+	Uniform<glm::vec3> uLightDirection = Uniform<glm::vec3>("uLightDirection");
+
 };

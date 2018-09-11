@@ -8,7 +8,7 @@ static const char *DIRECTIONAL_LIGHT_ENABLED = "DIRECTIONAL_LIGHT_ENABLED";
 static const char *SHADOWS_ENABLED = "SHADOWS_ENABLED";
 static const char *SSAO_ENABLED = "SSAO_ENABLED";
 static const char *SSR_ENABLED = "SSR_ENABLED";
-static const char *IRRADIANCE_VOLUME = "IRRADIANCE_VOLUME";
+static const char *IRRADIANCE_SOURCE = "IRRADIANCE_SOURCE";
 
 AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -38,7 +38,7 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 		{ ShaderProgram::ShaderType::FRAGMENT, SHADOWS_ENABLED, 1 },
 		{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, 0 },
 		{ ShaderProgram::ShaderType::FRAGMENT, SSR_ENABLED, 0 },
-		{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_VOLUME, 1 },
+		{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_SOURCE, 1 },
 		}, 
 		"Resources/Shaders/Shared/fullscreenTriangle.vert", 
 		"Resources/Shaders/Lighting/ambientLight.frag");
@@ -48,9 +48,10 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-bool flatAmbient;
+int irradianceSource = 2;
+float occAmp = 1.0f;
 
-void AmbientLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, RenderPass **_previousRenderPass)
+void AmbientLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, GLuint *_lpv, Volume _volume, RenderPass **_previousRenderPass)
 {
 	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
@@ -64,7 +65,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 		bool shadowsEnabled = false;
 		bool ssaoEnabled = false;
 		bool ssrEnabled = false;
-		bool irradianceVolume = false;
+		int irradianceVolume = 0;
 
 		for (const auto &define : curDefines)
 		{
@@ -86,9 +87,9 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 				{
 					ssrEnabled = true;
 				}
-				else if (std::get<1>(define) == IRRADIANCE_VOLUME && std::get<2>(define))
+				else if (std::get<1>(define) == IRRADIANCE_SOURCE)
 				{
-					irradianceVolume = true;
+					irradianceVolume = std::get<2>(define);
 				}
 			}
 		}
@@ -97,7 +98,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 			|| shadowsEnabled != _renderData.shadows
 			|| ssaoEnabled != (_effects.ambientOcclusion != AmbientOcclusion::OFF)
 			|| ssrEnabled != _effects.screenSpaceReflections.enabled
-			|| irradianceVolume != !flatAmbient)
+			|| irradianceVolume != irradianceSource)
 		{
 			ambientLightShader->setDefines(
 				{
@@ -105,7 +106,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 				{ ShaderProgram::ShaderType::FRAGMENT, SHADOWS_ENABLED, _renderData.shadows },
 				{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, (_effects.ambientOcclusion != AmbientOcclusion::OFF) },
 				{ ShaderProgram::ShaderType::FRAGMENT, SSR_ENABLED, _effects.screenSpaceReflections.enabled },
-				{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_VOLUME, !flatAmbient },
+				{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_SOURCE, irradianceSource },
 				}
 			);
 			createUniforms();
@@ -125,6 +126,13 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	glActiveTexture(GL_TEXTURE10);
 	glBindTexture(GL_TEXTURE_2D, _gbuffer.lightTextures[(_renderData.frame + 1) % 2]);
 
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, _lpv[0]);
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, _lpv[1]);
+	glActiveTexture(GL_TEXTURE7);
+	glBindTexture(GL_TEXTURE_2D, _lpv[2]);
+
 	ambientLightShader->bind();
 
 	if (!_level->lights.directionalLights.empty())
@@ -142,13 +150,24 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	uInverseViewE.set(_renderData.invViewMatrix);
 	uInverseProjectionE.set(_renderData.invProjectionMatrix);
 
-	uVolumeOrigin.set(_level->environment.irradianceVolume->getOrigin());
-	uVolumeDimensions.set(_level->environment.irradianceVolume->getDimensions());
-	uSpacing.set(_level->environment.irradianceVolume->getSpacing());
+	if (irradianceSource == 2)
+	{
+		uVolumeOrigin.set(_volume.origin);
+		uVolumeDimensions.set(_volume.dimensions);
+		uSpacing.set(_volume.spacing);
+		uOcclusionAmplifier.set(occAmp);
+	}
+	else
+	{
+		uVolumeOrigin.set(_level->environment.irradianceVolume->getOrigin());
+		uVolumeDimensions.set(_level->environment.irradianceVolume->getDimensions());
+		uSpacing.set(_level->environment.irradianceVolume->getSpacing());
+	}
+	
 
 	static glm::mat4 prevViewProjection;
 
-	if (!flatAmbient)
+	if (irradianceSource)
 	{
 		uProjectionE.set(_renderData.projectionMatrix);
 		uReProjectionE.set(prevViewProjection * _renderData.invViewProjectionMatrix);
@@ -171,4 +190,6 @@ void AmbientLightRenderPass::createUniforms()
 	uVolumeOrigin.create(ambientLightShader);
 	uVolumeDimensions.create(ambientLightShader);
 	uSpacing.create(ambientLightShader);
+
+	uOcclusionAmplifier.create(ambientLightShader);
 }

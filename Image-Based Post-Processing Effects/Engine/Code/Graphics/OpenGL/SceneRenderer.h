@@ -4,6 +4,7 @@
 #include "Ocean.h"
 #include "VolumetricLighting.h"
 #include "GBuffer.h"
+#include "LightPropagationVolumes.h"
 
 class Camera;
 class Window;
@@ -64,6 +65,7 @@ private:
 
 	Ocean ocean;
 	VolumetricLighting volumetricLighting;
+	LightPropagationVolumes lightPropagationVolumes;
 
 	GLuint brdfLUT;
 

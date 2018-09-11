@@ -16,9 +16,9 @@
 #define SSR_ENABLED 0
 #endif // SSR_ENABLED
 
-#ifndef IRRADIANCE_VOLUME
-#define IRRADIANCE_VOLUME 0
-#endif // IRRADIANCE_VOLUME
+#ifndef IRRADIANCE_SOURCE
+#define IRRADIANCE_SOURCE 0
+#endif // IRRADIANCE_SOURCE
 
 layout(location = 0) out vec4 oFragColor;
 
@@ -34,6 +34,9 @@ layout(binding = 10) uniform sampler2D uPrevFrame;
 layout(binding = 12) uniform sampler2D uIrradianceMap;
 layout(binding = 13) uniform sampler2D uPrefilterMap;
 layout(binding = 15) uniform sampler2DArrayShadow uShadowMap;
+layout(binding = 5) uniform sampler2D uRedVolume;
+layout(binding = 6) uniform sampler2D uGreenVolume;
+layout(binding = 7) uniform sampler2D uBlueVolume;
 
 #if DIRECTIONAL_LIGHT_ENABLED
 const int SHADOW_CASCADES = 4;
@@ -57,11 +60,11 @@ uniform mat4 uProjection;
 uniform mat4 uReProjection;
 #endif // SSR_ENABLED
 
-#if IRRADIANCE_VOLUME
+#if IRRADIANCE_SOURCE
 uniform vec3 uVolumeOrigin;
 uniform ivec3 uVolumeDimensions;
 uniform float uSpacing;
-#endif // IRRADIANCE_VOLUME
+#endif // IRRADIANCE_SOURCE
 
 const float PI = 3.14159265359;
 const float MAX_REFLECTION_LOD = 4.0;
@@ -77,7 +80,10 @@ const float Z_FAR = 3000.0;
 #define BS_MAX_ITERATIONS		30						// Maximal number of iterations for bineary search
 #define BS_DELTA_EPSILON 0.0001
 
-#if IRRADIANCE_VOLUME
+
+
+#if IRRADIANCE_SOURCE == 1 // precomputed irradiance volume
+
 vec3 sphericalHarmonicsIrradiance(vec3 P, vec3 N)
 {
 	const vec3 minCorner = uVolumeOrigin;
@@ -115,7 +121,47 @@ vec3 sphericalHarmonicsIrradiance(vec3 P, vec3 N)
 
     return irradiance * (1.0 / totalWeight);
 }
-#endif // IRRADIANCE_VOLUME
+
+#elif IRRADIANCE_SOURCE == 2 // light propagation volume
+
+/*Spherical harmonics coefficients – precomputed*/
+#define SH_C0 0.282094792f // 1 / 2sqrt(pi)
+#define SH_C1 0.488602512f // sqrt(3/pi) / 2
+
+vec4 dirToSH(vec3 dir) 
+{
+	return vec4(SH_C0, -SH_C1 * dir.y, SH_C1 * dir.z, -SH_C1 * dir.x);
+}
+
+vec3 getGridPos(vec3 position)
+{
+	return (position - uVolumeOrigin) / uSpacing;
+}
+
+vec4 sample_grid_trilinear(in sampler2D t, vec3 grid_cell) 
+{
+	float zFloor = floor(grid_cell.z);
+
+	vec2 tex_coord = vec2(grid_cell.x / (uVolumeDimensions.x * uVolumeDimensions.z) + zFloor / uVolumeDimensions.z , grid_cell.y / uVolumeDimensions.y);
+
+	vec4 t1 = texture(t, tex_coord);
+	vec4 t2 = texture(t, vec2(tex_coord.x + (1.0 / uVolumeDimensions.x), tex_coord.y));
+
+	return mix(t1,t2, grid_cell.z - zFloor);
+}
+
+vec3 lpvIrradiance(vec3 P, vec3 N)
+{
+	vec4 shIntensity = dirToSH(-N);
+	vec3 gridCell = getGridPos(P);
+
+	vec4 red = sample_grid_trilinear(uRedVolume, gridCell);
+	vec4 green = sample_grid_trilinear(uGreenVolume, gridCell);
+	vec4 blue = sample_grid_trilinear(uBlueVolume, gridCell);
+	return max(vec3(dot(shIntensity, red), dot(shIntensity, green), dot(shIntensity, blue)), vec3(0.0)) / PI * 0.005;
+}
+
+#endif // IRRADIANCE_SOURCE
 
 vec3 parallaxCorrect(vec3 R, vec3 P)
 {
@@ -350,12 +396,15 @@ void main()
 
 		const vec3 worldPos = worldPos4.xyz / worldPos4.w;
 
-#if IRRADIANCE_VOLUME
+#if IRRADIANCE_SOURCE == 1
 		const vec3 worldNormal = (uInverseView * vec4(N, 0.0)).xyz;
 		const vec3 irradiance = sphericalHarmonicsIrradiance(worldPos, worldNormal);
+#elif IRRADIANCE_SOURCE == 2
+		const vec3 worldNormal = (uInverseView * vec4(N, 0.0)).xyz;
+		const vec3 irradiance = lpvIrradiance(worldPos, worldNormal);
 #else
 		const vec3 irradiance = vec3(0.05);
-#endif // IRRADIANCE_VOLUME
+#endif // IRRADIANCE_SOURCE
 
 		const vec3 diffuse = irradiance * albedo;
 

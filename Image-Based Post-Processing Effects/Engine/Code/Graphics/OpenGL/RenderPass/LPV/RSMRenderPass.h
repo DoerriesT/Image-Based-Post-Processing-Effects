@@ -11,7 +11,7 @@ class RSMRenderPass : public RenderPass
 {
 public:
 	explicit RSMRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height);
-	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Scene &_scene, RenderPass **_previousRenderPass = nullptr);
+	void render(const glm::mat4 &_viewProjection, std::shared_ptr<DirectionalLight> _light, const Scene &_scene, RenderPass **_previousRenderPass = nullptr);
 
 private:
 	std::shared_ptr<ShaderProgram> rsmPassShader;

@@ -1,13 +1,13 @@
-#include "LightInjectionRenderPass.h"
+#include "GeometryInjectionRenderPass.h"
 #include "Graphics\Volume.h"
 
 extern int VOLUME_SIZE;
 extern int RSM_SIZE;
 
-LightInjectionRenderPass::LightInjectionRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
+GeometryInjectionRenderPass::GeometryInjectionRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
 	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+	drawBuffers = { GL_COLOR_ATTACHMENT0 };
 	state.blendState.enabled = true;
 	state.blendState.sFactor = GL_ONE;
 	state.blendState.dFactor = GL_ONE;
@@ -26,15 +26,16 @@ LightInjectionRenderPass::LightInjectionRenderPass(GLuint _fbo, unsigned int _wi
 
 	resize(_width, _height);
 
-	lightInjectionShader = ShaderProgram::createShaderProgram("Resources/Shaders/LPV/lightInjection.vert", "Resources/Shaders/LPV/lightInjection.frag");
+	geometryInjectionShader = ShaderProgram::createShaderProgram("Resources/Shaders/LPV/geometryInjection.vert", "Resources/Shaders/LPV/geometryInjection.frag");
 
-	uInvViewProjection.create(lightInjectionShader);
-	uRsmWidth.create(lightInjectionShader);
-	uGridOrigin.create(lightInjectionShader);
-	uGridSize.create(lightInjectionShader);
-	uGridSpacing.create(lightInjectionShader);
+	uInvViewProjection.create(geometryInjectionShader);
+	uRsmWidth.create(geometryInjectionShader);
+	uGridOrigin.create(geometryInjectionShader);
+	uGridSize.create(geometryInjectionShader);
+	uGridSpacing.create(geometryInjectionShader);
+	uLightDirection.create(geometryInjectionShader);
 
-	std::unique_ptr<glm::vec2[]> positions = std::make_unique<glm::vec2[]>(512 * 512);
+	std::unique_ptr<glm::vec2[]> positions = std::make_unique<glm::vec2[]>(RSM_SIZE * RSM_SIZE);
 
 	for (unsigned int y = 0; y < RSM_SIZE; ++y)
 	{
@@ -58,12 +59,7 @@ LightInjectionRenderPass::LightInjectionRenderPass(GLuint _fbo, unsigned int _wi
 	glBindVertexArray(0);
 }
 
-void LightInjectionRenderPass::render(const Volume &_lightPropagationVolume, 
-	const glm::mat4 &_invViewProjection, 
-	GLint _depthTexture, 
-	GLint _fluxTexture, 
-	GLint _normalTexture, 
-	RenderPass **_previousRenderPass)
+void GeometryInjectionRenderPass::render(const Volume & _geometryVolume, const glm::mat4 & _invViewProjection, GLint _normalTexture, const glm::vec3 &_lightDir, RenderPass ** _previousRenderPass)
 {
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
@@ -71,16 +67,15 @@ void LightInjectionRenderPass::render(const Volume &_lightPropagationVolume,
 	glClear(GL_COLOR_BUFFER_BIT);
 	glPointSize(1.0f);
 
-	lightInjectionShader->bind();
+	geometryInjectionShader->bind();
 	uInvViewProjection.set(_invViewProjection);
 	uRsmWidth.set(RSM_SIZE);
-	uGridOrigin.set(_lightPropagationVolume.origin);
-	uGridSize.set(glm::vec3(_lightPropagationVolume.dimensions));
-	uGridSpacing.set(glm::vec2(_lightPropagationVolume.spacing, 1.0f / _lightPropagationVolume.spacing));
+	uGridOrigin.set(_geometryVolume.origin);
+	uGridSize.set(glm::vec3(_geometryVolume.dimensions));
+	uGridSpacing.set(glm::vec2(_geometryVolume.spacing, 1.0f / _geometryVolume.spacing));
+	uLightDirection.set(_lightDir);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, _fluxTexture);
-	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, _normalTexture);
 
 	glBindVertexArray(VAO);

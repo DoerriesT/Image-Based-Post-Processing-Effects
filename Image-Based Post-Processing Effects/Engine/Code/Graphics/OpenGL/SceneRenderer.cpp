@@ -84,6 +84,7 @@ void SceneRenderer::init()
 
 	ocean.init(gBufferFBO, res.first, res.second);
 	volumetricLighting.init();
+	lightPropagationVolumes.init();
 
 	shadowRenderPass = new ShadowRenderPass(shadowFbo, 1, 1); // viewport is reconfigured for every light so the constructor value does not matter
 	gBufferRenderPass = new GBufferRenderPass(gBufferFBO, res.first, res.second);
@@ -112,6 +113,7 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	RenderPass *previousRenderPass = nullptr;
 	frame = _renderData.frame;
 
+	lightPropagationVolumes.render(_renderData, _scene, _level, &previousRenderPass);
 	shadowRenderPass->render(_renderData, _level, _scene, true, &previousRenderPass);
 
 	if (_level->water.enabled)
@@ -181,7 +183,8 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	}
 
 	skyboxRenderPass->render(_renderData, _level, &previousRenderPass);
-	ambientLightRenderPass->render(_renderData, _level, _effects, gbuffer, brdfLUT, &previousRenderPass);
+	GLuint volumes[] = { lightPropagationVolumes.getRedVolume(), lightPropagationVolumes.getGreenVolume(), lightPropagationVolumes.getBlueVolume() };
+	ambientLightRenderPass->render(_renderData, _level, _effects, gbuffer, brdfLUT, volumes, lightPropagationVolumes.getVolume(), &previousRenderPass);
 	directionalLightRenderPass->render(_renderData, _level, gbuffer, &previousRenderPass);
 	stencilRenderPass->render(_renderData, _level, gbuffer, &previousRenderPass);
 	pointLightRenderPass->render(_renderData, _level, gbuffer, &previousRenderPass);

@@ -47,7 +47,7 @@ uniform vec2 uVel;
 uniform vec3 uCamPos;
 
 const float MAX_VELOCITY = 25 * 0.000625; // tilesize * pixel width
-const float ALPHA_CUTOFF = 0.5;
+const float ALPHA_CUTOFF = 0.9;
 const float MIP_SCALE = 0.25;
 
 #include "TBN.h"

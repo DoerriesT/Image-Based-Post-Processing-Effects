@@ -551,6 +551,9 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\StencilRenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\GeometryInjectionRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\LPV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -874,6 +877,9 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\StencilRenderPass.cpp">
       <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
     </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\GeometryInjectionRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\LPV</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Application\Resources\Shaders\Environment\atmosphere.frag">
@@ -1175,6 +1181,12 @@
     </None>
     <None Include="..\Application\Resources\Shaders\Geometry\geometry.vert">
       <Filter>Resources\Shaders\Geometry</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\LPV\geometryInjection.frag">
+      <Filter>Resources\Shaders\LPV</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\LPV\geometryInjection.vert">
+      <Filter>Resources\Shaders\LPV</Filter>
     </None>
   </ItemGroup>
 </Project>

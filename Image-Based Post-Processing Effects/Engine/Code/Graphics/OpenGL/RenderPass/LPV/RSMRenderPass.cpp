@@ -15,7 +15,7 @@
 RSMRenderPass::RSMRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
 	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT0 };
+	drawBuffers = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	state.blendState.enabled = false;
 	state.cullFaceState.enabled = true;
 	state.cullFaceState.face = GL_BACK;
@@ -43,19 +43,17 @@ RSMRenderPass::RSMRenderPass(GLuint _fbo, unsigned int _width, unsigned int _hei
 	uLightDir.create(rsmPassShader);
 }
 
-void RSMRenderPass::render(const RenderData & _renderData, const std::shared_ptr<Level> &_level, const Scene & _scene, RenderPass ** _previousRenderPass)
+void RSMRenderPass::render(const glm::mat4 &_viewProjection, std::shared_ptr<DirectionalLight> _light, const Scene & _scene, RenderPass ** _previousRenderPass)
 {
-	if (_level->lights.directionalLights.empty())
-	{
-		return;
-	}
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	rsmPassShader->bind();
 
-	uLightDir.set(_level->lights.directionalLights[0]->getDirection());
-	uLightColor.set(_level->lights.directionalLights[0]->getColor());
+	uLightDir.set(_light->getDirection());
+	uLightColor.set(_light->getColor());
 
 	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
 
@@ -108,7 +106,7 @@ void RSMRenderPass::render(const RenderData & _renderData, const std::shared_ptr
 			textureOffset = glm::vec2((float)col / columns, (float)row / rows);
 		}
 
-		glm::mat4 mvpTransformation = _renderData.viewProjectionMatrix * modelMatrix;
+		glm::mat4 mvpTransformation = _viewProjection * modelMatrix;
 
 		uModelMatrix.set(modelMatrix);
 		uAtlasData.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
