@@ -44,12 +44,8 @@ vec3 decode (vec2 enc)
 void main()
 {
 	vec2 texCoord = gl_FragCoord.xy /  textureSize(uAlbedoMap, 0);
-
-	vec3 albedo = texture(uAlbedoMap, texCoord).rgb;
 	
 	vec4 metallicRoughnessAoShaded = texture(uMetallicRoughnessAoMap, texCoord).rgba;
-	metallicRoughnessAoShaded.y *= metallicRoughnessAoShaded.y;
-    
 		
     if (metallicRoughnessAoShaded.a > 0.0)
     {
@@ -104,6 +100,7 @@ void main()
 		// Cook-Torrance BRDF
 		float NDF = DistributionGGX(N, H, metallicRoughnessAoShaded.g);
 		float G = GeometrySmith(NdotV, NdotL, metallicRoughnessAoShaded.g);
+		vec3 albedo = texture(uAlbedoMap, texCoord).rgb;
 		vec3 F0 = mix(vec3(0.04), albedo, metallicRoughnessAoShaded.r);
 		vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
@@ -121,6 +118,6 @@ void main()
     }
 	else
 	{
-		oFragColor = vec4(albedo, 1.0);
+		oFragColor = vec4(0.0, 0.0, 0.0, 1.0);
 	}
 }

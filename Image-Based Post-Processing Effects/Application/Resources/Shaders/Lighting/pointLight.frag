@@ -60,9 +60,7 @@ float vectorToDepth (vec3 vec)
 void main()
 {
 	vec2 texCoord = gl_FragCoord.xy /  textureSize(uAlbedoMap, 0);
-	vec4 metallicRoughnessAoShaded = texture(uMetallicRoughnessAoMap, texCoord).rgba;
-	metallicRoughnessAoShaded.y *= metallicRoughnessAoShaded.y;
-    
+	vec4 metallicRoughnessAoShaded = texture(uMetallicRoughnessAoMap, texCoord).rgba;    
 		
     if (metallicRoughnessAoShaded.a > 0.0)
     {

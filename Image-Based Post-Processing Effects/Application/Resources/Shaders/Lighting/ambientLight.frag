@@ -285,17 +285,6 @@ bool linearRayTrace(inout vec3 rayPos, vec3 rayDir)
 }
 #endif // SSR_ENABLED
 
-vec3 decode (vec2 enc)
-{
-    const vec2 fenc = enc * 4.0 - 2.0;
-    const float f = dot(fenc, fenc);
-    const float g = sqrt(1.0 - f * 0.25);
-    vec3 n;
-    n.xy = fenc * g;
-    n.z = 1.0 -f * 0.5;
-    return n;
-}
-
 void main()
 {
 	oFragColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -309,10 +298,7 @@ void main()
 #if SSAO_ENABLED
 	metallicRoughnessAoShaded.b = min(metallicRoughnessAoShaded.b, texture(uSsaoMap, texCoord).r);
 #endif // SSAO_ENABLED
-
-	metallicRoughnessAoShaded.y *= metallicRoughnessAoShaded.y;
-    
-		
+    	
     if (metallicRoughnessAoShaded.a > 0.0)
     {
 		const float depth = texture(uDepthMap, texCoord).r;

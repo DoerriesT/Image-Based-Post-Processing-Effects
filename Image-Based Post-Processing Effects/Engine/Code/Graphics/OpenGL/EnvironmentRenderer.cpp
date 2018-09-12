@@ -125,7 +125,7 @@ void EnvironmentRenderer::calculateReflectance(const std::shared_ptr<Environment
 		unsigned int mipRes = unsigned int(1024 * std::pow(0.5f, mip));
 
 		float roughness = (float)mip / (float)(maxMipLevels - 1);
-		uRoughnessRO.set(roughness);
+		uRoughnessRO.set(roughness * roughness);
 		uImageSizeRO.set(glm::vec2(mipRes));
 		glBindImageTexture(0, _environmentProbe->getReflectanceMap()->getId(), mip, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
 		glDispatchCompute(mipRes / 8, mipRes / 8, 1);
