@@ -4,7 +4,7 @@ mesh file: sponza.mesh
 name: 
 albedo: 1.0/1.0/1.0/1.0
 metallic: 0.0
-roughness: 0.5
+roughness: 0.9
 emissive: 0.0/0.0/0.0
 albedoPath: Resources/Textures/Sponza/lion_a.dds
 normalPath: Resources/Textures/Sponza/lion_n.dds
@@ -17,7 +17,7 @@ displacementPath:
 name: 
 albedo: 1.0/1.0/1.0/1.0
 metallic: 0.0
-roughness: 0.5
+roughness: 0.9
 emissive: 0.0/0.0/0.0
 albedoPath: Resources/Textures/Sponza/background_a.dds
 normalPath: Resources/Textures/Sponza/background_n.dds
@@ -43,7 +43,7 @@ displacementPath:
 name: 
 albedo: 1.0/1.0/1.0/1.0
 metallic: 0.0
-roughness: 0.5
+roughness: 0.3
 emissive: 0.0/0.0/0.0
 albedoPath: Resources/Textures/Sponza/vase_plant_a.dds
 normalPath: 
@@ -94,8 +94,8 @@ displacementPath:
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
-metallic: 0.0
-roughness: 0.5
+metallic: 1.0
+roughness: 0.7
 emissive: 0.0/0.0/0.0
 albedoPath: Resources/Textures/Sponza/chain_texture_a.dds
 normalPath: Resources/Textures/Sponza/chain_texture_n.dds
@@ -290,7 +290,7 @@ displacementPath:
 name: 
 albedo: 1.0/1.0/1.0/1.0
 metallic: 0.0
-roughness: 0.5
+roughness: 0.9
 emissive: 0.0/0.0/0.0
 albedoPath: Resources/Textures/Sponza/vase_a.dds
 normalPath: Resources/Textures/Sponza/vase_n.dds
@@ -302,8 +302,8 @@ displacementPath:
 
 name: 
 albedo: 1.0/1.0/1.0/1.0
-metallic: 0.0
-roughness: 0.5
+metallic: 1.0
+roughness: 0.7
 emissive: 0.0/0.0/0.0
 albedoPath: Resources/Textures/Sponza/vase_hanging_a.dds
 normalPath: 

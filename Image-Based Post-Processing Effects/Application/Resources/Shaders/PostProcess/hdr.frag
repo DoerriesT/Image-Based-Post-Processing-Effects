@@ -126,6 +126,18 @@ vec3 calculateExposedColor(vec3 color, float avgLuminance)
     return exp2(exposure) * color;
 }
 
+float computeEV100(float aperture, float shutterTime, float ISO)
+{
+	// EV number is defined as:
+	// 2^EV_s = N^2 / t and EV_s = EV_100 + log2(S/100)
+	// This gives
+	//   EV_s = log2(N^2 / t)
+	//   EV_100 + log2(S/100) = log(N^2 / t)
+	//   EV_100 = log2(N^2 / t) - log2(S/100)
+	//   EV_100 = log2(N^2 / t * 100 / S)
+	return log2((aperture * aperture) / shutterTime * 100 / ISO);
+}
+
 float computeEV100FromAvgLuminance(float avgLuminance)
 {
 	// We later use the middle gray at 12.7% in order to have
@@ -347,7 +359,9 @@ void main()
 
 #if AUTO_EXPOSURE_ENABLED
 	float avgLuminance = texelFetch(uLuminanceTexture, ivec2(0, 0), 0).x;
-	float exposure = convertEV100ToExposure(computeEV100FromAvgLuminance(avgLuminance));
+	//float EV100 = computeEV100(16.0, 0.01, 100);
+	float EV100 = computeEV100FromAvgLuminance(avgLuminance);
+	float exposure = convertEV100ToExposure(EV100);
 	color *= exposure;//calculateExposedColor(color, avgLuminance);
 #else
 	color *= uExposure;
