@@ -197,6 +197,13 @@ void LightPropagationVolumes::render(const RenderData &_renderData, const Scene 
 	float volumeSpacing = 1.0f;
 	glm::vec2 target = glm::vec2(_renderData.cameraPosition.x, _renderData.cameraPosition.z) + 8.0f * glm::vec2(_renderData.viewDirection.x, _renderData.viewDirection.z);
 	glm::vec3 volumeOrigin = glm::round(glm::vec3(target.x - volumeDimensions.x * volumeSpacing * 0.5f, 0.0f, target.y - volumeDimensions.z * volumeSpacing * 0.5f));
+	
+	// calculate during the first frame and after that each Nth frame
+	if (_renderData.frame > 1 && _renderData.frame % 14)
+	{
+		return;
+	}
+
 	propagationVolume = { volumeOrigin, volumeDimensions, volumeSpacing };
 
 	// clear the volume
