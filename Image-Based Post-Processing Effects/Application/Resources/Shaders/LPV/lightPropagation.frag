@@ -16,8 +16,6 @@ layout(rgba32f, binding = 3) uniform image2D uAccumRed;
 layout(rgba32f, binding = 4) uniform image2D uAccumGreen;
 layout(rgba32f, binding = 5) uniform image2D uAccumBlue;
 
-flat in ivec2 vCellIndex;
-
 uniform vec3 uGridSize;
 uniform bool uFirstIteration;
 uniform float uOcclusionAmplifier;

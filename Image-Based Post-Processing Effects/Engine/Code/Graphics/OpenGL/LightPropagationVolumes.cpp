@@ -235,10 +235,10 @@ void LightPropagationVolumes::render(const RenderData &_renderData, const Scene 
 	geometryVolume.origin += 0.5f;
 	geometryInjectionRenderPass->render(geometryVolume, invViewProjection, rsmNormal, lightDir, _previousRenderPass);
 
-	GLint redTextures[] = { propagation2DVolumeRed0, propagation2DVolumeRed1 };
-	GLint greenTextures[] = { propagation2DVolumeGreen0, propagation2DVolumeGreen1 };
-	GLint blueTextures[] = { propagation2DVolumeBlue0, propagation2DVolumeBlue1 };
-	GLint accumTextures[] = { propagationVolumeRed, propagationVolumeGreen, propagationVolumeBlue };
+	GLuint redTextures[] = { propagation2DVolumeRed0, propagation2DVolumeRed1 };
+	GLuint greenTextures[] = { propagation2DVolumeGreen0, propagation2DVolumeGreen1 };
+	GLuint blueTextures[] = { propagation2DVolumeBlue0, propagation2DVolumeBlue1 };
+	GLuint accumTextures[] = { propagationVolumeRed, propagationVolumeGreen, propagationVolumeBlue };
 	//glMemoryBarrier(GL_ALL_BARRIER_BITS);
 	lightPropagationRenderPass->render(propagationVolume, geometry2DVolume, redTextures, greenTextures, blueTextures, accumTextures, _previousRenderPass);
 }

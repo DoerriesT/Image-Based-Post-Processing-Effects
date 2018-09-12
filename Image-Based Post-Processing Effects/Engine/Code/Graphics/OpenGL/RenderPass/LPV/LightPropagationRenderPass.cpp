@@ -32,31 +32,10 @@ LightPropagationRenderPass::LightPropagationRenderPass(GLuint _fbo, unsigned int
 	uGridSize.create(lightPropagationShader);
 	uFirstIteration.create(lightPropagationShader);
 
-	std::unique_ptr<glm::vec2[]> positions = std::make_unique<glm::vec2[]>(VOLUME_SIZE * VOLUME_SIZE * VOLUME_SIZE);
-
-	for (unsigned int y = 0; y < VOLUME_SIZE; ++y)
-	{
-		for (unsigned int x = 0; x < VOLUME_SIZE * VOLUME_SIZE; ++x)
-		{
-			positions[y * VOLUME_SIZE * VOLUME_SIZE + x] = { x, y };
-		}
-	}
-
-	// create buffers/arrays
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, VOLUME_SIZE * VOLUME_SIZE * VOLUME_SIZE * sizeof(glm::vec2), positions.get(), GL_STATIC_DRAW);
-
-	// vertex positions
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
-
-	glBindVertexArray(0);
+	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-void LightPropagationRenderPass::render(const Volume &_lightPropagationVolume, GLint _geometryTexture, GLint *_redTexture, GLint *_greenTexture, GLint *_blueTexture, GLint *accumTextures, RenderPass ** _previousRenderPass)
+void LightPropagationRenderPass::render(const Volume &_lightPropagationVolume, GLuint _geometryTexture, GLuint *_redTexture, GLuint *_greenTexture, GLuint *_blueTexture, GLuint *accumTextures, RenderPass ** _previousRenderPass)
 {
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
@@ -72,6 +51,8 @@ void LightPropagationRenderPass::render(const Volume &_lightPropagationVolume, G
 	GLenum secondTargets[] = { GL_COLOR_ATTACHMENT1 , GL_COLOR_ATTACHMENT2 , GL_COLOR_ATTACHMENT3 };
 	GLenum *targets[] = { firstTargets, secondTargets };
 
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArraysPositionOnly();
+
 	for (unsigned int i = 0; i < 32; ++i)
 	{
 		glDrawBuffers(3, targets[i % 2]);
@@ -84,11 +65,7 @@ void LightPropagationRenderPass::render(const Volume &_lightPropagationVolume, G
 
 		uFirstIteration.set(i == 0);
 
-		glBindVertexArray(VAO);
-		glEnableVertexAttribArray(0);
-		glDrawArrays(GL_POINTS, 0, VOLUME_SIZE * VOLUME_SIZE * VOLUME_SIZE);
-
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		fullscreenTriangle->getSubMesh()->render();
 	}
 
 }
