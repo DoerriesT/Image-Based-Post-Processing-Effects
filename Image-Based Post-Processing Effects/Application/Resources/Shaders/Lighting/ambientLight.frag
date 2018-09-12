@@ -363,7 +363,7 @@ void main()
 				for(float col = -radius; col <= radius; ++col)
 				{
 					++count;
-					shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.01)).x;
+					shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.001)).x;
 				}
 			}
 			shadow *= 1.0 / count;
