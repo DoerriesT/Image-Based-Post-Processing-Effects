@@ -118,7 +118,7 @@ void main()
 
 		if(uSpotLight.renderShadows && uShadowsEnabled || uSpotLight.projector)
 		{
-			vec4 worldPos4 = uInverseView * (viewSpacePosition + 0.1 * vec4(L, 0.0));
+			vec4 worldPos4 = uInverseView * (viewSpacePosition + 0.025 * vec4(L + N, 0.0));
 			vec4 projCoords4 = uSpotLight.viewProjectionMatrix * worldPos4;
 			vec3 projCoords = projCoords4.xyz / projCoords4.w;
 			projCoords = projCoords * 0.5 + 0.5; 

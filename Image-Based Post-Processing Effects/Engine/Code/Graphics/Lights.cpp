@@ -384,7 +384,7 @@ void SpotLight::updateViewProjectionMatrix()
 	{
 		upDir = glm::vec3(1.0f, 0.0f, 0.0f);
 	}
-	viewProjectionMatrix  = glm::perspective(outerAngle * 2.0f, ASPECT_RATIO, NEAR_PLANE, radius) * glm::lookAt(position, position + direction, upDir);
+	viewProjectionMatrix  = glm::perspective(outerAngle, ASPECT_RATIO, NEAR_PLANE, radius) * glm::lookAt(position, position + direction, upDir);
 }
 
 void SpotLight::updateBoundingSphere()
