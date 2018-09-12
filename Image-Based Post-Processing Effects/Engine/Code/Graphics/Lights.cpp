@@ -144,8 +144,18 @@ unsigned int DirectionalLight::getShadowMapResolution() const
 
 const unsigned int PointLight::DEFAULT_SHADOW_MAP_RESOLUTION = 1024;
 
-PointLight::PointLight(const glm::vec3 &_color, const glm::vec3 &_position, float _radius, bool _renderShadows, unsigned int _shadowMapResolution)
-	:color(_color), position(_position), radius(_radius), renderShadows(false), shadowMapResolution(_shadowMapResolution)
+PointLight::PointLight(float _luminousPower, 
+	const glm::vec3 &_color, 
+	const glm::vec3 &_position, 
+	float _radius, 
+	bool _renderShadows, 
+	unsigned int _shadowMapResolution)
+	:luminousPower(_luminousPower),
+	color(_color), 
+	position(_position), 
+	radius(_radius), 
+	renderShadows(false), 
+	shadowMapResolution(_shadowMapResolution)
 {
 	assert(_radius > 0.0);
 
@@ -188,9 +198,15 @@ void PointLight::createShadowMap()
 	glTexParameterfv(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BORDER_COLOR, borderColor);
 }
 
-std::shared_ptr<PointLight> PointLight::createPointLight(const glm::vec3 &_color, const glm::vec3 &_position, float _radius, bool _renderShadows, unsigned int _shadowMapResolution)
+std::shared_ptr<PointLight> PointLight::createPointLight(
+	float _luminousPower, 
+	const glm::vec3 &_color, 
+	const glm::vec3 &_position, 
+	float _radius, 
+	bool _renderShadows, 
+	unsigned int _shadowMapResolution)
 {
-	return std::shared_ptr<PointLight>(new PointLight(_color, _position, _radius, _renderShadows, _shadowMapResolution));
+	return std::shared_ptr<PointLight>(new PointLight(_luminousPower, _color, _position, _radius, _renderShadows, _shadowMapResolution));
 }
 
 PointLight::~PointLight()
@@ -227,6 +243,11 @@ void PointLight::setPosition(const glm::vec3 &_position)
 {
 	position = _position;
 	updateViewProjectionMatrices();
+}
+
+void PointLight::setLuminousPower(float _luminousPower)
+{
+	luminousPower = _luminousPower;
 }
 
 void PointLight::setRadius(float _radius)
@@ -278,9 +299,24 @@ glm::vec4 PointLight::getBoundingSphere() const
 	return glm::vec4(position, radius);
 }
 
+float PointLight::getLuminousPower() const
+{
+	return luminousPower;
+}
+
+float PointLight::getLuminousIntensity() const
+{
+	return luminousPower * (1.0f / (4.0f * glm::pi<float>()));
+}
+
 float PointLight::getRadius() const
 {
 	return radius;
+}
+
+float PointLight::getInvSqrRadius() const
+{
+	return 1.0f / (radius * radius);
 }
 
 const glm::mat4 *PointLight::getViewProjectionMatrices() const
@@ -301,14 +337,25 @@ unsigned int PointLight::getShadowMapResolution() const
 
 const unsigned int SpotLight::DEFAULT_SHADOW_MAP_RESOLUTION = 1024;
 
-SpotLight::SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _outerAngle, float _innerAngle, float _radius, bool _renderShadows, unsigned int _shadowMapResolution, bool _projector, const std::shared_ptr<Texture> &_projectionTexture)
-	:color(_color), 
+SpotLight::SpotLight(float _luminousPower, 
+	const glm::vec3 &_color, 
+	const glm::vec3 &_position, 
+	const glm::vec3 &_direction, 
+	float _outerAngle, 
+	float _innerAngle, 
+	float _radius, 
+	bool _renderShadows, 
+	unsigned int _shadowMapResolution, 
+	bool _projector, 
+	const std::shared_ptr<Texture> &_projectionTexture)
+	:luminousPower(_luminousPower),
+	color(_color), 
 	position(_position), 
 	direction(glm::normalize(_direction)), 
 	outerAngle(glm::radians(_outerAngle)), 
-	outerAngleCos(glm::cos(outerAngle)), 
 	innerAngle(glm::radians(_innerAngle)),
-	innerAngleCos(glm::cos(innerAngle)),
+	angleScale(1.0f / glm::max(0.001f, glm::cos(innerAngle * 0.5f) - glm::cos(outerAngle * 0.5f))),
+	angleOffset(-glm::cos(outerAngle * 0.5f) * angleScale), // Careful; make sure initialization order is kept
 	radius(_radius),
 	renderShadows(false),
 	projector(_projector),
@@ -319,7 +366,7 @@ SpotLight::SpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const 
 	assert(innerAngle <= outerAngle);
 	assert(innerAngle >= 0.0f);
 	assert(outerAngle > 0.0f);
-	assert(outerAngle <= glm::radians(45.0f));
+	assert(outerAngle <= glm::radians(90.0f));
 
 	setRenderShadows(_renderShadows);
 	updateViewProjectionMatrix();
@@ -344,11 +391,11 @@ void SpotLight::updateBoundingSphere()
 {
 	if (outerAngle > glm::pi<float>() * 0.25f)
 	{
-		boundingSphere = glm::vec4(position + outerAngleCos * radius * direction, glm::sin(outerAngle) * radius);
+		boundingSphere = glm::vec4(position + glm::cos(outerAngle) * radius * direction, glm::sin(outerAngle) * radius);
 	}
 	else
 	{
-		boundingSphere = glm::vec4(position + radius / (2.0f * outerAngleCos) * direction, radius / (2.0f * outerAngleCos));
+		boundingSphere = glm::vec4(position + radius / (2.0f * glm::cos(outerAngle)) * direction, radius / (2.0f * glm::cos(outerAngle)));
 	}
 }
 
@@ -369,9 +416,20 @@ void SpotLight::createShadowMap()
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 }
 
-std::shared_ptr<SpotLight> SpotLight::createSpotLight(const glm::vec3 &_color, const glm::vec3 &_position, const glm::vec3 &_direction, float _outerAngle, float _innerAngle, float _radius, bool _renderShadows, unsigned int _shadowMapResolution, bool _projector, const std::shared_ptr<Texture> &_projectionTexture)
+std::shared_ptr<SpotLight> SpotLight::createSpotLight(
+	float _luminousPower, 
+	const glm::vec3 &_color, 
+	const glm::vec3 &_position, 
+	const glm::vec3 &_direction, 
+	float _outerAngle, 
+	float _innerAngle, 
+	float _radius, 
+	bool _renderShadows, 
+	unsigned int _shadowMapResolution, 
+	bool _projector, 
+	const std::shared_ptr<Texture> &_projectionTexture)
 {
-	return std::shared_ptr<SpotLight>(new SpotLight(_color, _position, _direction, _outerAngle, _innerAngle, _radius, _renderShadows, _shadowMapResolution, _projector, _projectionTexture));
+	return std::shared_ptr<SpotLight>(new SpotLight(_luminousPower, _color, _position, _direction, _outerAngle, _innerAngle, _radius, _renderShadows, _shadowMapResolution, _projector, _projectionTexture));
 }
 
 SpotLight::~SpotLight()
@@ -423,23 +481,30 @@ void SpotLight::setDirection(const glm::vec3 &_direction)
 	updateBoundingSphere();
 }
 
+void SpotLight::setLuminousPower(float _luminousPower)
+{
+	luminousPower = _luminousPower;
+}
+
 void SpotLight::setInnerAngle(float _angle)
 {
 	assert(innerAngle <= outerAngle);
 	assert(innerAngle >= 0.0f);
 
 	innerAngle = glm::radians(_angle);
-	innerAngleCos = glm::cos(innerAngle);
+	angleScale = 1.0f / glm::max(0.001f, glm::cos(innerAngle * 0.5f) - glm::cos(outerAngle * 0.5f));
+	angleOffset = -glm::cos(outerAngle * 0.5f) * angleScale;
 }
 
 void SpotLight::setOuterAngle(float _angle)
 {
 	assert(innerAngle <= outerAngle);
 	assert(outerAngle > 0.0f);
-	assert(outerAngle <= glm::radians(45.0f));
+	assert(outerAngle <= glm::radians(90.0f));
 
 	outerAngle = glm::radians(_angle);
-	outerAngleCos = glm::cos(outerAngle);
+	angleScale = 1.0f / glm::max(0.001f, glm::cos(innerAngle * 0.5f) - glm::cos(outerAngle * 0.5f));
+	angleOffset = -glm::cos(outerAngle * 0.5f) * angleScale;
 	updateViewProjectionMatrix();
 	updateBoundingSphere();
 }
@@ -515,14 +580,19 @@ glm::vec4 SpotLight::getBoundingSphere() const
 	return boundingSphere;
 }
 
+float SpotLight::getLuminousPower() const
+{
+	return luminousPower;
+}
+
+float SpotLight::getLuminousIntensity() const
+{
+	return luminousPower * (1.0f / glm::pi<float>());
+}
+
 float SpotLight::getInnerAngle() const
 {
 	return innerAngle;
-}
-
-float SpotLight::getInnerAngleCos() const
-{
-	return innerAngleCos;
 }
 
 float SpotLight::getOuterAngle() const
@@ -530,14 +600,24 @@ float SpotLight::getOuterAngle() const
 	return outerAngle;
 }
 
-float SpotLight::getOuterAngleCos() const
+float SpotLight::getAngleScale() const
 {
-	return outerAngleCos;
+	return angleScale;
+}
+
+float SpotLight::getAngleOffset() const
+{
+	return angleOffset;
 }
 
 float SpotLight::getRadius() const
 {
 	return radius;
+}
+
+float SpotLight::getInvSqrRadius() const
+{
+	return 1.0f / (radius * radius);
 }
 
 glm::mat4 SpotLight::getViewProjectionMatrix() const

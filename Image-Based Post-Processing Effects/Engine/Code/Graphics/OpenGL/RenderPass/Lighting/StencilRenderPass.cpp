@@ -57,7 +57,7 @@ void StencilRenderPass::render(const RenderData & _renderData, const std::shared
 
 			pointLight->updateViewValues(_renderData.viewMatrix);
 
-			uModelViewProjection.set(_renderData.viewProjectionMatrix * glm::translate(pointLight->getPosition()) * glm::scale(glm::vec3(pointLight->getRadius())));
+			uModelViewProjection.set(_renderData.viewProjectionMatrix * glm::translate(pointLight->getPosition()) * glm::scale(glm::vec3(pointLight->getRadius() + 0.1f)));
 			pointLightMesh->getSubMesh()->render();
 		}
 	}
@@ -76,7 +76,7 @@ void StencilRenderPass::render(const RenderData & _renderData, const std::shared
 			spotLight->updateViewValues(_renderData.viewMatrix);
 
 			// scale a bit larger to correct for proxy geometry not being exactly round
-			float scale = (glm::tan(spotLight->getOuterAngle()) + 0.1f) * spotLight->getRadius();
+			float scale = (glm::tan(spotLight->getOuterAngle() * 0.5f) + 0.1f) * spotLight->getRadius();
 
 			const glm::vec3 defaultDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 

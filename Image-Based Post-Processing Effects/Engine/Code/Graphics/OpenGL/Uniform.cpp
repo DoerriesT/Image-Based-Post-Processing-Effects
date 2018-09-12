@@ -5,6 +5,7 @@ UniformPointLight::UniformPointLight(const std::string &_name)
 	:color(_name + ".color"),
 	viewPosition(_name + ".position"),
 	radius(_name + ".radius"),
+	invSqrAttRadius(_name + ".invSqrAttRadius"),
 	renderShadows(_name + ".renderShadows"),
 	name(_name),
 	firstTime(true)
@@ -17,14 +18,16 @@ void UniformPointLight::create(const std::shared_ptr<ShaderProgram> &_shaderProg
 	color.create(shaderProgram);
 	viewPosition.create(shaderProgram);
 	radius.create(shaderProgram);
+	invSqrAttRadius.create(shaderProgram);
 	renderShadows.create(shaderProgram);
 }
 
 void UniformPointLight::set(const std::shared_ptr<PointLight> &_value)
 {
-	color.set(_value->getColor());
+	color.set(_value->getColor() * _value->getLuminousIntensity());
 	viewPosition.set(_value->getViewPosition());
 	radius.set(_value->getRadius());
+	invSqrAttRadius.set(_value->getInvSqrRadius());
 	renderShadows.set(_value->isRenderShadows());
 }
 
@@ -33,6 +36,7 @@ bool UniformPointLight::isValid()
 	return color.isValid() &&
 		viewPosition.isValid() &&
 		radius.isValid() &&
+		invSqrAttRadius.isValid() &&
 		renderShadows.isValid();
 }
 
@@ -40,9 +44,9 @@ UniformSpotLight::UniformSpotLight(const std::string &_name)
 	:color(_name + ".color"),
 	viewPosition(_name + ".position"),
 	viewDirection(_name + ".direction"),
-	outerAngle(_name + ".outerAngle"),
-	innerAngle(_name + ".innerAngle"),
-	radius(_name + ".radius"),
+	angleScale(_name + ".angleScale"),
+	angleOffset(_name + ".angleOffset"),
+	invSqrAttRadius(_name + ".invSqrAttRadius"),
 	renderShadows(_name + ".renderShadows"),
 	projector(_name + ".projector"),
 	viewProjection(_name + ".viewProjectionMatrix"),
@@ -57,9 +61,9 @@ void UniformSpotLight::create(const std::shared_ptr<ShaderProgram> &_shaderProgr
 	color.create(shaderProgram);
 	viewPosition.create(shaderProgram);
 	viewDirection.create(shaderProgram);
-	outerAngle.create(shaderProgram);
-	innerAngle.create(shaderProgram);
-	radius.create(shaderProgram);
+	angleScale.create(shaderProgram);
+	angleOffset.create(shaderProgram);
+	invSqrAttRadius.create(shaderProgram);
 	renderShadows.create(shaderProgram);
 	projector.create(shaderProgram);
 	viewProjection.create(shaderProgram);
@@ -67,12 +71,12 @@ void UniformSpotLight::create(const std::shared_ptr<ShaderProgram> &_shaderProgr
 
 void UniformSpotLight::set(const std::shared_ptr<SpotLight> &_value)
 {
-	color.set(_value->getColor());
+	color.set(_value->getColor() * _value->getLuminousIntensity());
 	viewPosition.set(_value->getViewPosition());
 	viewDirection.set(_value->getViewDirection());
-	outerAngle.set(_value->getOuterAngleCos());
-	innerAngle.set(_value->getInnerAngleCos());
-	radius.set(_value->getRadius());
+	angleScale.set(_value->getAngleScale());
+	angleOffset.set(_value->getAngleOffset());
+	invSqrAttRadius.set(_value->getInvSqrRadius());
 	renderShadows.set(_value->isRenderShadows());
 	projector.set(_value->isProjector());
 	viewProjection.set(_value->getViewProjectionMatrix());
@@ -82,9 +86,9 @@ bool UniformSpotLight::isValid()
 {
 	return viewPosition.isValid() &&
 		viewDirection.isValid() &&
-		outerAngle.isValid() &&
-		innerAngle.isValid() &&
-		radius.isValid() &&
+		angleScale.isValid() &&
+		angleOffset.isValid() &&
+		invSqrAttRadius.isValid() &&
 		renderShadows.isValid() &&
 		viewProjection.isValid();
 }

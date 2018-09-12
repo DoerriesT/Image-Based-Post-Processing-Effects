@@ -304,12 +304,13 @@ void main()
 
 	const vec3 albedo = texture(uAlbedoMap, texCoord).rgb;
 	
-#if SSAO_ENABLED
 	vec4 metallicRoughnessAoShaded = texture(uMetallicRoughnessAoMap, texCoord).rgba;
+
+#if SSAO_ENABLED
 	metallicRoughnessAoShaded.b = min(metallicRoughnessAoShaded.b, texture(uSsaoMap, texCoord).r);
-#else
-	const vec4 metallicRoughnessAoShaded = texture(uMetallicRoughnessAoMap, texCoord).rgba;
 #endif // SSAO_ENABLED
+
+	metallicRoughnessAoShaded.y *= metallicRoughnessAoShaded.y;
     
 		
     if (metallicRoughnessAoShaded.a > 0.0)

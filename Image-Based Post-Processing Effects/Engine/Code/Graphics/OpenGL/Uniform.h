@@ -70,6 +70,7 @@ private:
 	Uniform<glm::vec3> color;
 	Uniform<glm::vec3> viewPosition;
 	Uniform<GLfloat> radius;
+	Uniform<GLfloat> invSqrAttRadius;
 	Uniform<GLboolean> renderShadows;
 	std::string name;
 	bool firstTime;
@@ -88,9 +89,9 @@ private:
 	Uniform<glm::vec3> color;
 	Uniform<glm::vec3> viewPosition;
 	Uniform<glm::vec3> viewDirection;
-	Uniform<GLfloat> outerAngle;
-	Uniform<GLfloat> innerAngle;
-	Uniform<GLfloat> radius;
+	Uniform<GLfloat> angleScale;
+	Uniform<GLfloat> angleOffset;
+	Uniform<GLfloat> invSqrAttRadius;
 	Uniform<GLboolean> renderShadows;
 	Uniform<GLboolean> projector;
 	Uniform<glm::mat4> viewProjection;

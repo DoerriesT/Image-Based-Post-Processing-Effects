@@ -75,7 +75,7 @@ void PointLightRenderPass::render(const RenderData &_renderData, const std::shar
 			glBindTexture(GL_TEXTURE_CUBE_MAP, pointLight->getShadowMap());
 		}
 
-		uModelViewProjectionP.set(_renderData.viewProjectionMatrix * glm::translate(pointLight->getPosition()) * glm::scale(glm::vec3(pointLight->getRadius())));
+		uModelViewProjectionP.set(_renderData.viewProjectionMatrix * glm::translate(pointLight->getPosition()) * glm::scale(glm::vec3(pointLight->getRadius() + 0.1f)));
 		uPointLightP.set(pointLight);
 		pointLightMesh->getSubMesh()->render();
 	}

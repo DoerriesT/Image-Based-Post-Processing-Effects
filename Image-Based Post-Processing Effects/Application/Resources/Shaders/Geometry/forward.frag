@@ -181,6 +181,7 @@ void main()
     {
         roughness = uMaterial.roughness;
     }
+	roughness *= roughness;
 
     float ao;
     if((uMaterial.mapBitField & AO) == AO)

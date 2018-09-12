@@ -9,6 +9,7 @@ struct PointLight
     vec3 color;
     vec3 position;
 	float radius;
+	float invSqrAttRadius;
 	bool renderShadows;
 };
 
@@ -28,15 +29,20 @@ uniform vec2 uViewportSize;
 
 #include "brdf.h"
 
-vec3 decode (vec2 enc)
+float smoothDistanceAtt(float squaredDistance, float invSqrAttRadius)
 {
-    vec2 fenc = enc * 4.0 - 2.0;
-    float f = dot(fenc, fenc);
-    float g = sqrt(1.0 - f * 0.25);
-    vec3 n;
-    n.xy = fenc * g;
-    n.z = 1.0 -f * 0.5;
-    return n;
+	float factor = squaredDistance * invSqrAttRadius;
+	float smoothFactor = clamp(1.0 - factor * factor, 0.0, 1.0);
+	return smoothFactor * smoothFactor;
+}
+
+float getDistanceAtt(vec3 unnormalizedLightVector, float invSqrAttRadius)
+{
+	float sqrDist = dot(unnormalizedLightVector, unnormalizedLightVector);
+	float attenuation = 1.0 / (max(sqrDist, invSqrAttRadius));
+	attenuation *= smoothDistanceAtt(sqrDist, invSqrAttRadius);
+	
+	return attenuation;
 }
 
 float vectorToDepth (vec3 vec)
@@ -54,52 +60,36 @@ float vectorToDepth (vec3 vec)
 void main()
 {
 	vec2 texCoord = gl_FragCoord.xy /  textureSize(uAlbedoMap, 0);
-    vec3 albedo = texture(uAlbedoMap, texCoord).rgb;
-	
 	vec4 metallicRoughnessAoShaded = texture(uMetallicRoughnessAoMap, texCoord).rgba;
+	metallicRoughnessAoShaded.y *= metallicRoughnessAoShaded.y;
     
 		
     if (metallicRoughnessAoShaded.a > 0.0)
     {
-		vec3 N = texture(uNormalMap, texCoord).xyz;//decode(texture(uNormalMap, texCoord).xy);
-		
 		float depth = texture(uDepthMap, texCoord).r;
 		vec4 clipSpacePosition = vec4((gl_FragCoord.xy / uViewportSize) * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
 		vec4 viewSpacePosition = uInverseProjection * clipSpacePosition;
 		viewSpacePosition /= viewSpacePosition.w;
 
+		vec3 unnormalizedLightVector = uPointLight.position - viewSpacePosition.xyz;;
+		vec3 L = normalize(unnormalizedLightVector);
+		float att = getDistanceAtt(unnormalizedLightVector, uPointLight.invSqrAttRadius);
+
+		vec3 N = texture(uNormalMap, texCoord).xyz;
 		vec3 V = -normalize(viewSpacePosition.xyz);
 		vec3 R = reflect(-V, N);
-		vec3 L = uPointLight.position - viewSpacePosition.xyz;
-		float distance = length(L);
-		L /= distance;
 		vec3 H = normalize(V + L);
-
-		vec3 F0 = mix(vec3(0.04), albedo, metallicRoughnessAoShaded.r);
 
 		float NdotV = max(dot(N, V), 0.0);
 		float NdotL = max(dot(N, L), 0.0);
-			
-		// shadow
-		float shadow = 0.0;
-		if(uPointLight.renderShadows && uShadowsEnabled)
-		{
-			vec3 lightToFrag = viewSpacePosition.xyz + 0.1 * L - uPointLight.position;
-			lightToFrag = (uInverseView * vec4(lightToFrag, 0.0)).xyz;
-			//lightToFrag -= normalize(lightToFrag) * 0.1;
-			float fragDepth = vectorToDepth(lightToFrag);
-			shadow = texture(uShadowMap, vec4(lightToFrag, fragDepth)).x;
-		}
-
-		float distancePercentage = distance / uPointLight.radius;
-		float attenuation = clamp(1.0 - (distancePercentage * distancePercentage * distancePercentage * distancePercentage), 0.0, 1.0);
-		attenuation *= attenuation;
-		attenuation /= distance * distance + 1.0;
-		vec3 radiance = uPointLight.color * attenuation;
 
 		// Cook-Torrance BRDF
 		float NDF = DistributionGGX(N, H, metallicRoughnessAoShaded.g);
 		float G = GeometrySmith(NdotV, NdotL, metallicRoughnessAoShaded.g);
+
+		vec3 albedo = texture(uAlbedoMap, texCoord).rgb;
+		vec3 F0 = mix(vec3(0.04), albedo, metallicRoughnessAoShaded.r);
+
 		vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
 		vec3 nominator = NDF * G * F;
@@ -112,7 +102,18 @@ void main()
 		// multiply kD by the inverse metalness so if a material is metallic, it has no diffuse lighting (and otherwise a blend)
 		kD *= 1.0 - metallicRoughnessAoShaded.r;
 
-		oFragColor = metallicRoughnessAoShaded.a * vec4((kD * albedo.rgb / PI + specular) * radiance * NdotL * (1.0 - shadow), 1.0);
+		vec3 radiance = uPointLight.color * att;
+		oFragColor = metallicRoughnessAoShaded.a * vec4((kD * albedo.rgb / PI + specular) * radiance * NdotL, 1.0);
+
+		if(uPointLight.renderShadows && uShadowsEnabled)
+		{
+			vec3 lightToFrag = viewSpacePosition.xyz + 0.1 * L - uPointLight.position;
+			lightToFrag = (uInverseView * vec4(lightToFrag, 0.0)).xyz;
+			//lightToFrag -= normalize(lightToFrag) * 0.1;
+			float fragDepth = vectorToDepth(lightToFrag);
+			float shadow = texture(uShadowMap, vec4(lightToFrag, fragDepth)).x;
+			oFragColor.rgb *= (1.0 - shadow);
+		}
     }
 	else
 	{

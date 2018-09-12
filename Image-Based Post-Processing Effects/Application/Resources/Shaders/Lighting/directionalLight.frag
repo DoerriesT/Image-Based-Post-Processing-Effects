@@ -48,6 +48,7 @@ void main()
 	vec3 albedo = texture(uAlbedoMap, texCoord).rgb;
 	
 	vec4 metallicRoughnessAoShaded = texture(uMetallicRoughnessAoMap, texCoord).rgba;
+	metallicRoughnessAoShaded.y *= metallicRoughnessAoShaded.y;
     
 		
     if (metallicRoughnessAoShaded.a > 0.0)

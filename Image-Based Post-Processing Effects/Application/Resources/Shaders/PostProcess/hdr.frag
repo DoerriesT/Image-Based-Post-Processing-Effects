@@ -44,7 +44,7 @@ uniform float uBloomDirtStrength = 0.5;
 uniform float uExposure = 1.0;
 uniform float uVelocityScale;
 uniform float uHalfPixelWidth = 0.0003125;
-uniform float uKeyValue = 0.5;
+uniform float uKeyValue = 0.18;
 uniform float uLensDirtStrength;
 
 const float MAX_SAMPLES = 32.0;
@@ -61,6 +61,14 @@ const float D = 0.20; // toe strength
 const float E = 0.02; // toe numerator
 const float F = 0.30; // toe denominator
 const vec3 W = vec3(11.2); // linear white point value
+
+vec3 accurateLinearToSRGB(in vec3 linearCol)
+{
+	vec3 sRGBLo = linearCol * 12.92;
+	vec3 sRGBHi = (pow(abs(linearCol), vec3(1.0/2.4)) * 1.055) - 0.055;
+	vec3 sRGB = mix(sRGBLo, sRGBHi, vec3(greaterThan(linearCol, vec3(0.0031308))));
+	return sRGB;
+}
 
 vec3 uncharted2Tonemap(vec3 x)
 {
@@ -116,6 +124,29 @@ vec3 calculateExposedColor(vec3 color, float avgLuminance)
 	float linearExposure = (uKeyValue / avgLuminance);
 	float exposure = log2(max(linearExposure, 0.0001f));
     return exp2(exposure) * color;
+}
+
+float computeEV100FromAvgLuminance(float avgLuminance)
+{
+	// We later use the middle gray at 12.7% in order to have
+	// a middle gray at 12% with a sqrt(2) room for specular highlights
+	// But here we deal with the spot meter measuring the middle gray
+	// which is fixed at 12.5 for matching standard camera
+	// constructor settings (i.e. calibration constant K = 12.5)
+	// Reference: http://en.wikipedia.org/wiki/Film_speed
+	return log2(max(avgLuminance, 1e-5) * 100.0 / 12.5);
+}
+
+float convertEV100ToExposure(float EV100)
+{
+	// Compute the maximum luminance possible with H_sbs sensitivity
+	// maxLum = 78 / ( S * q ) * N^2 / t
+	//        = 78 / ( S * q ) * 2^EV_100
+	//        = 78 / ( 100 * 0.65) * 2^EV_100
+	//        = 1.2 * 2^EV
+	// Reference: http://en.wikipedia.org/wiki/Film_speed
+	float maxLuminance = 1.2 * pow(2.0, EV100);
+	return 1.0 / maxLuminance;
 }
 
 void main()
@@ -316,7 +347,8 @@ void main()
 
 #if AUTO_EXPOSURE_ENABLED
 	float avgLuminance = texelFetch(uLuminanceTexture, ivec2(0, 0), 0).x;
-	color = calculateExposedColor(color, avgLuminance);
+	float exposure = convertEV100ToExposure(computeEV100FromAvgLuminance(avgLuminance));
+	color *= exposure;//calculateExposedColor(color, avgLuminance);
 #else
 	color *= uExposure;
 #endif // AUTO_EXPOSURE_ENABLED
@@ -327,7 +359,7 @@ void main()
 	vec3 whiteScale = 1.0/uncharted2Tonemap(W);
 	color *= whiteScale;
     // gamma correct
-    color = pow(color, vec3(1.0/2.2));
+    color = accurateLinearToSRGB(color);//pow(color, vec3(1.0/2.2));
 
 	oFragColor = vec4(color, dot(color.rgb, vec3(0.299, 0.587, 0.114)));
 }

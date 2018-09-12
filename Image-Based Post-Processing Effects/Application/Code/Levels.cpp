@@ -244,12 +244,15 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 
 	/*- set the lights in the scene*/
 	level->lights.directionalLights.push_back(DirectionalLight::createDirectionalLight(params.intensity * 16.0f, level->sun.direction, true));
-	float outerAngle = 25.0f;
-	float innerAngle = 0.0f;
+	float outerAngle = 50.0f;
+	float innerAngle = 1.0f;
 	float range = 25.0f;
-	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f + 6.0f, 0.7f, -0.8f), glm::vec3(-1.0f, -0.25f, -0.1f), outerAngle, innerAngle, range, true));
-	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(-2.5f + 6.0f, 0.7f, 0.8f), glm::vec3(-1.0f, -0.25f, 0.1f), outerAngle, innerAngle, range, true));
-	//level->lights.pointLights.push_back(PointLight::createPointLight(glm::vec3(100.0f), glm::vec3(0.0, 3.0, 0.0), 15.0f, true));
+
+	float lumens = 3400.0f;
+
+	level->lights.spotLights.push_back(SpotLight::createSpotLight(lumens, glm::vec3(255, 211, 175) / 255.0f, glm::vec3(-2.5f + 6.0f, 0.7f, -0.8f), glm::vec3(-1.0f, -0.25f, -0.1f), outerAngle, innerAngle, range, true));
+	level->lights.spotLights.push_back(SpotLight::createSpotLight(lumens, glm::vec3(255, 211, 175) / 255.0f, glm::vec3(-2.5f + 6.0f, 0.7f, 0.8f), glm::vec3(-1.0f, -0.25f, 0.1f), outerAngle, innerAngle, range, true));
+	level->lights.pointLights.push_back(PointLight::createPointLight(1055.0f, glm::vec3(255, 167, 87) / 255.0f, glm::vec3(0.0, 1.8, 5.0), 2.0f, false));
 
 	// objects
 	{
@@ -436,8 +439,8 @@ std::shared_ptr<Level> App::loadSibenikLevel()
 	float innerAngle = 0.0f;
 	float range = 25.0f;
 	
-	level->lights.pointLights.push_back(PointLight::createPointLight(glm::vec3(5.0f), glm::vec3(0.0f, 10.0f, 0.0f), 35.0f, true, PointLight::DEFAULT_SHADOW_MAP_RESOLUTION * 2));
-	level->lights.spotLights.push_back(SpotLight::createSpotLight(glm::vec3(100.0f), glm::vec3(0.0f, 1.7f, 0.0f), glm::vec3(1.0f, 0.5f, 0.0f), outerAngle, innerAngle, range, true, SpotLight::DEFAULT_SHADOW_MAP_RESOLUTION, true, Texture::createTexture("Resources/Textures/opengllogo.dds", true)));
+	level->lights.pointLights.push_back(PointLight::createPointLight(1.0f, glm::vec3(5.0f), glm::vec3(0.0f, 10.0f, 0.0f), 35.0f, true, PointLight::DEFAULT_SHADOW_MAP_RESOLUTION * 2));
+	level->lights.spotLights.push_back(SpotLight::createSpotLight(1.0f, glm::vec3(100.0f), glm::vec3(0.0f, 1.7f, 0.0f), glm::vec3(1.0f, 0.5f, 0.0f), outerAngle, innerAngle, range, true, SpotLight::DEFAULT_SHADOW_MAP_RESOLUTION, true, Texture::createTexture("Resources/Textures/opengllogo.dds", true)));
 
 
 	// objects
