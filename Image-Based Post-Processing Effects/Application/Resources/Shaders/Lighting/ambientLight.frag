@@ -138,26 +138,23 @@ vec3 getGridPos(vec3 position)
 	return (position - uVolumeOrigin) / uSpacing;
 }
 
-vec4 sample_grid_trilinear(in sampler2D t, vec3 grid_cell) 
-{
-	float zFloor = floor(grid_cell.z);
-
-	vec2 tex_coord = vec2(grid_cell.x / (uVolumeDimensions.x * uVolumeDimensions.z) + zFloor / uVolumeDimensions.z , grid_cell.y / uVolumeDimensions.y);
-
-	vec4 t1 = texture(t, tex_coord);
-	vec4 t2 = texture(t, vec2(tex_coord.x + (1.0 / uVolumeDimensions.x), tex_coord.y));
-
-	return mix(t1,t2, grid_cell.z - zFloor);
-}
+#define SAMPLE_TRILINEAR(sampler, texCoords, alpha) mix(texture(sampler, texCoords.xy), texture(sampler, texCoords.zw), alpha)
 
 vec3 lpvIrradiance(vec3 P, vec3 N)
 {
 	vec4 shIntensity = dirToSH(-N);
 	vec3 gridCell = getGridPos(P);
 
-	vec4 red = sample_grid_trilinear(uRedVolume, gridCell);
-	vec4 green = sample_grid_trilinear(uGreenVolume, gridCell);
-	vec4 blue = sample_grid_trilinear(uBlueVolume, gridCell);
+	float zFloor = floor(gridCell.z);
+
+	vec4 texCoords;
+	texCoords.xy = vec2(gridCell.x / (uVolumeDimensions.x * uVolumeDimensions.z) + zFloor / uVolumeDimensions.z , gridCell.y / uVolumeDimensions.y);
+	texCoords.zw = vec2(texCoords.x + (1.0 / uVolumeDimensions.x), texCoords.y);
+	float alpha = gridCell.z - zFloor;
+
+	vec4 red = SAMPLE_TRILINEAR(uRedVolume, texCoords, alpha);
+	vec4 green = SAMPLE_TRILINEAR(uGreenVolume, texCoords, alpha);
+	vec4 blue = SAMPLE_TRILINEAR(uBlueVolume, texCoords, alpha);
 	return max(vec3(dot(shIntensity, red), dot(shIntensity, green), dot(shIntensity, blue)), vec3(0.0)) / PI * 0.005;
 }
 
@@ -366,7 +363,7 @@ void main()
 				for(float col = -radius; col <= radius; ++col)
 				{
 					++count;
-					shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.001)).x;
+					shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.01)).x;
 				}
 			}
 			shadow *= 1.0 / count;
