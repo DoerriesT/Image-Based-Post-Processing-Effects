@@ -58,6 +58,14 @@ vec2 encode (vec3 n)
     return n.xy / f + 0.5;
 }
 
+vec3 accurateLinearToSRGB(in vec3 linearCol)
+{
+	vec3 sRGBLo = linearCol * 12.92;
+	vec3 sRGBHi = (pow(abs(linearCol), vec3(1.0/2.4)) * 1.055) - 0.055;
+	vec3 sRGB = mix(sRGBLo, sRGBHi, vec3(greaterThan(linearCol, vec3(0.0031308))));
+	return sRGB;
+}
+
 void main()
 {
 	vec2 texCoord = vTexCoord;
@@ -118,7 +126,7 @@ void main()
     }
 	else
 	{
-		oAlbedo = uMaterial.albedo;
+		oAlbedo = vec4(accurateLinearToSRGB(uMaterial.albedo.xyz), 1.0);
 	}
 
     if((uMaterial.mapBitField & NORMAL) != 0)

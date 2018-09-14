@@ -41,9 +41,9 @@ emissivePath:
 displacementPath: 
 
 name: engine_bar
-albedo: 1.0/1.0/1.0/1.0
+albedo: 0.0/0.0/0.0/1.0
 metallic: 1.0
-roughness: 0.4
+roughness: 0.05
 emissive: 0.0/0.0/0.0
 albedoPath: 
 normalPath: 
@@ -54,9 +54,9 @@ emissivePath:
 displacementPath: 
 
 name: engine_cross
-albedo: 1.0/1.0/1.0/1.0
+albedo: 0.0/0.0/0.0/1.0
 metallic: 1.0
-roughness: 0.4
+roughness: 0.05
 emissive: 0.0/0.0/0.0
 albedoPath: 
 normalPath: 
@@ -122,7 +122,7 @@ name: lights_back
 albedo: 1.0/0.0/0.0/1.0
 metallic: 0.0
 roughness: 0.0
-emissive: 100.0/0.0/0.0
+emissive: 50.0/0.0/0.0
 albedoPath: 
 normalPath: 
 metallicPath: 
@@ -132,10 +132,10 @@ emissivePath:
 displacementPath: 
 
 name: lights_side
-albedo: 1.0/0.0/0.0/1.0
+albedo: 0.0/0.0/0.0/1.0
 metallic: 0.0
 roughness: 0.0
-emissive: 10.0/0.0/0.0
+emissive: 0.0/0.0/0.0
 albedoPath: 
 normalPath: 
 metallicPath: 
@@ -197,9 +197,9 @@ emissivePath:
 displacementPath: 
 
 name: engine0
-albedo: 1.0/1.0/1.0/1.0
+albedo: 0.0/0.0/0.0/1.0
 metallic: 1.0
-roughness: 0.4
+roughness: 0.05
 emissive: 0.0/0.0/0.0
 albedoPath: 
 normalPath: 
@@ -288,7 +288,7 @@ emissivePath:
 displacementPath: 
 
 name: light_glass
-albedo: 0.0/0.0/0.0/0.8
+albedo: 0.0/0.0/0.0/0.2
 metallic: 0.0
 roughness: 0.0
 emissive: 0.0/0.0/0.0
