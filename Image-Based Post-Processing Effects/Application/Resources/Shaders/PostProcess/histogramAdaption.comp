@@ -1,0 +1,91 @@
+#version 450 core
+
+layout(local_size_x = 1, local_size_y = 1, local_size_z= 1) in;
+
+layout(r16f, binding = 0) uniform image2D uImgOut;
+
+layout(binding = 0) uniform sampler2D uPrevLuminanceTexture;
+layout(binding = 1) uniform sampler2D uHistogram;
+
+uniform float uTimeDelta;
+uniform float uTau;
+uniform vec2 uParams;
+
+#define HISTOGRAM_SIZE 64
+
+float getHistogramBucket(uint index)
+{
+	uint texel = index / 4;
+
+	vec4 histogramSample = texelFetch(uHistogram, ivec2(texel, 0), 0);
+
+	uint channel = index % 4;
+	float value = histogramSample.x;
+	value = (channel == 1) ? histogramSample.y : value;
+	value = (channel == 2) ? histogramSample.z : value;
+	value = (channel == 3) ? histogramSample.w : value;
+
+	return value;
+}
+
+float computeAverageLuminanceWithoutOutliers(float minFractionSum, float maxFractionSum)
+{
+	vec2 sumWithoutOutliers = vec2(0.0);
+
+	for (uint i = 0; i < HISTOGRAM_SIZE; ++i)
+	{
+		float localValue = getHistogramBucket(i);
+
+		// remove outlier at lower end
+		float sub = min(localValue, minFractionSum);
+		localValue = localValue - sub;
+		minFractionSum -= sub;
+		maxFractionSum -= sub;
+
+		// remove outlier at upper end
+		localValue = min(localValue, maxFractionSum);
+		maxFractionSum -= localValue;
+
+		float luminanceAtBucket = exp2( ((i / float(HISTOGRAM_SIZE)) - uParams.y) / uParams.x );
+		
+		sumWithoutOutliers += vec2(luminanceAtBucket, 1) * localValue;
+	}
+
+	return sumWithoutOutliers.x / max(0.0001f, sumWithoutOutliers.y);
+}
+
+float computeHistogramSum()
+{
+	float sum = 0.0;
+
+	for (uint i = 0; i < HISTOGRAM_SIZE; ++i)
+	{
+		sum += getHistogramBucket(i);
+	}
+
+	return sum;
+}
+
+float computeEyeAdaptionExposure()
+{
+	float histogramSum = 0.0;
+	
+	for (int i = 0; i < HISTOGRAM_SIZE / 4; ++i)
+	{
+		histogramSum += dot(vec4(1.0), texelFetch(uHistogram, ivec2(i, 0), 0));
+	}
+	
+	float unclampedAdaptedLuminance = computeAverageLuminanceWithoutOutliers(histogramSum * 0.5, histogramSum * 0.8);
+	return unclampedAdaptedLuminance;
+}
+
+void main()
+{	
+	float lastLum = texelFetch(uPrevLuminanceTexture, ivec2(0, 0), 0).x;
+    float currentLum = computeEyeAdaptionExposure();
+
+    // Adapt the luminance using Pattanaik's technique
+    float adaptedLum = lastLum + (currentLum - lastLum) * (1.0 - exp(-uTimeDelta * uTau));
+
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(adaptedLum, 0.0, 0.0, 0.0));
+}

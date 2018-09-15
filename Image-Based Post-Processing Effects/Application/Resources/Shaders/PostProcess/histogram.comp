@@ -1,0 +1,101 @@
+#version 450 core
+
+#define LOCAL_SIZE_X 8
+#define LOCAL_SIZE_Y 8
+
+layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z= 1) in;
+
+layout(rgba32f, binding = 0) uniform image2D uHistogram;
+
+layout(binding = 0) uniform sampler2D uSourceTexture;
+
+uniform vec2 uParams;
+
+#define HISTOGRAM_SIZE 64
+#define LOOP_SIZE_X 8
+#define LOOP_SIZE_Y 8
+
+shared float localHistogram[LOCAL_SIZE_X][LOCAL_SIZE_Y][HISTOGRAM_SIZE];
+
+const float HASHSCALE1 = 443.8975;
+
+float hash12(vec2 p)
+{
+	vec3 p3  = fract(vec3(p.xyx) * HASHSCALE1);
+    p3 += dot(p3, p3.yzx + 19.19);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+void main()
+{	
+	for (uint i = 0; i < HISTOGRAM_SIZE; ++i)
+	{
+		localHistogram[gl_LocalInvocationID.x][gl_LocalInvocationID.y][i] = 0.0;
+	}
+	
+	barrier();
+	
+	ivec2 domainSize = ivec2(textureSize(uSourceTexture, 0).xy);
+	ivec2 tileSize = ivec2(LOOP_SIZE_X, LOOP_SIZE_Y);
+	ivec2 offset = ivec2(gl_GlobalInvocationID.xy) * tileSize;
+	
+	for (uint y = 0; y < LOOP_SIZE_Y; ++y)
+	{
+		for (uint x = 0; x < LOOP_SIZE_X; ++x)
+		{
+			ivec2 sampleCoord = offset + ivec2(x, y);
+			
+			if(sampleCoord.x <= domainSize.x && sampleCoord.y <= domainSize.y)
+			{
+				vec3 sampleColor = texelFetch(uSourceTexture, sampleCoord, 0).rgb;
+				float luminance = dot(sampleColor, vec3(0.299, 0.587, 0.114));
+				float logLuminance = log2(luminance) * uParams.x + uParams.y;
+				
+				float bucket = clamp(logLuminance, 0.0, 1.0) * (HISTOGRAM_SIZE - 1) * 0.9999;
+			
+				uint bucket0 = uint(bucket);
+				uint bucket1 = bucket0 + 1;
+				
+				float weight1 = fract(bucket);
+				float weight0 = 1.0 - weight1;
+				
+				// spread the weight to the two closest buckets
+				if (bucket0 != 0)
+				{
+					localHistogram[gl_LocalInvocationID.x][gl_LocalInvocationID.y][bucket0] += weight0;
+				}
+				localHistogram[gl_LocalInvocationID.x][gl_LocalInvocationID.y][bucket1] += weight1;
+			}
+		}
+	}
+	
+	barrier();
+	
+	uint groupIndex = uint(gl_LocalInvocationID.y) * LOCAL_SIZE_X + uint(gl_LocalInvocationID.x);
+	
+	if(groupIndex < HISTOGRAM_SIZE / 4)
+	{
+		vec4 sum = vec4(0.0);
+		
+		for (uint y = 0; y < LOOP_SIZE_Y; ++y)
+		{
+			for (uint x = 0; x < LOCAL_SIZE_X; ++x)
+			{
+				sum += vec4(
+					localHistogram[x][y][groupIndex * 4 + 0],
+					localHistogram[x][y][groupIndex * 4 + 1],
+					localHistogram[x][y][groupIndex * 4 + 2],
+					localHistogram[x][y][groupIndex * 4 + 3]
+				);
+			}
+		}
+		
+		vec2 maxExtent = vec2(LOCAL_SIZE_X * LOOP_SIZE_X, LOCAL_SIZE_Y * LOOP_SIZE_Y);
+		float area = maxExtent.x * maxExtent.y;
+	
+		// doesn't take borders into account but the error should be minor
+		float normalizeFactor = 1.0f / area;
+		
+		imageStore(uHistogram, ivec2(groupIndex, gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x), sum * normalizeFactor);
+	}
+}

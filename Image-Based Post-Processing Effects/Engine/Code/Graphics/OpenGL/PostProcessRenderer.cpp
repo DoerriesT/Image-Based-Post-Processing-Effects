@@ -95,6 +95,10 @@ void PostProcessRenderer::init()
 	smaaBlendingWeightCalculationShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/AA/smaaBlendingWeightCalculation.vert", "Resources/Shaders/PostProcess/AA/smaaBlendingWeightCalculation.frag");
 	smaaNeighborhoodBlendingShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/AA/smaaNeighborhoodBlending.vert", "Resources/Shaders/PostProcess/AA/smaaNeighborhoodBlending.frag");
 	smaaResolveShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/AA/smaaResolve.frag");
+	luminanceHistogramShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/histogram.comp");
+	luminanceHistogramReduceShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/histogramReduce.comp");
+	luminanceHistogramAdaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/histogramAdaption.comp");
+
 
 	hdrShader = ShaderProgram::createShaderProgram(
 		{
@@ -215,6 +219,17 @@ void PostProcessRenderer::init()
 
 	// smaa resolve
 	uResolutionSMAAR.create(smaaResolveShader);
+
+	// histogram
+	uParamsLH.create(luminanceHistogramShader);
+
+	// histogram reduce
+	uLinesLHR.create(luminanceHistogramReduceShader);
+
+	// histogram adaption
+	uTimeDeltaLHA.create(luminanceHistogramAdaptionShader);
+	uTauLHA.create(luminanceHistogramAdaptionShader);
+	uParamsLHA.create(luminanceHistogramAdaptionShader);
 
 	// create FBO
 	glGenFramebuffers(1, &fullResolutionFbo);
@@ -382,7 +397,8 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 		break;
 	}
 
-	calculateLuminance(_colorTexture);
+	//calculateLuminance(_colorTexture);
+	calculateLuminanceHistogram(_colorTexture);
 
 	// combine and tonemap
 	glBindFramebuffer(GL_FRAMEBUFFER, fullResolutionFbo);
@@ -1381,6 +1397,62 @@ void PostProcessRenderer::calculateLuminance(GLuint _colorTexture)
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
+void PostProcessRenderer::calculateLuminanceHistogram(GLuint _colorTexture)
+{
+	currentLuminanceTexture = !currentLuminanceTexture;
+
+	unsigned int width = window->getWidth();
+	unsigned int height = window->getHeight();
+
+	// example min/max: -8 .. 4   means a range from 1/256 to 4  pow(2,-8) .. pow(2,4)
+	float histogramLogMin = -8;
+	float histogramLogMax = 16;
+	histogramLogMin = glm::min(histogramLogMin, histogramLogMax - 1);
+
+	float deltaLog = histogramLogMax - histogramLogMin;
+	float multiply = 1.0f / deltaLog;
+	float add = -histogramLogMin * multiply;
+
+	luminanceHistogramShader->bind();
+
+	uParamsLH.set(glm::vec2(multiply, add));
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, _colorTexture);
+
+	glBindImageTexture(0, luminanceHistogramIntermediary, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+	GLUtility::glDispatchComputeHelper(width / 8 + ((width % 8 == 0) ? 0 : 1), height / 8 + ((height % 8 == 0) ? 0 : 1), 1, 8, 8, 1);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+	glBindImageTexture(1, luminanceHistogram, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+	
+	luminanceHistogramReduceShader->bind();
+
+	unsigned int numGroupsX = width / 8 + ((width % 8 == 0) ? 0 : 1);
+	unsigned int numGroupsY = height / 8 + ((height % 8 == 0) ? 0 : 1);
+	numGroupsX = numGroupsX / 8 + ((numGroupsX % 8 == 0) ? 0 : 1);
+	numGroupsY = numGroupsY / 8 + ((numGroupsY % 8 == 0) ? 0 : 1);
+
+	uLinesLHR.set(numGroupsX * numGroupsY);
+
+	glDispatchCompute(64 / 4, 1, 1);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+	luminanceHistogramAdaptionShader->bind();
+	uTimeDeltaLHA.set((float)Engine::getTimeDelta());
+	uTauLHA.set(2.5f);
+	uParamsLHA.set(glm::vec2(multiply, add));
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, luminanceTexture[!currentLuminanceTexture]);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, luminanceHistogram);
+
+	glBindImageTexture(0, luminanceTexture[currentLuminanceTexture], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);
+	glDispatchCompute(1, 1, 1);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
 void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution)
 {
 	// full res
@@ -1857,6 +1929,30 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 
 		glBindTexture(GL_TEXTURE_2D, luminanceTexture[1]);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, 1, 1, 0, GL_RED, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+
+	// luminance histogram
+	{
+		unsigned int numGroupsX = _resolution.first / 8 + ((_resolution.first % 8 == 0) ? 0 : 1);
+		unsigned int numGroupsY = _resolution.second / 8 + ((_resolution.second % 8 == 0) ? 0 : 1);
+		numGroupsX = numGroupsX / 8 + ((numGroupsX % 8 == 0) ? 0 : 1);
+		numGroupsY = numGroupsY / 8 + ((numGroupsY % 8 == 0) ? 0 : 1);
+
+		glGenTextures(1, &luminanceHistogramIntermediary);
+		glBindTexture(GL_TEXTURE_2D, luminanceHistogramIntermediary);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 64 / 4, numGroupsX * numGroupsY, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glGenTextures(1, &luminanceHistogram);
+		glBindTexture(GL_TEXTURE_2D, luminanceHistogram);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 64 / 4, 1, 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

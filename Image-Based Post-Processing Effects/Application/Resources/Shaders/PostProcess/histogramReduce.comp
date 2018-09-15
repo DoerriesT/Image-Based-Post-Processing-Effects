@@ -1,0 +1,20 @@
+#version 450 core
+
+layout(local_size_x = 8, local_size_y = 1, local_size_z= 1) in;
+
+layout(rgba32f, binding = 0) uniform image2D uHistogram;
+layout(rgba32f, binding = 1) uniform image2D uResult;
+
+uniform int uLines;
+
+void main()
+{	
+	vec4 sum = vec4(0.0);
+	
+	for (uint y = 0; y < uint(uLines); ++y)
+	{
+		sum += imageLoad(uHistogram, ivec2(gl_GlobalInvocationID.x, y));
+	}
+	
+	imageStore(uResult, ivec2(gl_GlobalInvocationID.x, 0), sum / uLines);
+}

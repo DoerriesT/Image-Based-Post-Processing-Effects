@@ -55,6 +55,9 @@ private:
 	std::shared_ptr<ShaderProgram> smaaBlendingWeightCalculationShader;
 	std::shared_ptr<ShaderProgram> smaaNeighborhoodBlendingShader;
 	std::shared_ptr<ShaderProgram> smaaResolveShader;
+	std::shared_ptr<ShaderProgram> luminanceHistogramShader;
+	std::shared_ptr<ShaderProgram> luminanceHistogramReduceShader;
+	std::shared_ptr<ShaderProgram> luminanceHistogramAdaptionShader;
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Texture> lensColorTexture;
@@ -66,6 +69,9 @@ private:
 	GLuint spriteVAO;
 	GLuint spriteVBO;
 	GLuint spriteEBO;
+
+	GLuint luminanceHistogramIntermediary;
+	GLuint luminanceHistogram;
 
 	GLuint finishedTexture;
 
@@ -225,6 +231,17 @@ private:
 	// smaa resolve
 	Uniform<glm::vec4> uResolutionSMAAR = Uniform<glm::vec4>("uResolution");
 
+	// histogram
+	Uniform<glm::vec2> uParamsLH = Uniform<glm::vec2>("uParams"); // multiply / add
+
+	// histogram reduce
+	Uniform<GLint> uLinesLHR = Uniform<GLint>("uLines");
+
+	// histogram adaption
+	Uniform<GLfloat> uTimeDeltaLHA = Uniform<GLfloat>("uTimeDelta");
+	Uniform<GLfloat> uTauLHA = Uniform<GLfloat>("uTau");
+	Uniform<glm::vec2> uParamsLHA = Uniform<glm::vec2>("uParams"); // multiply / add
+
 	void fxaa(float _subPixelAA, float _edgeThreshold, float _edgeThresholdMin);
 	void smaa(GLuint _colorTexture, GLuint _velocityTexture, bool _temporalAA);
 	void singlePassEffects(const Effects &_effects);
@@ -239,6 +256,7 @@ private:
 	void spriteBasedDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
 	void godRays(const glm::vec2 &_sunpos, GLuint _colorTexture, GLuint _depthTexture);
 	void calculateLuminance(GLuint _colorTexture);
+	void calculateLuminanceHistogram(GLuint _colorTexture);
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
 
 };
