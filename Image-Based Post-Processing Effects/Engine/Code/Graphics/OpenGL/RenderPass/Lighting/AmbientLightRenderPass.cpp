@@ -50,7 +50,6 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-int irradianceSource = 1;
 bool gtaoMultiBounce = false;
 
 void AmbientLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, GLuint *_lpv, Volume _volume, RenderPass **_previousRenderPass)
@@ -68,7 +67,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 		bool ssaoEnabled = false;
 		bool gtaoMultiBounceEnabled = false;
 		bool ssrEnabled = false;
-		int irradianceVolume = 0;
+		int diffuseAmbientSource = 0;
 
 		for (const auto &define : curDefines)
 		{
@@ -96,7 +95,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 				}
 				else if (std::get<1>(define) == IRRADIANCE_SOURCE)
 				{
-					irradianceVolume = std::get<2>(define);
+					diffuseAmbientSource = std::get<2>(define);
 				}
 			}
 		}
@@ -106,7 +105,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 			|| ssaoEnabled != (_effects.ambientOcclusion != AmbientOcclusion::OFF)
 			|| gtaoMultiBounceEnabled != gtaoMultiBounce
 			|| ssrEnabled != _effects.screenSpaceReflections.enabled
-			|| irradianceVolume != irradianceSource)
+			|| diffuseAmbientSource != int(_effects.diffuseAmbientSource))
 		{
 			ambientLightShader->setDefines(
 				{
@@ -115,7 +114,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 				{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, (_effects.ambientOcclusion != AmbientOcclusion::OFF) },
 				{ ShaderProgram::ShaderType::FRAGMENT, GTAO_MULTI_BOUNCE_ENABLED, gtaoMultiBounce },
 				{ ShaderProgram::ShaderType::FRAGMENT, SSR_ENABLED, _effects.screenSpaceReflections.enabled },
-				{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_SOURCE, irradianceSource },
+				{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_SOURCE, int(_effects.diffuseAmbientSource) },
 				}
 			);
 			createUniforms();
@@ -159,7 +158,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	uInverseViewE.set(_renderData.invViewMatrix);
 	uInverseProjectionE.set(_renderData.invProjectionMatrix);
 
-	if (irradianceSource == 2)
+	if (_effects.diffuseAmbientSource == DiffuseAmbientSource::LIGHT_PROPAGATION_VOLUMES)
 	{
 		uVolumeOrigin.set(_volume.origin);
 		uVolumeDimensions.set(_volume.dimensions);
@@ -171,17 +170,12 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 		uVolumeDimensions.set(_level->environment.irradianceVolume->getDimensions());
 		uSpacing.set(_level->environment.irradianceVolume->getSpacing());
 	}
-	
 
-	static glm::mat4 prevViewProjection;
-
-	if (irradianceSource)
+	if (_effects.diffuseAmbientSource != DiffuseAmbientSource::FLAT)
 	{
 		uProjectionE.set(_renderData.projectionMatrix);
-		uReProjectionE.set(prevViewProjection * _renderData.invViewProjectionMatrix);
+		uReProjectionE.set(_renderData.prevViewProjectionMatrix * _renderData.invViewProjectionMatrix);
 	}
-
-	prevViewProjection = _renderData.viewProjectionMatrix;
 
 	fullscreenTriangle->getSubMesh()->render();
 }

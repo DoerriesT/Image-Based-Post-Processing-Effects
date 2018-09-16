@@ -231,6 +231,8 @@ void RenderSystem::update(double _currentTime, double _timeDelta)
 {
 }
 
+int irradianceSource = 1;
+
 void RenderSystem::render()
 {
 	std::shared_ptr<Level> level = SystemManager::getInstance().getLevel();
@@ -241,6 +243,7 @@ void RenderSystem::render()
 	}
 	
 	effects.exposure = level->exposure * exposureMultiplier;
+	effects.diffuseAmbientSource = DiffuseAmbientSource(irradianceSource);
 
 	if (level->environment.useAtmosphere && !level->environment.isAtmosphereValid)
 	{

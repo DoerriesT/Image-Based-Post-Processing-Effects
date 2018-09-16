@@ -170,6 +170,7 @@ void GraphicsFramework::bake(const Scene &_scene, const std::shared_ptr<Level> &
 	Effects effects = {};
 	effects.ambientOcclusion = AmbientOcclusion::HBAO;
 	effects.shadowQuality = ShadowQuality::NORMAL;
+	effects.diffuseAmbientSource = DiffuseAmbientSource::IRRADIANCE_VOLUMES;
 
 	sceneRenderer.resize(renderData.resolution);
 

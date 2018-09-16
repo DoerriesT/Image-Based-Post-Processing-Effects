@@ -108,6 +108,11 @@ enum class DepthOfField
 	OFF, SIMPLE, SPRITE_BASED, TILE_BASED_SEPERATE, TILE_BASED_COMBINED
 };
 
+enum class DiffuseAmbientSource
+{
+	FLAT, IRRADIANCE_VOLUMES, LIGHT_PROPAGATION_VOLUMES
+};
+
 struct Effects
 {
 	AmbientOcclusion ambientOcclusion;
@@ -127,6 +132,7 @@ struct Effects
 	ScreenSpaceReflections screenSpaceReflections;
 	MotionBlur motionBlur;
 	float exposure;
+	DiffuseAmbientSource diffuseAmbientSource;
 };
 
 enum class GBufferDisplayMode

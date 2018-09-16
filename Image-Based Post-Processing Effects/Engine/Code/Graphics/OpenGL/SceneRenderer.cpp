@@ -115,7 +115,11 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	RenderPass *previousRenderPass = nullptr;
 	frame = _renderData.frame;
 
-	lightPropagationVolumes.render(_renderData, _scene, _level, &previousRenderPass);
+	if (_effects.diffuseAmbientSource == DiffuseAmbientSource::LIGHT_PROPAGATION_VOLUMES)
+	{
+		lightPropagationVolumes.render(_renderData, _scene, _level, &previousRenderPass);
+	}
+	
 	shadowRenderPass->render(_renderData, _level, _scene, true, &previousRenderPass);
 
 	if (_level->water.enabled)
