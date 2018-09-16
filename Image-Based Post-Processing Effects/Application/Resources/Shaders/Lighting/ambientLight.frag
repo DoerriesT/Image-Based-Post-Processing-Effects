@@ -159,7 +159,7 @@ vec3 lpvIrradiance(vec3 P, vec3 N)
 	vec4 red = SAMPLE_TRILINEAR(uRedVolume, texCoords, alpha);
 	vec4 green = SAMPLE_TRILINEAR(uGreenVolume, texCoords, alpha);
 	vec4 blue = SAMPLE_TRILINEAR(uBlueVolume, texCoords, alpha);
-	return max(vec3(dot(shIntensity, red), dot(shIntensity, green), dot(shIntensity, blue)), vec3(0.0)) / PI * 0.005;
+	return max(vec3(dot(shIntensity, red), dot(shIntensity, green), dot(shIntensity, blue)), vec3(0.0)) / PI;
 }
 
 #endif // IRRADIANCE_SOURCE
@@ -306,147 +306,145 @@ void main()
 	
 	vec4 metallicRoughnessAoShaded = texture(uMetallicRoughnessAoMap, texCoord).rgba;
 
+	if (metallicRoughnessAoShaded.a == 0.0)
+	{
+		discard;
+	}
+
 #if SSAO_ENABLED
 	metallicRoughnessAoShaded.b = min(metallicRoughnessAoShaded.b, texture(uSsaoMap, texCoord).r);
 #endif // SSAO_ENABLED
-    	
-    if (metallicRoughnessAoShaded.a > 0.0)
-    {
-		const float depth = texture(uDepthMap, texCoord).r;
-		const vec4 clipSpacePosition = vec4(vTexCoord * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
-		vec4 viewSpacePosition = uInverseProjection * clipSpacePosition;
-		viewSpacePosition /= viewSpacePosition.w;
+    
+	const float depth = texture(uDepthMap, texCoord).r;
+	const vec4 clipSpacePosition = vec4(vTexCoord * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
+	vec4 viewSpacePosition = uInverseProjection * clipSpacePosition;
+	viewSpacePosition /= viewSpacePosition.w;
 
-		const vec3 F0 = mix(vec3(0.04), albedo, metallicRoughnessAoShaded.r);
-		const vec3 V = -normalize(viewSpacePosition.xyz);
-		const vec3 N = texture(uNormalMap, texCoord).xyz;//decode(texture(uNormalMap, texCoord).xy);
-		const float NdotV = max(dot(N, V), 0.0);
+	const vec3 F0 = mix(vec3(0.04), albedo, metallicRoughnessAoShaded.r);
+	const vec3 V = -normalize(viewSpacePosition.xyz);
+	const vec3 N = texture(uNormalMap, texCoord).xyz;//decode(texture(uNormalMap, texCoord).xy);
+	const float NdotV = max(dot(N, V), 0.0);
 
 #if DIRECTIONAL_LIGHT_ENABLED
-		{
-			const vec3 L = normalize(uDirectionalLight.direction);
-			const vec3 H = normalize(V + L);
-			const float NdotL = max(dot(N, L), 0.0);
-			
-			// Cook-Torrance BRDF
-			const float NDF = DistributionGGX(N, H, metallicRoughnessAoShaded.g);
-			const float G = GeometrySmith(NdotV, NdotL, metallicRoughnessAoShaded.g);
-			const vec3 F0 = mix(vec3(0.04), albedo, metallicRoughnessAoShaded.r);
-			const vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
-
-			const vec3 nominator = NDF * G * F;
-			const float denominator = max(4 * NdotV * NdotL, 0.0000001);
-
-			const vec3 specular = nominator / denominator;
-
-			// because of energy conversion kD and kS must add up to 1.0
-			vec3 kD = vec3(1.0) - F;
-			// multiply kD by the inverse metalness so if a material is metallic, it has no diffuse lighting (and otherwise a blend)
-			kD *= 1.0 - metallicRoughnessAoShaded.r;
-
-			oFragColor.rgb += (kD * albedo.rgb / PI + specular) * uDirectionalLight.color * NdotL;
-		}
-#endif // DIRECTIONAL_LIGHT_ENABLED
-
-		const vec4 worldPos4 = uInverseView * viewSpacePosition;
-
-#if SHADOWS_ENABLED && DIRECTIONAL_LIGHT_ENABLED
-		if(uDirectionalLight.renderShadows)
-		{		
-			float split = SHADOW_CASCADES - 1.0;
-			for (float i = 0.0; i < SHADOW_CASCADES; ++i)
-			{
-				if(-viewSpacePosition.z < uDirectionalLight.splits[int(i)])
-				{
-					split = i;
-					break;
-				}
-			}
-
-			const vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * worldPos4;
-			vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
-			projCoords = projCoords * 0.5 + 0.5; 
-			const vec2 invShadowMapSize = vec2(1.0 / (textureSize(uShadowMap, 0).xy));
-
-			float shadow = 0.0;
-
-			float count = 0.0;
-			const float radius = 2.0;
-			for(float row = -radius; row <= radius; ++row)
-			{
-				for(float col = -radius; col <= radius; ++col)
-				{
-					++count;
-					shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.001)).x;
-				}
-			}
-			shadow *= 1.0 / count;
-
-			// assuming there is only the directional light contribution in oFragColor.rgb
-			oFragColor.rgb *= (1.0 - shadow);
-		}	
-#endif // SHADOWS_ENABLED && DIRECTIONAL_LIGHT_ENABLED
+	{
+		const vec3 L = normalize(uDirectionalLight.direction);
+		const vec3 H = normalize(V + L);
+		const float NdotL = max(dot(N, L), 0.0);
 		
-		// ambient lighting using IBL
-		const vec3 kS = fresnelSchlickRoughness(NdotV, F0, metallicRoughnessAoShaded.g);
-		vec3 kD = 1.0 - kS;
+		// Cook-Torrance BRDF
+		const float NDF = DistributionGGX(N, H, metallicRoughnessAoShaded.g);
+		const float G = GeometrySmith(NdotV, NdotL, metallicRoughnessAoShaded.g);
+		const vec3 F0 = mix(vec3(0.04), albedo, metallicRoughnessAoShaded.r);
+		const vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+		const vec3 nominator = NDF * G * F;
+		const float denominator = max(4 * NdotV * NdotL, 0.0000001);
+
+		const vec3 specular = nominator / denominator;
+
+		// because of energy conversion kD and kS must add up to 1.0
+		vec3 kD = vec3(1.0) - F;
+		// multiply kD by the inverse metalness so if a material is metallic, it has no diffuse lighting (and otherwise a blend)
 		kD *= 1.0 - metallicRoughnessAoShaded.r;
 
-		const vec3 worldPos = worldPos4.xyz / worldPos4.w;
+		oFragColor.rgb += (kD * albedo.rgb / PI + specular) * uDirectionalLight.color * NdotL;
+	}
+#endif // DIRECTIONAL_LIGHT_ENABLED
+
+	const vec4 worldPos4 = uInverseView * viewSpacePosition;
+
+#if SHADOWS_ENABLED && DIRECTIONAL_LIGHT_ENABLED
+	if(uDirectionalLight.renderShadows)
+	{		
+		float split = SHADOW_CASCADES - 1.0;
+		for (float i = 0.0; i < SHADOW_CASCADES; ++i)
+		{
+			if(-viewSpacePosition.z < uDirectionalLight.splits[int(i)])
+			{
+				split = i;
+				break;
+			}
+		}
+
+		const vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * worldPos4;
+		vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
+		projCoords = projCoords * 0.5 + 0.5; 
+		const vec2 invShadowMapSize = vec2(1.0 / (textureSize(uShadowMap, 0).xy));
+
+		float shadow = 0.0;
+
+		float count = 0.0;
+		const float radius = 2.0;
+		for(float row = -radius; row <= radius; ++row)
+		{
+			for(float col = -radius; col <= radius; ++col)
+			{
+				++count;
+				shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.001)).x;
+			}
+		}
+		shadow *= 1.0 / count;
+
+		// assuming there is only the directional light contribution in oFragColor.rgb
+		oFragColor.rgb *= (1.0 - shadow);
+	}	
+#endif // SHADOWS_ENABLED && DIRECTIONAL_LIGHT_ENABLED
+	
+	// ambient lighting using IBL
+	const vec3 kS = fresnelSchlickRoughness(NdotV, F0, metallicRoughnessAoShaded.g);
+	vec3 kD = 1.0 - kS;
+	kD *= 1.0 - metallicRoughnessAoShaded.r;
+
+	const vec3 worldPos = worldPos4.xyz / worldPos4.w;
 
 #if IRRADIANCE_SOURCE == 1
-		const vec3 worldNormal = (uInverseView * vec4(N, 0.0)).xyz;
-		const vec3 irradiance = sphericalHarmonicsIrradiance(worldPos, worldNormal);
+	const vec3 worldNormal = (uInverseView * vec4(N, 0.0)).xyz;
+	const vec3 irradiance = sphericalHarmonicsIrradiance(worldPos, worldNormal);
 #elif IRRADIANCE_SOURCE == 2
-		const vec3 worldNormal = (uInverseView * vec4(N, 0.0)).xyz;
-		const vec3 irradiance = lpvIrradiance(worldPos, worldNormal);
+	const vec3 worldNormal = (uInverseView * vec4(N, 0.0)).xyz;
+	const vec3 irradiance = lpvIrradiance(worldPos, worldNormal);
 #else
-		const vec3 irradiance = vec3(0.05);
+	const vec3 irradiance = vec3(0.05);
 #endif // IRRADIANCE_SOURCE
 
 #if GTAO_MULTI_BOUNCE_ENABLED
-		const vec3 diffuse = irradiance * albedo * GTAOMultiBounce(metallicRoughnessAoShaded.z, albedo);
+	const vec3 diffuse = irradiance * albedo * GTAOMultiBounce(metallicRoughnessAoShaded.z, albedo);
 #else
-		const vec3 diffuse = irradiance * albedo * metallicRoughnessAoShaded.z;
+	const vec3 diffuse = irradiance * albedo * metallicRoughnessAoShaded.z;
 #endif // GTAO_MULTI_BOUNCE_ENABLED
 
-		// Screenspace Reflections
+	// Screenspace Reflections
 #if SSR_ENABLED
-		vec3 ssPosition = vec3(vTexCoord, texture(uDepthMap, vTexCoord).x);
-		const vec3 vsPosition = unproject(ssPosition);
-		const vec3 vsDir = normalize(vsPosition);
-		const vec3 vsR = reflect(vsDir, N);
-		const vec3 ssO = project(vsPosition + vsR * Z_NEAR);
-		const vec3 R = ssO - ssPosition;
+	vec3 ssPosition = vec3(vTexCoord, texture(uDepthMap, vTexCoord).x);
+	const vec3 vsPosition = unproject(ssPosition);
+	const vec3 vsDir = normalize(vsPosition);
+	const vec3 vsR = reflect(vsDir, N);
+	const vec3 ssO = project(vsPosition + vsR * Z_NEAR);
+	const vec3 R = ssO - ssPosition;
 
-		const bool hit = linearRayTrace(ssPosition, R);
+	const bool hit = linearRayTrace(ssPosition, R);
 
-		const vec2 dCoords = smoothstep(0.2, 0.5, abs(vec2(0.5) - ssPosition.xy));
-		const float edgeFactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
+	const vec2 dCoords = smoothstep(0.2, 0.5, abs(vec2(0.5) - ssPosition.xy));
+	const float edgeFactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
 
-		// reproject
-		vec4 reprojected = uReProjection * vec4(ssPosition * 2.0 - 1.0, 1.0);
-		reprojected.xy /= reprojected.w;
-		reprojected.xy = reprojected.xy * 0.5 + 0.5;
+	// reproject
+	vec4 reprojected = uReProjection * vec4(ssPosition * 2.0 - 1.0, 1.0);
+	reprojected.xy /= reprojected.w;
+	reprojected.xy = reprojected.xy * 0.5 + 0.5;
 
-		const vec3 ssrColor = textureLod(uPrevFrame, reprojected.xy, metallicRoughnessAoShaded.g * log2(textureSize(uPrevFrame, 0).x)).rgb;
+	const vec3 ssrColor = textureLod(uPrevFrame, reprojected.xy, metallicRoughnessAoShaded.g * log2(textureSize(uPrevFrame, 0).x)).rgb;
 
-		const vec3 correctedTexCoord = parallaxCorrect((uInverseView * vec4(reflect(-V, N), 0.0)).xyz, worldPos);
-		const vec3 cubeColor = textureLod(uPrefilterMap, octEncode(correctedTexCoord) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
-		const vec3 prefilteredColor = mix(cubeColor, ssrColor, float(hit) * edgeFactor);
+	const vec3 correctedTexCoord = parallaxCorrect((uInverseView * vec4(reflect(-V, N), 0.0)).xyz, worldPos);
+	const vec3 cubeColor = textureLod(uPrefilterMap, octEncode(correctedTexCoord) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
+	const vec3 prefilteredColor = mix(cubeColor, ssrColor, float(hit) * edgeFactor);
 #else
-		const vec3 correctedTexCoord = parallaxCorrect((uInverseView * vec4(reflect(-V, N), 0.0)).xyz, worldPos);
-		// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-		const vec3 prefilteredColor = textureLod(uPrefilterMap, octEncode(correctedTexCoord) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
+	const vec3 correctedTexCoord = parallaxCorrect((uInverseView * vec4(reflect(-V, N), 0.0)).xyz, worldPos);
+	// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+	const vec3 prefilteredColor = textureLod(uPrefilterMap, octEncode(correctedTexCoord) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
 #endif // SSR_ENABLED
 
-		const vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, metallicRoughnessAoShaded.g)).rg;
-		const vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
+	const vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, metallicRoughnessAoShaded.g)).rg;
+	const vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 
-		oFragColor.rgb += (kD * diffuse);
-    }
-	else
-	{
-		oFragColor = vec4(albedo, 1.0);
-	}
+	oFragColor.rgb += (kD * diffuse);
 }

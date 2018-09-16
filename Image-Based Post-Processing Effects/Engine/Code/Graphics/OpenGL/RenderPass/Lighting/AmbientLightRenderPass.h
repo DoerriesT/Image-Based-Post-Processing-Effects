@@ -31,7 +31,6 @@ private:
 	Uniform<glm::vec3> uVolumeOrigin = Uniform<glm::vec3>("uVolumeOrigin");
 	Uniform<glm::ivec3> uVolumeDimensions = Uniform<glm::ivec3>("uVolumeDimensions");
 	Uniform<GLfloat> uSpacing = Uniform<GLfloat>("uSpacing");
-	Uniform<GLfloat> uOcclusionAmplifier = Uniform<GLfloat>("uOcclusionAmplifier");
 
 	void createUniforms();
 };

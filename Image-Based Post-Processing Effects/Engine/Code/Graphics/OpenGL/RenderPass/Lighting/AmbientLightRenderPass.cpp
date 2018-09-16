@@ -51,7 +51,6 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 }
 
 int irradianceSource = 1;
-float occAmp = 1.0f;
 bool gtaoMultiBounce = false;
 
 void AmbientLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, GLuint *_lpv, Volume _volume, RenderPass **_previousRenderPass)
@@ -165,7 +164,6 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 		uVolumeOrigin.set(_volume.origin);
 		uVolumeDimensions.set(_volume.dimensions);
 		uSpacing.set(_volume.spacing);
-		uOcclusionAmplifier.set(occAmp);
 	}
 	else
 	{
@@ -200,6 +198,4 @@ void AmbientLightRenderPass::createUniforms()
 	uVolumeOrigin.create(ambientLightShader);
 	uVolumeDimensions.create(ambientLightShader);
 	uSpacing.create(ambientLightShader);
-
-	uOcclusionAmplifier.create(ambientLightShader);
 }

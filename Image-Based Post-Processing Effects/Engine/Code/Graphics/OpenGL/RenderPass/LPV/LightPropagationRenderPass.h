@@ -18,5 +18,6 @@ private:
 
 	Uniform<glm::vec3> uGridSize = Uniform<glm::vec3>("uGridSize");
 	Uniform<GLboolean> uFirstIteration = Uniform<GLboolean>("uFirstIteration");
+	Uniform<GLfloat> uOcclusionAmplifier = Uniform<GLfloat>("uOcclusionAmplifier");
 
 };

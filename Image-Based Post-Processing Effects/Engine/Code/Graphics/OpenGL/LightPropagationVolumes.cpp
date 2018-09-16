@@ -12,7 +12,7 @@
 #include "Graphics\Volume.h"
 
 int RSM_SIZE = 512;
-int VOLUME_SIZE = 32;
+int VOLUME_SIZE = 64;
 
 void LightPropagationVolumes::init()
 {
@@ -194,8 +194,8 @@ void LightPropagationVolumes::init()
 void LightPropagationVolumes::render(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass)
 {
 	glm::ivec3 volumeDimensions = glm::ivec3(VOLUME_SIZE);
-	float volumeSpacing = 1.0f;
-	glm::vec2 target = glm::vec2(_renderData.cameraPosition.x, _renderData.cameraPosition.z) + 8.0f * glm::vec2(_renderData.viewDirection.x, _renderData.viewDirection.z);
+	float volumeSpacing = 0.5f;
+	glm::vec2 target = glm::vec2(0.0f);
 	glm::vec3 volumeOrigin = glm::round(glm::vec3(target.x - volumeDimensions.x * volumeSpacing * 0.5f, 0.0f, target.y - volumeDimensions.z * volumeSpacing * 0.5f));
 	
 	// calculate during the first frame and after that each Nth frame
@@ -230,7 +230,8 @@ void LightPropagationVolumes::render(const RenderData &_renderData, const Scene 
 	glm::vec3 lightPos = lightDir * 100.0f + volumeWorldSpaceCenter;
 
 	glm::mat4 lightView = glm::lookAt(lightPos, volumeWorldSpaceCenter, upDir);
-	glm::mat4 projection = glm::ortho(-16.0f, 16.0f, -16.0f, 16.0f, 0.0f, 500.0f);
+	float projectionHalfWidth = VOLUME_SIZE * volumeSpacing * 0.5f;
+	glm::mat4 projection = glm::ortho(-projectionHalfWidth, projectionHalfWidth, -projectionHalfWidth, projectionHalfWidth, 0.0f, 500.0f);
 	glm::mat4 viewProjection = projection * lightView;
 
 	rsmRenderPass->render(viewProjection, light, _scene, _previousRenderPass);
@@ -239,7 +240,7 @@ void LightPropagationVolumes::render(const RenderData &_renderData, const Scene 
 
 	lightInjectionRenderPass->render(propagationVolume, invViewProjection, 0, rsmFlux, rsmNormal, _previousRenderPass);
 	Volume geometryVolume = propagationVolume;
-	geometryVolume.origin += 0.5f;
+	geometryVolume.origin += 0.5f * volumeSpacing;
 	geometryInjectionRenderPass->render(geometryVolume, invViewProjection, rsmNormal, lightDir, _previousRenderPass);
 
 	GLuint redTextures[] = { propagation2DVolumeRed0, propagation2DVolumeRed1 };

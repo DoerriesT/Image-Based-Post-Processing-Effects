@@ -31,9 +31,12 @@ LightPropagationRenderPass::LightPropagationRenderPass(GLuint _fbo, unsigned int
 
 	uGridSize.create(lightPropagationShader);
 	uFirstIteration.create(lightPropagationShader);
+	uOcclusionAmplifier.create(lightPropagationShader);
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
+
+float occAmp = 1.0f;
 
 void LightPropagationRenderPass::render(const Volume &_lightPropagationVolume, GLuint _geometryTexture, GLuint *_redTexture, GLuint *_greenTexture, GLuint *_blueTexture, GLuint *accumTextures, RenderPass ** _previousRenderPass)
 {
@@ -43,6 +46,7 @@ void LightPropagationRenderPass::render(const Volume &_lightPropagationVolume, G
 	lightPropagationShader->bind();
 
 	uGridSize.set(glm::vec3(_lightPropagationVolume.dimensions));
+	uOcclusionAmplifier.set(occAmp);
 
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, _geometryTexture);
@@ -53,7 +57,7 @@ void LightPropagationRenderPass::render(const Volume &_lightPropagationVolume, G
 
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArraysPositionOnly();
 
-	for (unsigned int i = 0; i < 32; ++i)
+	for (unsigned int i = 0; i < _lightPropagationVolume.dimensions.x; ++i)
 	{
 		glDrawBuffers(3, targets[i % 2]);
 		glActiveTexture(GL_TEXTURE0);

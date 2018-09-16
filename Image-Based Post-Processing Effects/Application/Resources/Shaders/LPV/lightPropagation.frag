@@ -109,7 +109,7 @@ void main()
             ivec2 occCoord = ivec2(gl_FragCoord.xy) - offset;
 			
 			vec4 occCoeffs = texture(uGeometryTexture, occCoord);
-			occlusionValue = 1.0 - clamp( uOcclusionAmplifier * dot(occCoeffs, dirToSH( -vec3(direction))),0.0,1.0 );
+			occlusionValue = 1.0 - clamp( uOcclusionAmplifier * dot(occCoeffs, dirToSH( -vec3(direction))), 0.0, 1.0 );
 		}
 
 		vec4 curCosLobe = dirToCosineLobe(direction);
@@ -137,9 +137,6 @@ void main()
 	oGreen = coeffsGreen;
 	oBlue = coeffsBlue;
 
-	//imageStore(uRedAccum, cellIndex, imageLoad(uRedAccum, cellIndex) + coeffsRed);
-	//imageStore(uGreenAccum, cellIndex, imageLoad(uGreenAccum, cellIndex) + coeffsGreen);
-	//imageStore(uBlueAccum, cellIndex, imageLoad(uBlueAccum, cellIndex) + coeffsBlue);
 	imageStore(uAccumRed, ivec2(gl_FragCoord.xy), imageLoad(uAccumRed, ivec2(gl_FragCoord.xy)) + coeffsRed);
 	imageStore(uAccumGreen, ivec2(gl_FragCoord.xy), imageLoad(uAccumGreen, ivec2(gl_FragCoord.xy)) + coeffsGreen);
 	imageStore(uAccumBlue, ivec2(gl_FragCoord.xy), imageLoad(uAccumBlue, ivec2(gl_FragCoord.xy)) + coeffsBlue);

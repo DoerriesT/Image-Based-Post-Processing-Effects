@@ -8,6 +8,10 @@ in vec3 vFlux;
 in vec3 vNormal;
 in vec3 vGridCell;
 
+uniform int uRsmWidth;
+uniform vec3 uGridSize;
+uniform vec2 uGridSpacing; // spacing, 1.0 / spacing
+
 /*Cosine lobe coeff*/
 #define SH_cosLobe_C0 0.886226925f // sqrt(pi)/2 
 #define SH_cosLobe_C1 1.02332671f // sqrt(pi/3) 
@@ -23,7 +27,7 @@ vec4 evalCosineLobeToDir(vec3 dir)
 void main()
 {
 	vec4 coeffs = evalCosineLobeToDir(vNormal) / PI;
-	
+	coeffs *= ((uGridSize.x * uGridSpacing.x) * (uGridSize.z * uGridSpacing.x)) / (uRsmWidth * uRsmWidth);
 	oRed = coeffs * vFlux.r;
 	oGreen = coeffs * vFlux.g;
 	oBlue = coeffs * vFlux.b;

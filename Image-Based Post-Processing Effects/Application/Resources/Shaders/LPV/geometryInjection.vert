@@ -24,8 +24,8 @@ RSMTexel getRSM(ivec2 texCoord)
 	vec4 position = vec4(vec3(vec2(texCoord) / textureSize(uNormalTexture, 0).xy, normalDepth.w) * 2.0 - 1.0, 1.0);
 	position = uInvViewProjection * position;
 	
-	// shift position by half cellsize and by half cellsize in normal direction
-	return RSMTexel(normalDepth.xyz, uGridSpacing.x * 0.5 * normalDepth.xyz + (position.xyz / position.w) + vec3(uGridSpacing.x * 0.5));
+	// shift position by half cellsize in normal direction
+	return RSMTexel(normalDepth.xyz, uGridSpacing.x * 0.5 * normalDepth.xyz + (position.xyz / position.w));
 }
 
 vec3 getGridPos(vec3 position)

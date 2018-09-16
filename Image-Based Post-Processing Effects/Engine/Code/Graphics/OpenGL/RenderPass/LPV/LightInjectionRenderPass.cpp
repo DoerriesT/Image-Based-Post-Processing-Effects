@@ -68,7 +68,9 @@ void LightInjectionRenderPass::render(const Volume &_lightPropagationVolume,
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glPointSize(1.0f);
 
 	lightInjectionShader->bind();
