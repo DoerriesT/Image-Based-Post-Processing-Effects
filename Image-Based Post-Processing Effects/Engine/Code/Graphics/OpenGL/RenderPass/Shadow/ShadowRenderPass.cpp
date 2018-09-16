@@ -48,14 +48,14 @@ void ShadowRenderPass::render(const RenderData &_renderData, const std::shared_p
 
 	shadowShader->bind();
 
-	unsigned int frameCounter = _renderData.frame % 4;
+	unsigned int frameCounter = _renderData.frame % SHADOW_CASCADES;
 
 	AxisAlignedBoundingBox sceneAABB = calculateSceneAABB(_scene);
 
 	float splits[SHADOW_CASCADES];
 	float nearPlane = Window::NEAR_PLANE;
-	float farPlane = Window::FAR_PLANE;
-	float blendWeight = 0.9975f;
+	float farPlane = Window::FAR_PLANE * 0.25f;
+	float blendWeight = 0.7f;
 	for (unsigned int i = 1; i < SHADOW_CASCADES; ++i)
 	{
 		float logSplit = nearPlane * pow(farPlane / nearPlane, i / float(SHADOW_CASCADES));
@@ -284,7 +284,7 @@ glm::mat4 ShadowRenderPass::calculateLightViewProjection(const RenderData & _ren
 
 	float distz = maxCorner.z - minCorner.z;
 	float projFarPlane = distz + distance;
-	return glm::ortho(minCorner.x, maxCorner.x, minCorner.y, maxCorner.y, 0.0f, projFarPlane) * lightView;
+	return glm::ortho(minCorner.x, maxCorner.x, minCorner.y, maxCorner.y, 0.0f, 300.0f) * lightView;
 }
 
 AxisAlignedBoundingBox ShadowRenderPass::calculateSceneAABB(const Scene & _scene)

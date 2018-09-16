@@ -6,7 +6,7 @@ layout(location = 0) out vec4 oFragColor;
 
 in vec2 vTexCoord;
 
-const int SHADOW_CASCADES = 4;
+const int SHADOW_CASCADES = 3;
 
 struct DirectionalLight
 {
@@ -70,9 +70,7 @@ void main()
 				}
 			}
 
-			vec4 worldPos4 = uInverseView * viewSpacePosition;
-			worldPos4 /= worldPos4.w;
-			vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * worldPos4;
+			vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * uInverseView * vec4(0.1 * uDirectionalLight.direction + viewSpacePosition.xyz, 1.0);
 			vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
 			projCoords = projCoords * 0.5 + 0.5; 
 			vec2 invShadowMapSize = vec2(1.0 / (textureSize(uShadowMap, 0).xy));
@@ -84,7 +82,7 @@ void main()
 				for(float col = -radius; col <= radius; ++col)
 				{
 					++count;
-					shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.001)).x;
+					shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z)).x;
 				}
 			}
 			shadow *= 1.0 / count;

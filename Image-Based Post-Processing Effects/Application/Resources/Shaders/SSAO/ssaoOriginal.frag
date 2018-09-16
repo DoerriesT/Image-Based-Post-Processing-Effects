@@ -8,7 +8,7 @@ layout(binding = 3) uniform sampler2D uDepthTexture;
 layout(binding = 5) uniform sampler2D uNoiseTexture;
 
 const float Z_NEAR = 0.1;
-const float Z_FAR = 3000.0;
+const float Z_FAR = 300.0;
 
 float linearDepth(float depth)
 {

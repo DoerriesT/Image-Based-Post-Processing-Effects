@@ -6,7 +6,7 @@
 
 const float Window::DEFAULT_FOV = 60.0f;
 const float Window::NEAR_PLANE = 0.1f;
-const float Window::FAR_PLANE = 3000.0f;
+const float Window::FAR_PLANE = 300.0f;
 
 Window::Window(const std::string &_title)
 	:vsync(SettingsManager::getInstance().getBoolSetting("graphics", "vsync", false)),

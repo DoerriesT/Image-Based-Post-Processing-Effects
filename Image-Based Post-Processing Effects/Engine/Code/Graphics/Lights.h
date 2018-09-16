@@ -5,7 +5,7 @@
 #include <memory>
 #include "EntityComponentSystem\Component.h"
 
-const unsigned int SHADOW_CASCADES = 4;
+const unsigned int SHADOW_CASCADES = 3;
 
 class Texture;
 

@@ -50,7 +50,7 @@ uniform float uLensDirtStrength;
 const float MAX_SAMPLES = 32.0;
 const float SOFT_Z_EXTENT = 0.1;
 const float Z_NEAR = 0.1;
-const float Z_FAR = 3000.0;
+const float Z_FAR = 300.0;
 const int TILE_SIZE = 40;
 const float GAMMA = 1.5;
 

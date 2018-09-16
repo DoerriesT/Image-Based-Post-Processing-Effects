@@ -43,7 +43,7 @@ layout(binding = 6) uniform sampler2D uGreenVolume;
 layout(binding = 7) uniform sampler2D uBlueVolume;
 
 #if DIRECTIONAL_LIGHT_ENABLED
-const int SHADOW_CASCADES = 4;
+const int SHADOW_CASCADES = 3;
 
 struct DirectionalLight
 {
@@ -73,7 +73,7 @@ uniform float uSpacing;
 const float PI = 3.14159265359;
 const float MAX_REFLECTION_LOD = 4.0;
 const float Z_NEAR = 0.1;
-const float Z_FAR = 3000.0;
+const float Z_FAR = 300.0;
 
 #include "brdf.h"
 
@@ -327,7 +327,7 @@ void main()
 
 #if DIRECTIONAL_LIGHT_ENABLED
 	{
-		const vec3 L = normalize(uDirectionalLight.direction);
+		const vec3 L = uDirectionalLight.direction;
 		const vec3 H = normalize(V + L);
 		const float NdotL = max(dot(N, L), 0.0);
 		
@@ -366,7 +366,7 @@ void main()
 			}
 		}
 
-		const vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * worldPos4;
+		const vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * uInverseView * vec4(0.1 * uDirectionalLight.direction + viewSpacePosition.xyz, 1.0);
 		vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
 		projCoords = projCoords * 0.5 + 0.5; 
 		const vec2 invShadowMapSize = vec2(1.0 / (textureSize(uShadowMap, 0).xy));
@@ -380,7 +380,7 @@ void main()
 			for(float col = -radius; col <= radius; ++col)
 			{
 				++count;
-				shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z - 0.001)).x;
+				shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z)).x;
 			}
 		}
 		shadow *= 1.0 / count;

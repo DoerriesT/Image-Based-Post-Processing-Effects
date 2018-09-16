@@ -19,7 +19,7 @@ in vec4 vCurrentPos;
 in vec4 vPrevPos;
 in vec3 vWorldPos;
 
-const int SHADOW_CASCADES = 4;
+const int SHADOW_CASCADES = 3;
 
 struct Material
 {

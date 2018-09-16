@@ -397,8 +397,8 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 		break;
 	}
 
-	calculateLuminance(_colorTexture);
-	//calculateLuminanceHistogram(_colorTexture);
+	//calculateLuminance(_colorTexture);
+	calculateLuminanceHistogram(_colorTexture);
 
 	// combine and tonemap
 	glBindFramebuffer(GL_FRAMEBUFFER, fullResolutionFbo);
