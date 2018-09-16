@@ -133,6 +133,10 @@ void main()
 		}
 	}
 	
+	const float amplifier = 1.05;
+	coeffsRed *= amplifier;
+	coeffsGreen *= amplifier;
+	coeffsBlue *= amplifier;
 	oRed = coeffsRed;
 	oGreen = coeffsGreen;
 	oBlue = coeffsBlue;
