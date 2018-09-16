@@ -6,8 +6,8 @@
 
 const unsigned int DirectionalLight::DEFAULT_SHADOW_MAP_RESOLUTION = 2048;
 
-DirectionalLight::DirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows, unsigned int _shadowMapResolution)
-	:color(_color), direction(glm::normalize(_direction)), renderShadows(false), shadowMapResolution(_shadowMapResolution)
+DirectionalLight::DirectionalLight(Mobility _mobility, const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows, unsigned int _shadowMapResolution)
+	:mobility(_mobility), color(_color), direction(glm::normalize(_direction)), renderShadows(false), shadowMapResolution(_shadowMapResolution)
 {
 	setRenderShadows(_renderShadows);
 }
@@ -30,9 +30,9 @@ void DirectionalLight::createShadowMap()
 	glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
 }
 
-std::shared_ptr<DirectionalLight> DirectionalLight::createDirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows, unsigned int _shadowMapResolution)
+std::shared_ptr<DirectionalLight> DirectionalLight::createDirectionalLight(Mobility _mobility, const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows, unsigned int _shadowMapResolution)
 {
-	return std::shared_ptr<DirectionalLight>(new DirectionalLight(_color, _direction, _renderShadows, _shadowMapResolution));
+	return std::shared_ptr<DirectionalLight>(new DirectionalLight(_mobility, _color, _direction, _renderShadows, _shadowMapResolution));
 }
 
 DirectionalLight::~DirectionalLight()
@@ -106,6 +106,11 @@ bool DirectionalLight::isRenderShadows() const
 	return renderShadows;
 }
 
+Mobility DirectionalLight::getMobility() const
+{
+	return mobility;
+}
+
 glm::vec3 DirectionalLight::getColor() const
 {
 	return color;
@@ -144,13 +149,15 @@ unsigned int DirectionalLight::getShadowMapResolution() const
 
 const unsigned int PointLight::DEFAULT_SHADOW_MAP_RESOLUTION = 1024;
 
-PointLight::PointLight(float _luminousPower, 
+PointLight::PointLight(Mobility _mobility, 
+	float _luminousPower,
 	const glm::vec3 &_color, 
 	const glm::vec3 &_position, 
 	float _radius, 
 	bool _renderShadows, 
 	unsigned int _shadowMapResolution)
-	:luminousPower(_luminousPower),
+	:mobility(_mobility),
+	luminousPower(_luminousPower),
 	color(_color), 
 	position(_position), 
 	radius(_radius), 
@@ -199,6 +206,7 @@ void PointLight::createShadowMap()
 }
 
 std::shared_ptr<PointLight> PointLight::createPointLight(
+	Mobility _mobility,
 	float _luminousPower, 
 	const glm::vec3 &_color, 
 	const glm::vec3 &_position, 
@@ -206,7 +214,7 @@ std::shared_ptr<PointLight> PointLight::createPointLight(
 	bool _renderShadows, 
 	unsigned int _shadowMapResolution)
 {
-	return std::shared_ptr<PointLight>(new PointLight(_luminousPower, _color, _position, _radius, _renderShadows, _shadowMapResolution));
+	return std::shared_ptr<PointLight>(new PointLight(_mobility, _luminousPower, _color, _position, _radius, _renderShadows, _shadowMapResolution));
 }
 
 PointLight::~PointLight()
@@ -279,6 +287,11 @@ bool PointLight::isRenderShadows() const
 	return renderShadows;
 }
 
+Mobility PointLight::getMobility() const
+{
+	return mobility;
+}
+
 glm::vec3 PointLight::getColor() const
 {
 	return color;
@@ -337,7 +350,8 @@ unsigned int PointLight::getShadowMapResolution() const
 
 const unsigned int SpotLight::DEFAULT_SHADOW_MAP_RESOLUTION = 1024;
 
-SpotLight::SpotLight(float _luminousPower, 
+SpotLight::SpotLight(Mobility _mobility, 
+	float _luminousPower,
 	const glm::vec3 &_color, 
 	const glm::vec3 &_position, 
 	const glm::vec3 &_direction, 
@@ -348,7 +362,8 @@ SpotLight::SpotLight(float _luminousPower,
 	unsigned int _shadowMapResolution, 
 	bool _projector, 
 	const std::shared_ptr<Texture> &_projectionTexture)
-	:luminousPower(_luminousPower),
+	:mobility(_mobility),
+	luminousPower(_luminousPower),
 	color(_color), 
 	position(_position), 
 	direction(glm::normalize(_direction)), 
@@ -417,6 +432,7 @@ void SpotLight::createShadowMap()
 }
 
 std::shared_ptr<SpotLight> SpotLight::createSpotLight(
+	Mobility _mobility,
 	float _luminousPower, 
 	const glm::vec3 &_color, 
 	const glm::vec3 &_position, 
@@ -429,7 +445,7 @@ std::shared_ptr<SpotLight> SpotLight::createSpotLight(
 	bool _projector, 
 	const std::shared_ptr<Texture> &_projectionTexture)
 {
-	return std::shared_ptr<SpotLight>(new SpotLight(_luminousPower, _color, _position, _direction, _outerAngle, _innerAngle, _radius, _renderShadows, _shadowMapResolution, _projector, _projectionTexture));
+	return std::shared_ptr<SpotLight>(new SpotLight(_mobility, _luminousPower, _color, _position, _direction, _outerAngle, _innerAngle, _radius, _renderShadows, _shadowMapResolution, _projector, _projectionTexture));
 }
 
 SpotLight::~SpotLight()
@@ -548,6 +564,11 @@ bool SpotLight::isRenderShadows() const
 bool SpotLight::isProjector() const
 {
 	return projector;
+}
+
+Mobility SpotLight::getMobility() const
+{
+	return mobility;
 }
 
 glm::vec3 SpotLight::getColor() const

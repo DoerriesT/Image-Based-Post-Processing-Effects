@@ -20,6 +20,7 @@ private:
 	std::shared_ptr<ShaderProgram> stencilPassShader;
 	std::shared_ptr<Mesh> pointLightMesh;
 	std::shared_ptr<Mesh> spotLightMesh;
+	std::shared_ptr<Mesh> boxMesh;
 
 	Uniform<glm::mat4> uModelViewProjection = Uniform<glm::mat4>("uModelViewProjection");
 };

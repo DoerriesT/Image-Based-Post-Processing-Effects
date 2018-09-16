@@ -41,6 +41,8 @@ private:
 	float exposureMultiplier;
 	std::vector<const Entity *> managedEntities;
 	std::vector<std::uint64_t> validBitMaps;
+	bool bakedReflections;
+	bool bakedIrradianceVolume;
 	
 	// settings
 	std::shared_ptr<Setting<int>> shadowQuality;
@@ -85,8 +87,8 @@ private:
 	std::shared_ptr<Setting<double>> gtaoRadius;
 	std::shared_ptr<Setting<double>> gtaoMaxRadiusPixels;
 	std::shared_ptr<Setting<bool>> screenSpaceReflectionsEnabled;
-	std::shared_ptr<Setting<bool>> loadEnvironmentFromFile;
-	std::shared_ptr<Setting<bool>> saveEnvironmentToFile;
+	std::shared_ptr<Setting<bool>> bakeReflections;
+	std::shared_ptr<Setting<bool>> bakeIrradianceVolume;
 	std::shared_ptr<Setting<int>> motionBlur;
 	std::shared_ptr<Setting<int>> depthOfField;
 

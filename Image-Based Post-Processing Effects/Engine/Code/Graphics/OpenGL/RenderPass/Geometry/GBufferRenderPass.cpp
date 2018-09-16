@@ -64,6 +64,12 @@ void GBufferRenderPass::render(const RenderData &_renderData, const Scene &_scen
 	{
 		const std::unique_ptr<EntityRenderData> &entityRenderData = data[i];
 
+		// continue if this is a bake and the entity is not static
+		if (entityRenderData->transformationComponent && entityRenderData->transformationComponent->mobility != Mobility::STATIC && _renderData.bake)
+		{
+			continue;
+		}
+
 		// skip this iteration if its supposed to be rendered with another method or does not have sufficient components
 		if (entityRenderData->customOpaqueShaderComponent ||
 			entityRenderData->customTransparencyShaderComponent ||

@@ -63,6 +63,11 @@ void SpotLightRenderPass::render(const RenderData &_renderData, const std::share
 
 	for (std::shared_ptr<SpotLight> spotLight : _level->lights.spotLights)
 	{
+		if (_renderData.bake && spotLight->getMobility() != Mobility::STATIC)
+		{
+			continue;
+		}
+
 		if (!_renderData.frustum.testSphere(spotLight->getBoundingSphere()))
 		{
 			continue;

@@ -19,7 +19,9 @@ RenderSystem::RenderSystem(std::shared_ptr<Window> _window)
 	:graphicsFramework(new GraphicsFramework(_window)), 
 	window(_window), 
 	exposureMultiplier(1.0f),
-	entityManager(EntityManager::getInstance())
+	entityManager(EntityManager::getInstance()),
+	bakedReflections(false),
+	bakedIrradianceVolume(false)
 {
 	validBitMaps.push_back(Component<TransformationComponent>::getTypeId() | Component<ModelComponent>::getTypeId() | Component<RenderableComponent>::getTypeId());
 }
@@ -211,8 +213,8 @@ void RenderSystem::init()
 	screenSpaceReflectionsEnabled->addListener([&](bool _value) { effects.screenSpaceReflections.enabled = _value; });
 	effects.screenSpaceReflections.enabled = screenSpaceReflectionsEnabled->get();
 
-	loadEnvironmentFromFile = settingsManager.getBoolSetting("graphics", "load_environment_from_file", true);
-	saveEnvironmentToFile = settingsManager.getBoolSetting("graphics", "save_environment_to_file", false);
+	bakeReflections = settingsManager.getBoolSetting("graphics", "bake_reflections", false);
+	bakeIrradianceVolume = settingsManager.getBoolSetting("graphics", "bake_irradiance_volume", false);
 
 	settingsManager.saveToIni();
 
@@ -246,15 +248,25 @@ void RenderSystem::render()
 		level->environment.isAtmosphereValid = true;
 	}
 	
-	if (!level->environment.environmentProbes[0]->isValid() && level->loaded && !loadEnvironmentFromFile->get())
+	if (level->loaded && 
+		((!bakedReflections && bakeReflections->get()) || 
+		(bakedIrradianceVolume && bakeIrradianceVolume->get())))
 	{
-		graphicsFramework->render(scene, level, effects);
+		graphicsFramework->bake(scene, level, 2, !bakedReflections && bakeReflections->get(), !bakedIrradianceVolume && bakeIrradianceVolume->get());
 
-		level->environment.environmentProbes[0]->setValid(true);
-		if (saveEnvironmentToFile->get())
+		if (bakeReflections->get())
 		{
-			level->environment.environmentProbes[0]->saveToFile(level->filepath + "reflectance.dds", level->filepath + "irradiance.dds");
+			for (auto probe : level->environment.environmentProbes)
+			{
+				probe->saveToFile();
+			}
+			bakedReflections = true;
+		}
+
+		if (bakeIrradianceVolume->get())
+		{
 			level->environment.irradianceVolume->saveToFile(level->filepath + "probes.dds");
+			bakedIrradianceVolume = true;
 		}
 	}
 	graphicsFramework->render(level->cameras[level->activeCameraIndex], scene, level, effects);

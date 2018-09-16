@@ -46,6 +46,8 @@
     <ClInclude Include="Code\Graphics\Effects.h" />
     <ClInclude Include="Code\Graphics\EntityRenderData.h" />
     <ClInclude Include="Code\Graphics\Frustum.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Debug\BoundingBoxRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\DeferredEnvironmentProbeRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\StencilRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\GeometryInjectionRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.h" />
@@ -188,6 +190,7 @@
     <ClCompile Include="Code\Graphics\OpenGL\LightPropagationVolumes.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\Ocean.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\PostProcessRenderer.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Debug\BoundingBoxRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\ForwardCustomRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\ForwardRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\GBufferCustomRenderPass.cpp" />
@@ -196,6 +199,7 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\OutlineRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\SkyboxRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\AmbientLightRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\DeferredEnvironmentProbeRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\DirectionalLightRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\PointLightRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\SpotLightRenderPass.cpp" />
@@ -287,6 +291,8 @@
     <None Include="..\Application\Resources\Shaders\Gui\gui.vert" />
     <None Include="..\Application\Resources\Shaders\Lighting\ambientLight.frag" />
     <None Include="..\Application\Resources\Shaders\Lighting\brdf.comp" />
+    <None Include="..\Application\Resources\Shaders\Lighting\deferredEnvironmentProbe.frag" />
+    <None Include="..\Application\Resources\Shaders\Lighting\deferredEnvironmentProbe.vert" />
     <None Include="..\Application\Resources\Shaders\Lighting\directionalLight.frag" />
     <None Include="..\Application\Resources\Shaders\Lighting\lightProxy.vert" />
     <None Include="..\Application\Resources\Shaders\Lighting\pointLight.frag" />
@@ -341,6 +347,9 @@
     <None Include="..\Application\Resources\Shaders\PostProcess\GodRays\godRayGen.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\GodRays\godRayMask.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\hdr.frag" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\histogram.comp" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\histogramAdaption.comp" />
+    <None Include="..\Application\Resources\Shaders\PostProcess\histogramReduce.comp" />
     <None Include="..\Application\Resources\Shaders\PostProcess\LensFlares\lensFlareBlur.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\LensFlares\lensFlareGen.frag" />
     <None Include="..\Application\Resources\Shaders\PostProcess\luminanceAdaption.comp" />

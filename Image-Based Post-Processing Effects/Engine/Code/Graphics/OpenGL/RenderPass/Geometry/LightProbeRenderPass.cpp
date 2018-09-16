@@ -87,7 +87,7 @@ void LightProbeRenderPass::render(const RenderData & _renderData, const std::sha
 	//for (std::shared_ptr<EnvironmentProbe> environmentProbe : _level->environment.environmentProbes)
 	//{
 	//	glActiveTexture(GL_TEXTURE13);
-	//	glBindTexture(GL_TEXTURE_2D, environmentProbe->getIrradianceMap()->getId());
+	//	glBindTexture(GL_TEXTURE_2D, environmentProbe->getIrradianceTexture()->getId());
 	//
 	//	uModelViewProjectionMatrix.set(_renderData.viewProjectionMatrix * glm::translate(environmentProbe->getPosition()) * glm::scale(glm::vec3(0.2f)));
 	//	uSH.set(UserInput::getInstance().isKeyPressed(InputKey::H));

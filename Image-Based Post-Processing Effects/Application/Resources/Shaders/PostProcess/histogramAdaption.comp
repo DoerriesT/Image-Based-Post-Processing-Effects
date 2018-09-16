@@ -76,7 +76,7 @@ float computeEyeAdaptionExposure()
 	}
 	
 	float unclampedAdaptedLuminance = computeAverageLuminanceWithoutOutliers(histogramSum * 0.5, histogramSum * 0.8);
-	return unclampedAdaptedLuminance;
+	return clamp(unclampedAdaptedLuminance, 0.03, 2.0);
 }
 
 void main()

@@ -14,6 +14,7 @@
 #include "Graphics\Mesh.h"
 #include "RenderData.h"
 #include "Graphics\Texture.h"
+#include "RenderPass/Debug/BoundingBoxRenderPass.h"
 
 #define STBI_MSC_SECURE_CRT
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -89,6 +90,14 @@ void GraphicsFramework::init()
 	uPowerValueBlit = blitShader->createUniform("uPowerValue");
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+
+	glCreateFramebuffers(1, &debugFbo);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, debugFbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, sceneRenderer.getDepthStencilTexture(), 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	boundingBoxRenderPass = new BoundingBoxRenderPass(debugFbo, window->getWidth(), window->getHeight());
 }
 
 static glm::mat3 invViewMat;
@@ -126,6 +135,7 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 	renderData.viewDirection = _camera->getForwardDirection();
 	renderData.fov = window->getFieldOfView();
 	renderData.frame = ++frame;
+	renderData.bake = false;
 
 	invViewMat = renderData.invViewMatrix;
 
@@ -135,10 +145,16 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 	sceneRenderer.render(renderData, _scene, _level, _effects);
 	postProcessRenderer.render(renderData, _level, _effects, sceneRenderer.getColorTexture(), sceneRenderer.getDepthStencilTexture(), sceneRenderer.getVelocityTexture(), _camera);
 
+	//glBindFramebuffer(GL_FRAMEBUFFER, debugFbo);
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, postProcessRenderer.getFinishedTexture(), 0);
+	//RenderPass *prev = nullptr;
+	//boundingBoxRenderPass->render(renderData, _level, _scene, &prev);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	blitToScreen();
 }
 
-void GraphicsFramework::render(const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
+void GraphicsFramework::bake(const Scene &_scene, const std::shared_ptr<Level> &_level, unsigned int _bounces, bool _reflections, bool _irradianceVolume)
 {
 	RenderData renderData = {};
 
@@ -149,52 +165,57 @@ void GraphicsFramework::render(const Scene &_scene, const std::shared_ptr<Level>
 	renderData.time = (float)Engine::getTime();
 	renderData.frame = 1;
 	renderData.fov = 90.0f;
+	renderData.bake = true;
 
-	Effects effects = _effects;
+	Effects effects = {};
 	effects.ambientOcclusion = AmbientOcclusion::HBAO;
+	effects.shadowQuality = ShadowQuality::NORMAL;
 
 	sceneRenderer.resize(renderData.resolution);
 
-	for (unsigned int bounce = 0; bounce < 2; ++bounce)
+	for (unsigned int bounce = 0; bounce < _bounces; ++bounce)
 	{
-		// bake reflections
-		for (std::shared_ptr<EnvironmentProbe> environmentProbe : _level->environment.environmentProbes)
+		if (_reflections)
 		{
-			glm::vec3 position = environmentProbe->getPosition();
-			glm::mat4 viewMatrices[] =
+			// bake reflections
+			for (std::shared_ptr<EnvironmentProbe> environmentProbe : _level->environment.environmentProbes)
 			{
-				glm::lookAt(position, position + glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-				glm::lookAt(position, position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-				glm::lookAt(position, position + glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
-				glm::lookAt(position, position + glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
-				glm::lookAt(position, position + glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-				glm::lookAt(position, position + glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
-			};
+				glm::vec3 position = environmentProbe->getPosition();
+				glm::mat4 viewMatrices[] =
+				{
+					glm::lookAt(position, position + glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+					glm::lookAt(position, position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+					glm::lookAt(position, position + glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+					glm::lookAt(position, position + glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+					glm::lookAt(position, position + glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+					glm::lookAt(position, position + glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+				};
 
 
-			renderData.cameraPosition = position;
+				renderData.cameraPosition = position;
 
+				for (unsigned int i = 0; i < 6; ++i)
+				{
+					renderData.viewMatrix = viewMatrices[i];
+					renderData.invViewMatrix = glm::inverse(renderData.viewMatrix);
+					renderData.viewProjectionMatrix = renderData.projectionMatrix * renderData.viewMatrix;
+					renderData.prevViewProjectionMatrix = renderData.viewProjectionMatrix;
+					renderData.invViewProjectionMatrix = glm::inverse(renderData.viewProjectionMatrix);
+					renderData.viewDirection = -glm::transpose(renderData.viewMatrix)[2];
+					renderData.frustum.update(renderData.viewProjectionMatrix);
 
-			for (unsigned int i = 0; i < 6; ++i)
-			{
-				renderData.viewMatrix = viewMatrices[i];
-				renderData.invViewMatrix = glm::inverse(renderData.viewMatrix);
-				renderData.viewProjectionMatrix = renderData.projectionMatrix * renderData.viewMatrix;
-				renderData.prevViewProjectionMatrix = renderData.viewProjectionMatrix;
-				renderData.invViewProjectionMatrix = glm::inverse(renderData.viewProjectionMatrix);
-				renderData.viewDirection = -glm::transpose(renderData.viewMatrix)[2];
-				renderData.frustum.update(renderData.viewProjectionMatrix);
-
-				sceneRenderer.render(renderData, _scene, _level, effects);
-				environmentRenderer.updateCubeSide(i, sceneRenderer.getColorTexture());
+					sceneRenderer.render(renderData, _scene, _level, effects);
+					environmentRenderer.updateCubeSide(i, sceneRenderer.getColorTexture());
+				}
+				environmentRenderer.generateMipmaps();
+				environmentRenderer.calculateReflectance(environmentProbe);
+				//environmentRenderer.calculateIrradiance(environmentProbe);
 			}
-			environmentRenderer.generateMipmaps();
-			environmentRenderer.calculateReflectance(environmentProbe);
-			environmentRenderer.calculateIrradiance(environmentProbe);
 		}
+		
 
 		// bake irradiance volume
-		if(_level->environment.irradianceVolume)
+		if (_irradianceVolume && _level->environment.irradianceVolume)
 		{
 			glm::ivec3 dims = _level->environment.irradianceVolume->getDimensions();
 			glm::vec3 origin = _level->environment.irradianceVolume->getOrigin();
@@ -368,4 +389,10 @@ void GraphicsFramework::onResize(unsigned int _width, unsigned int _height)
 	std::pair<unsigned int, unsigned int> resolution = std::make_pair(_width, _height);
 	sceneRenderer.resize(resolution);
 	postProcessRenderer.resize(resolution);
+	boundingBoxRenderPass->resize(_width, _height);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, debugFbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, sceneRenderer.getDepthStencilTexture(), 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 }

@@ -62,6 +62,11 @@ void PointLightRenderPass::render(const RenderData &_renderData, const std::shar
 
 	for (std::shared_ptr<PointLight> pointLight : _level->lights.pointLights)
 	{
+		if (_renderData.bake && pointLight->getMobility() != Mobility::STATIC)
+		{
+			continue;
+		}
+
 		if (!_renderData.frustum.testSphere(pointLight->getBoundingSphere()))
 		{
 			continue;

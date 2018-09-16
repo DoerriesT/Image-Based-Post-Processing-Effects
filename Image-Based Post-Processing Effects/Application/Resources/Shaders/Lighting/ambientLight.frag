@@ -425,7 +425,7 @@ void main()
 		const vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, metallicRoughnessAoShaded.g)).rg;
 		const vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 
-		oFragColor.rgb += (kD * diffuse + specular) * metallicRoughnessAoShaded.b;
+		oFragColor.rgb += (kD * diffuse) * metallicRoughnessAoShaded.b;
     }
 	else
 	{

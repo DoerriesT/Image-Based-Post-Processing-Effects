@@ -23,4 +23,5 @@ struct RenderData
 	bool shadows;
 	float fov;
 	unsigned int frame;
+	bool bake;
 };

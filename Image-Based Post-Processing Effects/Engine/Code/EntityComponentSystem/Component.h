@@ -270,10 +270,16 @@ struct TextureAtlasIndexComponent : public Component<TextureAtlasIndexComponent>
 	static const std::uint64_t FAMILY_ID;
 };
 
+enum class Mobility
+{
+	STATIC, DYNAMIC
+};
+
 struct TransformationComponent : public Component<TransformationComponent>
 {
-	explicit TransformationComponent(const glm::vec3 &_position = glm::vec3(), const glm::quat &_rotation = glm::quat(), const glm::vec3 &_scale = glm::vec3(1.0f))
-		:position(_position), rotation(_rotation), scale(_scale) { };
+	explicit TransformationComponent(Mobility _mobility, const glm::vec3 &_position = glm::vec3(), const glm::quat &_rotation = glm::quat(), const glm::vec3 &_scale = glm::vec3(1.0f))
+		:mobility(_mobility), position(_position), rotation(_rotation), scale(_scale) { };
+	Mobility mobility;
 	glm::vec3 position;
 	glm::quat rotation;
 	glm::vec3 scale;

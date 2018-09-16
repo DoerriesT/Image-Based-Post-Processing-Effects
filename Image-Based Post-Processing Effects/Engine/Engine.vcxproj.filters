@@ -141,6 +141,9 @@
     <Filter Include="Resources\Shaders\VolumetricLighting">
       <UniqueIdentifier>{85e92e93-bd8c-4e9d-bc22-90acb05cc2fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Graphics\OpenGL\RenderPass\Debug">
+      <UniqueIdentifier>{14cf66f7-4077-473e-95f1-205b96a6e922}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Engine.h">
@@ -554,6 +557,12 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\GeometryInjectionRenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass\LPV</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Debug\BoundingBoxRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\DeferredEnvironmentProbeRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -880,6 +889,12 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\GeometryInjectionRenderPass.cpp">
       <Filter>Code\Graphics\OpenGL\RenderPass\LPV</Filter>
     </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Debug\BoundingBoxRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\DeferredEnvironmentProbeRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Lighting</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Application\Resources\Shaders\Environment\atmosphere.frag">
@@ -1187,6 +1202,21 @@
     </None>
     <None Include="..\Application\Resources\Shaders\LPV\geometryInjection.vert">
       <Filter>Resources\Shaders\LPV</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\histogram.comp">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\histogramAdaption.comp">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\PostProcess\histogramReduce.comp">
+      <Filter>Resources\Shaders\PostProcess</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Lighting\deferredEnvironmentProbe.frag">
+      <Filter>Resources\Shaders\Lighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Lighting\deferredEnvironmentProbe.vert">
+      <Filter>Resources\Shaders\Lighting</Filter>
     </None>
   </ItemGroup>
 </Project>

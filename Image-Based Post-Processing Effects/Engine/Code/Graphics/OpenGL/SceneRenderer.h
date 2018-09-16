@@ -30,6 +30,7 @@ class SkyboxRenderPass;
 class AmbientLightRenderPass;
 class DirectionalLightRenderPass;
 class StencilRenderPass;
+class DeferredEnvironmentProbeRenderPass;
 class PointLightRenderPass;
 class SpotLightRenderPass;
 class ForwardRenderPass;
@@ -96,6 +97,7 @@ private:
 	AmbientLightRenderPass *ambientLightRenderPass;
 	DirectionalLightRenderPass *directionalLightRenderPass;
 	StencilRenderPass *stencilRenderPass;
+	DeferredEnvironmentProbeRenderPass *deferredEnvironmentProbeRenderPass;
 	PointLightRenderPass *pointLightRenderPass;
 	SpotLightRenderPass *spotLightRenderPass;
 	ForwardRenderPass *forwardRenderPass;

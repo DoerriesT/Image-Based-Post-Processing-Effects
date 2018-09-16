@@ -115,7 +115,7 @@ void EnvironmentRenderer::calculateReflectance(const std::shared_ptr<Environment
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap);
 
-	unsigned int maxMipLevels = 5;// glm::log2(EnvironmentProbe::REFLECTANCE_RESOLUTION);
+	unsigned int maxMipLevels = 5;// glm::log2(EnvironmentProbe::REFLECTION_TEXTURE_RESOLUTION);
 
 	reflectanceOctShader->bind();
 	uEnvironmentResolutionRO.set(ENVIRONMENT_MAP_SIZE);
@@ -127,7 +127,7 @@ void EnvironmentRenderer::calculateReflectance(const std::shared_ptr<Environment
 		float roughness = (float)mip / (float)(maxMipLevels - 1);
 		uRoughnessRO.set(roughness * roughness);
 		uImageSizeRO.set(glm::vec2(mipRes));
-		glBindImageTexture(0, _environmentProbe->getReflectanceMap()->getId(), mip, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
+		glBindImageTexture(0, _environmentProbe->getReflectionTexture()->getId(), mip, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
 		glDispatchCompute(mipRes / 8, mipRes / 8, 1);
 	}
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -135,19 +135,19 @@ void EnvironmentRenderer::calculateReflectance(const std::shared_ptr<Environment
 
 void EnvironmentRenderer::calculateIrradiance(const std::shared_ptr<EnvironmentProbe>  &_environmentProbe)
 {
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap);
-
-	irradianceOctShader->bind();
-	uImageSizeIO.set(glm::vec2(EnvironmentProbe::IRRADIANCE_RESOLUTION));
-	glBindImageTexture(0, _environmentProbe->getIrradianceMap()->getId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
-	glDispatchCompute(EnvironmentProbe::IRRADIANCE_RESOLUTION / 8, EnvironmentProbe::IRRADIANCE_RESOLUTION / 8, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap);
+	//
+	//irradianceOctShader->bind();
+	//uImageSizeIO.set(glm::vec2(EnvironmentProbe::IRRADIANCE_TEXTURE_RESOLUTION));
+	//glBindImageTexture(0, _environmentProbe->getIrradianceTexture()->getId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
+	//glDispatchCompute(EnvironmentProbe::IRRADIANCE_TEXTURE_RESOLUTION / 8, EnvironmentProbe::IRRADIANCE_TEXTURE_RESOLUTION / 8, 1);
+	//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
 void EnvironmentRenderer::calculateIrradiance(const std::shared_ptr<IrradianceVolume> &_irradianceVolume, const glm::ivec3 &_index)
 {
-	IrradianceVolume::GLSLData sh = {};
+	IrradianceVolume::ProbeData sh = {};
 	float totalWeight = 0.0f;
 
 	const float fB = -1.0f + 1.0f / ENVIRONMENT_MAP_SIZE;

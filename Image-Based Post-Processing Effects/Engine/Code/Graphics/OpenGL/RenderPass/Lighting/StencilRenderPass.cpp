@@ -35,6 +35,7 @@ StencilRenderPass::StencilRenderPass(GLuint _fbo, unsigned int _width, unsigned 
 
 	pointLightMesh = Mesh::createMesh("Resources/Models/pointlight.mesh", 1, true);
 	spotLightMesh = Mesh::createMesh("Resources/Models/spotlight.mesh", 1, true);
+	boxMesh = Mesh::createMesh("Resources/Models/cube.mesh", 1, true);
 }
 
 void StencilRenderPass::render(const RenderData & _renderData, const std::shared_ptr<Level>& _level, const GBuffer & _gbuffer, RenderPass ** _previousRenderPass)
@@ -47,9 +48,14 @@ void StencilRenderPass::render(const RenderData & _renderData, const std::shared
 	// point lights
 	if (!_level->lights.pointLights.empty())
 	{
-		pointLightMesh->getSubMesh()->enableVertexAttribArrays();
+		pointLightMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
 		for (std::shared_ptr<PointLight> pointLight : _level->lights.pointLights)
 		{
+			if (_renderData.bake && pointLight->getMobility() != Mobility::STATIC)
+			{
+				continue;
+			}
+
 			if (!_renderData.frustum.testSphere(pointLight->getBoundingSphere()))
 			{
 				continue;
@@ -65,9 +71,14 @@ void StencilRenderPass::render(const RenderData & _renderData, const std::shared
 	// spot lights
 	if (!_level->lights.spotLights.empty())
 	{
-		spotLightMesh->getSubMesh()->enableVertexAttribArrays();
+		spotLightMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
 		for (std::shared_ptr<SpotLight> spotLight : _level->lights.spotLights)
 		{
+			if (_renderData.bake && spotLight->getMobility() != Mobility::STATIC)
+			{
+				continue;
+			}
+
 			if (!_renderData.frustum.testSphere(spotLight->getBoundingSphere()))
 			{
 				continue;
@@ -85,6 +96,27 @@ void StencilRenderPass::render(const RenderData & _renderData, const std::shared
 				* glm::mat4_cast(glm::rotation(defaultDirection, spotLight->getDirection()))
 				* glm::scale(glm::vec3(scale, spotLight->getRadius(), scale)));
 			spotLightMesh->getSubMesh()->render();
+		}
+	}
+
+	// environment probes
+	if (!_level->environment.environmentProbes.empty())
+	{
+		boxMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
+		for (auto probe : _level->environment.environmentProbes)
+		{
+			AxisAlignedBoundingBox aabb = probe->getAxisAlignedBoundingBox();
+			glm::vec3 boundingBoxCenter = (aabb.max + aabb.min) * 0.5f;
+			glm::vec3 correctedMax = aabb.max - boundingBoxCenter;
+			glm::vec3 correctedMin = aabb.min - boundingBoxCenter;
+			glm::vec3 boxScale = correctedMax / 0.5f;
+
+			glm::mat4 modelMatrix = glm::translate(boundingBoxCenter)
+				* glm::scale(glm::vec3(boxScale));
+
+
+			uModelViewProjection.set(_renderData.viewProjectionMatrix * modelMatrix);
+			boxMesh->getSubMesh()->render();
 		}
 	}
 	

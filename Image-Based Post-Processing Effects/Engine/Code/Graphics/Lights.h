@@ -3,6 +3,7 @@
 #include <glm\mat4x4.hpp>
 #include <vector>
 #include <memory>
+#include "EntityComponentSystem\Component.h"
 
 const unsigned int SHADOW_CASCADES = 4;
 
@@ -13,7 +14,7 @@ class DirectionalLight
 public:
 	static const unsigned int DEFAULT_SHADOW_MAP_RESOLUTION;
 
-	static std::shared_ptr<DirectionalLight> createDirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION);
+	static std::shared_ptr<DirectionalLight> createDirectionalLight(Mobility _mobility, const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION);
 
 	DirectionalLight(const DirectionalLight &) = delete;
 	DirectionalLight(const DirectionalLight &&) = delete;
@@ -28,6 +29,7 @@ public:
 	void setShadowMapResolution(unsigned int _resolution);
 	void updateViewValues(const glm::mat4 &_viewMatrix);
 	bool isRenderShadows() const;
+	Mobility getMobility() const;
 	glm::vec3 getColor() const;
 	glm::vec3 getDirection() const;
 	glm::vec3 getViewDirection() const;
@@ -37,6 +39,7 @@ public:
 	unsigned int getShadowMapResolution() const;
 
 private:
+	Mobility mobility;
 	glm::vec3 color;
 	glm::vec3 direction;
 	glm::vec3 viewDirection;
@@ -46,7 +49,7 @@ private:
 	glm::mat4 viewProjectionMatrices[SHADOW_CASCADES];
 	float splits[SHADOW_CASCADES];
 
-	explicit DirectionalLight(const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION);
+	explicit DirectionalLight(Mobility _mobility, const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION);
 	void createShadowMap();
 };
 
@@ -55,7 +58,8 @@ class PointLight
 public:
 	static const unsigned int DEFAULT_SHADOW_MAP_RESOLUTION;
 
-	static std::shared_ptr<PointLight> createPointLight(float _luminousPower, 
+	static std::shared_ptr<PointLight> createPointLight(Mobility _mobility, 
+		float _luminousPower,
 		const glm::vec3 &_color, 
 		const glm::vec3 &_position, 
 		float _radius, 
@@ -75,6 +79,7 @@ public:
 	void setShadowMapResolution(unsigned int _resolution);
 	void updateViewValues(const glm::mat4 &_viewMatrix);
 	bool isRenderShadows() const;
+	Mobility getMobility() const;
 	glm::vec3 getColor() const;
 	glm::vec3 getPosition() const;
 	glm::vec3 getViewPosition() const;
@@ -88,6 +93,7 @@ public:
 	unsigned int getShadowMapResolution() const;
 
 private:
+	Mobility mobility;
 	glm::vec3 color;
 	glm::vec3 position;
 	glm::vec3 viewPosition;
@@ -99,7 +105,8 @@ private:
 	unsigned int shadowMapResolution;
 	glm::mat4 viewProjectionMatrices[6];
 
-	explicit PointLight(float _luminousPower, 
+	explicit PointLight(Mobility _mobility, 
+		float _luminousPower,
 		const glm::vec3 &_color, 
 		const glm::vec3 &_position, 
 		float _radius, 
@@ -114,7 +121,8 @@ class SpotLight
 public:
 	static const unsigned int DEFAULT_SHADOW_MAP_RESOLUTION;
 
-	static std::shared_ptr<SpotLight> createSpotLight(float _luminousPower, 
+	static std::shared_ptr<SpotLight> createSpotLight(Mobility _mobility, 
+		float _luminousPower,
 		const glm::vec3 &_color, 
 		const glm::vec3 &_position, 
 		const glm::vec3 &_direction, 
@@ -145,6 +153,7 @@ public:
 	void updateViewValues(const glm::mat4 &_viewMatrix);
 	bool isRenderShadows() const;
 	bool isProjector() const;
+	Mobility getMobility() const;
 	glm::vec3 getColor() const;
 	glm::vec3 getPosition() const;
 	glm::vec3 getDirection() const;
@@ -165,6 +174,7 @@ public:
 	std::shared_ptr<Texture> getProjectionTexture() const;
 
 private:
+	Mobility mobility;
 	glm::vec3 color;
 	glm::vec3 position;
 	glm::vec3 direction;
@@ -185,7 +195,8 @@ private:
 	glm::mat4 viewProjectionMatrix;
 	std::shared_ptr<Texture> projectionTexture;
 
-	explicit SpotLight(float _luminousPower, 
+	explicit SpotLight(Mobility _mobility, 
+		float _luminousPower,
 		const glm::vec3 &_color, 
 		const glm::vec3 &_position, 
 		const glm::vec3 &_direction, 

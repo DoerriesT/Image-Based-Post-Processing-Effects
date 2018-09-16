@@ -12,6 +12,7 @@ class EnvironmentProbe;
 struct Level;
 struct Effects;
 enum class ShadowQuality;
+class BoundingBoxRenderPass;
 
 class GraphicsFramework: public IWindowResizeListener
 {
@@ -23,7 +24,7 @@ public:
 	GraphicsFramework &operator= (const GraphicsFramework &&) = delete;
 	void init();
 	void render(const std::shared_ptr<Camera> &_camera, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects);
-	void render(const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects);
+	void bake(const Scene &_scene, const std::shared_ptr<Level> &_level, unsigned int _bounces, bool _reflections, bool _irradianceVolume);
 	std::shared_ptr<Texture> render(const AtmosphereParams &_params);
 	void blitToScreen();
 	void setShadowQuality(const ShadowQuality &_shadowQuality);
@@ -39,6 +40,8 @@ private:
 
 	std::shared_ptr<Mesh> fullscreenTriangle;
 
+	BoundingBoxRenderPass *boundingBoxRenderPass;
+
 	// blit shader uniform
 	GLint uScreenTextureBlit;
 	GLint uRedToWhiteBlit;
@@ -47,6 +50,8 @@ private:
 	GLint uInvViewMatrixBlit;
 	GLint uPowerBlit;
 	GLint uPowerValueBlit;
+
+	GLuint debugFbo;
 
 	unsigned int frame;
 };
