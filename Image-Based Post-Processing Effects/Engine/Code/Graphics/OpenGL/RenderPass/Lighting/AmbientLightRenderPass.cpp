@@ -7,6 +7,7 @@
 static const char *DIRECTIONAL_LIGHT_ENABLED = "DIRECTIONAL_LIGHT_ENABLED";
 static const char *SHADOWS_ENABLED = "SHADOWS_ENABLED";
 static const char *SSAO_ENABLED = "SSAO_ENABLED";
+static const char *GTAO_MULTI_BOUNCE_ENABLED = "GTAO_MULTI_BOUNCE_ENABLED";
 static const char *SSR_ENABLED = "SSR_ENABLED";
 static const char *IRRADIANCE_SOURCE = "IRRADIANCE_SOURCE";
 
@@ -37,6 +38,7 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 		{ ShaderProgram::ShaderType::FRAGMENT, DIRECTIONAL_LIGHT_ENABLED, 1 },
 		{ ShaderProgram::ShaderType::FRAGMENT, SHADOWS_ENABLED, 1 },
 		{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, 0 },
+		{ ShaderProgram::ShaderType::FRAGMENT, GTAO_MULTI_BOUNCE_ENABLED, 0 },
 		{ ShaderProgram::ShaderType::FRAGMENT, SSR_ENABLED, 0 },
 		{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_SOURCE, 1 },
 		}, 
@@ -50,6 +52,7 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 
 int irradianceSource = 1;
 float occAmp = 1.0f;
+bool gtaoMultiBounce = false;
 
 void AmbientLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, GLuint *_lpv, Volume _volume, RenderPass **_previousRenderPass)
 {
@@ -64,6 +67,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 		bool directionalLightEnabled = false;
 		bool shadowsEnabled = false;
 		bool ssaoEnabled = false;
+		bool gtaoMultiBounceEnabled = false;
 		bool ssrEnabled = false;
 		int irradianceVolume = 0;
 
@@ -83,6 +87,10 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 				{
 					ssaoEnabled = true;
 				}
+				else if (std::get<1>(define) == GTAO_MULTI_BOUNCE_ENABLED && std::get<2>(define))
+				{
+					gtaoMultiBounceEnabled = true;
+				}
 				else if (std::get<1>(define) == SSR_ENABLED && std::get<2>(define))
 				{
 					ssrEnabled = true;
@@ -97,6 +105,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 		if (directionalLightEnabled != (!_level->lights.directionalLights.empty())
 			|| shadowsEnabled != _renderData.shadows
 			|| ssaoEnabled != (_effects.ambientOcclusion != AmbientOcclusion::OFF)
+			|| gtaoMultiBounceEnabled != gtaoMultiBounce
 			|| ssrEnabled != _effects.screenSpaceReflections.enabled
 			|| irradianceVolume != irradianceSource)
 		{
@@ -105,6 +114,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 				{ ShaderProgram::ShaderType::FRAGMENT, DIRECTIONAL_LIGHT_ENABLED, (!_level->lights.directionalLights.empty()) },
 				{ ShaderProgram::ShaderType::FRAGMENT, SHADOWS_ENABLED, _renderData.shadows },
 				{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, (_effects.ambientOcclusion != AmbientOcclusion::OFF) },
+				{ ShaderProgram::ShaderType::FRAGMENT, GTAO_MULTI_BOUNCE_ENABLED, gtaoMultiBounce },
 				{ ShaderProgram::ShaderType::FRAGMENT, SSR_ENABLED, _effects.screenSpaceReflections.enabled },
 				{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_SOURCE, irradianceSource },
 				}

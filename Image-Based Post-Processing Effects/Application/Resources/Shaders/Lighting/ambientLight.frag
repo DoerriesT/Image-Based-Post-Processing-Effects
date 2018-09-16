@@ -12,6 +12,10 @@
 #define SSAO_ENABLED 0
 #endif // SSAO_ENABLED
 
+#ifndef GTAO_MULTI_BOUNCE_ENABLED
+#define GTAO_MULTI_BOUNCE_ENABLED 0
+#endif // GTAO_MULTI_BOUNCE_ENABLED
+
 #ifndef SSR_ENABLED
 #define SSR_ENABLED 0
 #endif // SSR_ENABLED
@@ -282,6 +286,16 @@ bool linearRayTrace(inout vec3 rayPos, vec3 rayDir)
 }
 #endif // SSR_ENABLED
 
+vec3 GTAOMultiBounce(float visibility, vec3 albedo)
+{
+	vec3 a = 2.0404 * albedo - 0.3324;
+	vec3 b = -4.7951 * albedo + 0.6417;
+	vec3 c = 2.7552 * albedo + 0.6903;
+
+	float x = visibility;
+	return max(x.xxx, ((x * a + b) * x + c) * x);
+}
+
 void main()
 {
 	oFragColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -390,7 +404,11 @@ void main()
 		const vec3 irradiance = vec3(0.05);
 #endif // IRRADIANCE_SOURCE
 
-		const vec3 diffuse = irradiance * albedo;
+#if GTAO_MULTI_BOUNCE_ENABLED
+		const vec3 diffuse = irradiance * albedo * GTAOMultiBounce(metallicRoughnessAoShaded.z, albedo);
+#else
+		const vec3 diffuse = irradiance * albedo * metallicRoughnessAoShaded.z;
+#endif // GTAO_MULTI_BOUNCE_ENABLED
 
 		// Screenspace Reflections
 #if SSR_ENABLED
@@ -425,7 +443,7 @@ void main()
 		const vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, metallicRoughnessAoShaded.g)).rg;
 		const vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 
-		oFragColor.rgb += (kD * diffuse) * metallicRoughnessAoShaded.b;
+		oFragColor.rgb += (kD * diffuse);
     }
 	else
 	{

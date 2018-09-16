@@ -33,6 +33,7 @@ bool renderLightProbes = false;
 extern GBufferDisplayMode displayMode;
 extern int irradianceSource;
 extern float occAmp;
+extern bool gtaoMultiBounce;
 
 namespace App
 {
@@ -399,6 +400,7 @@ namespace App
 				TwAddVarCB(settingsTweakBar, "GTAO Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoStrength), GETTER_FUNC_PTR(gtaoStrength), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
 				TwAddVarCB(settingsTweakBar, "GTAO Radius", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoRadius), GETTER_FUNC_PTR(gtaoRadius), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
 				TwAddVarCB(settingsTweakBar, "GTAO Max Radius Pixels", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoMaxRadiusPixels), GETTER_FUNC_PTR(gtaoMaxRadiusPixels), this, "group=Ambient_Occlusion min=1 max=256");
+				TwAddVarRW(settingsTweakBar, "GTAO Multi Bounce", TW_TYPE_BOOLCPP, &gtaoMultiBounce, nullptr);
 			}
 
 			// scene
