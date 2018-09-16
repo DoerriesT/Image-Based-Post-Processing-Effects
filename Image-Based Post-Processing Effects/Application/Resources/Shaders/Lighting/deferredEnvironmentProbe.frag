@@ -30,8 +30,20 @@ uniform vec3 uProbePosition;
 
 #include "brdf.h"
 
+float computeDistanceBasedRoughness(
+	float distIntersectionToShadedPoint,
+	float distIntersectionToProbeCenter,
+	float linearRoughness)
+{
+	// To avoid artifacts we clamp to the original linearRoughness
+	// which introduces an acceptable bias and allows conservation
+	// of mirror reflection behavior for a smooth surface
+	float newLinearRoughness = clamp(distIntersectionToShadedPoint / 
+		distIntersectionToProbeCenter * linearRoughness, 0.0, linearRoughness);
+	return mix(newLinearRoughness, linearRoughness, linearRoughness);
+}
 
-vec3 parallaxCorrect(vec3 R, vec3 P)
+vec3 parallaxCorrect(vec3 R, vec3 P, inout float roughness)
 {
 	const vec3 boxMin = uBoxMin;
 	const vec3 boxMax = uBoxMax;
@@ -45,8 +57,12 @@ vec3 parallaxCorrect(vec3 R, vec3 P)
 	const float dist = min(min(furthestPlane.x, furthestPlane.y), furthestPlane.z);
 	
 	const vec3 intersectPos = P + R * dist;
+	vec3 probeToIntersection = intersectPos - probePos;
+	const float distProbeToIntersection = length(probeToIntersection);
 
-	return (P.x >= boxMin.x && P.y >= boxMin.y && P.z >= boxMin.z && P.x <= boxMax.x && P.y <= boxMax.y && P.z <= boxMax.z) ? normalize(intersectPos - probePos) : R;
+	roughness = computeDistanceBasedRoughness(dist, distProbeToIntersection, roughness);
+
+	return probeToIntersection * (1.0 / distProbeToIntersection);
 }
 
 vec2 signNotZero(vec2 v) 
@@ -65,6 +81,11 @@ vec2 octEncode(in vec3 v)
     return result;
 }
 
+float computeSpecularOcclusion(float NdotV, float ao, float roughness)
+{
+	return clamp(pow(NdotV + ao, exp2(-16.0 * roughness - 1.0)) - 1.0 + ao, 0.0, 1.0);
+}
+
 void main()
 {
 	oFragColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -74,7 +95,7 @@ void main()
 	vec4 metallicRoughnessAoShaded = texture(uMetallicRoughnessAoTexture, texCoord).rgba;
 
 #if SSAO_ENABLED
-	metallicRoughnessAoShaded.b = min(metallicRoughnessAoShaded.b, texture(uSsaoTexture, texCoord).r);
+	metallicRoughnessAoShaded.z = min(metallicRoughnessAoShaded.z, texture(uSsaoTexture, texCoord).r);
 #endif // SSAO_ENABLED
 
 	const float depth = texture(uDepthTexture, texCoord).r;
@@ -85,7 +106,7 @@ void main()
 	const vec4 worldPos4 = uInverseView * viewSpacePosition;
 	const vec3 worldPos = worldPos4.xyz / worldPos4.w;
 
-	if (metallicRoughnessAoShaded.a == 0.0
+	if (metallicRoughnessAoShaded.w == 0.0
 	|| any(greaterThan(worldPos, uBoxMax))
 	|| any(lessThan(worldPos, uBoxMin)))
 	{
@@ -95,19 +116,22 @@ void main()
 	const vec3 V = -normalize(viewSpacePosition.xyz);
 	const vec3 N = texture(uNormalTexture, texCoord).xyz;
 	const float NdotV = max(dot(N, V), 0.0);
+
+	float roughness = metallicRoughnessAoShaded.y;
+	const vec3 correctedTexCoord = parallaxCorrect((uInverseView * vec4(reflect(-V, N), 0.0)).xyz, worldPos, roughness);
 	
 	// ambient lighting using IBL
 	const vec3 albedo = texture(uAlbedoTexture, texCoord).rgb;
-	const vec3 F0 = mix(vec3(0.04), albedo, metallicRoughnessAoShaded.r);
-	const vec3 kS = fresnelSchlickRoughness(NdotV, F0, metallicRoughnessAoShaded.g);
+	const vec3 F0 = mix(vec3(0.04), albedo, metallicRoughnessAoShaded.x);
+	const vec3 kS = fresnelSchlickRoughness(NdotV, F0, roughness);
 
-	const vec3 correctedTexCoord = parallaxCorrect((uInverseView * vec4(reflect(-V, N), 0.0)).xyz, worldPos);
+	
 	
 	// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-	const vec3 prefilteredColor = textureLod(uReflectionTexture, octEncode(correctedTexCoord) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
+	const vec3 prefilteredColor = textureLod(uReflectionTexture, octEncode(correctedTexCoord) * 0.5 + 0.5, roughness * MAX_REFLECTION_LOD).rgb;
 
-	const vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, metallicRoughnessAoShaded.g)).rg;
+	const vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, roughness)).rg;
 	const vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 
-	oFragColor.rgb = specular * metallicRoughnessAoShaded.b;
+	oFragColor.rgb = specular * computeSpecularOcclusion(NdotV, metallicRoughnessAoShaded.z, roughness);
 }
