@@ -127,8 +127,8 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 
 	float lumens = 3400.0f;
 
-	level->lights.spotLights.push_back(SpotLight::createSpotLight(Mobility::DYNAMIC, lumens, glm::vec3(255, 211, 175) / 255.0f, glm::vec3(-2.5f + 6.0f, 0.7f, -0.8f), glm::vec3(-1.0f, -0.25f, -0.1f), outerAngle, innerAngle, range, true));
-	level->lights.spotLights.push_back(SpotLight::createSpotLight(Mobility::DYNAMIC, lumens, glm::vec3(255, 211, 175) / 255.0f, glm::vec3(-2.5f + 6.0f, 0.7f, 0.8f), glm::vec3(-1.0f, -0.25f, 0.1f), outerAngle, innerAngle, range, true));
+	//level->lights.spotLights.push_back(SpotLight::createSpotLight(Mobility::DYNAMIC, lumens, glm::vec3(255, 211, 175) / 255.0f, glm::vec3(-2.5f + 6.0f, 0.7f, -0.8f), glm::vec3(-1.0f, -0.25f, -0.1f), outerAngle, innerAngle, range, true));
+	//level->lights.spotLights.push_back(SpotLight::createSpotLight(Mobility::DYNAMIC, lumens, glm::vec3(255, 211, 175) / 255.0f, glm::vec3(-2.5f + 6.0f, 0.7f, 0.8f), glm::vec3(-1.0f, -0.25f, 0.1f), outerAngle, innerAngle, range, true));
 
 	// objects
 	{
@@ -152,18 +152,18 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 		pathSegments.push_back(PathSegment(
 			glm::vec3(-9.0, 0.0, 0.0),	// start pos
 			glm::vec3(9.0, 0.0, 0.0),	// end pos
-			glm::vec3(0.0f, 1.0f, 0.0f),						// start tangent
-			glm::vec3(0.0f, 1.0f, 0.0f),						// end tangent
-			5.0,														// duration
-			cubicEasingInOut));													// easing function
+			glm::vec3(1.0f, 0.0f, 0.0f),						// start tangent
+			glm::vec3(1.0f, 0.0f, 0.0f),						// end tangent
+			1.0,														// duration
+			linear));													// easing function
 		pathSegments.push_back(PathSegment(
 			glm::vec3(9.0, 0.0, 0.0),
 			glm::vec3(-9.0, 0.0, 0.0),
-			glm::vec3(0.0f, -1.0f, 0.0),
-			glm::vec3(0.0f, -1.0f, 0.0),
-			5.0,
-			cubicEasingInOut));
-		//entityManager.addComponent<MovementPathComponent>(carEntity, pathSegments, Engine::getTime(), true);
+			glm::vec3(-1.0f, 0.0f, 0.0),
+			glm::vec3(-1.0f, 0.0f, 0.0),
+			1.0,
+			linear));
+		entityManager.addComponent<MovementPathComponent>(carEntity, pathSegments, Engine::getTime(), true);
 
 		/*int c = 0;
 		std::default_random_engine e;
@@ -187,17 +187,17 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 
 		for (int i = 0; i < 10; ++i)
 		{
-			for (int j = 0; j < 10; ++j)
+			for (int j = 0; j < 2; ++j)
 			{
 
 				glm::vec3 color(1.0);
-				glm::vec3 position = glm::vec3(i - 5.0f, 0.0f, j - 5.0f) * 0.2f;
+				glm::vec3 position = glm::vec3((i - 5.0f)  * 0.2f, 4.2f, j * 0.2f + 5.0f);
 
 				const Entity *teapotEntity = entityManager.createEntity();
 				level->entityMap["teapot" + std::to_string(i * 10 + j)] = teapotEntity;
 				Model model("Resources/Models/teapot.meshmat", true);
 				model[0].second.setRoughness(i / 10.0f);
-				model[0].second.setMetallic(j / 10.0f);
+				model[0].second.setMetallic(1.0f - j);
 				entityManager.addComponent<ModelComponent>(teapotEntity, model);
 				entityManager.addComponent<TransformationComponent>(teapotEntity, Mobility::DYNAMIC, position, glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(1.0f));
 				entityManager.addComponent<RenderableComponent>(teapotEntity);

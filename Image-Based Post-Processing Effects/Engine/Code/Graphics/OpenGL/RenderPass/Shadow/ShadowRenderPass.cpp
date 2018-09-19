@@ -177,12 +177,8 @@ void ShadowRenderPass::renderShadows(const glm::mat4 & _viewProjectionMatrix, co
 		}
 
 		// we're good to go: render this mesh-entity instance
-		glm::mat4 modelMatrix;
-		modelMatrix = glm::translate(modelMatrix, entityRenderData->transformationComponent->position)
-			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
-			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale));
 
-		uModelViewProjectionMatrix.set(_viewProjectionMatrix * modelMatrix);
+		uModelViewProjectionMatrix.set(_viewProjectionMatrix * entityRenderData->transformationComponent->transformation);
 
 		if (!enabledMesh)
 		{
@@ -320,9 +316,7 @@ AxisAlignedBoundingBox ShadowRenderPass::calculateSceneAABB(const Scene & _scene
 			continue;
 		}
 
-		glm::mat4 modelMatrix = glm::translate(entityRenderData->transformationComponent->position)
-			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
-			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale));
+		glm::mat4 modelMatrix = entityRenderData->transformationComponent->transformation;
 
 		AxisAlignedBoundingBox meshAABB = currentMesh->getAABB();
 		glm::vec4 meshAABBMin = glm::vec4(meshAABB.min, 1.0);

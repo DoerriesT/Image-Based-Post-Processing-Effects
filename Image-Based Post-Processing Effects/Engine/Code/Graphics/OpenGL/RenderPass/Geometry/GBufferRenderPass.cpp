@@ -97,10 +97,6 @@ void GBufferRenderPass::render(const RenderData &_renderData, const Scene &_scen
 			continue;
 		}
 
-		glm::mat4 modelMatrix = glm::translate(entityRenderData->transformationComponent->position)
-			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
-			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale));
-
 		int rows = 1;
 		int columns = 1;
 		glm::vec2 textureOffset;
@@ -115,25 +111,22 @@ void GBufferRenderPass::render(const RenderData &_renderData, const Scene &_scen
 			textureOffset = glm::vec2((float)col / columns, (float)row / rows);
 		}
 
-		glm::mat4 mvpTransformation = _renderData.viewProjectionMatrix * modelMatrix;
-		const float cameraMovementStrength = 1.0f;
-		glm::mat4 prevTransformation = glm::mix(_renderData.invJitter * _renderData.viewProjectionMatrix, _renderData.prevInvJitter * _renderData.prevViewProjectionMatrix, cameraMovementStrength) * entityRenderData->transformationComponent->prevTransformation;
+		glm::mat4 transformation = _renderData.viewProjectionMatrix * entityRenderData->transformationComponent->transformation;
+		glm::mat4 prevTransformation = _renderData.prevInvJitter * _renderData.prevViewProjectionMatrix * entityRenderData->transformationComponent->prevTransformation;
 
 
 		uCamPosG.set(_renderData.cameraPosition);
 		uViewMatrixG.set(glm::mat3(_renderData.viewMatrix));
-		uModelMatrixG.set(modelMatrix);
+		uModelMatrixG.set(entityRenderData->transformationComponent->transformation);
 		uAtlasDataG.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
-		uModelViewProjectionMatrixG.set(mvpTransformation);
+		uModelViewProjectionMatrixG.set(transformation);
 		uPrevTransformG.set(prevTransformation);
-		uCurrTransformG.set(_renderData.invJitter * mvpTransformation);
+		uCurrTransformG.set(_renderData.invJitter * transformation);
 		uVelG.set(entityRenderData->transformationComponent->vel / glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
 		const float frameRateTarget = 60.0f;
 		uExposureTimeG.set((float(Engine::getFps()) / frameRateTarget));
 		const float tileSize = 40.0f;
 		uMaxVelocityMagG.set(glm::length(glm::vec2(1.0f) / glm::vec2(_renderData.resolution.first, _renderData.resolution.second)) * tileSize);
-
-		entityRenderData->transformationComponent->prevTransformation = modelMatrix;
 
 		if (entityRenderData->outlineComponent)
 		{

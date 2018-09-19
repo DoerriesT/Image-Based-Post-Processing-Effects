@@ -397,8 +397,8 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 		break;
 	}
 
-	//calculateLuminance(_colorTexture);
-	calculateLuminanceHistogram(_colorTexture);
+	calculateLuminance(_colorTexture);
+	//calculateLuminanceHistogram(_colorTexture);
 
 	// combine and tonemap
 	glBindFramebuffer(GL_FRAMEBUFFER, fullResolutionFbo);
@@ -1370,6 +1370,9 @@ void PostProcessRenderer::godRays(const glm::vec2 &_sunpos, GLuint _colorTexture
 
 void PostProcessRenderer::calculateLuminance(GLuint _colorTexture)
 {
+	unsigned int width = window->getWidth();
+	unsigned int height = window->getHeight();
+
 	currentLuminanceTexture = !currentLuminanceTexture;
 
 	luminanceGenShader->bind();
@@ -1378,7 +1381,7 @@ void PostProcessRenderer::calculateLuminance(GLuint _colorTexture)
 	glBindTexture(GL_TEXTURE_2D, _colorTexture);
 
 	glBindImageTexture(0, luminanceTempTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);
-	glDispatchCompute(1024 / 8, 1024 / 8, 1);
+	GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	glBindTexture(GL_TEXTURE_2D, luminanceTempTexture);
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -1913,7 +1916,7 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 	{
 		glGenTextures(1, &luminanceTempTexture);
 		glBindTexture(GL_TEXTURE_2D, luminanceTempTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, 1024, 1024, 0, GL_RED, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _resolution.first, _resolution.second, 0, GL_RED, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

@@ -14,10 +14,11 @@
 #include ".\..\SystemManager.h"
 #include "Graphics\EntityRenderData.h"
 #include "Settings.h"
+#include <glm\ext.hpp>
 
 RenderSystem::RenderSystem(std::shared_ptr<Window> _window)
-	:graphicsFramework(new GraphicsFramework(_window)), 
-	window(_window), 
+	:graphicsFramework(new GraphicsFramework(_window)),
+	window(_window),
 	exposureMultiplier(1.0f),
 	entityManager(EntityManager::getInstance()),
 	bakedReflections(false),
@@ -40,7 +41,7 @@ void RenderSystem::init()
 	entityManager.addOnEntityDestructionListener(this);
 
 	SettingsManager &settingsManager = SettingsManager::getInstance();
-	
+
 	shadowQuality = settingsManager.getIntSetting("graphics", "shadow_quality", 0);
 	shadowQuality->addListener([&](int _value) { effects.shadowQuality = (ShadowQuality)_value; });
 	effects.shadowQuality = (ShadowQuality)shadowQuality->get();
@@ -241,18 +242,34 @@ void RenderSystem::render()
 		// dont render anything if there is no active camera
 		return;
 	}
-	
+
 	effects.exposure = level->exposure * exposureMultiplier;
 	effects.diffuseAmbientSource = DiffuseAmbientSource(irradianceSource);
+
+	// calculate transformations
+	{
+		const Entity *currentEntity = nullptr;
+		for (const auto &entityData : scene.getData())
+		{
+			if (entityData->entity != currentEntity)
+			{
+				currentEntity = entityData->entity;
+				entityData->transformationComponent->prevTransformation = entityData->transformationComponent->transformation;
+				entityData->transformationComponent->transformation = glm::translate(entityData->transformationComponent->position)
+					* glm::mat4_cast(entityData->transformationComponent->rotation)
+					* glm::scale(glm::vec3(entityData->transformationComponent->scale));
+			}
+		}
+	}
 
 	if (level->environment.useAtmosphere && !level->environment.isAtmosphereValid)
 	{
 		level->environment.environmentMap = graphicsFramework->render(level->environment.atmosphereParams);
 		level->environment.isAtmosphereValid = true;
 	}
-	
-	if (level->loaded && 
-		((!bakedReflections && bakeReflections->get()) || 
+
+	if (level->loaded &&
+		((!bakedReflections && bakeReflections->get()) ||
 		(bakedIrradianceVolume && bakeIrradianceVolume->get())))
 	{
 		graphicsFramework->bake(scene, level, 2, !bakedReflections && bakeReflections->get(), !bakedIrradianceVolume && bakeIrradianceVolume->get());

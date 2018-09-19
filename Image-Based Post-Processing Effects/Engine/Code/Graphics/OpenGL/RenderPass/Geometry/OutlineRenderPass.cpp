@@ -91,12 +91,9 @@ void OutlineRenderPass::render(const RenderData & _renderData, const Scene & _sc
 		}
 
 		// we're good to go: render this mesh-entity instance
-		glm::mat4 modelMatrix = glm::translate(entityRenderData->transformationComponent->position)
-			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
-			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale * entityRenderData->outlineComponent->scaleMultiplier));
 
 		uOutlineColorO.set(entityRenderData->outlineComponent->outlineColor);
-		uModelViewProjectionMatrixO.set(_renderData.viewProjectionMatrix * modelMatrix);
+		uModelViewProjectionMatrixO.set(_renderData.viewProjectionMatrix * entityRenderData->transformationComponent->transformation);
 
 		currentMesh->render();
 	}

@@ -131,10 +131,6 @@ void ForwardRenderPass::render(const RenderData & _renderData, const std::shared
 		uMaterialT.set(entityRenderData->material);
 		entityRenderData->material->bindTextures();
 
-		glm::mat4 modelMatrix = glm::translate(entityRenderData->transformationComponent->position)
-			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
-			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale));
-
 		int rows = 1;
 		int columns = 1;
 		glm::vec2 textureOffset;
@@ -149,17 +145,14 @@ void ForwardRenderPass::render(const RenderData & _renderData, const std::shared
 			textureOffset = glm::vec2((float)col / columns, (float)row / rows);
 		}
 
-		glm::mat4 mvpTransformation = _renderData.viewProjectionMatrix * modelMatrix;
-		const float cameraMovementStrength = 1.0f;
-		glm::mat4 prevTransformation = glm::mix(_renderData.invJitter * _renderData.viewProjectionMatrix, _renderData.prevInvJitter * _renderData.prevViewProjectionMatrix, cameraMovementStrength) * entityRenderData->transformationComponent->prevTransformation;
+		glm::mat4 transformation = _renderData.viewProjectionMatrix * entityRenderData->transformationComponent->transformation;
+		glm::mat4 prevTransformation = _renderData.prevViewProjectionMatrix * entityRenderData->transformationComponent->prevTransformation;
 
 		uAtlasDataT.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
-		uModelMatrixT.set(modelMatrix);
-		uModelViewProjectionMatrixT.set(mvpTransformation);
-		uPrevTransformT.set(prevTransformation);
-		uCurrTransformT.set(_renderData.invJitter * mvpTransformation);
-
-		entityRenderData->transformationComponent->prevTransformation = modelMatrix;
+		uModelMatrixT.set(entityRenderData->transformationComponent->transformation);
+		uModelViewProjectionMatrixT.set(transformation);
+		uPrevTransformT.set(_renderData.prevInvJitter * prevTransformation);
+		uCurrTransformT.set(_renderData.invJitter * transformation);
 
 		if (entityRenderData->outlineComponent)
 		{

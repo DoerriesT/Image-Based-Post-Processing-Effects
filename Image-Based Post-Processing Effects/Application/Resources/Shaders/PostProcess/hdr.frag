@@ -53,6 +53,7 @@ const float Z_NEAR = 0.1;
 const float Z_FAR = 300.0;
 const int TILE_SIZE = 40;
 const float GAMMA = 1.5;
+const float PI = 3.14159265359;
 
 const float A = 0.15; // shoulder strength
 const float B = 0.50; // linear strength
@@ -111,10 +112,11 @@ float hash12(vec2 p)
     return fract((p3.x + p3.y) * p3.z);
 }
 
-vec2 jitteredNeighborMax()
+// Jitter function for tile lookup
+vec2 jitterTile(vec2 uv)
 {
-	// TODO: do some actual jittering
-	return texture(uVelocityNeighborMaxTexture, vTexCoord).rg;
+	float val = hash12(uv + vec2(2.0, 0.0)) * PI * 2.0;
+	return vec2(sin(val), cos(val)) * (1.0 / textureSize(uVelocityNeighborMaxTexture, 0).xy) * 0.25;
 }
 
 vec3 calculateExposedColor(vec3 color, float avgLuminance)
@@ -227,8 +229,8 @@ void main()
 			float sampleDepth = -linearDepth(texelFetch(uDepthTexture, ivec2(sampleCoord), 0).x);
 
 			// classify as foreground or background, relative to center pixel
-			float f = softDepthCompare(centerDepth, sampleDepth);
-			float b = softDepthCompare(sampleDepth, centerDepth);
+			float f = zCompare(centerDepth, sampleDepth);
+			float b = zCompare(sampleDepth, centerDepth);
 
 			// get sample velocity magnitude (note: we only compare magnitudes, not directions, which is a major source of error)
 			float sampleVelocityMag = length(texelFetch(uVelocityTexture, ivec2(sampleCoord), 0).rg * texSize);
@@ -249,77 +251,62 @@ void main()
 	}
 #elif MOTION_BLUR == 3
 	vec2 texSize = textureSize(uScreenTexture, 0);
-	vec2 neighborMaxVel = texture(uVelocityNeighborMaxTexture, vTexCoord).rg * texSize;
-	float neighborMaxVelMag = length(neighborMaxVel);
+	
+	float j = hash12(vTexCoord) - 0.5;
+	vec2 vmax = texture(uVelocityNeighborMaxTexture, vTexCoord + jitterTile(vTexCoord)).rg * texSize;
+	float vmaxLength = length(vmax);
 
-	// only do the effect, if the neigbor max velocity is at least half a pixel
-	if (neighborMaxVelMag > length(vec2(0.5)))
+	if(vmaxLength > 0.5)
 	{
-		// get velocity of this pixel
-		vec2 centerVelocity = texelFetch(uVelocityTexture, ivec2(gl_FragCoord.xy), 0).rg * texSize;
-		float centerVelocityMag = length(centerVelocity);
+		vec2 wN = vmax / vmaxLength;
+		vec2 vC = texelFetch(uVelocityTexture, ivec2(gl_FragCoord.xy), 0).rg * texSize;
+		vec2 wP = vec2(-wN.y, wN.x);
+		wP = (dot(wP, vC) < 0.0) ? -wP : wP;
 
-		// get depth for comparison with samples
-		float centerDepth = -linearDepth(texelFetch(uDepthTexture, ivec2(gl_FragCoord.xy), 0).x);
+		float vCLength = max(length(vC), 0.5);
+		const float velocityThreshold = 1.5;
+		vec2 wC = normalize(mix(wP, vC / vCLength, (vCLength - 0.5) / velocityThreshold));
 
-		vec2 neighborMaxDir = normalize(neighborMaxVel);
-		vec2 centerVelDir = normalize(centerVelocity);
-		vec2 perpDir = vec2(-neighborMaxDir.y, neighborMaxDir.x);
+		const float N = 25;
+		
+		float totalWeight = N / (TILE_SIZE * vCLength);
+		vec3 result = color * totalWeight;
+		
+		float depthC = -linearDepth(texelFetch(uDepthTexture, ivec2(gl_FragCoord.xy), 0).x);
 
-		if (dot(perpDir, centerVelDir) < 0.0)
+		for (int i = 0; i < N; ++i)
 		{
-			perpDir = -perpDir;
+			float t = mix(-1.0, 1.0, (i + j * 0.95 + 1.0) / (N + 1.0));
+		
+			vec2 d = bool(i % 2) ? wC * vmaxLength: vmax;
+			float T = abs(t) * vmaxLength;
+			ivec2 S = ivec2(gl_FragCoord.xy) + ivec2(t * d);
+		
+			float depthS = -linearDepth(texelFetch(uDepthTexture, S, 0).x);
+		
+			float f = softDepthCompare(depthC, depthS);
+			float b = softDepthCompare(depthS, depthC);
+		
+			vec2 vS = texelFetch(uVelocityTexture, S, 0).rg * texSize;
+		
+			float weight = 0.0;
+			float wA = abs(dot(wC, normalize(d)));
+			float wB = abs(dot(normalize(vS), normalize(d)));
+		
+			float vSLength = max(length(vS), 0.5);
+		
+			weight += f * cone(T, vSLength) * wB;
+			weight += b * cone(T, vCLength) * wA;
+			// originally max(wA, wB), but using min reduces artifacts in extreme conditions
+			weight += cylinder(T, min(vSLength, vCLength)) * min(wA, wB) * 2.0;
+		
+			totalWeight += weight;
+			result += texelFetch(uScreenTexture, S, 0).rgb * weight;
 		}
-
-		vec2 centerDir = normalize(mix(centerVelDir, perpDir, (centerVelocityMag - 0.5) / GAMMA));
-
-		// create "random" jittering value
-		float rnd = clamp(hash12(vTexCoord), 0.0, 1.0) - 0.5;
-
-		const float numSamples = 50.0;
-
-		float weight = numSamples / (TILE_SIZE * max(centerVelocityMag, 0.5));
-		vec3 sum = color * weight;
-
-		// TODO: this is always 0.0
-		float centerDirDotNeighborMaxDir = clamp(dot(centerDir, neighborMaxDir), 0.0, 1.0);
-
-		// walk along the sampling vectors, take samples and weight them
-		for(float i = 0; i < numSamples; ++i)
-		{
-			// calculate point on velocity vector and add jittering to avoid banding
-			vec2 samplingDir = mix(neighborMaxDir, centerDir, mod(i, 2.0));
-			float t = mix(-1.0, 1.0, (i + rnd + 1.0) / (numSamples + 1.0));
-			t *= neighborMaxVelMag;
-			vec2 sampleCoord = gl_FragCoord.xy + samplingDir * t + vec2(0.5);
-
-			// get depth at sample coord to compare to center depth
-			float sampleDepth = -linearDepth(texelFetch(uDepthTexture, ivec2(sampleCoord), 0).x);
-
-			// classify as foreground or background, relative to center pixel
-			float f = softDepthCompare(centerDepth, sampleDepth);
-			float b = softDepthCompare(sampleDepth, centerDepth);
-
-			// get sample velocity magnitude (note: we only compare magnitudes, not directions, which is a major source of error)
-			vec2 sampleVelocity = texelFetch(uVelocityTexture, ivec2(sampleCoord), 0).rg * texSize;
-			float sampleVelocityMag = length(sampleVelocity);
-			float dist = distance(sampleCoord, gl_FragCoord.xy);
-
-			float sampleVelDirDotSamplingDir = clamp(dot(normalize(sampleVelocity), samplingDir), 0.0, 1.0);
-
-			// weight sample based on sample velocity magnitude and depth
-			float alpha = f * cone(dist, sampleVelocityMag) * sampleVelDirDotSamplingDir
-						+ b * cone(dist, centerVelocityMag) * centerDirDotNeighborMaxDir;
-						+ cylinder(dist, sampleVelocityMag) * max(sampleVelDirDotSamplingDir, centerDirDotNeighborMaxDir)
-						* cylinder(dist, centerVelocityMag)
-						* 2.0;
-
-			weight += alpha;
-			sum += alpha * texelFetch(uScreenTexture, ivec2(sampleCoord), 0).rgb;
-		}
-
-		color = sum / weight;
+		
+		color = result / totalWeight;
 	}
+
 #endif // MOTION_BLUR
 
 	vec3 additions = vec3(0.0);

@@ -283,6 +283,7 @@ struct TransformationComponent : public Component<TransformationComponent>
 	glm::vec3 position;
 	glm::quat rotation;
 	glm::vec3 scale;
+	glm::mat4 transformation;
 	glm::mat4 prevTransformation;
 	glm::vec2 vel;
 
