@@ -274,11 +274,13 @@ void main()
 		
 		float depthC = -linearDepth(texelFetch(uDepthTexture, ivec2(gl_FragCoord.xy), 0).x);
 
+		vec2 dN[2] = { wN, vC / vCLength };
+
 		for (int i = 0; i < N; ++i)
 		{
 			float t = mix(-1.0, 1.0, (i + j * 0.95 + 1.0) / (N + 1.0));
 		
-			vec2 d = bool(i % 2) ? vC : vmax;
+			vec2 d = bool(i & 1) ? vC : vmax;
 			float T = abs(t) * vmaxLength;
 			ivec2 S = ivec2(gl_FragCoord.xy) + ivec2(t * d);
 		
@@ -288,13 +290,15 @@ void main()
 			float b = softDepthCompare(depthS, depthC);
 		
 			vec2 vS = texelFetch(uVelocityTexture, S, 0).rg * texSize;
-		
-			float weight = 0.0;
-			float wA = abs(dot(wC, normalize(d)));
-			float wB = abs(dot(normalize(vS), normalize(d)));
-		
+
 			float vSLength = max(length(vS), 0.5);
-		
+
+			int index = i & 1;
+			float wA = abs(dot(wC, dN[index]));
+			float wB = abs(dot(vS / vSLength, dN[index]));
+			
+			float weight = 0.0;
+
 			weight += f * cone(T, vSLength) * wB;
 			weight += b * cone(T, vCLength) * wA;
 			// originally max(wA, wB), but using min reduces artifacts in extreme conditions
