@@ -248,12 +248,13 @@ void RenderSystem::render()
 
 	// calculate transformations
 	{
-		const Entity *currentEntity = nullptr;
+		// TODO: avoid this set
+		std::set<const Entity *> transformedEntities;
 		for (const auto &entityData : scene.getData())
 		{
-			if (entityData->entity != currentEntity)
+			if (!ContainerUtility::contains(transformedEntities, entityData->entity))
 			{
-				currentEntity = entityData->entity;
+				transformedEntities.insert(entityData->entity);
 				entityData->transformationComponent->prevTransformation = entityData->transformationComponent->transformation;
 				entityData->transformationComponent->transformation = glm::translate(entityData->transformationComponent->position)
 					* glm::mat4_cast(entityData->transformationComponent->rotation)
