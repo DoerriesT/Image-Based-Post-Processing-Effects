@@ -46,7 +46,7 @@ void main()
 	cameraVelocity *= CAMERA_STRENGTH;
 	
 	float cameraVelocityLength = length(cameraVelocity * domainSize);
-	//cameraVelocity *= smoothstep(0.0, 1.0, clamp(cameraVelocityLength * (1.0 / CAMERA_SMOOTHSTEP_END), 0.0, 1.0));
+	cameraVelocity *= smoothstep(0.0, 1.0, clamp(cameraVelocityLength * (1.0 / CAMERA_SMOOTHSTEP_END), 0.0, 1.0));
 	
 	// add modified camera velocity
 	velocity += cameraVelocity;
@@ -59,7 +59,7 @@ void main()
 	
 	// clamp velocity to tile size
 	float len = length(velocity);
-	velocity = (len > TILE_SIZE) ? velocity / (len * (1.0 / TILE_SIZE)) : velocity;
+	velocity = (len > TILE_SIZE) ? velocity * (TILE_SIZE / len ) : velocity;
 	
 	// transform back to uv
 	velocity *= texelSize;

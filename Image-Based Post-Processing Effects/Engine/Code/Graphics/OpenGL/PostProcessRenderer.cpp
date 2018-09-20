@@ -326,6 +326,8 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 		}
 	}
 
+	correctVelocities(_renderData, _velocityTexture, _depthTexture);
+
 	if (_effects.motionBlur != MotionBlur::OFF)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, velocityFbo);
@@ -404,8 +406,6 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 
 	calculateLuminance(_colorTexture);
 	//calculateLuminanceHistogram(_colorTexture);
-
-	correctVelocities(_renderData, _velocityTexture, _depthTexture);
 
 	// combine and tonemap
 	glBindFramebuffer(GL_FRAMEBUFFER, fullResolutionFbo);
