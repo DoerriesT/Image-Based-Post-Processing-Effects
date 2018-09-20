@@ -98,6 +98,7 @@ void PostProcessRenderer::init()
 	luminanceHistogramShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/histogram.comp");
 	luminanceHistogramReduceShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/histogramReduce.comp");
 	luminanceHistogramAdaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/histogramAdaption.comp");
+	velocityCorrectionShader = ShaderProgram::createShaderProgram("Resources/Shaders/MotionBlur/correctVelocities.comp");
 
 
 	hdrShader = ShaderProgram::createShaderProgram(
@@ -230,6 +231,10 @@ void PostProcessRenderer::init()
 	uTimeDeltaLHA.create(luminanceHistogramAdaptionShader);
 	uTauLHA.create(luminanceHistogramAdaptionShader);
 	uParamsLHA.create(luminanceHistogramAdaptionShader);
+
+	// velocity correction
+	uReprojectionVC.create(velocityCorrectionShader);
+	uScaleVC.create(velocityCorrectionShader);
 
 	// create FBO
 	glGenFramebuffers(1, &fullResolutionFbo);
@@ -399,6 +404,8 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 
 	calculateLuminance(_colorTexture);
 	//calculateLuminanceHistogram(_colorTexture);
+
+	correctVelocities(_renderData, _velocityTexture, _depthTexture);
 
 	// combine and tonemap
 	glBindFramebuffer(GL_FRAMEBUFFER, fullResolutionFbo);
@@ -1453,6 +1460,26 @@ void PostProcessRenderer::calculateLuminanceHistogram(GLuint _colorTexture)
 
 	glBindImageTexture(0, luminanceTexture[currentLuminanceTexture], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);
 	glDispatchCompute(1, 1, 1);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+void PostProcessRenderer::correctVelocities(const RenderData & _renderData, GLuint _velocityTexture, GLuint _depthTexture)
+{
+	unsigned int width = window->getWidth();
+	unsigned int height = window->getHeight();
+
+	velocityCorrectionShader->bind();
+
+	uReprojectionVC.set(_renderData.prevViewProjectionMatrix * _renderData.invViewProjectionMatrix);
+	constexpr float targetFrametime = 1.0f / 60.0f;
+	const float scaleCorrection = targetFrametime / (float)Engine::getTimeDelta();
+	uScaleVC.set(scaleCorrection);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, _depthTexture);
+
+	glBindImageTexture(0, _velocityTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG16F);
+	GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 

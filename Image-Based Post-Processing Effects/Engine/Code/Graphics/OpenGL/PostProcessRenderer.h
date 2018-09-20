@@ -58,6 +58,7 @@ private:
 	std::shared_ptr<ShaderProgram> luminanceHistogramShader;
 	std::shared_ptr<ShaderProgram> luminanceHistogramReduceShader;
 	std::shared_ptr<ShaderProgram> luminanceHistogramAdaptionShader;
+	std::shared_ptr<ShaderProgram> velocityCorrectionShader;
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Texture> lensColorTexture;
@@ -242,6 +243,10 @@ private:
 	Uniform<GLfloat> uTauLHA = Uniform<GLfloat>("uTau");
 	Uniform<glm::vec2> uParamsLHA = Uniform<glm::vec2>("uParams"); // multiply / add
 
+	// velocity correction
+	Uniform<glm::mat4> uReprojectionVC = Uniform<glm::mat4>("uReprojection");
+	Uniform<GLfloat> uScaleVC = Uniform<GLfloat>("uScale");
+
 	void fxaa(float _subPixelAA, float _edgeThreshold, float _edgeThresholdMin);
 	void smaa(GLuint _colorTexture, GLuint _velocityTexture, bool _temporalAA);
 	void singlePassEffects(const Effects &_effects);
@@ -257,6 +262,7 @@ private:
 	void godRays(const glm::vec2 &_sunpos, GLuint _colorTexture, GLuint _depthTexture);
 	void calculateLuminance(GLuint _colorTexture);
 	void calculateLuminanceHistogram(GLuint _colorTexture);
+	void correctVelocities(const RenderData &_renderData, GLuint _velocityTexture, GLuint _depthTexture);
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
 
 };

@@ -144,6 +144,9 @@
     <Filter Include="Code\Graphics\OpenGL\RenderPass\Debug">
       <UniqueIdentifier>{14cf66f7-4077-473e-95f1-205b96a6e922}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Graphics\OpenGL\RenderPass\MotionBlur">
+      <UniqueIdentifier>{8e7910e6-7b1d-4b66-9087-c9fd345a16f4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Engine.h">

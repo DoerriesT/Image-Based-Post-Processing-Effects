@@ -229,8 +229,8 @@ void main()
 			float sampleDepth = -linearDepth(texelFetch(uDepthTexture, ivec2(sampleCoord), 0).x);
 
 			// classify as foreground or background, relative to center pixel
-			float f = zCompare(centerDepth, sampleDepth);
-			float b = zCompare(sampleDepth, centerDepth);
+			float f = softDepthCompare(centerDepth, sampleDepth);
+			float b = softDepthCompare(sampleDepth, centerDepth);
 
 			// get sample velocity magnitude (note: we only compare magnitudes, not directions, which is a major source of error)
 			float sampleVelocityMag = length(texelFetch(uVelocityTexture, ivec2(sampleCoord), 0).rg * texSize);
@@ -252,7 +252,7 @@ void main()
 #elif MOTION_BLUR == 3
 	vec2 texSize = textureSize(uScreenTexture, 0);
 	
-	float j = hash12(vTexCoord) - 0.5;
+	float j = (hash12(vTexCoord) - 0.5) * 2.0;
 	vec2 vmax = texture(uVelocityNeighborMaxTexture, vTexCoord + jitterTile(vTexCoord)).rg * texSize;
 	float vmaxLength = length(vmax);
 
@@ -278,7 +278,7 @@ void main()
 		{
 			float t = mix(-1.0, 1.0, (i + j * 0.95 + 1.0) / (N + 1.0));
 		
-			vec2 d = bool(i % 2) ? wC * vmaxLength: vmax;
+			vec2 d = bool(i % 2) ? vC : vmax;
 			float T = abs(t) * vmaxLength;
 			ivec2 S = ivec2(gl_FragCoord.xy) + ivec2(t * d);
 		

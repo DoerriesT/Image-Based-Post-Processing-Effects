@@ -1,0 +1,51 @@
+#version 450 core
+
+#ifndef CAMERA_STRENGTH
+#define CAMERA_STRENGTH 0.15
+#endif // CAMERA_STRENGTH
+
+#ifndef TILE_SIZE
+#define TILE_SIZE 40
+#endif // TILE_SIZE
+
+#define INV_TILE_SIZE (1.0 / TILE_SIZE)
+
+#define LOCAL_SIZE_X 8
+#define LOCAL_SIZE_Y 8
+
+layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z= 1) in;
+
+layout(rg16f, binding = 0) uniform image2D uVelocityBuffer;
+
+layout(binding = 0) uniform sampler2D uDepthTexture;
+
+uniform mat4 uReprojection;
+uniform float uScale;
+
+void main()
+{	
+	vec2 domainSize = textureSize(uDepthTexture, 0).xy;
+	vec2 texelSize = vec2(1.0 / domainSize);
+	
+	// reproject current pixel into previous frame based on camera movement only
+	const float depth = texelFetch(uDepthTexture, ivec2(gl_GlobalInvocationID.xy), 0).r;
+	const vec2 texCoord = (vec2(gl_GlobalInvocationID.xy) + vec2(0.5)) * texelSize;
+	vec4 cameraReprojectedCoord = uReprojection * vec4(vec3(texCoord, depth) * 2.0 - 1.0, 1.0);
+	
+	// determine velocity caused by camera movement
+	vec2 cameraVelocity = texCoord - ((cameraReprojectedCoord.xy / cameraReprojectedCoord.w) * 0.5 + 0.5);
+	
+	vec2 velocity = imageLoad(uVelocityBuffer, ivec2(gl_GlobalInvocationID.xy)).xy;
+	
+	// lower camera movement in velocity
+	velocity -= cameraVelocity * (1.0 - CAMERA_STRENGTH);
+	
+	// scale by exposure
+	velocity *= uScale;
+	
+	// clamp velocity to tile size
+	float len = length(velocity);
+	velocity = (len > TILE_SIZE) ? velocity / (len * INV_TILE_SIZE) : velocity;
+	
+	imageStore(uVelocityBuffer, ivec2(gl_GlobalInvocationID.xy), vec4(velocity, 0.0, 0.0));
+}
