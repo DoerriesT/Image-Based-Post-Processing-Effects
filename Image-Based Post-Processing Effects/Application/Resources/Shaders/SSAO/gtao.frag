@@ -99,6 +99,7 @@ void main(void)
 	// Calculate the projected size of the hemisphere
     float rayRadiusUV = 0.5 * uRadius * uFocalLength / -P.z;
     float rayRadiusPix = rayRadiusUV * uAORes.x;
+	rayRadiusPix = min(rayRadiusPix, uMaxRadiusPixels);
 
     float ao = 1.0;
 
