@@ -1,14 +1,16 @@
 #version 450 core
 
 #ifndef CAMERA_STRENGTH
-#define CAMERA_STRENGTH 0.15
+#define CAMERA_STRENGTH 1.0
 #endif // CAMERA_STRENGTH
+
+#ifndef CAMERA_SMOOTHSTEP_END
+#define CAMERA_SMOOTHSTEP_END 30
+#endif // CAMERA_SMOOTHSTEP_END
 
 #ifndef TILE_SIZE
 #define TILE_SIZE 40
 #endif // TILE_SIZE
-
-#define INV_TILE_SIZE (1.0 / TILE_SIZE)
 
 #define LOCAL_SIZE_X 8
 #define LOCAL_SIZE_Y 8
@@ -37,15 +39,30 @@ void main()
 	
 	vec2 velocity = imageLoad(uVelocityBuffer, ivec2(gl_GlobalInvocationID.xy)).xy;
 	
-	// lower camera movement in velocity
-	velocity -= cameraVelocity * (1.0 - CAMERA_STRENGTH);
+	// remove camera movement from velocity
+	velocity -= cameraVelocity;
+	
+	// determine new camera movement
+	cameraVelocity *= CAMERA_STRENGTH;
+	
+	float cameraVelocityLength = length(cameraVelocity * domainSize);
+	//cameraVelocity *= smoothstep(0.0, 1.0, clamp(cameraVelocityLength * (1.0 / CAMERA_SMOOTHSTEP_END), 0.0, 1.0));
+	
+	// add modified camera velocity
+	velocity += cameraVelocity;
 	
 	// scale by exposure
 	velocity *= uScale;
 	
+	// transform from uv to pixel coord
+	velocity *= domainSize;
+	
 	// clamp velocity to tile size
 	float len = length(velocity);
-	velocity = (len > TILE_SIZE) ? velocity / (len * INV_TILE_SIZE) : velocity;
+	velocity = (len > TILE_SIZE) ? velocity / (len * (1.0 / TILE_SIZE)) : velocity;
+	
+	// transform back to uv
+	velocity *= texelSize;
 	
 	imageStore(uVelocityBuffer, ivec2(gl_GlobalInvocationID.xy), vec4(velocity, 0.0, 0.0));
 }
