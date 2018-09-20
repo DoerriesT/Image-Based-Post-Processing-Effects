@@ -88,100 +88,6 @@ namespace App
 		SettingsManager::getInstance().saveToIni();
 	}
 
-	void TW_CALL colorsGetCallback(void *value, void *clientData)
-	{
-		*(bool *)value = ((App::Application *)clientData)->colors;
-	}
-
-	void TW_CALL colorsSetCallback(const void *value, void *clientData)
-	{
-		App::Application *app = ((App::Application *)clientData);
-		app->colors = *(bool *)value;
-		EntityManager &entityManager = EntityManager::getInstance();
-		std::default_random_engine e;
-		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-		std::uniform_real_distribution<float> dist1(1.0f, 3.0f);
-
-		for (int i = 0; i < 10; ++i)
-		{
-			for (int j = 0; j < 10; ++j)
-			{
-				const Entity *entity = app->level->entityMap.at("teapot" + std::to_string(i * 10 + j));
-
-				assert(entity);
-
-				glm::vec3 color(1.0);
-
-				if (app->colors)
-				{
-					color = glm::vec3(dist(e), dist(e), dist(e));
-				}
-				entityManager.getComponent<ModelComponent>(entity)->model[0].second.setAlbedo(glm::vec4(color, 1.0));
-			}
-		}
-	}
-
-	void TW_CALL bouncingGetCallback(void *value, void *clientData)
-	{
-		*(bool *)value = ((App::Application *)clientData)->bouncing;
-	}
-
-	void TW_CALL bouncingSetCallback(const void *value, void *clientData)
-	{
-		App::Application *app = ((App::Application *)clientData);
-		app->bouncing = *(bool *)value;
-
-		EntityManager &entityManager = EntityManager::getInstance();
-		std::default_random_engine e;
-		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-		std::uniform_real_distribution<float> dist1(0.5f, 2.0f);
-
-		for (int i = 0; i < 10; ++i)
-		{
-			for (int j = 0; j < 10; ++j)
-			{
-				const Entity *entity = app->level->entityMap.at("teapot" + std::to_string(i * 10 + j));
-
-				assert(entity);
-
-				glm::vec3 position = glm::vec3(i - 5.0f, 0.0f, j - 5.0f) * 0.2f;
-
-				if (app->bouncing)
-				{
-					glm::vec3 bouncePos = position + glm::vec3(0.0f, 3.0f, 0.0f);
-					float speed = dist1(e);
-
-					std::vector<PathSegment> pathSegments;
-					pathSegments.push_back(PathSegment(
-						position,	// start pos
-						bouncePos,	// end pos
-						glm::vec3(0.0f, 1.0f, 0.0f),						// start tangent
-						glm::vec3(0.0f, 1.0f, 0.0f),						// end tangent
-						speed,														// duration
-						linear));													// easing function
-					pathSegments.push_back(PathSegment(
-						bouncePos,
-						position,
-						glm::vec3(0.0f, -1.0f, 0.0),
-						glm::vec3(0.0f, -1.0f, 0.0),
-						speed,
-						linear));
-					entityManager.addComponent<MovementPathComponent>(entity, pathSegments, Engine::getTime(), true);
-					entityManager.addComponent<PerpetualRotationComponent>(entity, glm::vec3(dist(e), dist(e), dist(e)));
-				}
-				else
-				{
-					entityManager.removeComponent<MovementPathComponent>(entity);
-					entityManager.removeComponent<PerpetualRotationComponent>(entity);
-					TransformationComponent *tc = entityManager.getComponent<TransformationComponent>(entity);
-					tc->position = position;
-					tc->rotation = glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f));
-				}
-
-			}
-		}
-	}
-
 	void TW_CALL lightDirGetCallback(void *value, void *clientData)
 	{
 		*(float *)value = (*(std::shared_ptr<DirectionalLight> *)clientData)->getDirection().z;
@@ -400,13 +306,7 @@ namespace App
 				TwAddVarCB(settingsTweakBar, "GTAO Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoStrength), GETTER_FUNC_PTR(gtaoStrength), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
 				TwAddVarCB(settingsTweakBar, "GTAO Radius", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoRadius), GETTER_FUNC_PTR(gtaoRadius), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
 				TwAddVarCB(settingsTweakBar, "GTAO Max Radius Pixels", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoMaxRadiusPixels), GETTER_FUNC_PTR(gtaoMaxRadiusPixels), this, "group=Ambient_Occlusion min=1 max=256");
-				TwAddVarRW(settingsTweakBar, "GTAO Multi Bounce", TW_TYPE_BOOLCPP, &gtaoMultiBounce, nullptr);
-			}
-
-			// scene
-			{
-				TwAddVarCB(settingsTweakBar, "Colors", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(colors), GETTER_FUNC_PTR(colors), this, "group=Scene");
-				TwAddVarCB(settingsTweakBar, "Bouncing", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(bouncing), GETTER_FUNC_PTR(bouncing), this, "group=Scene");
+				TwAddVarRW(settingsTweakBar, "GTAO Multi Bounce", TW_TYPE_BOOLCPP, &gtaoMultiBounce, "group=Ambient_Occlusion");
 			}
 
 			TwAddVarRW(settingsTweakBar, "Parallax Occlusion Mapping", TW_TYPE_BOOLCPP, &disp, nullptr);
