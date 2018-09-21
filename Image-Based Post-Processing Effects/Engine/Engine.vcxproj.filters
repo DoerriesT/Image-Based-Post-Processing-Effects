@@ -147,6 +147,9 @@
     <Filter Include="Code\Graphics\OpenGL\RenderPass\MotionBlur">
       <UniqueIdentifier>{8e7910e6-7b1d-4b66-9087-c9fd345a16f4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\Shaders\MotionBlur">
+      <UniqueIdentifier>{c80989e0-1a6c-4286-9617-efd1e283eb2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Engine.h">
@@ -1220,6 +1223,9 @@
     </None>
     <None Include="..\Application\Resources\Shaders\Lighting\deferredEnvironmentProbe.vert">
       <Filter>Resources\Shaders\Lighting</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\MotionBlur\correctVelocities.comp">
+      <Filter>Resources\Shaders\MotionBlur</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -409,6 +409,18 @@ void WindowFramework::setIcon(size_t count, const char *sizes, unsigned char **p
 	delete[] images;
 }
 
+void WindowFramework::grabMouse(bool _grabMouse)
+{
+	if (_grabMouse)
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+	else
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+}
+
 WindowMode WindowFramework::getWindowMode() const
 {
 	return windowMode;

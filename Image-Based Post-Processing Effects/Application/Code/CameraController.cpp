@@ -4,11 +4,16 @@
 #include <Graphics\Camera.h>
 #include <iostream>
 #include <Input\Gamepad.h>
+#include <Engine.h>
+#include <Window/Window.h>
 
 namespace App
 {
 	CameraController::CameraController(std::shared_ptr<Camera> _camera)
-		:camera(_camera), userInput(UserInput::getInstance())
+		:camera(_camera),
+		userInput(UserInput::getInstance()),
+		grabbedMouse(false),
+		smoothFactor(0.0f)
 	{
 	}
 	void CameraController::setCamera(std::shared_ptr<Camera> _camera)
@@ -34,11 +39,34 @@ namespace App
 		bool pressed = false;
 		float mod = 1.0f;
 
+		glm::vec2 mouseDelta = {};
+
 		if (userInput.isMouseButtonPressed(InputMouse::BUTTON_RIGHT))
 		{
-			glm::vec2 mouseDelta = userInput.getMousePosDelta();
-			camera->rotate(glm::vec3(mouseDelta.y * 0.005f, mouseDelta.x * 0.005f, 0.0));
+			if (!grabbedMouse)
+			{
+				//mouseHistory = glm::vec2(0.0f);
+				grabbedMouse = true;
+				Engine::getInstance()->getWindow()->grabMouse(grabbedMouse);
+			}
+			mouseDelta = userInput.getMousePosDelta();
 		}
+		else
+		{
+			if (grabbedMouse)
+			{
+				grabbedMouse = false;
+				Engine::getInstance()->getWindow()->grabMouse(grabbedMouse);
+			}
+		}
+
+		mouseHistory = glm::mix(mouseDelta, mouseHistory, smoothFactor);
+		if (glm::dot(mouseHistory, mouseHistory) > 0.0f)
+		{
+			camera->rotate(glm::vec3(mouseHistory.y * 0.005f, mouseHistory.x * 0.005f, 0.0));
+		}
+		
+
 		if (userInput.isKeyPressed(InputKey::UP))
 		{
 			camera->rotate(glm::vec3(-_timeDelta, 0.0f, 0.0));
@@ -84,5 +112,13 @@ namespace App
 		{
 			camera->translate(cameraTranslation);
 		}
+	}
+	void CameraController::setSmoothFactor(float _smoothFactor)
+	{
+		smoothFactor = _smoothFactor;
+	}
+	float CameraController::getSmoothFactor() const
+	{
+		return smoothFactor;
 	}
 }

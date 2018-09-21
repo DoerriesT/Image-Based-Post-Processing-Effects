@@ -126,6 +126,11 @@ void Window::setIcon(size_t count, const char *sizes, unsigned char **pixelData)
 	windowFramework->setIcon(count, sizes, pixelData);
 }
 
+void Window::grabMouse(bool _grabMouse)
+{
+	windowFramework->grabMouse(_grabMouse);
+}
+
 void Window::setFieldOfView(float _fov)
 {
 	fieldOfView = _fov;

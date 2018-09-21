@@ -306,6 +306,7 @@
     <None Include="..\Application\Resources\Shaders\LPV\lightPropagation.vert" />
     <None Include="..\Application\Resources\Shaders\LPV\rsm.frag" />
     <None Include="..\Application\Resources\Shaders\LPV\rsm.vert" />
+    <None Include="..\Application\Resources\Shaders\MotionBlur\correctVelocities.comp" />
     <None Include="..\Application\Resources\Shaders\Ocean\butterflyCompute.comp" />
     <None Include="..\Application\Resources\Shaders\Ocean\butterflyCompute.frag" />
     <None Include="..\Application\Resources\Shaders\Ocean\butterflyPrecompute.comp" />

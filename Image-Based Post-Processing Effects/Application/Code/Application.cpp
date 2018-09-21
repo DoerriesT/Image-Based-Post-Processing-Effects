@@ -100,6 +100,16 @@ namespace App
 		(*(std::shared_ptr<DirectionalLight> *)clientData)->setDirection(glm::normalize(dir));
 	}
 
+	void TW_CALL mouseSmoothFactorGetCallback(void *value, void *clientData)
+	{
+		*(float *)value = ((CameraController *)clientData)->getSmoothFactor();
+	}
+
+	void TW_CALL mouseSmoothFactorSetCallback(const void *value, void *clientData)
+	{
+		((CameraController *)clientData)->setSmoothFactor(*(float *)value);
+	}
+
 	Application::Application()
 		:cameraController(),
 		guiVisible(true)
@@ -155,6 +165,7 @@ namespace App
 		level = loadSponzaLevel();
 		SystemManager::getInstance().setLevel(level);
 		cameraController.setCamera(level->cameras[level->activeCameraIndex]);
+		cameraController.setSmoothFactor(0.85f);
 
 		TwInit(TW_OPENGL_CORE, NULL); // for core profile
 		TwWindowSize(windowWidth->get(), windowHeight->get());
@@ -170,6 +181,11 @@ namespace App
 				TwAddVarRO(settingsTweakBar, "Frame Time", TW_TYPE_STDSTRING, &frameTimeStr, "group=Timings");
 				TwAddVarRO(settingsTweakBar, "Frame Time Average", TW_TYPE_STDSTRING, &frameTimeAvgStr, "group=Timings");
 				TwAddVarRO(settingsTweakBar, "Frame Time Worst", TW_TYPE_STDSTRING, &frameTimeWorstStr, "group=Timings");
+			}
+
+			// mouse
+			{
+				TwAddVarCB(settingsTweakBar, "Smoothing Factor", TW_TYPE_FLOAT, SETTER_FUNC_PTR(mouseSmoothFactor), GETTER_FUNC_PTR(mouseSmoothFactor), &cameraController, "group=Mouse min=0.0 max=1.0 step=0.01");
 			}
 
 			// window

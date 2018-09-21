@@ -49,6 +49,7 @@ public:
 	void setResolution(const std::pair<unsigned int, unsigned int> &_resolution);
 	void setWindowModeAndResolution(const WindowMode &_windowMode, const std::pair<unsigned int, unsigned int> &_resolution);
 	void setIcon(size_t count, const char *sizes, unsigned char **pixelData);
+	void grabMouse(bool _grabMouse);
 
 	WindowMode getWindowMode() const;
 	std::pair<unsigned int, unsigned int> getNativeResolution();

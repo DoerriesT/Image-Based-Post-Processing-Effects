@@ -34,6 +34,7 @@ public:
 	size_t getSelectedResolutionIndex() const;
 	void setTitle(const std::string &_title);
 	void setIcon(size_t count, const char *sizes, unsigned char **pixelData);
+	void grabMouse(bool _grabMouse);
 	void setFieldOfView(float _fov);
 	void resetFieldOfView();
 	float getFieldOfView() const;
