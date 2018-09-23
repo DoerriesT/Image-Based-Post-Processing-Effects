@@ -6,80 +6,27 @@ in vec2 vTexCoord;
 
 layout(binding=6) uniform sampler2D uInputTexture;
 
-uniform float uSharpness;
-uniform float uKernelRadius;
-uniform vec2 uInvResolutionDirection; // either set x to 1/width or y to 1/height
-
-#ifndef AO_BLUR_PRESENT
-#define AO_BLUR_PRESENT 0
-#endif
-
-
-//-------------------------------------------------------------------------
-
-float BlurFunction(vec2 uv, float r, float center_c, float center_d, inout float w_total)
-{
-	vec2  aoz = texture(uInputTexture, uv ).xy;
-	float c = aoz.x;
-	float d = aoz.y;
-	
-	const float BlurSigma = float(uKernelRadius) * 0.5;
-	const float BlurFalloff = 1.0 / (2.0*BlurSigma*BlurSigma);
-	
-	float ddiff = (d - center_d) * uSharpness;
-	float w = exp2(-r*r*BlurFalloff - ddiff*ddiff);
-	w_total += w;
-
-	return c*w;
-}
-
 void main()
 {
-	vec2  aoz = texture(uInputTexture, vTexCoord).xy;
-	float center_c = aoz.x;
-	float center_d = aoz.y;
+	vec2 center = texelFetch(uInputTexture, ivec2(gl_FragCoord.xy), 0).xy;
+	float rampMaxInv = 1.0 / (center.y * 0.1);
 	
-	float c_total = center_c;
-	float w_total = 1.0;
-  
-	for (float r = 1; r <= uKernelRadius; ++r)
+	float totalAo = 0.0;
+	float totalWeight = 0.0;
+	
+	int offset = 0;//uFrame % 2;
+	for (int i = -1 - offset; i < 3 - offset; ++i)
 	{
-		vec2 uv = vTexCoord + uInvResolutionDirection * r;
-		c_total += BlurFunction(uv, r, center_c, center_d, w_total);  
+		for(int j = -2 + offset; j < 2 + offset; ++j)
+		{
+			vec2 S = texelFetch(uInputTexture, ivec2(gl_FragCoord.xy + vec2(i, j)), 0).xy;
+			float weight = clamp(1.0 - (abs(S.y - center.y) * rampMaxInv), 0.0, 1.0);
+			totalAo += S.x * weight;
+			totalWeight += weight;
+		}
 	}
-  
-	for (float r = 1; r <= uKernelRadius; ++r)
-	{
-		vec2 uv = vTexCoord - uInvResolutionDirection * r;
-		c_total += BlurFunction(uv, r, center_c, center_d, w_total);  
-	}
-  
-#if AO_BLUR_PRESENT
-	oColor = vec4(c_total/w_total);
-#else
-	 oColor = vec4(c_total/w_total, center_d, 0, 0);
-#endif
-}
+	
+	float ao = totalAo / totalWeight;
 
-/*-----------------------------------------------------------------------
-  Copyright (c) 2014, NVIDIA. All rights reserved.
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions
-  are met:
-   * Redistributions of source code must retain the above copyright
-     notice, this list of conditions and the following disclaimer.
-   * Neither the name of its contributors may be used to endorse 
-     or promote products derived from this software without specific
-     prior written permission.
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ``AS IS'' AND ANY
-  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-  PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
------------------------------------------------------------------------*/
+	oColor = vec4(ao);
+}

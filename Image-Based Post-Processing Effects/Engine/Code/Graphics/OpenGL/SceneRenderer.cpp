@@ -155,25 +155,22 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	case AmbientOcclusion::SSAO_ORIGINAL:
 	{
 		ssaoOriginalRenderPass->render(_renderData, _effects, gbuffer, noiseTexture, &previousRenderPass);
-		GLuint ssaoTextures[3] = { ssaoTextureA, ssaoTextureB, ssaoTextureC };
-		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, 20.0f, 4, &previousRenderPass);
-		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
+		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextureA, &previousRenderPass);
+		gbuffer.ssaoTexture = ssaoTextureB;
 		break;
 	}
 	case AmbientOcclusion::SSAO:
 	{
 		ssaoRenderPass->render(_renderData, _effects, gbuffer, noiseTexture, &previousRenderPass);
-		GLuint ssaoTextures[3] = { ssaoTextureA, ssaoTextureB, ssaoTextureC };
-		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, _effects.ssao.blurSharpness, _effects.ssao.blurRadius, &previousRenderPass);
-		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
+		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextureA, &previousRenderPass);
+		gbuffer.ssaoTexture = ssaoTextureB;
 		break;
 	}
 	case AmbientOcclusion::HBAO:
 	{
 		hbaoRenderPass->render(_renderData, _effects, gbuffer, noiseTexture2, &previousRenderPass);
-		GLuint ssaoTextures[3] = { ssaoTextureA, ssaoTextureB, ssaoTextureC };
-		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, _effects.hbao.blurSharpness, _effects.hbao.blurRadius, &previousRenderPass);
-		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
+		ssaoBilateralBlurRenderPass->render(_renderData, _effects, gbuffer, ssaoTextureA, &previousRenderPass);
+		gbuffer.ssaoTexture = ssaoTextureB;
 		break;
 	}
 	case AmbientOcclusion::GTAO:

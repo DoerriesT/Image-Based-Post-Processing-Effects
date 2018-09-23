@@ -30,7 +30,6 @@ SSAOOriginalRenderPass::SSAOOriginalRenderPass(GLuint _fbo, unsigned int _width,
 
 void SSAOOriginalRenderPass::render(const RenderData &_renderData, const Effects &_effects, const GBuffer &_gbuffer, GLuint _noiseTexture, RenderPass **_previousRenderPass)
 {
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

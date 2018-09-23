@@ -101,6 +101,9 @@ void GraphicsFramework::init()
 }
 
 static glm::mat3 invViewMat;
+static RenderData renderData;
+
+extern bool freeze;
 
 void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
 {
@@ -117,30 +120,34 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 		glm::translate(glm::mat4(), glm::vec3(jitters[frame % 2].x / float(window->getWidth()), jitters[frame % 2].y / float(window->getHeight()), 0.0f))
 		: glm::mat4();
 
-	RenderData renderData;
-	renderData.frustum = _camera->getFrustum();
-	renderData.invJitter = glm::inverse(jitterMatrix);
-	renderData.prevInvJitter = prevInvJitter;
-	renderData.projectionMatrix = jitterMatrix * window->getProjectionMatrix();
-	renderData.invProjectionMatrix = glm::inverse(renderData.projectionMatrix);
-	renderData.viewMatrix = _camera->getViewMatrix();
-	renderData.invViewMatrix = glm::inverse(renderData.viewMatrix);
-	renderData.viewProjectionMatrix = renderData.projectionMatrix * renderData.viewMatrix;
-	renderData.invViewProjectionMatrix = glm::inverse(renderData.viewProjectionMatrix);
-	renderData.prevViewProjectionMatrix = prevViewProjectionMatrix;
-	renderData.resolution = std::make_pair(window->getWidth(), window->getHeight());
-	renderData.shadows = _effects.shadowQuality != ShadowQuality::OFF;
-	renderData.time = (float)Engine::getTime();
-	renderData.cameraPosition = _camera->getPosition();
-	renderData.viewDirection = _camera->getForwardDirection();
-	renderData.fov = window->getFieldOfView();
-	renderData.frame = ++frame;
-	renderData.bake = false;
+	if (!freeze)
+	{
+		renderData = {};
+		renderData.frustum = _camera->getFrustum();
+		renderData.invJitter = glm::inverse(jitterMatrix);
+		renderData.prevInvJitter = prevInvJitter;
+		renderData.projectionMatrix = jitterMatrix * window->getProjectionMatrix();
+		renderData.invProjectionMatrix = glm::inverse(renderData.projectionMatrix);
+		renderData.viewMatrix = _camera->getViewMatrix();
+		renderData.invViewMatrix = glm::inverse(renderData.viewMatrix);
+		renderData.viewProjectionMatrix = renderData.projectionMatrix * renderData.viewMatrix;
+		renderData.invViewProjectionMatrix = glm::inverse(renderData.viewProjectionMatrix);
+		renderData.prevViewProjectionMatrix = prevViewProjectionMatrix;
+		renderData.resolution = std::make_pair(window->getWidth(), window->getHeight());
+		renderData.shadows = _effects.shadowQuality != ShadowQuality::OFF;
+		renderData.time = (float)Engine::getTime();
+		renderData.cameraPosition = _camera->getPosition();
+		renderData.viewDirection = _camera->getForwardDirection();
+		renderData.fov = window->getFieldOfView();
+		renderData.frame = ++frame;
+		renderData.bake = false;
 
-	invViewMat = renderData.invViewMatrix;
+		invViewMat = renderData.invViewMatrix;
 
-	prevViewProjectionMatrix = renderData.viewProjectionMatrix;
-	prevInvJitter = renderData.invJitter;
+		prevViewProjectionMatrix = renderData.viewProjectionMatrix;
+		prevInvJitter = renderData.invJitter;
+	}
+	
 
 	sceneRenderer.render(renderData, _scene, _level, _effects);
 	postProcessRenderer.render(renderData, _level, _effects, sceneRenderer.getColorTexture(), sceneRenderer.getDepthStencilTexture(), sceneRenderer.getVelocityTexture(), _camera);
