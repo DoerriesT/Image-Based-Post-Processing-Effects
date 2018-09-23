@@ -1873,7 +1873,7 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 
 		glGenTextures(1, &velocityTexTmp);
 		glBindTexture(GL_TEXTURE_2D, velocityTexTmp);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, _resolution.first / tileSize, _resolution.second, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution.first / tileSize, _resolution.second, 0, GL_RG, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -1882,7 +1882,7 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 
 		glGenTextures(1, &velocityMaxTex);
 		glBindTexture(GL_TEXTURE_2D, velocityMaxTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, _resolution.first / tileSize, _resolution.second / tileSize, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution.first / tileSize, _resolution.second / tileSize, 0, GL_RG, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -1890,7 +1890,7 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 
 		glGenTextures(1, &velocityNeighborMaxTex);
 		glBindTexture(GL_TEXTURE_2D, velocityNeighborMaxTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, _resolution.first / tileSize, _resolution.second / tileSize, 0, GL_RG, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution.first / tileSize, _resolution.second / tileSize, 0, GL_RG, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

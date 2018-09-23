@@ -11,7 +11,7 @@ uniform int uTileSize;
 
 void vMax(vec2 velocity, inout vec2 maxVelocity, inout float maxMagnitude)
 {
-	float magnitude = length(velocity);
+	float magnitude = dot(velocity, velocity);
 	if(magnitude > maxMagnitude)
 	{
 		maxMagnitude = magnitude;
@@ -37,7 +37,7 @@ void main()
 	
 	for(int i = uTileSize / -2; i < uTileSize / 2; ++i)
 	{
-		vMax(abs(texture(uVelocityTexture, vTexCoord + i * texelSize).rg), maxVelocity, maxMagnitude);
+		vMax(texture(uVelocityTexture, vTexCoord + i * texelSize).rg, maxVelocity, maxMagnitude);
 	}
 	
 	oColor = vec4(maxVelocity, 0.0, 0.0);

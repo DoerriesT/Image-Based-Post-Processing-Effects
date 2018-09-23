@@ -8,7 +8,7 @@ layout(binding = 0) uniform sampler2D uVelocityTexture;
 
 void vMax(vec2 velocity, inout vec2 maxVelocity, inout float maxMagnitude)
 {
-	float magnitude = length(velocity);
+	float magnitude = dot(velocity, velocity);
 	if(magnitude > maxMagnitude)
 	{
 		maxMagnitude = magnitude;
