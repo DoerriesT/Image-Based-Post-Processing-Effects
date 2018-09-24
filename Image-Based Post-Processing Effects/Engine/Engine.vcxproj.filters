@@ -42,9 +42,6 @@
     <Filter Include="Resources\Shaders\Shared">
       <UniqueIdentifier>{f54cb0f4-abc4-46d1-a4fd-1ad0c4cb86b7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resources\Shaders\PostProcess">
-      <UniqueIdentifier>{ff480144-1269-4aae-9ff8-2a92397ca37d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources\Shaders\Gui">
       <UniqueIdentifier>{45cf55af-09c7-4ea3-a2be-b10bf29dd37a}</UniqueIdentifier>
     </Filter>
@@ -69,35 +66,8 @@
     <Filter Include="Code\Window\GLFW">
       <UniqueIdentifier>{1074de25-d66f-4f38-bf8a-f125d714caba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resources\Shaders\PostProcess\DepthOfField">
-      <UniqueIdentifier>{de620e19-2d2e-4519-a044-89c6b4f29da1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Shaders\PostProcess\DepthOfField\Simple">
-      <UniqueIdentifier>{fe77ffa1-084b-4e1f-856c-e2939abd6454}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Shaders\PostProcess\DepthOfField\TileBasedCombined">
-      <UniqueIdentifier>{89655ec4-99ee-4db6-9350-a62ff48f6593}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Shaders\PostProcess\DepthOfField\TileBasedSeperate">
-      <UniqueIdentifier>{c3093d35-ce85-4af2-9728-eecde0e00aaa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Shaders\PostProcess\LensFlares">
-      <UniqueIdentifier>{7975c718-21ed-4d89-a00a-0f47b4e445e2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Shaders\PostProcess\MotionBlur">
-      <UniqueIdentifier>{2885a8f2-655f-4990-bb0d-5761e53c6c30}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Shaders\PostProcess\DepthOfField\SpriteBased">
-      <UniqueIdentifier>{a19060b8-bab5-41f1-992b-aef142f2a143}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Shaders\PostProcess\GodRays">
-      <UniqueIdentifier>{34d4b5d2-e09d-4528-96d4-4f558b29ec99}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources\Shaders\Include">
       <UniqueIdentifier>{4011fc24-d1cc-4b62-9803-85402742770e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Shaders\PostProcess\AA">
-      <UniqueIdentifier>{1f657320-af97-4bab-97fd-ebba6538cf96}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\Graphics\OpenGL\RenderPass">
       <UniqueIdentifier>{cbbb0270-0863-4f4d-80d8-abb9d7242ab0}</UniqueIdentifier>
@@ -149,6 +119,27 @@
     </Filter>
     <Filter Include="Resources\Shaders\MotionBlur">
       <UniqueIdentifier>{c80989e0-1a6c-4286-9617-efd1e283eb2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Misc">
+      <UniqueIdentifier>{e41244b0-953e-4a32-b9a0-a45a9276dbcf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\AntiAliasing">
+      <UniqueIdentifier>{ccf266b2-22c4-4fa5-b849-a673881f44ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\DepthOfField">
+      <UniqueIdentifier>{2d2b234b-9bef-425c-90fd-da2e7093ce9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Exposure">
+      <UniqueIdentifier>{f916baa3-b280-46dc-a19f-43d670e835c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\GodRays">
+      <UniqueIdentifier>{e50c3006-601a-4a5f-935a-bfc5f8ce9bd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\LensFlares">
+      <UniqueIdentifier>{9f450aa9-a877-4825-8fbb-9071362fddd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders\Debug">
+      <UniqueIdentifier>{aabd1da8-a33b-4120-9c0d-4a3ed223365f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -927,21 +918,6 @@
     <None Include="..\Application\Resources\Shaders\Gui\gui.vert">
       <Filter>Resources\Shaders\Gui</Filter>
     </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\downsample.frag">
-      <Filter>Resources\Shaders\PostProcess</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\fxaa.frag">
-      <Filter>Resources\Shaders\PostProcess</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\hdr.frag">
-      <Filter>Resources\Shaders\PostProcess</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\singlePassEffects.frag">
-      <Filter>Resources\Shaders\PostProcess</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\upsample.frag">
-      <Filter>Resources\Shaders\PostProcess</Filter>
-    </None>
     <None Include="..\Application\Resources\Shaders\Shared\blit.frag">
       <Filter>Resources\Shaders\Shared</Filter>
     </None>
@@ -962,93 +938,6 @@
     </None>
     <None Include="..\Application\Resources\Shaders\Shared\terrain.vert">
       <Filter>Resources\Shaders\Shared</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\luminanceAdaption.comp">
-      <Filter>Resources\Shaders\PostProcess</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\luminanceGen.comp">
-      <Filter>Resources\Shaders\PostProcess</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\TileBasedSeperate\dofSeperatedBlur.comp">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField\TileBasedSeperate</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\TileBasedSeperate\dofSeperatedComposite.comp">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField\TileBasedSeperate</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\TileBasedSeperate\dofSeperatedFill.comp">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField\TileBasedSeperate</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\TileBasedCombined\dofCombinedBlur.comp">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField\TileBasedCombined</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\Simple\dofBlur.comp">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField\Simple</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\Simple\dofComposite.comp">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField\Simple</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\Simple\dofFill.comp">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField\Simple</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\coc.comp">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\cocBlur.comp">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\cocNeighborTileMax.frag">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\cocTileMax.frag">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\LensFlares\lensFlareBlur.frag">
-      <Filter>Resources\Shaders\PostProcess\LensFlares</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\LensFlares\lensFlareGen.frag">
-      <Filter>Resources\Shaders\PostProcess\LensFlares</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\MotionBlur\velocityNeighborTileMax.frag">
-      <Filter>Resources\Shaders\PostProcess\MotionBlur</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\MotionBlur\velocityTileMax.frag">
-      <Filter>Resources\Shaders\PostProcess\MotionBlur</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\SpriteBased\dofSprite.frag">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField\SpriteBased</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\SpriteBased\dofSprite.vert">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField\SpriteBased</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\DepthOfField\SpriteBased\dofSpriteCompose.comp">
-      <Filter>Resources\Shaders\PostProcess\DepthOfField\SpriteBased</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\GodRays\godRayGen.comp">
-      <Filter>Resources\Shaders\PostProcess\GodRays</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\GodRays\godRayMask.comp">
-      <Filter>Resources\Shaders\PostProcess\GodRays</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaBlendingWeightCalculation.frag">
-      <Filter>Resources\Shaders\PostProcess\AA</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaBlendingWeightCalculation.vert">
-      <Filter>Resources\Shaders\PostProcess\AA</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaEdgeDetection.frag">
-      <Filter>Resources\Shaders\PostProcess\AA</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaEdgeDetection.vert">
-      <Filter>Resources\Shaders\PostProcess\AA</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaNeighborhoodBlending.frag">
-      <Filter>Resources\Shaders\PostProcess\AA</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaNeighborhoodBlending.vert">
-      <Filter>Resources\Shaders\PostProcess\AA</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\AA\smaaResolve.frag">
-      <Filter>Resources\Shaders\PostProcess\AA</Filter>
     </None>
     <None Include="..\Application\Resources\Shaders\Geometry\forward.frag">
       <Filter>Resources\Shaders\Geometry</Filter>
@@ -1143,9 +1032,6 @@
     <None Include="..\Application\Resources\Shaders\SSAO\gtao.frag">
       <Filter>Resources\Shaders\SSAO</Filter>
     </None>
-    <None Include="..\Application\Resources\Shaders\SSAO\gtaoDenoise.frag">
-      <Filter>Resources\Shaders\SSAO</Filter>
-    </None>
     <None Include="..\Application\Resources\Shaders\SSAO\hbao.frag">
       <Filter>Resources\Shaders\SSAO</Filter>
     </None>
@@ -1215,15 +1101,6 @@
     <None Include="..\Application\Resources\Shaders\LPV\geometryInjection.vert">
       <Filter>Resources\Shaders\LPV</Filter>
     </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\histogram.comp">
-      <Filter>Resources\Shaders\PostProcess</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\histogramAdaption.comp">
-      <Filter>Resources\Shaders\PostProcess</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\PostProcess\histogramReduce.comp">
-      <Filter>Resources\Shaders\PostProcess</Filter>
-    </None>
     <None Include="..\Application\Resources\Shaders\Lighting\deferredEnvironmentProbe.frag">
       <Filter>Resources\Shaders\Lighting</Filter>
     </None>
@@ -1232,6 +1109,129 @@
     </None>
     <None Include="..\Application\Resources\Shaders\MotionBlur\correctVelocities.comp">
       <Filter>Resources\Shaders\MotionBlur</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\SSAO\gtaoSpatialDenoise.frag">
+      <Filter>Resources\Shaders\SSAO</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\SSAO\gtaoTemporalDenoise.frag">
+      <Filter>Resources\Shaders\SSAO</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\MotionBlur\velocityNeighborTileMax.frag">
+      <Filter>Resources\Shaders\MotionBlur</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\MotionBlur\velocityTileMax.frag">
+      <Filter>Resources\Shaders\MotionBlur</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Misc\downsample.frag">
+      <Filter>Resources\Shaders\Misc</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Misc\hdr.frag">
+      <Filter>Resources\Shaders\Misc</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Misc\singlePassEffects.frag">
+      <Filter>Resources\Shaders\Misc</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Misc\upsample.frag">
+      <Filter>Resources\Shaders\Misc</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\AntiAliasing\fxaa.frag">
+      <Filter>Resources\Shaders\AntiAliasing</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\AntiAliasing\smaaBlendingWeightCalculation.frag">
+      <Filter>Resources\Shaders\AntiAliasing</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\AntiAliasing\smaaBlendingWeightCalculation.vert">
+      <Filter>Resources\Shaders\AntiAliasing</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\AntiAliasing\smaaEdgeDetection.frag">
+      <Filter>Resources\Shaders\AntiAliasing</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\AntiAliasing\smaaEdgeDetection.vert">
+      <Filter>Resources\Shaders\AntiAliasing</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\AntiAliasing\smaaNeighborhoodBlending.frag">
+      <Filter>Resources\Shaders\AntiAliasing</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\AntiAliasing\smaaNeighborhoodBlending.vert">
+      <Filter>Resources\Shaders\AntiAliasing</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\AntiAliasing\smaaResolve.frag">
+      <Filter>Resources\Shaders\AntiAliasing</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\coc.comp">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\cocBlur.comp">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\cocNeighborTileMax.frag">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\cocTileMax.frag">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\dofCombinedBlur.comp">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\dofSeperatedBlur.comp">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\dofSeperatedComposite.comp">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\dofSeperatedFill.comp">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\dofSimpleBlur.comp">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\dofSimpleComposite.comp">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\dofSimpleFill.comp">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\dofSprite.frag">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\dofSprite.vert">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\dofSpriteCompose.comp">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Exposure\histogram.comp">
+      <Filter>Resources\Shaders\Exposure</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Exposure\histogramAdaption.comp">
+      <Filter>Resources\Shaders\Exposure</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Exposure\histogramReduce.comp">
+      <Filter>Resources\Shaders\Exposure</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Exposure\luminanceAdaption.comp">
+      <Filter>Resources\Shaders\Exposure</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Exposure\luminanceGen.comp">
+      <Filter>Resources\Shaders\Exposure</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\GodRays\godRayGen.comp">
+      <Filter>Resources\Shaders\GodRays</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\GodRays\godRayMask.comp">
+      <Filter>Resources\Shaders\GodRays</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\LensFlares\lensFlareBlur.frag">
+      <Filter>Resources\Shaders\LensFlares</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\LensFlares\lensFlareGen.frag">
+      <Filter>Resources\Shaders\LensFlares</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Debug\boundingBox.frag">
+      <Filter>Resources\Shaders\Debug</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\Debug\boundingBox.vert">
+      <Filter>Resources\Shaders\Debug</Filter>
     </None>
   </ItemGroup>
 </Project>

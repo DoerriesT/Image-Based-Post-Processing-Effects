@@ -66,38 +66,38 @@ PostProcessRenderer::~PostProcessRenderer()
 void PostProcessRenderer::init()
 {
 	// create shaders
-	singlePassEffectsShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/singlePassEffects.frag");
-	fxaaShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/fxaa.frag");
-	lensFlareGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/LensFlares/lensFlareGen.frag");
-	lensFlareBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/LensFlares/lensFlareBlur.frag");
-	downsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/downsample.frag");
-	upsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/upsample.frag");
-	velocityTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/MotionBlur/velocityTileMax.frag");
-	velocityNeighborTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/MotionBlur/velocityNeighborTileMax.frag");
-	cocTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/DepthOfField/cocTileMax.frag");
-	cocNeighborTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/DepthOfField/cocNeighborTileMax.frag");
-	cocShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/coc.comp");
-	cocBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/cocBlur.comp");
-	dofBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/Simple/dofBlur.comp");
-	dofFillShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/Simple/dofFill.comp");
-	dofCompositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/Simple/dofComposite.comp");
-	dofSeperateBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/TileBasedSeperate/dofSeperatedBlur.comp");
-	dofSeperateFillShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/TileBasedSeperate/dofSeperatedFill.comp");
-	dofSeperateCompositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/TileBasedSeperate/dofSeperatedComposite.comp");
-	dofCombinedBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/TileBasedCombined/dofCombinedBlur.comp");
-	dofSpriteShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/SpriteBased/dofSprite.vert", "Resources/Shaders/PostProcess/DepthOfField/SpriteBased/dofSprite.frag");
-	dofSpriteComposeShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/DepthOfField/SpriteBased/dofSpriteCompose.comp");
-	luminanceGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/luminanceGen.comp");
-	luminanceAdaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/luminanceAdaption.comp");
-	godRayMaskShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/GodRays/godRayMask.comp");
-	godRayGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/GodRays/godRayGen.comp");
-	smaaEdgeDetectionShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/AA/smaaEdgeDetection.vert", "Resources/Shaders/PostProcess/AA/smaaEdgeDetection.frag");
-	smaaBlendingWeightCalculationShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/AA/smaaBlendingWeightCalculation.vert", "Resources/Shaders/PostProcess/AA/smaaBlendingWeightCalculation.frag");
-	smaaNeighborhoodBlendingShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/AA/smaaNeighborhoodBlending.vert", "Resources/Shaders/PostProcess/AA/smaaNeighborhoodBlending.frag");
-	smaaResolveShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/PostProcess/AA/smaaResolve.frag");
-	luminanceHistogramShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/histogram.comp");
-	luminanceHistogramReduceShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/histogramReduce.comp");
-	luminanceHistogramAdaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/PostProcess/histogramAdaption.comp");
+	singlePassEffectsShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Misc/singlePassEffects.frag");
+	fxaaShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/AntiAliasing/fxaa.frag");
+	lensFlareGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/LensFlares/lensFlareGen.frag");
+	lensFlareBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/LensFlares/lensFlareBlur.frag");
+	downsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Misc/downsample.frag");
+	upsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Misc/upsample.frag");
+	velocityTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/MotionBlur/velocityTileMax.frag");
+	velocityNeighborTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/MotionBlur/velocityNeighborTileMax.frag");
+	cocTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/DepthOfField/cocTileMax.frag");
+	cocNeighborTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/DepthOfField/cocNeighborTileMax.frag");
+	cocShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/coc.comp");
+	cocBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/cocBlur.comp");
+	dofBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSimpleBlur.comp");
+	dofFillShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSimpleFill.comp");
+	dofCompositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSimpleComposite.comp");
+	dofSeperateBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedBlur.comp");
+	dofSeperateFillShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedFill.comp");
+	dofSeperateCompositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedComposite.comp");
+	dofCombinedBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofCombinedBlur.comp");
+	dofSpriteShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSprite.vert", "Resources/Shaders/DepthOfField/dofSprite.frag");
+	dofSpriteComposeShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSpriteCompose.comp");
+	luminanceGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/Exposure/luminanceGen.comp");
+	luminanceAdaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/Exposure/luminanceAdaption.comp");
+	godRayMaskShader = ShaderProgram::createShaderProgram("Resources/Shaders/GodRays/godRayMask.comp");
+	godRayGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/GodRays/godRayGen.comp");
+	smaaEdgeDetectionShader = ShaderProgram::createShaderProgram("Resources/Shaders/AntiAliasing/smaaEdgeDetection.vert", "Resources/Shaders/AntiAliasing/smaaEdgeDetection.frag");
+	smaaBlendingWeightCalculationShader = ShaderProgram::createShaderProgram("Resources/Shaders/AntiAliasing/smaaBlendingWeightCalculation.vert", "Resources/Shaders/AntiAliasing/smaaBlendingWeightCalculation.frag");
+	smaaNeighborhoodBlendingShader = ShaderProgram::createShaderProgram("Resources/Shaders/AntiAliasing/smaaNeighborhoodBlending.vert", "Resources/Shaders/AntiAliasing/smaaNeighborhoodBlending.frag");
+	smaaResolveShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/AntiAliasing/smaaResolve.frag");
+	luminanceHistogramShader = ShaderProgram::createShaderProgram("Resources/Shaders/Exposure/histogram.comp");
+	luminanceHistogramReduceShader = ShaderProgram::createShaderProgram("Resources/Shaders/Exposure/histogramReduce.comp");
+	luminanceHistogramAdaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/Exposure/histogramAdaption.comp");
 	velocityCorrectionShader = ShaderProgram::createShaderProgram("Resources/Shaders/MotionBlur/correctVelocities.comp");
 
 
@@ -111,7 +111,7 @@ void PostProcessRenderer::init()
 		{ ShaderProgram::ShaderType::FRAGMENT, MOTION_BLUR, 0 },
 		},
 		"Resources/Shaders/Shared/fullscreenTriangle.vert", 
-		"Resources/Shaders/PostProcess/hdr.frag");
+		"Resources/Shaders/Misc/hdr.frag");
 
 	// create uniforms
 

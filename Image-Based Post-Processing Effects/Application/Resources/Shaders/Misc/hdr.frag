@@ -244,7 +244,7 @@ void main()
 #elif MOTION_BLUR == 3
 	vec2 texSize = textureSize(uScreenTexture, 0);
 	
-	float j = (hash12(vTexCoord) - 0.5) * 2.0;
+	float j = 0.0;//(hash12(vTexCoord) - 0.5) * 2.0;
 	vec2 vmax = texture(uVelocityNeighborMaxTexture, vTexCoord + jitterTile(vTexCoord)).rg * texSize;
 	float vmaxLength = length(vmax);
 
