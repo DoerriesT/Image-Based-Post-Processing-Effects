@@ -51,6 +51,7 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\StencilRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\GeometryInjectionRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAOTemporalDenoiseRenderPass.h" />
     <ClInclude Include="Code\Graphics\Volume.h" />
     <ClInclude Include="Code\Graphics\Model.h" />
     <ClInclude Include="Code\Graphics\OpenGL\Buffer.h" />
@@ -86,7 +87,7 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\TildeH0kRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Ocean\TildeHktRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\RenderPass.h" />
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAODenoiseRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAOSpatialDenoiseRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAORenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\HBAORenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOBilateralBlurRenderPass.h" />
@@ -218,8 +219,9 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\TildeHktRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\RenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.cpp" />
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAODenoiseRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAOSpatialDenoiseRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAORenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAOTemporalDenoiseRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\HBAORenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOBilateralBlurRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOBlurRenderPass.cpp" />

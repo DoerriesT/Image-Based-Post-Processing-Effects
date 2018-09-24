@@ -1,8 +1,8 @@
-#include "GTAODenoiseRenderPass.h"
+#include "GTAOSpatialDenoiseRenderPass.h"
 #include "Engine.h"
 #include "Graphics\OpenGL\RenderData.h"
 
-GTAODenoiseRenderPass::GTAODenoiseRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
+GTAOSpatialDenoiseRenderPass::GTAOSpatialDenoiseRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
 	fbo = _fbo;
 	drawBuffers = { GL_COLOR_ATTACHMENT1 };
@@ -24,16 +24,15 @@ GTAODenoiseRenderPass::GTAODenoiseRenderPass(GLuint _fbo, unsigned int _width, u
 
 	resize(_width, _height);
 
-	gtaoDenoiseShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/gtaoDenoise.frag");
+	gtaoDenoiseShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/gtaoSpatialDenoise.frag");
 
 	uFrame.create(gtaoDenoiseShader);
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-void GTAODenoiseRenderPass::render(const RenderData & _renderData, const Effects & _effects, const GBuffer & _gbuffer, GLuint * _ssaoTextures, RenderPass **_previousRenderPass)
+void GTAOSpatialDenoiseRenderPass::render(const RenderData & _renderData, const Effects & _effects, const GBuffer & _gbuffer, GLuint * _ssaoTextures, RenderPass **_previousRenderPass)
 {
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT1;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
@@ -41,12 +40,8 @@ void GTAODenoiseRenderPass::render(const RenderData & _renderData, const Effects
 
 	uFrame.set(_renderData.frame);
 
-	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, _gbuffer.velocityTexture);
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, _renderData.frame % 2 ? _ssaoTextures[1] : _ssaoTextures[2]);
 	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_2D, _ssaoTextures[0]);
+	glBindTexture(GL_TEXTURE_2D, _renderData.frame % 2 ? _ssaoTextures[2] : _ssaoTextures[0]);
 
 	fullscreenTriangle->getSubMesh()->render();
 }

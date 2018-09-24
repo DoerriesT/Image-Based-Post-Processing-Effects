@@ -30,7 +30,8 @@
 #include "RenderPass\SSAO\SSAORenderPass.h"
 #include "RenderPass\SSAO\HBAORenderPass.h"
 #include "RenderPass\SSAO\GTAORenderPass.h"
-#include "RenderPass\SSAO\GTAODenoiseRenderPass.h"
+#include "RenderPass\SSAO\GTAOSpatialDenoiseRenderPass.h"
+#include "RenderPass\SSAO\GTAOTemporalDenoiseRenderPass.h"
 #include "RenderPass\SSAO\SSAOBlurRenderPass.h"
 #include "RenderPass\SSAO\SSAOBilateralBlurRenderPass.h"
 #include "RenderPass\Geometry\SkyboxRenderPass.h"
@@ -94,7 +95,8 @@ void SceneRenderer::init()
 	ssaoRenderPass = new SSAORenderPass(ssaoFbo, res.first, res.second);
 	hbaoRenderPass = new HBAORenderPass(ssaoFbo, res.first, res.second);
 	gtaoRenderPass = new GTAORenderPass(ssaoFbo, res.first, res.second);
-	gtaoDenoiseRenderPass = new GTAODenoiseRenderPass(ssaoFbo, res.first, res.second);
+	gtaoSpatialDenoiseRenderPass = new GTAOSpatialDenoiseRenderPass(ssaoFbo, res.first, res.second);
+	gtaoTemporalDenoiseRenderPass = new GTAOTemporalDenoiseRenderPass(ssaoFbo, res.first, res.second);
 	ssaoBlurRenderPass = new SSAOBlurRenderPass(ssaoFbo, res.first, res.second);
 	ssaoBilateralBlurRenderPass = new SSAOBilateralBlurRenderPass(ssaoFbo, res.first, res.second);
 	skyboxRenderPass = new SkyboxRenderPass(gBufferFBO, res.first, res.second);
@@ -177,8 +179,9 @@ void SceneRenderer::render(const RenderData &_renderData, const Scene &_scene, c
 	{
 		gtaoRenderPass->render(_renderData, _effects, gbuffer, &previousRenderPass);
 		GLuint ssaoTextures[3] = { ssaoTextureA, ssaoTextureB, ssaoTextureC };
-		gtaoDenoiseRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, &previousRenderPass);
-		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[1];
+		gtaoSpatialDenoiseRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, &previousRenderPass);
+		gtaoTemporalDenoiseRenderPass->render(_renderData, _effects, gbuffer, ssaoTextures, &previousRenderPass);
+		gbuffer.ssaoTexture = _renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
 		break;
 	}
 	default:
@@ -243,7 +246,8 @@ void SceneRenderer::resize(const std::pair<unsigned int, unsigned int> &_resolut
 	ssaoRenderPass->resize(_resolution.first, _resolution.second);
 	hbaoRenderPass->resize(_resolution.first, _resolution.second);
 	gtaoRenderPass->resize(_resolution.first, _resolution.second);
-	gtaoDenoiseRenderPass->resize(_resolution.first, _resolution.second);
+	gtaoSpatialDenoiseRenderPass->resize(_resolution.first, _resolution.second);
+	gtaoTemporalDenoiseRenderPass->resize(_resolution.first, _resolution.second);
 	ssaoBlurRenderPass->resize(_resolution.first, _resolution.second);
 	ssaoBilateralBlurRenderPass->resize(_resolution.first, _resolution.second);
 	skyboxRenderPass->resize(_resolution.first, _resolution.second);

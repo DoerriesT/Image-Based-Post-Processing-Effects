@@ -1,13 +1,9 @@
 #version 450 core
 
-const float PI = 3.14159265;
+layout(location=0) out vec4 oColor;
 
 in vec2 vTexCoord;
 
-out vec4 oColor;
-
-layout(binding=4) uniform sampler2D uVelocityTexture;
-layout(binding=5) uniform sampler2D uPreviousTexture;
 layout(binding=6) uniform sampler2D uInputTexture;
 
 uniform int uFrame;
@@ -33,14 +29,6 @@ void main(void)
 	}
 	
 	float ao = totalAo / totalWeight;
-
-	vec2 velocity = texture(uVelocityTexture, vTexCoord).rg;
-	vec2 reprojectedCoord = vTexCoord - velocity;
-	vec2 previousAo = texture(uPreviousTexture, reprojectedCoord).xy;
-
-	float insideFrame = float(reprojectedCoord.x < 1.0 && reprojectedCoord.y < 1.0 && reprojectedCoord.x >= 0.0 && reprojectedCoord.y >= 0.0);
-	float depthWeight = clamp(1.0 - (abs(previousAo.y - center.y) * rampMaxInv), 0.0, 1.0);
-	ao = mix(ao, previousAo.x, (23.0 / 24.0) * depthWeight * insideFrame);
 	
 	oColor = vec4(ao, center.y, 0.0, 1.0);
 }
