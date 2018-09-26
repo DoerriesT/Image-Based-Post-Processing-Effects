@@ -35,18 +35,16 @@ void main()
 		vec2 kernelSampleCoord = uSampleCoords[i];
 		// near field
 		{
-			vec2 sampleCoordTexels = vec2(gl_GlobalInvocationID.xy + tileMaxCoc.x * kernelSampleCoord);
-			vec2 sampleCoord = vec2(sampleCoordTexels + 0.5) * texelSize;
-			vec4 tap = texture(uNearColorTexture, sampleCoord);
+			vec2 offset = tileMaxCoc.x * kernelSampleCoord * texelSize;
+			vec4 tap = texture(uNearColorTexture, centerCoord + offset);
 	    
 			maxValNear = max(tap, maxValNear);
 		}
         
 		// far field
 		{
-			vec2 sampleCoordTexels = vec2(gl_GlobalInvocationID.xy + farCoc * kernelSampleCoord);
-			vec2 sampleCoord = vec2(sampleCoordTexels + 0.5) * texelSize;
-			vec4 tap = texture(uFarColorTexture, sampleCoord);
+			vec2 offset = farCoc * kernelSampleCoord * texelSize;
+			vec4 tap = texture(uFarColorTexture, centerCoord + offset);
 	    
 			maxValFar = max(tap, maxValFar);
 		}

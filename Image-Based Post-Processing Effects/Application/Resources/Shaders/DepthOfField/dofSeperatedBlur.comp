@@ -37,9 +37,8 @@ void main()
 		vec2 kernelSampleCoord = uSampleCoords[i];
 		// near field
 		{
-			vec2 sampleCoordTexels = vec2(gl_GlobalInvocationID.xy + tileMaxCoc.x * kernelSampleCoord);
-			vec2 sampleCoord = vec2(sampleCoordTexels + 0.5) * texelSize;
-			vec4 tap = texture(uNearColorTexture, sampleCoord);
+			vec2 offset = tileMaxCoc.x * kernelSampleCoord * texelSize;
+			vec4 tap = texture(uNearColorTexture, centerCoord + offset);
 
 			float k = 1.075;
 			float sampleWeight = (tap.w >= tileMaxCoc.x * k) ? 1.0 : clamp(tileMaxCoc.x * k - tap.w, 0.0, 1.0);
@@ -49,9 +48,9 @@ void main()
 		}
 		// far field
 		{
-			vec2 sampleCoordTexels = vec2(gl_GlobalInvocationID.xy + centerFar.w * kernelSampleCoord);
-			vec2 sampleCoord = vec2(sampleCoordTexels + 0.5) * texelSize;
-			vec4 tap = texture(uFarColorTexture, sampleCoord);
+			vec2 offset = centerFar.w * kernelSampleCoord * texelSize;
+			vec4 tap = texture(uFarColorTexture, centerCoord + offset);
+
 			float sampleWeight = (tap.w >= centerFar.w) ? 1.0 : clamp(tap.w, 0.0, 1.0);
 	
 			sumFar += tap * sampleWeight;
@@ -61,7 +60,7 @@ void main()
  
     sumNear = weightNear > 0.0 ? sumNear / weightNear : centerNear;
 	sumFar = weightFar > 0.0 ? sumFar / weightFar : centerFar;
-	
+
 	imageStore(uNearField, ivec2(gl_GlobalInvocationID.xy), sumNear);
 	imageStore(uFarField, ivec2(gl_GlobalInvocationID.xy), sumFar);
 }
