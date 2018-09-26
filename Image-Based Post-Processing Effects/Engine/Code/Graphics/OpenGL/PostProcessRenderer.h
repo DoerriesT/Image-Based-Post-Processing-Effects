@@ -59,6 +59,7 @@ private:
 	std::shared_ptr<ShaderProgram> luminanceHistogramReduceShader;
 	std::shared_ptr<ShaderProgram> luminanceHistogramAdaptionShader;
 	std::shared_ptr<ShaderProgram> velocityCorrectionShader;
+	std::shared_ptr<ShaderProgram> dofSeperateDownsampleShader;
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Texture> lensColorTexture;

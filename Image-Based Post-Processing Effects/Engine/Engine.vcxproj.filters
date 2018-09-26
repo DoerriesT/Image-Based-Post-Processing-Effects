@@ -1233,5 +1233,8 @@
     <None Include="..\Application\Resources\Shaders\Debug\boundingBox.vert">
       <Filter>Resources\Shaders\Debug</Filter>
     </None>
+    <None Include="..\Application\Resources\Shaders\DepthOfField\dofSeperatedDownsample.comp">
+      <Filter>Resources\Shaders\DepthOfField</Filter>
+    </None>
   </ItemGroup>
 </Project>

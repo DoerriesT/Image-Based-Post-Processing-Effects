@@ -163,7 +163,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 			glm::vec3(-1.0f, 0.0f, 0.0),
 			1.0,
 			linear));
-		entityManager.addComponent<MovementPathComponent>(carEntity, pathSegments, Engine::getTime(), true);
+		//entityManager.addComponent<MovementPathComponent>(carEntity, pathSegments, Engine::getTime(), true);
 
 		/*int c = 0;
 		std::default_random_engine e;

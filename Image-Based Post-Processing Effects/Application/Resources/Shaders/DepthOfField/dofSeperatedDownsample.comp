@@ -1,0 +1,44 @@
+#version 450 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(rg16f, binding = 0) uniform writeonly image2D uDownsampledCoc;
+layout(rgba16f, binding = 1) uniform writeonly image2D uDownsampledNearField;
+layout(rgba16f, binding = 2) uniform writeonly image2D uDownsampledFarField;
+
+layout(binding = 0) uniform sampler2D uColorTexture;
+layout(binding = 1) uniform sampler2D uCocTexture;
+
+void main()
+{	
+	vec2 domainSize = textureSize(uColorTexture, 0).xy * 0.5;
+	vec2 texelSize = vec2(1.0 / domainSize);
+	vec2 centerCoord = vec2(vec2(gl_GlobalInvocationID.xy) + 0.5) * texelSize;
+	
+	vec4 near4 = textureGather(uCocTexture, centerCoord, 0);
+	vec4 far4 = textureGather(uCocTexture, centerCoord, 1);
+	
+	float near = max(max(near4.x, near4.y), max(near4.z, near4.w)) * 0.5;
+	float far = max(max(far4.x, far4.y), max(far4.z, far4.w)) * 0.5;
+	
+	imageStore(uDownsampledCoc, ivec2(gl_GlobalInvocationID.xy), vec4(near, far, 0.0, 1.0));
+	
+	vec3 color = texture(uColorTexture, centerCoord).rgb;
+	vec3 color0 = texture(uColorTexture, 0.5 * vec2(-texelSize.x, texelSize.y) + centerCoord).rgb;
+	vec3 color1 = texture(uColorTexture, 0.5 * vec2(texelSize.x, texelSize.y) + centerCoord).rgb;
+	vec3 color2 = texture(uColorTexture, 0.5 * vec2(-texelSize.x, -texelSize.y) + centerCoord).rgb;
+	vec3 color3 = texture(uColorTexture, 0.5 * vec2(texelSize.x, -texelSize.y) + centerCoord).rgb;
+	
+	
+	
+	vec4 nearLayer = vec4((color + color0 + color1 + color2 + color3) * 0.2, near);
+	vec4 farLayer = vec4(nearLayer.rgb, far);
+	
+	nearLayer.a = clamp(nearLayer.a, 0.0, 1.0);
+	
+	nearLayer.rgb *= nearLayer.a;
+	farLayer.rgb *= farLayer.a;
+	
+	imageStore(uDownsampledNearField, ivec2(gl_GlobalInvocationID.xy), nearLayer);
+	imageStore(uDownsampledFarField, ivec2(gl_GlobalInvocationID.xy), farLayer);
+}

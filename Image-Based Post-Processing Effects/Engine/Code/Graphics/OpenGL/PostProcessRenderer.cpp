@@ -81,6 +81,7 @@ void PostProcessRenderer::init()
 	dofBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSimpleBlur.comp");
 	dofFillShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSimpleFill.comp");
 	dofCompositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSimpleComposite.comp");
+	dofSeperateDownsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedDownsample.comp");
 	dofSeperateBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedBlur.comp");
 	dofSeperateFillShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedFill.comp");
 	dofSeperateCompositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedComposite.comp");
@@ -289,7 +290,7 @@ void PostProcessRenderer::init()
 	glBindVertexArray(0);
 }
 
-unsigned int tileSize = 40;
+unsigned int tileSize = 10;
 bool godrays = false;
 
 void PostProcessRenderer::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
@@ -1098,21 +1099,21 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 	const float apertureSize = 8.0f;
 	const float focalLength = (0.5f * filmWidth) / glm::tan(window->getFieldOfView() * 0.5f);
 	const float blades = 6.0f;
-
-
+	
+	
 	static bool samplesGenerated = false;
 	static bool blurSamplesSet = false;
 	static bool fillSamplesSet = false;
 	static glm::vec2 blurSamples[7 * 7];
 	static glm::vec2 fillSamples[3 * 3];
-
+	
 	if (!samplesGenerated)
 	{
 		samplesGenerated = true;
-
+	
 		unsigned int nSquareTapsSide = 7;
 		float fRecipTaps = 1.0f / ((float)nSquareTapsSide - 1.0f);
-
+	
 		for (unsigned int y = 0; y < nSquareTapsSide; ++y)
 		{
 			for (unsigned int x = 0; x < nSquareTapsSide; ++x)
@@ -1120,12 +1121,12 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 				blurSamples[y * nSquareTapsSide + x] = generateDepthOfFieldSample(glm::vec2(x * fRecipTaps, y * fRecipTaps));
 			}
 		}
-
+	
 		nSquareTapsSide = 3;
 		fRecipTaps = 1.0f / ((float)nSquareTapsSide - 1.0f);
 		const float rotAngle = glm::radians(15.0f);
 		const glm::mat2 rot = glm::mat2(glm::cos(rotAngle), -glm::sin(rotAngle), glm::sin(rotAngle), glm::cos(rotAngle));
-
+	
 		for (unsigned int y = 0; y < nSquareTapsSide; ++y)
 		{
 			for (unsigned int x = 0; x < nSquareTapsSide; ++x)
@@ -1134,26 +1135,40 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 			}
 		}
 	}
-
+	
+	// downsample
+	{
+		dofSeperateDownsampleShader->bind();
+	
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, _colorTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
+	
+		glBindImageTexture(0, halfResolutionCocTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
+		glBindImageTexture(1, halfResolutionDofTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		glBindImageTexture(2, halfResolutionDofTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	}
+	
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, _colorTexture);
+	glBindTexture(GL_TEXTURE_2D, halfResolutionCocTexA);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
-	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, cocNeighborMaxTex);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexA);
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, fullResolutionDofTexA);
+	glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexB);
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, fullResolutionDofTexB);
+	glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexC);
 	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, fullResolutionDofTexC);
-	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_2D, fullResolutionDofTexD);
-
+	glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexD);
+	
 	// blur
 	{
 		dofSeperateBlurShader->bind();
-
+	
 		if (!blurSamplesSet)
 		{
 			blurSamplesSet = true;
@@ -1162,17 +1177,17 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 				dofSeperateBlurShader->setUniform(uSampleCoordsSDOFB[i], blurSamples[i]);
 			}
 		}
-
-		glBindImageTexture(0, fullResolutionDofTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glBindImageTexture(1, fullResolutionDofTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
+	
+		glBindImageTexture(0, halfResolutionDofTexC, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		glBindImageTexture(1, halfResolutionDofTexD, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
-
+	
 	// fill
 	{
 		dofSeperateFillShader->bind();
-
+	
 		if (!fillSamplesSet)
 		{
 			fillSamplesSet = true;
@@ -1181,16 +1196,21 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 				dofSeperateFillShader->setUniform(uSampleCoordsSDOFF[i], fillSamples[i]);
 			}
 		}
-
-		glBindImageTexture(0, fullResolutionDofTexC, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glBindImageTexture(1, fullResolutionDofTexD, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
+	
+		glBindImageTexture(0, halfResolutionDofTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		glBindImageTexture(1, halfResolutionDofTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
+	
 	}
 
 	// composite
 	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, _colorTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
+
 		dofSeperateCompositeShader->bind();
 
 		glBindImageTexture(0, fullResolutionHdrTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);

@@ -291,6 +291,7 @@
     <None Include="..\Application\Resources\Shaders\DepthOfField\dofCombinedBlur.comp" />
     <None Include="..\Application\Resources\Shaders\DepthOfField\dofSeperatedBlur.comp" />
     <None Include="..\Application\Resources\Shaders\DepthOfField\dofSeperatedComposite.comp" />
+    <None Include="..\Application\Resources\Shaders\DepthOfField\dofSeperatedDownsample.comp" />
     <None Include="..\Application\Resources\Shaders\DepthOfField\dofSeperatedFill.comp" />
     <None Include="..\Application\Resources\Shaders\DepthOfField\dofSimpleBlur.comp" />
     <None Include="..\Application\Resources\Shaders\DepthOfField\dofSimpleComposite.comp" />
