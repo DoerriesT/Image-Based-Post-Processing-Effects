@@ -9,7 +9,7 @@ layout(binding = 0) uniform sampler2D uDepthTexture;
 uniform float uFocalLength;
 uniform float uApertureSize;
 uniform vec2 uNearFar;
-uniform float uScale = 4.0;
+uniform float uScale = 1.0;
 
 float linearDepth(float depth)
 {

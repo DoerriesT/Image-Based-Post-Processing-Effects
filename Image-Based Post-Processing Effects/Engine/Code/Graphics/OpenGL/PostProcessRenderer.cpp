@@ -291,7 +291,7 @@ void PostProcessRenderer::init()
 }
 
 unsigned int mbTileSize = 40;
-unsigned int dofTileSize = 32;
+unsigned int dofTileSize = 16;
 bool godrays = false;
 
 void PostProcessRenderer::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
