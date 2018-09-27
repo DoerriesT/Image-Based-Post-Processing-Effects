@@ -82,7 +82,7 @@ void main(void)
 	
 	//float convergenceAlpha = calulateAlpha(uFrameTime, velocityWeight * 0.5 * (1.0 / 60.0) * 24.0);
 	
-	ao = mix(ao, previousAo.x, (11.0 / 12.0) * depthWeight * velocityWeight * insideFrame);
+	ao = mix(ao, previousAo.x, (23.0 / 24.0) * depthWeight * velocityWeight * insideFrame);
 	
 	oColor = vec4(ao, depth, 0.0, 1.0);
 }
