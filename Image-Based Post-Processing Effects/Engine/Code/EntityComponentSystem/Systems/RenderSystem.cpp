@@ -218,6 +218,7 @@ void RenderSystem::update(double _currentTime, double _timeDelta)
 
 int irradianceSource = 1;
 bool freeze;
+bool anamorphicFlares = false;
 
 void RenderSystem::render()
 {
@@ -230,6 +231,8 @@ void RenderSystem::render()
 
 	effects.exposure = level->exposure * exposureMultiplier;
 	effects.diffuseAmbientSource = DiffuseAmbientSource(irradianceSource);
+	effects.anamorphicFlares.enabled = anamorphicFlares;
+	effects.anamorphicFlares.color = glm::vec3(0.5f, 0.5f, 1.0f);
 
 	// calculate transformations
 	if(!freeze)

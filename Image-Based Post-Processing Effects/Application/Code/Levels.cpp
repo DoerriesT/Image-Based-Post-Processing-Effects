@@ -139,6 +139,28 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 		entityManager.addComponent<RenderableComponent>(sponzaEntity);
 		//entityManager.addComponent<PhysicsComponent>(sponzaEntity, 0.0f, 1.0f, false);
 
+		const Entity *manEntity = entityManager.createEntity();
+		level->entityMap["man"] = manEntity;
+		entityManager.addComponent<ModelComponent>(manEntity, Model("Resources/Models/man.meshmat", true));
+		entityManager.addComponent<TransformationComponent>(manEntity, Mobility::STATIC, glm::vec3(-9.2f, 5.55f, 1.f), glm::quat(), glm::vec3(2.0f));
+		entityManager.addComponent<RenderableComponent>(manEntity);
+
+		const Entity *sphereEntity0 = entityManager.createEntity();
+		level->entityMap["sphere0"] = sphereEntity0;
+		Model sphereModel("Resources/Models/sphere.meshmat", true);
+		sphereModel[0].second.setEmissive({ 1000.0f, 0.0f, 0.0f });
+		sphereModel[0].second.setAlbedo({ 1.0f, 0.0f, 0.0f, 0.0f });
+		sphereModel[0].second.setRoughness(1.0f);
+		entityManager.addComponent<ModelComponent>(sphereEntity0, sphereModel);
+		entityManager.addComponent<TransformationComponent>(sphereEntity0, Mobility::STATIC, glm::vec3(-9.225f, 6.115f, 1.045f), glm::quat(), glm::vec3(0.01f));
+		entityManager.addComponent<RenderableComponent>(sphereEntity0);
+		
+		const Entity *sphereEntity1 = entityManager.createEntity();
+		level->entityMap["sphere1"] = sphereEntity1;
+		entityManager.addComponent<ModelComponent>(sphereEntity1, sphereModel);
+		entityManager.addComponent<TransformationComponent>(sphereEntity1, Mobility::STATIC, glm::vec3(-9.225f, 6.115f, 1.0f - 0.045f), glm::quat(), glm::vec3(0.01f));
+		entityManager.addComponent<RenderableComponent>(sphereEntity1);
+
 		const Entity *carEntity = entityManager.createEntity();
 		level->entityMap["car"] = carEntity;
 		Model lamboModel("Resources/Models/aventador.meshmat", true);

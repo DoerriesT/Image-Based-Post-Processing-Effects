@@ -323,6 +323,9 @@
     <None Include="..\Application\Resources\Shaders\GodRays\godRayMask.comp" />
     <None Include="..\Application\Resources\Shaders\Gui\gui.frag" />
     <None Include="..\Application\Resources\Shaders\Gui\gui.vert" />
+    <None Include="..\Application\Resources\Shaders\LensFlares\anamorphicDownsample.comp" />
+    <None Include="..\Application\Resources\Shaders\LensFlares\anamorphicPrefilter.comp" />
+    <None Include="..\Application\Resources\Shaders\LensFlares\anamorphicUpsample.comp" />
     <None Include="..\Application\Resources\Shaders\LensFlares\lensFlareBlur.frag" />
     <None Include="..\Application\Resources\Shaders\LensFlares\lensFlareGen.frag" />
     <None Include="..\Application\Resources\Shaders\Lighting\ambientLight.frag" />

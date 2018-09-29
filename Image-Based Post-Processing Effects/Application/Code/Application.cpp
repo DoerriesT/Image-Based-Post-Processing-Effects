@@ -35,6 +35,7 @@ extern int irradianceSource;
 extern float occAmp;
 extern bool gtaoMultiBounce;
 extern bool freeze;
+extern bool anamorphicFlares;
 
 namespace App
 {
@@ -268,6 +269,7 @@ namespace App
 			// lens
 			{
 				TwAddVarCB(settingsTweakBar, "Lens Flares", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensFlaresEnabled), GETTER_FUNC_PTR(lensFlaresEnabled), this, "group=Lens");
+				TwAddVarRW(settingsTweakBar, "Anamorphic Flares", TW_TYPE_BOOLCPP, &anamorphicFlares, "group=Lens");
 				TwAddVarCB(settingsTweakBar, "Bloom", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(bloomEnabled), GETTER_FUNC_PTR(bloomEnabled), this, "group=Lens ");
 				TwAddVarCB(settingsTweakBar, "Lens Dirt", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensDirtEnabled), GETTER_FUNC_PTR(lensDirtEnabled), this, "group=Lens ");
 				TwAddVarCB(settingsTweakBar, "Lens Dirt Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(lensDirtStrength), GETTER_FUNC_PTR(lensDirtStrength), this, "group=Lens min=0.0 max=10.0 step=0.1");

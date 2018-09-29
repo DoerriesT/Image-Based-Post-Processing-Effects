@@ -1,0 +1,15 @@
+material count: 1
+mesh file: man.mesh
+
+name: 
+albedo: 1.0/1.0/1.0/1.0
+metallic: 0.0
+roughness: 1.0
+emissive: 0.0/0.0/0.0
+albedoPath: Resources/Textures/man.dds
+normalPath: 
+metallicPath: 
+roughnessPath: 
+aoPath: 
+emissivePath: 
+displacementPath: 

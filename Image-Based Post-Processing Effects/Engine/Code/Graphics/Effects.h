@@ -1,4 +1,5 @@
 #pragma once
+#include <glm/vec3.hpp>
 
 struct FXAA
 {
@@ -21,6 +22,12 @@ struct LensFlares
 	float flareSpacing;
 	float haloWidth;
 	float chromaticDistortion;
+};
+
+struct AnamorphicFlares
+{
+	bool enabled;
+	glm::vec3 color;
 };
 
 struct Bloom
@@ -124,6 +131,7 @@ struct Effects
 	SMAA smaa;
 	DepthOfField depthOfField;
 	LensFlares lensFlares;
+	AnamorphicFlares anamorphicFlares;
 	ShadowQuality shadowQuality;
 	ScreenSpaceReflections screenSpaceReflections;
 	MotionBlur motionBlur;

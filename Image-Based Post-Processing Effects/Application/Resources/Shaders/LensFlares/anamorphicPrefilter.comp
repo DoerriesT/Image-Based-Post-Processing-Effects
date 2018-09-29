@@ -1,0 +1,28 @@
+#version 450 core
+
+#define textureThreshold(tex, texCoord) (max(vec3(0.0), texture(tex, texCoord).rgb + uBias) * uScale)
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(r11f_g11f_b10f, binding = 0) uniform writeonly image2D uImgOut;
+
+layout(binding = 0) uniform sampler2D uColorTexture;
+
+uniform vec3 uScale = vec3(0.5);
+uniform vec3 uBias = vec3(-32.0);
+
+void main()
+{	
+	vec2 domainSize = textureSize(uColorTexture, 0).xy * vec2(1.0, 0.5);
+	vec2 texelSize = vec2(1.0 / domainSize);
+	vec2 centerCoord = vec2(vec2(gl_GlobalInvocationID.xy) + 0.5) * texelSize;
+	
+	const float scale = 1.0;
+	const float dy = texelSize.y * scale * 0.5;
+	
+	vec3 c0 = textureThreshold(uColorTexture, vec2(centerCoord.x, centerCoord.y - dy)).rgb;
+	vec3 c1 = textureThreshold(uColorTexture, vec2(centerCoord.x, centerCoord.y + dy)).rgb;
+	vec3 c = (c0 + c1) * 0.5;
+	
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(c, 1.0));
+}

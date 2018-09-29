@@ -1236,5 +1236,14 @@
     <None Include="..\Application\Resources\Shaders\DepthOfField\dofSeperatedDownsample.comp">
       <Filter>Resources\Shaders\DepthOfField</Filter>
     </None>
+    <None Include="..\Application\Resources\Shaders\LensFlares\anamorphicDownsample.comp">
+      <Filter>Resources\Shaders\LensFlares</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\LensFlares\anamorphicPrefilter.comp">
+      <Filter>Resources\Shaders\LensFlares</Filter>
+    </None>
+    <None Include="..\Application\Resources\Shaders\LensFlares\anamorphicUpsample.comp">
+      <Filter>Resources\Shaders\LensFlares</Filter>
+    </None>
   </ItemGroup>
 </Project>

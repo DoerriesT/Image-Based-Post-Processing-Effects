@@ -41,6 +41,7 @@ private:
 	std::shared_ptr<ShaderProgram> dofBlurShader;
 	std::shared_ptr<ShaderProgram> dofFillShader;
 	std::shared_ptr<ShaderProgram> dofCompositeShader;
+	std::shared_ptr<ShaderProgram> dofSeperateDownsampleShader;
 	std::shared_ptr<ShaderProgram> dofSeperateBlurShader;
 	std::shared_ptr<ShaderProgram> dofSeperateFillShader;
 	std::shared_ptr<ShaderProgram> dofSeperateCompositeShader;
@@ -59,7 +60,9 @@ private:
 	std::shared_ptr<ShaderProgram> luminanceHistogramReduceShader;
 	std::shared_ptr<ShaderProgram> luminanceHistogramAdaptionShader;
 	std::shared_ptr<ShaderProgram> velocityCorrectionShader;
-	std::shared_ptr<ShaderProgram> dofSeperateDownsampleShader;
+	std::shared_ptr<ShaderProgram> anamorphicPrefilterShader;
+	std::shared_ptr<ShaderProgram> anamorphicDownsampleShader;
+	std::shared_ptr<ShaderProgram> anamorphicUpsampleShader;
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Texture> lensColorTexture;
@@ -142,6 +145,9 @@ private:
 	GLuint cocMaxTex;
 	GLuint cocNeighborMaxTex;
 
+	GLuint anamorphicPrefilter;
+	GLuint anamorphicChain[6];
+
 	// single pass effects uniforms
 	Uniform<GLfloat> uTimeS = Uniform<GLfloat>("uTime");
 	Uniform<GLfloat> uFilmGrainStrengthS = Uniform<GLfloat>("uFilmGrainStrength");
@@ -155,6 +161,7 @@ private:
 	Uniform<GLfloat> uBloomStrengthH = Uniform<GLfloat>("uBloomStrength");
 	Uniform<GLfloat> uLensDirtStrengthH = Uniform<GLfloat>("uLensDirtStrength");
 	Uniform<GLfloat> uExposureH = Uniform<GLfloat>("uExposure");
+	Uniform<glm::vec3> uAnamorphicFlareColorH = Uniform<glm::vec3>("uAnamorphicFlareColor");
 
 	// fxaa uniforms
 	Uniform<glm::vec2> uInverseResolutionF = Uniform<glm::vec2>("uInverseResolution");
@@ -254,6 +261,7 @@ private:
 	void downsample(GLuint _colorTexture);
 	void upsample();
 	void generateFlares(const Effects &_effects);
+	void anamorphicFlares(const Effects &_effects, GLuint _colorTexture);
 	void calculateCoc(GLuint _depthTexture);
 	void calculateCocTileTexture();
 	void simpleDepthOfField(GLuint _colorTexture, GLuint _depthTexture);

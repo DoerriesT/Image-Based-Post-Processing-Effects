@@ -8,6 +8,10 @@
 #define FLARES_ENABLED 0
 #endif // FLARES_ENABLED
 
+#ifndef ANAMORPHIC_FLARES_ENABLED
+#define ANAMORPHIC_FLARES_ENABLED 0
+#endif // ANAMORPHIC_FLARES_ENABLED
+
 #ifndef DIRT_ENABLED
 #define DIRT_ENABLED 0
 #endif // DIRT_ENABLED
@@ -37,6 +41,7 @@ layout(binding = 6) uniform sampler2D uVelocityTexture;
 layout(binding = 7) uniform sampler2D uVelocityNeighborMaxTexture;
 layout(binding = 8) uniform sampler2D uLuminanceTexture;
 layout(binding = 9) uniform sampler2D uGodRayTexture;
+layout(binding = 10) uniform sampler2D uAnamorphicTexture;
 
 uniform float uStarburstOffset; // transforms texcoords
 uniform float uBloomStrength = 0.1;
@@ -46,6 +51,7 @@ uniform float uVelocityScale;
 uniform float uHalfPixelWidth = 0.0003125;
 uniform float uKeyValue = 0.18;
 uniform float uLensDirtStrength;
+uniform vec3 uAnamorphicFlareColor = vec3(1.0);
 
 const float MAX_SAMPLES = 32.0;
 const float SOFT_Z_EXTENT = 0.1;
@@ -325,6 +331,10 @@ void main()
 	vec3 lensFlare = texture(uLensFlareTex, vTexCoord).rgb * mask;
 	additions += lensFlare;//vec3(1.0) - exp(-lensFlare * 0.15 * dot(lensFlare, vec3(0.299, 0.587, 0.114)));
 #endif // FLARES_ENABLED
+
+#if ANAMORPHIC_FLARES_ENABLED
+		additions.rgb += texture(uAnamorphicTexture, vTexCoord).rgb * uAnamorphicFlareColor;
+#endif // ANAMORPHIC_FLARES_ENABLED
 
 #if DIRT_ENABLED
 	vec3 dirt = texture(uLensDirtTex, vTexCoord).rgb;

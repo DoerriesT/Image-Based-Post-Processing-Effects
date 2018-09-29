@@ -17,6 +17,7 @@ static const char *DIRT_ENABLED = "DIRT_ENABLED";
 static const char *GOD_RAYS_ENABLED = "GOD_RAYS_ENABLED";
 static const char *AUTO_EXPOSURE_ENABLED = "AUTO_EXPOSURE_ENABLED";
 static const char *MOTION_BLUR = "MOTION_BLUR";
+static const char *ANAMORPHIC_FLARES_ENABLED = "ANAMORPHIC_FLARES_ENABLED";
 
 PostProcessRenderer::PostProcessRenderer(std::shared_ptr<Window> _window)
 	:window(_window)
@@ -100,6 +101,9 @@ void PostProcessRenderer::init()
 	luminanceHistogramReduceShader = ShaderProgram::createShaderProgram("Resources/Shaders/Exposure/histogramReduce.comp");
 	luminanceHistogramAdaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/Exposure/histogramAdaption.comp");
 	velocityCorrectionShader = ShaderProgram::createShaderProgram("Resources/Shaders/MotionBlur/correctVelocities.comp");
+	anamorphicPrefilterShader = ShaderProgram::createShaderProgram("Resources/Shaders/LensFlares/anamorphicPrefilter.comp");
+	anamorphicDownsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/LensFlares/anamorphicDownsample.comp");
+	anamorphicUpsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/LensFlares/anamorphicUpsample.comp");
 
 
 	hdrShader = ShaderProgram::createShaderProgram(
@@ -129,6 +133,7 @@ void PostProcessRenderer::init()
 	uBloomStrengthH.create(hdrShader);
 	uLensDirtStrengthH.create(hdrShader);
 	uExposureH.create(hdrShader);
+	uAnamorphicFlareColorH.create(hdrShader);
 
 	// fxaa
 	uInverseResolutionF.create(fxaaShader);
@@ -328,6 +333,11 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 		}
 	}
 
+	if (_effects.anamorphicFlares.enabled)
+	{
+		anamorphicFlares(_effects, _colorTexture);
+	}
+
 	correctVelocities(_renderData, _velocityTexture, _depthTexture);
 
 	if (_effects.motionBlur != MotionBlur::OFF)
@@ -434,6 +444,8 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 	glBindTexture(GL_TEXTURE_2D, luminanceTexture[currentLuminanceTexture]);
 	glActiveTexture(GL_TEXTURE9);
 	glBindTexture(GL_TEXTURE_2D, halfResolutionGodRayTexB);
+	glActiveTexture(GL_TEXTURE10);
+	glBindTexture(GL_TEXTURE_2D, anamorphicPrefilter);
 
 	// shader permutations
 	{
@@ -445,6 +457,7 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 		bool godRaysEnabled = false;
 		bool autoExposureEnabled = false;
 		int motionBlur = 0;
+		bool anamorphicsFlaresEnabled = false;
 
 		for (const auto &define : curDefines)
 		{
@@ -474,6 +487,10 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 				{
 					motionBlur = std::get<2>(define);
 				}
+				else if (std::get<1>(define) == ANAMORPHIC_FLARES_ENABLED && std::get<2>(define))
+				{
+					anamorphicsFlaresEnabled = true;
+				}
 			}
 		}
 
@@ -482,12 +499,14 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 			|| dirtEnabled != _effects.lensDirt.enabled
 			|| godRaysEnabled != godrays
 			|| autoExposureEnabled != true
+			|| anamorphicsFlaresEnabled != _effects.anamorphicFlares.enabled
 			|| motionBlur != int(_effects.motionBlur))
 		{
 			hdrShader->setDefines(
 				{
 				{ ShaderProgram::ShaderType::FRAGMENT, BLOOM_ENABLED, _effects.bloom.enabled },
 				{ ShaderProgram::ShaderType::FRAGMENT, FLARES_ENABLED, _effects.lensFlares.enabled },
+				{ ShaderProgram::ShaderType::FRAGMENT, ANAMORPHIC_FLARES_ENABLED, _effects.anamorphicFlares.enabled },
 				{ ShaderProgram::ShaderType::FRAGMENT, DIRT_ENABLED, _effects.lensDirt.enabled },
 				{ ShaderProgram::ShaderType::FRAGMENT, GOD_RAYS_ENABLED, godrays },
 				{ ShaderProgram::ShaderType::FRAGMENT, AUTO_EXPOSURE_ENABLED, 1 },
@@ -498,6 +517,7 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 			uBloomStrengthH.create(hdrShader);
 			uLensDirtStrengthH.create(hdrShader);
 			uExposureH.create(hdrShader);
+			uAnamorphicFlareColorH.create(hdrShader);
 		}
 	}
 
@@ -507,6 +527,7 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 	uBloomStrengthH.set(_effects.bloom.strength);
 	uExposureH.set(_effects.exposure);
 	uLensDirtStrengthH.set(_effects.lensDirt.strength);
+	uAnamorphicFlareColorH.set(_effects.anamorphicFlares.color);
 
 	fullscreenTriangle->getSubMesh()->render();
 
@@ -860,6 +881,76 @@ void PostProcessRenderer::generateFlares(const Effects &_effects)
 
 	fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
+}
+
+void PostProcessRenderer::anamorphicFlares(const Effects &_effects, GLuint _colorTexture)
+{
+	unsigned int width = window->getWidth();
+	unsigned int height = window->getHeight();
+
+	// prefilter
+	{
+		anamorphicPrefilterShader->bind();
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, _colorTexture);
+
+		glBindImageTexture(0, anamorphicPrefilter, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
+		GLUtility::glDispatchComputeHelper(width, height / 2, 1, 8, 8, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	}
+	
+	int lastUsedTexture = 0;
+
+	// downsample
+	{
+		anamorphicDownsampleShader->bind();
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, anamorphicPrefilter);
+
+		for (int i = 0; i < 6 && width > 16; ++i)
+		{
+			width /= 2;
+
+			glBindImageTexture(0, anamorphicChain[i], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
+			GLUtility::glDispatchComputeHelper(width, height / 2, 1, 8, 8, 1);
+			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, anamorphicChain[i]);
+
+			lastUsedTexture = i;
+		}
+	}
+	
+	// upsample
+	{
+		anamorphicUpsampleShader->bind();
+
+		for (int i = lastUsedTexture - 1; i >= 0; --i)
+		{
+			width *= 2;
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, anamorphicChain[i]);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, anamorphicChain[i + 1]);
+
+			glBindImageTexture(0, anamorphicChain[i], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
+			GLUtility::glDispatchComputeHelper(width, height / 2, 1, 8, 8, 1);
+			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		}
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, anamorphicPrefilter);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, anamorphicChain[0]);
+
+		glBindImageTexture(0, anamorphicPrefilter, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
+		GLUtility::glDispatchComputeHelper(window->getWidth(), height / 2, 1, 8, 8, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	}
 }
 
 void PostProcessRenderer::calculateCoc(GLuint _depthTexture)
@@ -2008,6 +2099,31 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+
+	// anamorphic
+	{
+		glGenTextures(1, &anamorphicPrefilter);
+		glBindTexture(GL_TEXTURE_2D, anamorphicPrefilter);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, _resolution.first, _resolution.second / 2, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		
+		unsigned int width = _resolution.first;
+		for (unsigned int i = 0; i < 6; ++i)
+		{
+			width /= 2;
+
+			glGenTextures(1, &anamorphicChain[i]);
+			glBindTexture(GL_TEXTURE_2D, anamorphicChain[i]);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, width, _resolution.second / 2, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

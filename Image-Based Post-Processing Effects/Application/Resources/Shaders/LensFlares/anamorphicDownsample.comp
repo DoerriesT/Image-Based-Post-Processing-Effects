@@ -1,0 +1,27 @@
+#version 450 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(r11f_g11f_b10f, binding = 0) uniform writeonly image2D uImgOut;
+
+layout(binding = 0) uniform sampler2D uInputTexture;
+
+void main()
+{	
+	vec2 domainSize = textureSize(uInputTexture, 0).xy * vec2(0.5, 1.0);
+	vec2 texelSize = vec2(1.0 / domainSize);
+	vec2 centerCoord = vec2(vec2(gl_GlobalInvocationID.xy) + 0.5) * texelSize;
+	
+	const float scale = 1.0;
+	const float dx = texelSize.x * scale;
+	
+	vec3 c0 = texture(uInputTexture, vec2(centerCoord.x - dx * 5, centerCoord.y)).rgb;
+	vec3 c1 = texture(uInputTexture, vec2(centerCoord.x - dx * 3, centerCoord.y)).rgb;
+	vec3 c2 = texture(uInputTexture, vec2(centerCoord.x - dx * 1, centerCoord.y)).rgb;
+	vec3 c3 = texture(uInputTexture, vec2(centerCoord.x + dx * 1, centerCoord.y)).rgb;
+	vec3 c4 = texture(uInputTexture, vec2(centerCoord.x + dx * 3, centerCoord.y)).rgb;
+	vec3 c5 = texture(uInputTexture, vec2(centerCoord.x + dx * 5, centerCoord.y)).rgb;
+	vec3 c = (c0 + c1 + c2 + c3 + c4 + c5) * (1.0 / 6.0);
+	
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(c, 1.0));
+}
