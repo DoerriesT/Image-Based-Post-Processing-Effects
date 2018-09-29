@@ -9,6 +9,25 @@ class Window;
 struct Effects;
 struct Level;
 struct RenderData;
+class AnamorphicPrefilterComputePass;
+class AnamorphicDownsampleComputePass;
+class AnamorphicUpsampleComputePass;
+class FXAARenderPass;
+class SMAAEdgeDetectionRenderPass;
+class SMAABlendWeightRenderPass;
+class SMAABlendRenderPass;
+class SMAATemporalResolveRenderPass;
+class GodRayMaskComputePass;
+class GodRayGenComputePass;
+class LuminanceGenComputePass;
+class LuminanceAdaptionComputePass;
+class VelocityCorrectionComputePass;
+class SimpleDofCocBlurComputePass;
+class SimpleDofBlurComputePass;
+class SimpleDofFillComputePass;
+class SimpleDofCompositeComputePass;
+class SpriteDofRenderPass;
+class SpriteDofCompositeComputePass;
 
 class PostProcessRenderer
 {
@@ -27,7 +46,6 @@ public:
 private:
 	std::shared_ptr<ShaderProgram> singlePassEffectsShader;
 	std::shared_ptr<ShaderProgram> hdrShader;
-	std::shared_ptr<ShaderProgram> fxaaShader;
 	std::shared_ptr<ShaderProgram> lensFlareGenShader;
 	std::shared_ptr<ShaderProgram> lensFlareBlurShader;
 	std::shared_ptr<ShaderProgram> downsampleShader;
@@ -35,34 +53,15 @@ private:
 	std::shared_ptr<ShaderProgram> velocityTileMaxShader;
 	std::shared_ptr<ShaderProgram> velocityNeighborTileMaxShader;
 	std::shared_ptr<ShaderProgram> cocShader;
-	std::shared_ptr<ShaderProgram> cocBlurShader;
 	std::shared_ptr<ShaderProgram> cocTileMaxShader;
 	std::shared_ptr<ShaderProgram> cocNeighborTileMaxShader;
-	std::shared_ptr<ShaderProgram> dofBlurShader;
-	std::shared_ptr<ShaderProgram> dofFillShader;
-	std::shared_ptr<ShaderProgram> dofCompositeShader;
 	std::shared_ptr<ShaderProgram> dofSeperateDownsampleShader;
 	std::shared_ptr<ShaderProgram> dofSeperateBlurShader;
 	std::shared_ptr<ShaderProgram> dofSeperateFillShader;
 	std::shared_ptr<ShaderProgram> dofSeperateCompositeShader;
-	std::shared_ptr<ShaderProgram> dofCombinedBlurShader;
-	std::shared_ptr<ShaderProgram> dofSpriteShader;
-	std::shared_ptr<ShaderProgram> dofSpriteComposeShader;
-	std::shared_ptr<ShaderProgram> luminanceGenShader;
-	std::shared_ptr<ShaderProgram> luminanceAdaptionShader;
-	std::shared_ptr<ShaderProgram> godRayMaskShader;
-	std::shared_ptr<ShaderProgram> godRayGenShader;
-	std::shared_ptr<ShaderProgram> smaaEdgeDetectionShader;
-	std::shared_ptr<ShaderProgram> smaaBlendingWeightCalculationShader;
-	std::shared_ptr<ShaderProgram> smaaNeighborhoodBlendingShader;
-	std::shared_ptr<ShaderProgram> smaaResolveShader;
 	std::shared_ptr<ShaderProgram> luminanceHistogramShader;
 	std::shared_ptr<ShaderProgram> luminanceHistogramReduceShader;
 	std::shared_ptr<ShaderProgram> luminanceHistogramAdaptionShader;
-	std::shared_ptr<ShaderProgram> velocityCorrectionShader;
-	std::shared_ptr<ShaderProgram> anamorphicPrefilterShader;
-	std::shared_ptr<ShaderProgram> anamorphicDownsampleShader;
-	std::shared_ptr<ShaderProgram> anamorphicUpsampleShader;
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Texture> lensColorTexture;
@@ -71,9 +70,25 @@ private:
 
 	std::shared_ptr<Mesh> fullscreenTriangle;
 
-	GLuint spriteVAO;
-	GLuint spriteVBO;
-	GLuint spriteEBO;
+	AnamorphicPrefilterComputePass *anamorphicPrefilterComputePass;
+	AnamorphicDownsampleComputePass *anamorphicDownsampleComputePass;
+	AnamorphicUpsampleComputePass *anamorphicUpsampleComputePass;
+	FXAARenderPass *fxaaRenderPass;
+	SMAAEdgeDetectionRenderPass *smaaEdgeDetectionRenderPass;
+	SMAABlendWeightRenderPass *smaaBlendWeightRenderPass;
+	SMAABlendRenderPass *smaaBlendRenderPass;
+	SMAATemporalResolveRenderPass *smaaTemporalResolveRenderPass;
+	GodRayMaskComputePass *godRayMaskComputePass;
+	GodRayGenComputePass *godRayGenComputePass;
+	LuminanceGenComputePass *luminanceGenComputePass;
+	LuminanceAdaptionComputePass *luminanceAdaptionComputePass;
+	VelocityCorrectionComputePass *velocityCorrectionComputePass;
+	SimpleDofCocBlurComputePass *simpleDofCocBlurComputePass;
+	SimpleDofBlurComputePass *simpleDofBlurComputePass;
+	SimpleDofFillComputePass *simpleDofFillComputePass;
+	SimpleDofCompositeComputePass *simpleDofCompositeComputePass;
+	SpriteDofRenderPass *spriteDofRenderPass;
+	SpriteDofCompositeComputePass *spriteDofCompositeComputePass;
 
 	GLuint luminanceHistogramIntermediary;
 	GLuint luminanceHistogram;
@@ -163,12 +178,6 @@ private:
 	Uniform<GLfloat> uExposureH = Uniform<GLfloat>("uExposure");
 	Uniform<glm::vec3> uAnamorphicFlareColorH = Uniform<glm::vec3>("uAnamorphicFlareColor");
 
-	// fxaa uniforms
-	Uniform<glm::vec2> uInverseResolutionF = Uniform<glm::vec2>("uInverseResolution");
-	Uniform<GLfloat> uSubPixelAAF = Uniform<GLfloat>("uSubPixelAA");
-	Uniform<GLfloat> uEdgeThresholdF = Uniform<GLfloat>("uEdgeThreshold");
-	Uniform<GLfloat> uEdgeThresholdMinF = Uniform<GLfloat>("uEdgeThresholdMin");
-
 	// lens flare gen uniforms
 	Uniform<GLint> uGhostsLFG = Uniform<GLint>("uGhosts");
 	Uniform<GLfloat> uGhostDispersalLFG = Uniform<GLfloat>("uGhostDispersal");
@@ -193,18 +202,9 @@ private:
 	Uniform<GLfloat> uApertureSizeCOC = Uniform<GLfloat>("uApertureSize");
 	Uniform<glm::vec2> uNearFarCOC = Uniform<glm::vec2>("uNearFar");
 
-	// coc blur
-	Uniform<GLboolean> uDirectionCOCB = Uniform<GLboolean>("uDirection");
-
 	// coc tile max
 	Uniform<GLboolean> uDirectionCOCTM = Uniform<GLboolean>("uDirection");
 	Uniform<GLint> uTileSizeCOCTM = Uniform<GLint>("uTileSize");
-
-	// dof blur
-	std::vector<GLint> uSampleCoordsDOFB;
-
-	// dof fill
-	std::vector<GLint> uSampleCoordsDOFF;
 
 	// dof seperate blur
 	std::vector<GLint> uSampleCoordsSDOFB;
@@ -219,27 +219,6 @@ private:
 	Uniform<GLint> uWidthDOF = Uniform<GLint>("uWidth");
 	Uniform<GLint> uHeightDOF = Uniform<GLint>("uHeight");
 
-	// luminance adaption
-	Uniform<GLfloat> uTimeDeltaLA = Uniform<GLfloat>("uTimeDelta");
-	Uniform<GLfloat> uTauLA = Uniform<GLfloat>("uTau");
-
-	// god ray gen
-	Uniform<glm::vec2> uSunPosGR = Uniform<glm::vec2>("uSunPos");
-
-	// smaa edges
-	Uniform<glm::vec4> uResolutionSMAAE = Uniform<glm::vec4>("uResolution");
-
-	// smaa blend
-	Uniform<glm::vec4> uResolutionSMAAB = Uniform<glm::vec4>("uResolution");
-	Uniform<GLboolean> uTemporalSampleSMAAB = Uniform<GLboolean>("uTemporalSample");
-	Uniform<GLboolean> uTemporalAASMAAB = Uniform<GLboolean>("uTemporalAA");
-
-	// smaa combine
-	Uniform<glm::vec4> uResolutionSMAAC = Uniform<glm::vec4>("uResolution");
-
-	// smaa resolve
-	Uniform<glm::vec4> uResolutionSMAAR = Uniform<glm::vec4>("uResolution");
-
 	// histogram
 	Uniform<glm::vec2> uParamsLH = Uniform<glm::vec2>("uParams"); // multiply / add
 
@@ -251,12 +230,8 @@ private:
 	Uniform<GLfloat> uTauLHA = Uniform<GLfloat>("uTau");
 	Uniform<glm::vec2> uParamsLHA = Uniform<glm::vec2>("uParams"); // multiply / add
 
-	// velocity correction
-	Uniform<glm::mat4> uReprojectionVC = Uniform<glm::mat4>("uReprojection");
-	Uniform<GLfloat> uScaleVC = Uniform<GLfloat>("uScale");
-
-	void fxaa(float _subPixelAA, float _edgeThreshold, float _edgeThresholdMin);
-	void smaa(GLuint _colorTexture, GLuint _velocityTexture, bool _temporalAA);
+	void fxaa(const Effects &_effects);
+	void smaa(const Effects &_effects, GLuint _colorTexture, GLuint _velocityTexture, bool _temporalAA);
 	void singlePassEffects(const Effects &_effects);
 	void downsample(GLuint _colorTexture);
 	void upsample();
@@ -266,10 +241,9 @@ private:
 	void calculateCocTileTexture();
 	void simpleDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
 	void tileBasedSeperateFieldDepthOfField(GLuint _colorTexture);
-	void tileBasedCombinedFieldDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
 	void spriteBasedDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
-	void godRays(const glm::vec2 &_sunpos, GLuint _colorTexture, GLuint _depthTexture);
-	void calculateLuminance(GLuint _colorTexture);
+	void godRays(const Effects &_effects, const glm::vec2 &_sunpos, GLuint _colorTexture, GLuint _depthTexture);
+	void calculateLuminance(const Effects &_effects, GLuint _colorTexture);
 	void calculateLuminanceHistogram(GLuint _colorTexture);
 	void correctVelocities(const RenderData &_renderData, GLuint _velocityTexture, GLuint _depthTexture);
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);

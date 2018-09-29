@@ -141,6 +141,30 @@
     <Filter Include="Resources\Shaders\Debug">
       <UniqueIdentifier>{aabd1da8-a33b-4120-9c0d-4a3ed223365f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Graphics\OpenGL\ComputePass">
+      <UniqueIdentifier>{2b105f1b-3f2d-48d8-a7aa-39a6bd31d341}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Graphics\OpenGL\ComputePass\LensFlares">
+      <UniqueIdentifier>{49bb3f49-2f7d-4e6b-8783-4ea7b917f761}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing">
+      <UniqueIdentifier>{d690b28f-4a43-4424-abdd-1a1d49dc7b01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Graphics\OpenGL\ComputePass\GodRays">
+      <UniqueIdentifier>{c84549b3-95f3-4f38-81b9-c6da137b4df4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Graphics\OpenGL\ComputePass\DepthOfField">
+      <UniqueIdentifier>{4020cb14-3def-4ee3-ab65-57c37a642f19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Graphics\OpenGL\ComputePass\MotionBlur">
+      <UniqueIdentifier>{e0beff9b-1fb1-49ab-b505-909a98f3e825}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Graphics\OpenGL\ComputePass\Exposure">
+      <UniqueIdentifier>{81b1131a-6a77-41a0-a7b1-f3dc212a7a68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Graphics\OpenGL\RenderPass\DepthOfField">
+      <UniqueIdentifier>{7c1980fe-7d1f-4eee-a89e-3d1acd4853c2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Engine.h">
@@ -563,6 +587,63 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAOSpatialDenoiseRenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\LensFlares\AnamorphicUpsampleComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\LensFlares</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\LensFlares\AnamorphicDownsampleComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\LensFlares</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\LensFlares\AnamorphicPrefilterComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\LensFlares</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\FXAARenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\AntiAliasing</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAAEdgeDetectionRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\AntiAliasing</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAABlendWeightRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\AntiAliasing</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAABlendRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\AntiAliasing</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAATemporalResolveRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\AntiAliasing</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\GodRays\GodRayMaskComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\GodRays</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\GodRays\GodRayGenComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\GodRays</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceGenComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Exposure</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceAdaptionComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Exposure</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\MotionBlur\VelocityCorrectionComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\MotionBlur</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofBlurComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofFillComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofCompositeComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofCocBlurComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\SpriteDofRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SpriteDofCompositeComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -897,6 +978,63 @@
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAOSpatialDenoiseRenderPass.cpp">
       <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\LensFlares\AnamorphicDownsampleComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\LensFlares</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\LensFlares\AnamorphicUpsampleComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\LensFlares</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\LensFlares\AnamorphicPrefilterComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\LensFlares</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\FXAARenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\AntiAliasing</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAAEdgeDetectionRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\AntiAliasing</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAABlendWeightRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\AntiAliasing</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAABlendRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\AntiAliasing</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAATemporalResolveRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\AntiAliasing</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\GodRays\GodRayMaskComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\GodRays</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\GodRays\GodRayGenComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\GodRays</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceGenComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Exposure</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceAdaptionComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Exposure</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\MotionBlur\VelocityCorrectionComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\MotionBlur</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofBlurComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofFillComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofCompositeComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofCocBlurComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\SpriteDofRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SpriteDofCompositeComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
