@@ -28,6 +28,18 @@ class SimpleDofFillComputePass;
 class SimpleDofCompositeComputePass;
 class SpriteDofRenderPass;
 class SpriteDofCompositeComputePass;
+class SeperateDofDownsampleComputePass;
+class SeperateDofBlurComputePass;
+class SeperateDofFillComputePass;
+class SeperateDofCompositeComputePass;
+class LuminanceHistogramComputePass;
+class LuminanceHistogramReduceComputePass;
+class LuminanceHistogramAdaptionComputePass;
+class CocComputePass;
+class CocTileMaxRenderPass;
+class CocNeighborTileMaxRenderPass;
+class VelocityTileMaxRenderPass;
+class VelocityNeighborTileMaxRenderPass;
 
 class PostProcessRenderer
 {
@@ -50,18 +62,6 @@ private:
 	std::shared_ptr<ShaderProgram> lensFlareBlurShader;
 	std::shared_ptr<ShaderProgram> downsampleShader;
 	std::shared_ptr<ShaderProgram> upsampleShader;
-	std::shared_ptr<ShaderProgram> velocityTileMaxShader;
-	std::shared_ptr<ShaderProgram> velocityNeighborTileMaxShader;
-	std::shared_ptr<ShaderProgram> cocShader;
-	std::shared_ptr<ShaderProgram> cocTileMaxShader;
-	std::shared_ptr<ShaderProgram> cocNeighborTileMaxShader;
-	std::shared_ptr<ShaderProgram> dofSeperateDownsampleShader;
-	std::shared_ptr<ShaderProgram> dofSeperateBlurShader;
-	std::shared_ptr<ShaderProgram> dofSeperateFillShader;
-	std::shared_ptr<ShaderProgram> dofSeperateCompositeShader;
-	std::shared_ptr<ShaderProgram> luminanceHistogramShader;
-	std::shared_ptr<ShaderProgram> luminanceHistogramReduceShader;
-	std::shared_ptr<ShaderProgram> luminanceHistogramAdaptionShader;
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Texture> lensColorTexture;
@@ -89,6 +89,18 @@ private:
 	SimpleDofCompositeComputePass *simpleDofCompositeComputePass;
 	SpriteDofRenderPass *spriteDofRenderPass;
 	SpriteDofCompositeComputePass *spriteDofCompositeComputePass;
+	SeperateDofDownsampleComputePass *seperateDofDownsampleComputePass;
+	SeperateDofBlurComputePass *seperateDofBlurComputePass;
+	SeperateDofFillComputePass *seperateDofFillComputePass;
+	SeperateDofCompositeComputePass *seperateDofCompositeComputePass;
+	LuminanceHistogramComputePass *luminanceHistogramComputePass;
+	LuminanceHistogramReduceComputePass *luminanceHistogramReduceComputePass;
+	LuminanceHistogramAdaptionComputePass *luminanceHistogramAdaptionComputePass;
+	CocComputePass *cocComputePass;
+	CocTileMaxRenderPass *cocTileMaxRenderPass;
+	CocNeighborTileMaxRenderPass *cocNeighborTileMaxRenderPass;
+	VelocityTileMaxRenderPass *velocityTileMaxRenderPass;
+	VelocityNeighborTileMaxRenderPass *velocityNeighborTileMaxRenderPass;
 
 	GLuint luminanceHistogramIntermediary;
 	GLuint luminanceHistogram;
@@ -192,43 +204,6 @@ private:
 	// bloom upscale
 	Uniform<GLboolean> uAddPreviousBU = Uniform<GLboolean>("uAddPrevious");
 	Uniform<glm::vec2> uRadiusBU = Uniform<glm::vec2>("uRadius");
-
-	// velocity tile max
-	Uniform<GLboolean> uDirectionVTM = Uniform<GLboolean>("uDirection");
-	Uniform<GLint> uTileSizeVTM = Uniform<GLint>("uTileSize");
-
-	// coc
-	Uniform<GLfloat> uFocalLengthCOC = Uniform<GLfloat>("uFocalLength");
-	Uniform<GLfloat> uApertureSizeCOC = Uniform<GLfloat>("uApertureSize");
-	Uniform<glm::vec2> uNearFarCOC = Uniform<glm::vec2>("uNearFar");
-
-	// coc tile max
-	Uniform<GLboolean> uDirectionCOCTM = Uniform<GLboolean>("uDirection");
-	Uniform<GLint> uTileSizeCOCTM = Uniform<GLint>("uTileSize");
-
-	// dof seperate blur
-	std::vector<GLint> uSampleCoordsSDOFB;
-
-	// dof seperate fill
-	std::vector<GLint> uSampleCoordsSDOFF;
-
-	// dof combined blur
-	std::vector<GLint> uSampleCoordsCDOFB;
-
-	// dof sprite
-	Uniform<GLint> uWidthDOF = Uniform<GLint>("uWidth");
-	Uniform<GLint> uHeightDOF = Uniform<GLint>("uHeight");
-
-	// histogram
-	Uniform<glm::vec2> uParamsLH = Uniform<glm::vec2>("uParams"); // multiply / add
-
-	// histogram reduce
-	Uniform<GLint> uLinesLHR = Uniform<GLint>("uLines");
-
-	// histogram adaption
-	Uniform<GLfloat> uTimeDeltaLHA = Uniform<GLfloat>("uTimeDelta");
-	Uniform<GLfloat> uTauLHA = Uniform<GLfloat>("uTau");
-	Uniform<glm::vec2> uParamsLHA = Uniform<glm::vec2>("uParams"); // multiply / add
 
 	void fxaa(const Effects &_effects);
 	void smaa(const Effects &_effects, GLuint _colorTexture, GLuint _velocityTexture, bool _temporalAA);

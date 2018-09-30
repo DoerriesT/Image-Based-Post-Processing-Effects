@@ -1,5 +1,6 @@
 #include "SimpleDofFillComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
+#include "Graphics\SampleKernel.h"
 
 SimpleDofFillComputePass::SimpleDofFillComputePass(unsigned int _width, unsigned int _height)
 	:fillSamplesSet(false),
@@ -12,34 +13,6 @@ SimpleDofFillComputePass::SimpleDofFillComputePass(unsigned int _width, unsigned
 	{
 		uSampleCoordsDOFF.push_back(fillShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
 	}
-}
-
-glm::vec2 generateFillSample(const glm::vec2 &_origin)
-{
-	float max_fstops = 8;
-	float min_fstops = 1;
-	float normalizedStops = 1.0f; //clamp_tpl((fstop - max_fstops) / (max_fstops - min_fstops), 0.0f, 1.0f);
-
-	float phi;
-	float r;
-	const float a = 2 * _origin.x - 1;
-	const float b = 2 * _origin.y - 1;
-	if (abs(a) > abs(b)) // Use squares instead of absolute values
-	{
-		r = a;
-		phi = (glm::pi<float>() / 4.0f) * (b / (a + 1e-6f));
-	}
-	else
-	{
-		r = b;
-		phi = (glm::pi<float>() / 2.0f) - (glm::pi<float>() / 4.0f) * (a / (b + 1e-6f));
-	}
-
-	float rr = r;
-	rr = abs(rr) * (rr > 0.0f ? 1.0f : -1.0f);
-
-	//normalizedStops *= -0.4f * PI;
-	return glm::vec2(rr * cosf(phi + normalizedStops), rr * sinf(phi + normalizedStops));
 }
 
 void SimpleDofFillComputePass::execute(GLuint *_resultTextures)
@@ -59,7 +32,7 @@ void SimpleDofFillComputePass::execute(GLuint *_resultTextures)
 		{
 			for (unsigned int x = 0; x < nSquareTapsSide; ++x)
 			{
-				fillSamples[y * nSquareTapsSide + x] = generateFillSample(glm::vec2(x * fRecipTaps, y * fRecipTaps));
+				fillSamples[y * nSquareTapsSide + x] = shirleyUnitSquareToDisk(glm::vec2(x * fRecipTaps, y * fRecipTaps));
 			}
 		}
 

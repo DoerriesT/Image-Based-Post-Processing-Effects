@@ -240,7 +240,7 @@ void EnvironmentRenderer::calculateIrradiance(const std::shared_ptr<IrradianceVo
 				sh.c[4] += 1.092548f * dir.x * dir.y * 0.25f * color;
 				sh.c[5] += 1.092548f * dir.y * dir.z * 0.25f * color;
 				sh.c[6] += 0.315392f * (3.0f * dir.z * dir.z - 1.0f) * 0.25f * color;
-				sh.c[7] += 1.092548f * dir.x * dir.z * 0.25 * color;
+				sh.c[7] += 1.092548f * dir.x * dir.z * 0.25f * color;
 				sh.c[8] += 0.546274f * (dir.x * dir.x - dir.y * dir.y) * 0.25f * color;
 			}
 		}

@@ -12,7 +12,6 @@ public:
 
 private:
 	std::shared_ptr<ShaderProgram> spriteShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
 
 	GLuint spriteVAO;
 	GLuint spriteVBO;

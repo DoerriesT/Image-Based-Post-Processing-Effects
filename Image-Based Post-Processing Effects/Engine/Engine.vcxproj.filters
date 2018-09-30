@@ -644,6 +644,45 @@
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SpriteDofCompositeComputePass.h">
       <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofDownsampleComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofBlurComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\SampleKernel.h">
+      <Filter>Code\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofFillComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofCompositeComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceHistogramComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Exposure</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceHistogramReduceComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Exposure</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceHistogramAdaptionComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Exposure</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CocComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\CocTileMaxRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\CocNeighborTileMaxRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityTileMaxRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\MotionBlur</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityNeighborTileMaxRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\MotionBlur</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -1035,6 +1074,45 @@
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SpriteDofCompositeComputePass.cpp">
       <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofDownsampleComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofBlurComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\SampleKernel.cpp">
+      <Filter>Code\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofFillComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofCompositeComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceHistogramComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Exposure</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceHistogramReduceComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Exposure</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceHistogramAdaptionComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Exposure</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CocComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\CocTileMaxRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\CocNeighborTileMaxRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityTileMaxRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\MotionBlur</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityNeighborTileMaxRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\MotionBlur</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

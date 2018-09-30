@@ -1,21 +1,21 @@
-#include "SimpleDofBlurComputePass.h"
+#include "SeperateDofBlurComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
 #include "Graphics\SampleKernel.h"
 
-SimpleDofBlurComputePass::SimpleDofBlurComputePass(unsigned int _width, unsigned int _height)
+SeperateDofBlurComputePass::SeperateDofBlurComputePass(unsigned int _width, unsigned int _height)
 	:blurSamplesSet(false),
 	width(_width),
 	height(_height)
 {
-	blurShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSimpleBlur.comp");
+	blurShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedBlur.comp");
 
 	for (int i = 0; i < 7 * 7; ++i)
 	{
-		uSampleCoordsDOFB.push_back(blurShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
+		uSampleCoordsSDOFB.push_back(blurShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
 	}
 }
 
-void SimpleDofBlurComputePass::execute(GLuint _colorTexture, GLuint _cocTexture, GLuint * _dofTextures)
+void SeperateDofBlurComputePass::execute(GLuint *_dofTextures, GLuint _cocTexture, GLuint _cocTileTexture)
 {
 	blurShader->bind();
 
@@ -38,14 +38,14 @@ void SimpleDofBlurComputePass::execute(GLuint _colorTexture, GLuint _cocTexture,
 
 		for (int i = 0; i < 7 * 7; ++i)
 		{
-			blurShader->setUniform(uSampleCoordsDOFB[i], blurSamples[i]);
+			blurShader->setUniform(uSampleCoordsSDOFB[i], blurSamples[i]);
 		}
 	}
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, _colorTexture);
-	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, _cocTexture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, _cocTileTexture);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, _dofTextures[0]);
 	glActiveTexture(GL_TEXTURE3);
@@ -55,13 +55,13 @@ void SimpleDofBlurComputePass::execute(GLuint _colorTexture, GLuint _cocTexture,
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, _dofTextures[3]);
 
-	glBindImageTexture(0, _dofTextures[0], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-	glBindImageTexture(1, _dofTextures[1], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	glBindImageTexture(0, _dofTextures[2], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, _dofTextures[3], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 	GLUtility::glDispatchComputeHelper(width / 2, height / 2, 1, 8, 8, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
-void SimpleDofBlurComputePass::resize(unsigned int _width, unsigned int _height)
+void SeperateDofBlurComputePass::resize(unsigned int _width, unsigned int _height)
 {
 	width = _width;
 	height = _height;

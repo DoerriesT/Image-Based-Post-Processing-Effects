@@ -20,7 +20,11 @@
 Engine* Engine::instance = nullptr;
 
 Engine::Engine(const std::string &_title, IGameLogic & _gameLogic)
-	: window(Window::createWindow(_title)), gameLogic(_gameLogic), userInput(UserInput::getInstance()), title(_title), systemManager(SystemManager::getInstance())
+	: window(Window::createWindow(_title)), 
+	gameLogic(_gameLogic), 
+	userInput(UserInput::getInstance()),
+	title(_title), 
+	systemManager(SystemManager::getInstance())
 {
 	assert(!instance);
 	instance = this;

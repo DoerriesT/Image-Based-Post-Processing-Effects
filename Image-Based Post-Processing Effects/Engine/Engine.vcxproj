@@ -46,6 +46,11 @@
     <ClInclude Include="Code\Graphics\Effects.h" />
     <ClInclude Include="Code\Graphics\EntityRenderData.h" />
     <ClInclude Include="Code\Graphics\Frustum.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CocComputePass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofBlurComputePass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofCompositeComputePass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofDownsampleComputePass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofFillComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofBlurComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofCocBlurComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofCompositeComputePass.h" />
@@ -53,6 +58,9 @@
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SpriteDofCompositeComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceAdaptionComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceGenComputePass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceHistogramAdaptionComputePass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceHistogramComputePass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceHistogramReduceComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\GodRays\GodRayGenComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\GodRays\GodRayMaskComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\LensFlares\AnamorphicDownsampleComputePass.h" />
@@ -65,12 +73,17 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAAEdgeDetectionRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAATemporalResolveRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Debug\BoundingBoxRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\CocNeighborTileMaxRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\CocTileMaxRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\SpriteDofRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\DeferredEnvironmentProbeRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\StencilRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\GeometryInjectionRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityNeighborTileMaxRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityTileMaxRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAOTemporalDenoiseRenderPass.h" />
+    <ClInclude Include="Code\Graphics\SampleKernel.h" />
     <ClInclude Include="Code\Graphics\Volume.h" />
     <ClInclude Include="Code\Graphics\Model.h" />
     <ClInclude Include="Code\Graphics\OpenGL\Buffer.h" />
@@ -203,6 +216,11 @@
     <ClCompile Include="Code\Graphics\Mesh.cpp" />
     <ClCompile Include="Code\Graphics\Model.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\Buffer.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CocComputePass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofBlurComputePass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofCompositeComputePass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofDownsampleComputePass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofFillComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofCocBlurComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofCompositeComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofBlurComputePass.cpp" />
@@ -210,6 +228,9 @@
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SpriteDofCompositeComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceAdaptionComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceGenComputePass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceHistogramAdaptionComputePass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceHistogramComputePass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Exposure\LuminanceHistogramReduceComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\GodRays\GodRayGenComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\GodRays\GodRayMaskComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\LensFlares\AnamorphicDownsampleComputePass.cpp" />
@@ -229,6 +250,8 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAAEdgeDetectionRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAATemporalResolveRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Debug\BoundingBoxRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\CocNeighborTileMaxRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\CocTileMaxRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\SpriteDofRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\ForwardCustomRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\ForwardRenderPass.cpp" />
@@ -247,6 +270,8 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\LightInjectionRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\LightPropagationRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\RSMRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityNeighborTileMaxRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityTileMaxRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\ButterflyComputeRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\ButterflyPrecomputeRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\InversePermuteRenderPass.cpp" />
@@ -270,6 +295,7 @@
     <ClCompile Include="Code\Graphics\OpenGL\TileRing.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\Uniform.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\VolumetricLighting.cpp" />
+    <ClCompile Include="Code\Graphics\SampleKernel.cpp" />
     <ClCompile Include="Code\Graphics\Scene.cpp" />
     <ClCompile Include="Code\Graphics\stb_image.cpp" />
     <ClCompile Include="Code\Graphics\stb_image_resize.cpp" />
@@ -482,6 +508,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>.\..\Libraries\include;$(IncludePath);.;.\Code\;.\Resources</IncludePath>
     <LibraryPath>.\..\Libraries\lib\32\debug;$(LibraryPath)</LibraryPath>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>.\..\Libraries\include;$(IncludePath);.;.\Code;.\Resources</IncludePath>
@@ -501,6 +529,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501</PreprocessorDefinitions>
+      <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <Link>
       <AdditionalDependencies>assimp-vc140-mt.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>

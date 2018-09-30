@@ -29,6 +29,18 @@
 #include "ComputePass/DepthOfField/SimpleDofCompositeComputePass.h"
 #include "RenderPass/DepthOfField/SpriteDofRenderPass.h"
 #include "ComputePass/DepthOfField/SpriteDofCompositeComputePass.h"
+#include "ComputePass/DepthOfField/SeperateDofDownsampleComputePass.h"
+#include "ComputePass/DepthOfField/SeperateDofBlurComputePass.h"
+#include "ComputePass/DepthOfField/SeperateDofFillComputePass.h"
+#include "ComputePass/DepthOfField/SeperateDofCompositeComputePass.h"
+#include "ComputePass/DepthOfField/CocComputePass.h"
+#include "RenderPass/DepthOfField/CocTileMaxRenderPass.h"
+#include "RenderPass/DepthOfField/CocNeighborTileMaxRenderPass.h"
+#include "ComputePass/Exposure/LuminanceHistogramComputePass.h"
+#include "ComputePass/Exposure/LuminanceHistogramReduceComputePass.h"
+#include "ComputePass/Exposure/LuminanceHistogramAdaptionComputePass.h"
+#include "RenderPass/MotionBlur/VelocityTileMaxRenderPass.h"
+#include "RenderPass/MotionBlur/VelocityNeighborTileMaxRenderPass.h"
 
 static const char *BLOOM_ENABLED = "BLOOM_ENABLED";
 static const char *FLARES_ENABLED = "FLARES_ENABLED";
@@ -37,6 +49,10 @@ static const char *GOD_RAYS_ENABLED = "GOD_RAYS_ENABLED";
 static const char *AUTO_EXPOSURE_ENABLED = "AUTO_EXPOSURE_ENABLED";
 static const char *MOTION_BLUR = "MOTION_BLUR";
 static const char *ANAMORPHIC_FLARES_ENABLED = "ANAMORPHIC_FLARES_ENABLED";
+
+unsigned int mbTileSize = 40;
+unsigned int dofTileSize = 16;
+bool godrays = false;
 
 PostProcessRenderer::PostProcessRenderer(std::shared_ptr<Window> _window)
 	:window(_window)
@@ -91,19 +107,6 @@ void PostProcessRenderer::init()
 	lensFlareBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/LensFlares/lensFlareBlur.frag");
 	downsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Misc/downsample.frag");
 	upsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Misc/upsample.frag");
-	velocityTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/MotionBlur/velocityTileMax.frag");
-	velocityNeighborTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/MotionBlur/velocityNeighborTileMax.frag");
-	cocTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/DepthOfField/cocTileMax.frag");
-	cocNeighborTileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/DepthOfField/cocNeighborTileMax.frag");
-	cocShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/coc.comp");
-	dofSeperateDownsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedDownsample.comp");
-	dofSeperateBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedBlur.comp");
-	dofSeperateFillShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedFill.comp");
-	dofSeperateCompositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedComposite.comp");
-	luminanceHistogramShader = ShaderProgram::createShaderProgram("Resources/Shaders/Exposure/histogram.comp");
-	luminanceHistogramReduceShader = ShaderProgram::createShaderProgram("Resources/Shaders/Exposure/histogramReduce.comp");
-	luminanceHistogramAdaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/Exposure/histogramAdaption.comp");
-
 
 	hdrShader = ShaderProgram::createShaderProgram(
 		{
@@ -149,42 +152,6 @@ void PostProcessRenderer::init()
 	uAddPreviousBU.create(upsampleShader);
 	uRadiusBU.create(upsampleShader);
 
-	// velocity tile max
-	uDirectionVTM.create(velocityTileMaxShader);
-	uTileSizeVTM.create(velocityTileMaxShader);
-
-	// coc
-	uFocalLengthCOC.create(cocShader);
-	uApertureSizeCOC.create(cocShader);
-	uNearFarCOC.create(cocShader);
-
-	// coc tile max
-	uDirectionCOCTM.create(cocTileMaxShader);
-	uTileSizeCOCTM.create(cocTileMaxShader);
-
-	// dof seperate blur
-	for (int i = 0; i < 7 * 7; ++i)
-	{
-		uSampleCoordsSDOFB.push_back(dofSeperateBlurShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
-	}
-
-	// dof seperate fill
-	for (int i = 0; i < 3 * 3; ++i)
-	{
-		uSampleCoordsSDOFF.push_back(dofSeperateFillShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
-	}
-
-	// histogram
-	uParamsLH.create(luminanceHistogramShader);
-
-	// histogram reduce
-	uLinesLHR.create(luminanceHistogramReduceShader);
-
-	// histogram adaption
-	uTimeDeltaLHA.create(luminanceHistogramAdaptionShader);
-	uTauLHA.create(luminanceHistogramAdaptionShader);
-	uParamsLHA.create(luminanceHistogramAdaptionShader);
-
 	// create FBO
 	glGenFramebuffers(1, &fullResolutionFbo);
 	glGenFramebuffers(1, &halfResolutionFbo);
@@ -224,11 +191,20 @@ void PostProcessRenderer::init()
 	simpleDofCompositeComputePass = new SimpleDofCompositeComputePass(window->getWidth(), window->getHeight());
 	spriteDofRenderPass = new SpriteDofRenderPass(cocFbo, window->getWidth(), window->getHeight() / 2);
 	spriteDofCompositeComputePass = new SpriteDofCompositeComputePass(window->getWidth(), window->getHeight());
-}
+	seperateDofDownsampleComputePass = new SeperateDofDownsampleComputePass(window->getWidth(), window->getHeight());
+	seperateDofBlurComputePass = new SeperateDofBlurComputePass(window->getWidth(), window->getHeight());
+	seperateDofFillComputePass = new SeperateDofFillComputePass(window->getWidth(), window->getHeight());
+	seperateDofCompositeComputePass = new SeperateDofCompositeComputePass(window->getWidth(), window->getHeight());
+	luminanceHistogramComputePass = new LuminanceHistogramComputePass(window->getWidth(), window->getHeight());
+	luminanceHistogramReduceComputePass = new LuminanceHistogramReduceComputePass(window->getWidth(), window->getHeight());
+	luminanceHistogramAdaptionComputePass = new LuminanceHistogramAdaptionComputePass(window->getWidth(), window->getHeight());
+	cocComputePass = new CocComputePass(window->getWidth(), window->getHeight());
+	cocTileMaxRenderPass = new CocTileMaxRenderPass(cocFbo, window->getWidth(), window->getHeight());
+	cocNeighborTileMaxRenderPass = new CocNeighborTileMaxRenderPass(cocFbo, window->getWidth() / dofTileSize, window->getHeight() / dofTileSize);
+	velocityTileMaxRenderPass = new VelocityTileMaxRenderPass(velocityFbo, window->getWidth(), window->getHeight());
+	velocityNeighborTileMaxRenderPass = new VelocityNeighborTileMaxRenderPass(velocityFbo, window->getWidth() / mbTileSize, window->getHeight() / mbTileSize);
 
-unsigned int mbTileSize = 40;
-unsigned int dofTileSize = 16;
-bool godrays = false;
+}
 
 void PostProcessRenderer::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {
@@ -273,48 +249,9 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 
 	if (_effects.motionBlur != MotionBlur::OFF)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, velocityFbo);
-		glActiveTexture(GL_TEXTURE0);
-
-		// tile max
-		{
-			velocityTileMaxShader->bind();
-
-			uTileSizeVTM.set(mbTileSize);
-
-			// fullscreen to first step
-			{
-				glViewport(0, 0, window->getWidth() / mbTileSize, window->getHeight());
-				glBindTexture(GL_TEXTURE_2D, _velocityTexture);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityTexTmp, 0);
-
-				uDirectionVTM.set(false);
-
-				fullscreenTriangle->getSubMesh()->render();
-			}
-
-			// first to second step
-			{
-				glViewport(0, 0, window->getWidth() / mbTileSize, window->getHeight() / mbTileSize);
-				glBindTexture(GL_TEXTURE_2D, velocityTexTmp);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityMaxTex, 0);
-
-				uDirectionVTM.set(true);
-
-				fullscreenTriangle->getSubMesh()->render();
-			}
-		}
-
-		// tile neighbor max
-		{
-			velocityNeighborTileMaxShader->bind();
-
-			glBindTexture(GL_TEXTURE_2D, velocityMaxTex);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityNeighborMaxTex, 0);
-
-			fullscreenTriangle->getSubMesh()->render();
-		}
-
+		RenderPass *prev = nullptr;
+		velocityTileMaxRenderPass->render(_velocityTexture, velocityTexTmp, velocityMaxTex, mbTileSize, &prev);
+		velocityNeighborTileMaxRenderPass->render(velocityMaxTex, velocityNeighborMaxTex, &prev);
 	}
 
 	if (godrays && !_level->lights.directionalLights.empty())
@@ -739,101 +676,14 @@ void PostProcessRenderer::anamorphicFlares(const Effects &_effects, GLuint _colo
 
 void PostProcessRenderer::calculateCoc(GLuint _depthTexture)
 {
-	unsigned int width = window->getWidth();
-	unsigned int height = window->getHeight();
-
-	cocShader->bind();
-
-	const float filmWidth = 35.0f;
-	const float apertureSize = 8.0f;
-
-	float focalLength = (0.5f * filmWidth) / glm::tan(window->getFieldOfView() * 0.5f);
-
-	uFocalLengthCOC.set(focalLength);
-	uApertureSizeCOC.set(8.0f);
-	uNearFarCOC.set(glm::vec2(Window::NEAR_PLANE, Window::FAR_PLANE));
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, _depthTexture);
-
-	glBindImageTexture(0, fullResolutionCocTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
-	GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	cocComputePass->execute(_depthTexture, fullResolutionCocTexture, window->getFieldOfView(), Window::NEAR_PLANE, Window::FAR_PLANE);
 }
 
 void PostProcessRenderer::calculateCocTileTexture()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, cocFbo);
-	glActiveTexture(GL_TEXTURE0);
-
-	// tile max
-	{
-		cocTileMaxShader->bind();
-
-		uTileSizeCOCTM.set(dofTileSize);
-
-		// fullscreen to first step
-		{
-			glViewport(0, 0, window->getWidth() / dofTileSize, window->getHeight());
-			glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cocTexTmp, 0);
-
-			uDirectionCOCTM.set(false);
-
-			fullscreenTriangle->getSubMesh()->render();
-		}
-
-		// first to second step
-		{
-			glViewport(0, 0, window->getWidth() / dofTileSize, window->getHeight() / dofTileSize);
-			glBindTexture(GL_TEXTURE_2D, cocTexTmp);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cocMaxTex, 0);
-
-			uDirectionCOCTM.set(true);
-
-			fullscreenTriangle->getSubMesh()->render();
-		}
-	}
-
-	// tile neighbor max
-	{
-		cocNeighborTileMaxShader->bind();
-
-		glBindTexture(GL_TEXTURE_2D, cocMaxTex);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cocNeighborMaxTex, 0);
-
-		fullscreenTriangle->getSubMesh()->render();
-	}
-}
-
-float PI = glm::pi<float>();
-
-glm::vec2 generateDepthOfFieldSample(const glm::vec2 &_origin)
-{
-	float max_fstops = 8;
-	float min_fstops = 1;
-	float normalizedStops = 1.0f; //clamp_tpl((fstop - max_fstops) / (max_fstops - min_fstops), 0.0f, 1.0f);
-
-	float phi;
-	float r;
-	const float a = 2 * _origin.x - 1;
-	const float b = 2 * _origin.y - 1;
-	if (abs(a) > abs(b)) // Use squares instead of absolute values
-	{
-		r = a;
-		phi = (PI / 4.0f) * (b / (a + 1e-6f));
-	}
-	else
-	{
-		r = b;
-		phi = (PI / 2.0f) - (PI / 4.0f) * (a / (b + 1e-6f));
-	}
-
-	float rr = r;
-	rr = abs(rr) * (rr > 0.0f ? 1.0f : -1.0f);
-
-	//normalizedStops *= -0.4f * PI;
-	return glm::vec2(rr * cosf(phi + normalizedStops), rr * sinf(phi + normalizedStops));
+	RenderPass *prev = nullptr;
+	cocTileMaxRenderPass->render(fullResolutionCocTexture, cocTexTmp, cocMaxTex, dofTileSize, &prev);
+	cocNeighborTileMaxRenderPass->render(cocMaxTex, cocNeighborMaxTex, &prev);
 }
 
 void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depthTexture)
@@ -850,133 +700,11 @@ void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTextur
 {
 	calculateCocTileTexture();
 
-	unsigned int width = window->getWidth();
-	unsigned int height = window->getHeight();
-	unsigned int halfWidth = width / 2;
-	unsigned int halfHeight = height / 2;
-
-	const float filmWidth = 35.0f;
-	const float apertureSize = 8.0f;
-	const float focalLength = (0.5f * filmWidth) / glm::tan(window->getFieldOfView() * 0.5f);
-	const float blades = 6.0f;
-
-
-	static bool samplesGenerated = false;
-	static bool blurSamplesSet = false;
-	static bool fillSamplesSet = false;
-	static glm::vec2 blurSamples[7 * 7];
-	static glm::vec2 fillSamples[3 * 3];
-
-	if (!samplesGenerated)
-	{
-		samplesGenerated = true;
-
-		unsigned int nSquareTapsSide = 7;
-		float fRecipTaps = 1.0f / ((float)nSquareTapsSide - 1.0f);
-
-		for (unsigned int y = 0; y < nSquareTapsSide; ++y)
-		{
-			for (unsigned int x = 0; x < nSquareTapsSide; ++x)
-			{
-				blurSamples[y * nSquareTapsSide + x] = generateDepthOfFieldSample(glm::vec2(x * fRecipTaps, y * fRecipTaps));
-			}
-		}
-
-		nSquareTapsSide = 3;
-		fRecipTaps = 1.0f / ((float)nSquareTapsSide - 1.0f);
-		const float rotAngle = glm::radians(15.0f);
-		const glm::mat2 rot = glm::mat2(glm::cos(rotAngle), -glm::sin(rotAngle), glm::sin(rotAngle), glm::cos(rotAngle));
-
-		for (unsigned int y = 0; y < nSquareTapsSide; ++y)
-		{
-			for (unsigned int x = 0; x < nSquareTapsSide; ++x)
-			{
-				fillSamples[y * nSquareTapsSide + x] = rot * generateDepthOfFieldSample(glm::vec2(x * fRecipTaps, y * fRecipTaps));
-			}
-		}
-	}
-
-	// downsample
-	{
-		dofSeperateDownsampleShader->bind();
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, _colorTexture);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
-
-		glBindImageTexture(0, halfResolutionCocTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
-		glBindImageTexture(1, halfResolutionDofTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glBindImageTexture(2, halfResolutionDofTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	}
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, halfResolutionCocTexA);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, cocNeighborMaxTex);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexA);
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexB);
-	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexC);
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, halfResolutionDofTexD);
-
-	// blur
-	{
-		dofSeperateBlurShader->bind();
-
-		if (!blurSamplesSet)
-		{
-			blurSamplesSet = true;
-			for (int i = 0; i < 7 * 7; ++i)
-			{
-				dofSeperateBlurShader->setUniform(uSampleCoordsSDOFB[i], blurSamples[i]);
-			}
-		}
-
-		glBindImageTexture(0, halfResolutionDofTexC, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glBindImageTexture(1, halfResolutionDofTexD, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	}
-
-	// fill
-	{
-		dofSeperateFillShader->bind();
-
-		if (!fillSamplesSet)
-		{
-			fillSamplesSet = true;
-			for (int i = 0; i < 3 * 3; ++i)
-			{
-				dofSeperateFillShader->setUniform(uSampleCoordsSDOFF[i], fillSamples[i]);
-			}
-		}
-
-		glBindImageTexture(0, halfResolutionDofTexA, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		glBindImageTexture(1, halfResolutionDofTexB, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		GLUtility::glDispatchComputeHelper(halfWidth, halfHeight, 1, 8, 8, 1);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-	}
-
-	// composite
-	{
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, _colorTexture);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, fullResolutionCocTexture);
-
-		dofSeperateCompositeShader->bind();
-
-		glBindImageTexture(0, fullResolutionHdrTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-		GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	}
+	seperateDofDownsampleComputePass->execute(_colorTexture, fullResolutionCocTexture, halfResolutionCocTexA, halfResolutionDofTexA, halfResolutionDofTexB);
+	GLuint dofTextures[] = { halfResolutionDofTexA , halfResolutionDofTexB , halfResolutionDofTexC , halfResolutionDofTexD };
+	seperateDofBlurComputePass->execute(dofTextures, halfResolutionCocTexA, cocNeighborMaxTex);
+	seperateDofFillComputePass->execute(dofTextures);
+	seperateDofCompositeComputePass->execute(_colorTexture, fullResolutionCocTexture, fullResolutionHdrTexture);
 }
 
 void PostProcessRenderer::spriteBasedDepthOfField(GLuint _colorTexture, GLuint _depthTexture)
@@ -1018,45 +746,11 @@ void PostProcessRenderer::calculateLuminanceHistogram(GLuint _colorTexture)
 	float deltaLog = histogramLogMax - histogramLogMin;
 	float multiply = 1.0f / deltaLog;
 	float add = -histogramLogMin * multiply;
+	glm::vec2 params = glm::vec2(multiply, add);
 
-	luminanceHistogramShader->bind();
-
-	uParamsLH.set(glm::vec2(multiply, add));
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, _colorTexture);
-
-	glBindImageTexture(0, luminanceHistogramIntermediary, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-	GLUtility::glDispatchComputeHelper(width / 8 + ((width % 8 == 0) ? 0 : 1), height / 8 + ((height % 8 == 0) ? 0 : 1), 1, 8, 8, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-	glBindImageTexture(1, luminanceHistogram, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-
-	luminanceHistogramReduceShader->bind();
-
-	unsigned int numGroupsX = width / 8 + ((width % 8 == 0) ? 0 : 1);
-	unsigned int numGroupsY = height / 8 + ((height % 8 == 0) ? 0 : 1);
-	numGroupsX = numGroupsX / 8 + ((numGroupsX % 8 == 0) ? 0 : 1);
-	numGroupsY = numGroupsY / 8 + ((numGroupsY % 8 == 0) ? 0 : 1);
-
-	uLinesLHR.set(numGroupsX * numGroupsY);
-
-	glDispatchCompute(64 / 4, 1, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-	luminanceHistogramAdaptionShader->bind();
-	uTimeDeltaLHA.set((float)Engine::getTimeDelta());
-	uTauLHA.set(2.5f);
-	uParamsLHA.set(glm::vec2(multiply, add));
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, luminanceTexture[!currentLuminanceTexture]);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, luminanceHistogram);
-
-	glBindImageTexture(0, luminanceTexture[currentLuminanceTexture], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);
-	glDispatchCompute(1, 1, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	luminanceHistogramComputePass->execute(_colorTexture, luminanceHistogramIntermediary, params);
+	luminanceHistogramReduceComputePass->execute(luminanceHistogram);
+	luminanceHistogramAdaptionComputePass->execute(luminanceHistogram, luminanceTexture, currentLuminanceTexture, params);
 }
 
 void PostProcessRenderer::correctVelocities(const RenderData & _renderData, GLuint _velocityTexture, GLuint _depthTexture)

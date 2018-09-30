@@ -8,8 +8,8 @@ layout(r11f_g11f_b10f, binding = 0) uniform writeonly image2D uImgOut;
 
 layout(binding = 0) uniform sampler2D uColorTexture;
 
-uniform vec3 uScale = vec3(0.5);
-uniform vec3 uBias = vec3(-32.0);
+uniform vec3 uScale = vec3(0.1);
+uniform vec3 uBias = vec3(0.0);
 
 void main()
 {	

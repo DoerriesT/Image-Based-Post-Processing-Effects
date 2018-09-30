@@ -28,8 +28,6 @@ SpriteDofRenderPass::SpriteDofRenderPass(GLuint _fbo, unsigned int _width, unsig
 	uWidthDOF.create(spriteShader);
 	uHeightDOF.create(spriteShader);
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
-
 	// sprite
 
 	glm::vec2 spritePositions[] =
