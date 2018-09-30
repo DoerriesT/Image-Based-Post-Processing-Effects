@@ -35,6 +35,8 @@ void CocTileMaxRenderPass::render(GLuint _inputCocTexture, GLuint _intermediaryT
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+
 	tileMaxShader->bind();
 
 	uTileSizeCOCTM.set(_tileSize);

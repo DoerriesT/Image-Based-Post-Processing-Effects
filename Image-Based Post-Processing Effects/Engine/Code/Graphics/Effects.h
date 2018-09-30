@@ -137,6 +137,7 @@ struct Effects
 	MotionBlur motionBlur;
 	float exposure;
 	DiffuseAmbientSource diffuseAmbientSource;
+	bool godrays;
 };
 
 enum class GBufferDisplayMode

@@ -45,10 +45,7 @@ layout(binding = 10) uniform sampler2D uAnamorphicTexture;
 
 uniform float uStarburstOffset; // transforms texcoords
 uniform float uBloomStrength = 0.1;
-uniform float uBloomDirtStrength = 0.5;
 uniform float uExposure = 1.0;
-uniform float uVelocityScale;
-uniform float uHalfPixelWidth = 0.0003125;
 uniform float uKeyValue = 0.18;
 uniform float uLensDirtStrength;
 uniform vec3 uAnamorphicFlareColor = vec3(1.0);
@@ -314,9 +311,7 @@ void main()
 	vec3 additions = vec3(0.0);
 
 #if BLOOM_ENABLED
-	vec3 lensMod = texture(uLensDirtTex, vTexCoord).rgb;
-	vec3 bloom = texture(uBloomTexture, vTexCoord).rgb * uBloomStrength;
-	additions += bloom;
+	additions += texture(uBloomTexture, vTexCoord).rgb * uBloomStrength;
 #endif // BLOOM_ENABLED
 
 #if FLARES_ENABLED
@@ -328,22 +323,21 @@ void main()
 	
 	mask = clamp(mask + (1.0 - smoothstep(0.0, 0.3, d)), 0.0, 1.0);
 
-	vec3 lensFlare = texture(uLensFlareTex, vTexCoord).rgb * mask;
-	additions += lensFlare;//vec3(1.0) - exp(-lensFlare * 0.15 * dot(lensFlare, vec3(0.299, 0.587, 0.114)));
+	additions += texture(uLensFlareTex, vTexCoord).rgb * mask;
 #endif // FLARES_ENABLED
 
 #if ANAMORPHIC_FLARES_ENABLED
-		additions.rgb += texture(uAnamorphicTexture, vTexCoord).rgb * uAnamorphicFlareColor;
+	additions.rgb += texture(uAnamorphicTexture, vTexCoord).rgb * uAnamorphicFlareColor;
 #endif // ANAMORPHIC_FLARES_ENABLED
+
+#if GOD_RAYS_ENABLED
+	additions.rgb += texture(uGodRayTexture, vTexCoord).rgb;
+#endif // GOD_RAYS_ENABLED
 
 #if DIRT_ENABLED
 	vec3 dirt = texture(uLensDirtTex, vTexCoord).rgb;
 	additions += additions * uLensDirtStrength * dirt;
 #endif // DIRT_ENABLED
-
-#if GOD_RAYS_ENABLED
-	additions.rgb += texture(uGodRayTexture, vTexCoord).rgb;
-#endif // GOD_RAYS_ENABLED
 
 	color.rgb += additions;
 	

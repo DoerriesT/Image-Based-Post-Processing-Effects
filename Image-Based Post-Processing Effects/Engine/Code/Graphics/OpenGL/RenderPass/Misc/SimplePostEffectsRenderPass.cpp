@@ -1,8 +1,8 @@
-#include "LensFlareGenRenderPass.h"
+#include "SimplePostEffectsRenderPass.h"
+#include "Engine.h"
 #include "Graphics\Effects.h"
-#include "Graphics\Texture.h"
 
-LensFlareGenRenderPass::LensFlareGenRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
+SimplePostEffectsRenderPass::SimplePostEffectsRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
 	fbo = _fbo;
 	drawBuffers = { GL_COLOR_ATTACHMENT0 };
@@ -24,37 +24,36 @@ LensFlareGenRenderPass::LensFlareGenRenderPass(GLuint _fbo, unsigned int _width,
 
 	resize(_width, _height);
 
-	lensFlareGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/LensFlares/lensFlareGen.frag");
+	simplePostEffectsShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Misc/singlePassEffects.frag");
 
-	uGhostsLFG.create(lensFlareGenShader);
-	uGhostDispersalLFG.create(lensFlareGenShader);
-	uHaloRadiusLFG.create(lensFlareGenShader);
-	uDistortionLFG.create(lensFlareGenShader);
-	uScaleLFG.create(lensFlareGenShader);
-	uBiasLFG.create(lensFlareGenShader);
+	uTimeS.create(simplePostEffectsShader);
+	uFilmGrainStrengthS.create(simplePostEffectsShader);
+	uVignetteS.create(simplePostEffectsShader);
+	uFilmGrainS.create(simplePostEffectsShader);
+	uChromaticAberrationS.create(simplePostEffectsShader);
+	uChromAbOffsetMultiplierS.create(simplePostEffectsShader);
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-void LensFlareGenRenderPass::render(const Effects & _effects, GLuint _inputTexture, RenderPass ** _previousRenderPass)
+void SimplePostEffectsRenderPass::render(const Effects & _effects, GLuint _inputTexture, GLenum _drawBuffer, RenderPass ** _previousRenderPass)
 {
+	drawBuffers[0] = _drawBuffer;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
-
-	static std::shared_ptr<Texture> lensColorTexture = Texture::createTexture("Resources/Textures/lenscolor.dds", true);
 
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _inputTexture);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(lensColorTexture->getTarget(), lensColorTexture->getId());
 
-	lensFlareGenShader->bind();
-	uGhostsLFG.set(_effects.lensFlares.flareCount);
-	uGhostDispersalLFG.set(_effects.lensFlares.flareSpacing);
-	uHaloRadiusLFG.set(_effects.lensFlares.haloWidth);
-	uDistortionLFG.set(_effects.lensFlares.chromaticDistortion);
+	simplePostEffectsShader->bind();
+	uTimeS.set((float)Engine::getTime());
+	uFilmGrainStrengthS.set(_effects.filmGrain.strength);
+	uVignetteS.set(_effects.vignette.enabled);
+	uFilmGrainS.set(_effects.filmGrain.enabled);
+	uChromaticAberrationS.set(_effects.chromaticAberration.enabled);
+	uChromAbOffsetMultiplierS.set(_effects.chromaticAberration.offsetMultiplier);
 
 	fullscreenTriangle->getSubMesh()->render();
 }

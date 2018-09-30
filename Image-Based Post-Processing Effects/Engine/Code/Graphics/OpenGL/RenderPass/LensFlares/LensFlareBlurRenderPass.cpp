@@ -35,6 +35,8 @@ void LensFlareBlurRenderPass::render(GLuint _inputTexture, GLuint _pingPongTextu
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+
 	// first pass
 	{
 		glActiveTexture(GL_TEXTURE0);

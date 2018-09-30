@@ -45,18 +45,12 @@
 #include "RenderPass/LensFlares/LensFlareBlurRenderPass.h"
 #include "ComputePass/Bloom/BloomDownsampleComputePass.h"
 #include "ComputePass/Bloom/BloomUpsampleComputePass.h"
+#include "RenderPass/Misc/SimplePostEffectsRenderPass.h"
+#include "RenderPass/Misc/ToneMapRenderPass.h"
 
-static const char *BLOOM_ENABLED = "BLOOM_ENABLED";
-static const char *FLARES_ENABLED = "FLARES_ENABLED";
-static const char *DIRT_ENABLED = "DIRT_ENABLED";
-static const char *GOD_RAYS_ENABLED = "GOD_RAYS_ENABLED";
-static const char *AUTO_EXPOSURE_ENABLED = "AUTO_EXPOSURE_ENABLED";
-static const char *MOTION_BLUR = "MOTION_BLUR";
-static const char *ANAMORPHIC_FLARES_ENABLED = "ANAMORPHIC_FLARES_ENABLED";
 
 unsigned int mbTileSize = 40;
 unsigned int dofTileSize = 16;
-bool godrays = false;
 
 PostProcessRenderer::PostProcessRenderer(std::shared_ptr<Window> _window)
 	:window(_window)
@@ -85,38 +79,6 @@ PostProcessRenderer::~PostProcessRenderer()
 
 void PostProcessRenderer::init()
 {
-	// create shaders
-	singlePassEffectsShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Misc/singlePassEffects.frag");
-
-	hdrShader = ShaderProgram::createShaderProgram(
-		{
-		{ ShaderProgram::ShaderType::FRAGMENT, BLOOM_ENABLED, 0 },
-		{ ShaderProgram::ShaderType::FRAGMENT, FLARES_ENABLED, 0 },
-		{ ShaderProgram::ShaderType::FRAGMENT, DIRT_ENABLED, 0 },
-		{ ShaderProgram::ShaderType::FRAGMENT, GOD_RAYS_ENABLED, 0 },
-		{ ShaderProgram::ShaderType::FRAGMENT, AUTO_EXPOSURE_ENABLED, 0 },
-		{ ShaderProgram::ShaderType::FRAGMENT, MOTION_BLUR, 0 },
-		},
-		"Resources/Shaders/Shared/fullscreenTriangle.vert",
-		"Resources/Shaders/Misc/hdr.frag");
-
-	// create uniforms
-
-	// single pass
-	uTimeS.create(singlePassEffectsShader);
-	uFilmGrainStrengthS.create(singlePassEffectsShader);
-	uVignetteS.create(singlePassEffectsShader);
-	uFilmGrainS.create(singlePassEffectsShader);
-	uChromaticAberrationS.create(singlePassEffectsShader);
-	uChromAbOffsetMultiplierS.create(singlePassEffectsShader);
-
-	// hdr
-	uStarburstOffsetH.create(hdrShader);
-	uBloomStrengthH.create(hdrShader);
-	uLensDirtStrengthH.create(hdrShader);
-	uExposureH.create(hdrShader);
-	uAnamorphicFlareColorH.create(hdrShader);
-
 	// create FBO
 	glGenFramebuffers(1, &fullResolutionFbo);
 	glGenFramebuffers(1, &halfResolutionFbo);
@@ -125,12 +87,6 @@ void PostProcessRenderer::init()
 	glGenFramebuffers(1, &smaaFbo);
 	createFboAttachments(std::make_pair(window->getWidth(), window->getHeight()));
 
-	// load textures
-	lensColorTexture = Texture::createTexture("Resources/Textures/lenscolor.dds", true);
-	lensDirtTexture = Texture::createTexture("Resources/Textures/lensdirt.dds", true);
-	lensStarTexture = Texture::createTexture("Resources/Textures/starburst.dds", true);
-
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 
 	anamorphicPrefilterComputePass = new AnamorphicPrefilterComputePass(window->getWidth(), window->getHeight());
 	anamorphicDownsampleComputePass = new AnamorphicDownsampleComputePass(window->getWidth(), window->getHeight());
@@ -167,12 +123,12 @@ void PostProcessRenderer::init()
 	lensFlareBlurRenderPass = new LensFlareBlurRenderPass(halfResolutionFbo, window->getWidth() / 2, window->getHeight() / 2);
 	bloomDownsampleComputePass = new BloomDownsampleComputePass(window->getWidth(), window->getHeight());
 	bloomUpsampleComputePass = new BloomUpsampleComputePass(window->getWidth(), window->getHeight());
+	simplePostEffectsRenderPass = new SimplePostEffectsRenderPass(fullResolutionFbo, window->getWidth(), window->getHeight());
+	toneMapRenderPass = new ToneMapRenderPass(fullResolutionFbo, window->getWidth(), window->getHeight());
 }
 
 void PostProcessRenderer::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-
 	RenderPass *previousRenderPass = nullptr;
 
 	if (_effects.smaa.enabled)
@@ -229,7 +185,7 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 		velocityNeighborTileMaxRenderPass->render(velocityMaxTex, velocityNeighborMaxTex, &previousRenderPass);
 	}
 
-	if (godrays && !_level->lights.directionalLights.empty())
+	if (_effects.godrays && !_level->lights.directionalLights.empty())
 	{
 		glm::vec2 sunpos = glm::vec2(_renderData.viewProjectionMatrix * glm::vec4(_level->lights.directionalLights[0]->getDirection(), 0.0f)) * 0.5f + 0.5f;
 		GLuint godRayTextures[] = { halfResolutionGodRayTexA, halfResolutionGodRayTexB };
@@ -285,11 +241,6 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 	calculateLuminance(_effects, _colorTexture);
 	//calculateLuminanceHistogram(_colorTexture);
 
-	// combine and tonemap
-	glBindFramebuffer(GL_FRAMEBUFFER, fullResolutionFbo);
-	glViewport(0, 0, window->getWidth(), window->getHeight());
-	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _effects.depthOfField != DepthOfField::OFF ? fullResolutionHdrTexture : _colorTexture);
 	glActiveTexture(GL_TEXTURE1);
@@ -298,10 +249,6 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 	glBindTexture(GL_TEXTURE_2D, halfResolutionHdrTexB);
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, halfResolutionHdrTexA);
-	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, lensDirtTexture->getId());
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, lensStarTexture->getId());
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, _velocityTexture);
 	glActiveTexture(GL_TEXTURE7);
@@ -313,105 +260,20 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 	glActiveTexture(GL_TEXTURE10);
 	glBindTexture(GL_TEXTURE_2D, anamorphicPrefilter);
 
-	// shader permutations
-	{
-		const auto curDefines = hdrShader->getDefines();
-
-		bool bloomEnabled = false;
-		bool flaresEnabled = false;
-		bool dirtEnabled = false;
-		bool godRaysEnabled = false;
-		bool autoExposureEnabled = false;
-		int motionBlur = 0;
-		bool anamorphicsFlaresEnabled = false;
-
-		for (const auto &define : curDefines)
-		{
-			if (std::get<0>(define) == ShaderProgram::ShaderType::FRAGMENT)
-			{
-				if (std::get<1>(define) == BLOOM_ENABLED && std::get<2>(define))
-				{
-					bloomEnabled = true;
-				}
-				else if (std::get<1>(define) == FLARES_ENABLED && std::get<2>(define))
-				{
-					flaresEnabled = true;
-				}
-				else if (std::get<1>(define) == DIRT_ENABLED && std::get<2>(define))
-				{
-					dirtEnabled = true;
-				}
-				else if (std::get<1>(define) == GOD_RAYS_ENABLED && std::get<2>(define))
-				{
-					godRaysEnabled = true;
-				}
-				else if (std::get<1>(define) == AUTO_EXPOSURE_ENABLED && std::get<2>(define))
-				{
-					autoExposureEnabled = true;
-				}
-				else if (std::get<1>(define) == MOTION_BLUR)
-				{
-					motionBlur = std::get<2>(define);
-				}
-				else if (std::get<1>(define) == ANAMORPHIC_FLARES_ENABLED && std::get<2>(define))
-				{
-					anamorphicsFlaresEnabled = true;
-				}
-			}
-		}
-
-		if (bloomEnabled != _effects.bloom.enabled
-			|| flaresEnabled != _effects.lensFlares.enabled
-			|| dirtEnabled != _effects.lensDirt.enabled
-			|| godRaysEnabled != godrays
-			|| autoExposureEnabled != true
-			|| anamorphicsFlaresEnabled != _effects.anamorphicFlares.enabled
-			|| motionBlur != int(_effects.motionBlur))
-		{
-			hdrShader->setDefines(
-				{
-				{ ShaderProgram::ShaderType::FRAGMENT, BLOOM_ENABLED, _effects.bloom.enabled },
-				{ ShaderProgram::ShaderType::FRAGMENT, FLARES_ENABLED, _effects.lensFlares.enabled },
-				{ ShaderProgram::ShaderType::FRAGMENT, ANAMORPHIC_FLARES_ENABLED, _effects.anamorphicFlares.enabled },
-				{ ShaderProgram::ShaderType::FRAGMENT, DIRT_ENABLED, _effects.lensDirt.enabled },
-				{ ShaderProgram::ShaderType::FRAGMENT, GOD_RAYS_ENABLED, godrays },
-				{ ShaderProgram::ShaderType::FRAGMENT, AUTO_EXPOSURE_ENABLED, 1 },
-				{ ShaderProgram::ShaderType::FRAGMENT, MOTION_BLUR, int(_effects.motionBlur) },
-				}
-			);
-			uStarburstOffsetH.create(hdrShader);
-			uBloomStrengthH.create(hdrShader);
-			uLensDirtStrengthH.create(hdrShader);
-			uExposureH.create(hdrShader);
-			uAnamorphicFlareColorH.create(hdrShader);
-		}
-	}
-
-	hdrShader->bind();
-
-	uStarburstOffsetH.set(glm::dot(glm::vec3(1.0), _camera->getForwardDirection()));
-	uBloomStrengthH.set(_effects.bloom.strength);
-	uExposureH.set(_effects.exposure);
-	uLensDirtStrengthH.set(_effects.lensDirt.strength);
-	uAnamorphicFlareColorH.set(_effects.anamorphicFlares.color);
-
-	fullscreenTriangle->getSubMesh()->render();
+	toneMapRenderPass->render(_effects, glm::dot(glm::vec3(1.0), _camera->getForwardDirection()), &previousRenderPass);
 
 	finishedTexture = fullResolutionTextureA;
 
 	if (_effects.fxaa.enabled)
 	{
-		GLenum drawBuffer = (finishedTexture == fullResolutionTextureA) ? GL_COLOR_ATTACHMENT1 : GL_COLOR_ATTACHMENT0;
-
-		RenderPass *prev = nullptr;
-		fxaaRenderPass->render(_effects, finishedTexture, drawBuffer, &prev);
-
+		fxaaRenderPass->render(_effects, finishedTexture, (finishedTexture == fullResolutionTextureA) ? GL_COLOR_ATTACHMENT1 : GL_COLOR_ATTACHMENT0, &previousRenderPass);
 		finishedTexture = (finishedTexture == fullResolutionTextureA) ? fullResolutionTextureB : fullResolutionTextureA;
 	}
 
 	if (_effects.chromaticAberration.enabled || _effects.vignette.enabled || _effects.filmGrain.enabled)
 	{
-		singlePassEffects(_effects);
+		simplePostEffectsRenderPass->render(_effects, finishedTexture, (finishedTexture == fullResolutionTextureA) ? GL_COLOR_ATTACHMENT1 : GL_COLOR_ATTACHMENT0, &previousRenderPass);
+		finishedTexture = (finishedTexture == fullResolutionTextureA) ? fullResolutionTextureB : fullResolutionTextureA;
 	}
 }
 
@@ -433,24 +295,6 @@ void PostProcessRenderer::resize(const std::pair<unsigned int, unsigned int> &_r
 GLuint PostProcessRenderer::getFinishedTexture() const
 {
 	return finishedTexture;
-}
-
-void PostProcessRenderer::singlePassEffects(const Effects &_effects)
-{
-	glDrawBuffer((finishedTexture == fullResolutionTextureA) ? GL_COLOR_ATTACHMENT1 : GL_COLOR_ATTACHMENT0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, finishedTexture);
-
-	singlePassEffectsShader->bind();
-	uTimeS.set((float)Engine::getTime());
-	uFilmGrainStrengthS.set(_effects.filmGrain.strength);
-	uVignetteS.set(_effects.vignette.enabled);
-	uFilmGrainS.set(_effects.filmGrain.enabled);
-	uChromaticAberrationS.set(_effects.chromaticAberration.enabled);
-	uChromAbOffsetMultiplierS.set(_effects.chromaticAberration.offsetMultiplier);
-
-	fullscreenTriangle->getSubMesh()->render();
-	finishedTexture = (finishedTexture == fullResolutionTextureA) ? fullResolutionTextureB : fullResolutionTextureA;
 }
 
 void PostProcessRenderer::calculateLuminance(const Effects &_effects, GLuint _colorTexture)

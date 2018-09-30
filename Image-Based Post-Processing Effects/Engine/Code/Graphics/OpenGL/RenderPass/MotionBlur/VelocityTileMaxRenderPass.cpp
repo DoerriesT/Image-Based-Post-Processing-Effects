@@ -35,6 +35,8 @@ void VelocityTileMaxRenderPass::render(GLuint _inputVelocityTexture, GLuint _int
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+
 	tileMaxShader->bind();
 
 	uTileSizeVTM.set(_tileSize);

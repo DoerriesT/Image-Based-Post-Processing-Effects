@@ -32,6 +32,8 @@ void VelocityNeighborTileMaxRenderPass::render(GLuint _velocityTileMaxTexture, G
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+
 	neighborTileMaxShader->bind();
 
 	glActiveTexture(GL_TEXTURE0);

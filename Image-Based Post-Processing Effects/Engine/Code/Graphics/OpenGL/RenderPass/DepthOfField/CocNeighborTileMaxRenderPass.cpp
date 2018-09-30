@@ -32,6 +32,8 @@ void CocNeighborTileMaxRenderPass::render(GLuint _cocTileMaxTexture, GLuint _coc
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+
 	neighborTileMaxShader->bind();
 
 	glActiveTexture(GL_TEXTURE0);

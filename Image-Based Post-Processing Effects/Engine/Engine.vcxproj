@@ -85,6 +85,8 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\DeferredEnvironmentProbeRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\StencilRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\GeometryInjectionRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Misc\SimplePostEffectsRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Misc\ToneMapRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityNeighborTileMaxRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityTileMaxRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.h" />
@@ -282,6 +284,8 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\LightInjectionRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\LightPropagationRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LPV\RSMRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Misc\SimplePostEffectsRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Misc\ToneMapRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityNeighborTileMaxRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityTileMaxRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\ButterflyComputeRenderPass.cpp" />

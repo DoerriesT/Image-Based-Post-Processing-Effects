@@ -44,6 +44,8 @@ class LensFlareGenRenderPass;
 class LensFlareBlurRenderPass;
 class BloomDownsampleComputePass;
 class BloomUpsampleComputePass;
+class SimplePostEffectsRenderPass;
+class ToneMapRenderPass;
 
 class PostProcessRenderer
 {
@@ -60,15 +62,7 @@ public:
 	GLuint getFinishedTexture() const;
 
 private:
-	std::shared_ptr<ShaderProgram> singlePassEffectsShader;
-	std::shared_ptr<ShaderProgram> hdrShader;
 	std::shared_ptr<Window> window;
-
-	std::shared_ptr<Texture> lensColorTexture;
-	std::shared_ptr<Texture> lensDirtTexture;
-	std::shared_ptr<Texture> lensStarTexture;
-
-	std::shared_ptr<Mesh> fullscreenTriangle;
 
 	AnamorphicPrefilterComputePass *anamorphicPrefilterComputePass;
 	AnamorphicDownsampleComputePass *anamorphicDownsampleComputePass;
@@ -105,6 +99,8 @@ private:
 	LensFlareBlurRenderPass *lensFlareBlurRenderPass;
 	BloomDownsampleComputePass *bloomDownsampleComputePass;
 	BloomUpsampleComputePass *bloomUpsampleComputePass;
+	SimplePostEffectsRenderPass *simplePostEffectsRenderPass;
+	ToneMapRenderPass *toneMapRenderPass;
 
 	GLuint luminanceHistogramIntermediary;
 	GLuint luminanceHistogram;
@@ -159,22 +155,6 @@ private:
 	GLuint anamorphicPrefilter;
 	GLuint anamorphicChain[6];
 
-	// single pass effects uniforms
-	Uniform<GLfloat> uTimeS = Uniform<GLfloat>("uTime");
-	Uniform<GLfloat> uFilmGrainStrengthS = Uniform<GLfloat>("uFilmGrainStrength");
-	Uniform<GLboolean> uVignetteS = Uniform<GLboolean>("uVignette");
-	Uniform<GLboolean> uFilmGrainS = Uniform<GLboolean>("uFilmGrain");
-	Uniform<GLboolean> uChromaticAberrationS = Uniform<GLboolean>("uChromaticAberration");
-	Uniform<GLfloat> uChromAbOffsetMultiplierS = Uniform<GLfloat>("uChromAbOffsetMultiplier");
-
-	// hdr uniform
-	Uniform<GLfloat> uStarburstOffsetH = Uniform<GLfloat>("uStarburstOffset");
-	Uniform<GLfloat> uBloomStrengthH = Uniform<GLfloat>("uBloomStrength");
-	Uniform<GLfloat> uLensDirtStrengthH = Uniform<GLfloat>("uLensDirtStrength");
-	Uniform<GLfloat> uExposureH = Uniform<GLfloat>("uExposure");
-	Uniform<glm::vec3> uAnamorphicFlareColorH = Uniform<glm::vec3>("uAnamorphicFlareColor");
-
-	void singlePassEffects(const Effects &_effects);
 	void calculateLuminance(const Effects &_effects, GLuint _colorTexture);
 	void calculateLuminanceHistogram(GLuint _colorTexture);
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
