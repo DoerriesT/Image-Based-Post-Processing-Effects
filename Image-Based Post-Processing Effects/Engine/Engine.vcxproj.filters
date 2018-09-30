@@ -165,6 +165,15 @@
     <Filter Include="Code\Graphics\OpenGL\RenderPass\DepthOfField">
       <UniqueIdentifier>{7c1980fe-7d1f-4eee-a89e-3d1acd4853c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Graphics\OpenGL\RenderPass\LensFlares">
+      <UniqueIdentifier>{81631fc8-2873-41bb-9cf6-600776befabb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Graphics\OpenGL\RenderPass\Bloom">
+      <UniqueIdentifier>{409ed532-ccea-40d7-bdaf-7001c0b098e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Graphics\OpenGL\ComputePass\Bloom">
+      <UniqueIdentifier>{41d1f4cf-e2d2-4938-b09e-da58d6f9486f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Engine.h">
@@ -683,6 +692,24 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityNeighborTileMaxRenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass\MotionBlur</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LensFlares\LensFlareGenRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\LensFlares</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LensFlares\LensFlareBlurRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\LensFlares</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Bloom\BloomDownsampleRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Bloom</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Bloom\BloomUpsampleRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Bloom</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Bloom\BloomDownsampleComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Bloom</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Bloom\BloomUpsampleComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Bloom</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -1113,6 +1140,24 @@
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityNeighborTileMaxRenderPass.cpp">
       <Filter>Code\Graphics\OpenGL\RenderPass\MotionBlur</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LensFlares\LensFlareGenRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\LensFlares</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LensFlares\LensFlareBlurRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\LensFlares</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Bloom\BloomDownsampleRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Bloom</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Bloom\BloomUpsampleRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\Bloom</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Bloom\BloomDownsampleComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Bloom</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Bloom\BloomUpsampleComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\Bloom</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

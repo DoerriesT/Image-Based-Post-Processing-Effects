@@ -41,6 +41,10 @@
 #include "ComputePass/Exposure/LuminanceHistogramAdaptionComputePass.h"
 #include "RenderPass/MotionBlur/VelocityTileMaxRenderPass.h"
 #include "RenderPass/MotionBlur/VelocityNeighborTileMaxRenderPass.h"
+#include "RenderPass/LensFlares/LensFlareGenRenderPass.h"
+#include "RenderPass/LensFlares/LensFlareBlurRenderPass.h"
+#include "ComputePass/Bloom/BloomDownsampleComputePass.h"
+#include "ComputePass/Bloom/BloomUpsampleComputePass.h"
 
 static const char *BLOOM_ENABLED = "BLOOM_ENABLED";
 static const char *FLARES_ENABLED = "FLARES_ENABLED";
@@ -69,32 +73,12 @@ PostProcessRenderer::~PostProcessRenderer()
 		halfResolutionHdrTexA,
 		halfResolutionHdrTexB,
 		halfResolutionHdrTexC,
-
-		resolution4HdrTexA,
-		resolution4HdrTexB,
-
-		resolution8HdrTexA,
-		resolution8HdrTexB,
-
-		resolution16HdrTexA,
-		resolution16HdrTexB,
-
-		resolution32HdrTexA,
-		resolution32HdrTexB,
-
-		resolution64HdrTexA,
-		resolution64HdrTexB,
 	};
 	glDeleteTextures(sizeof(textures) / sizeof(GLuint), textures);
 	GLuint frameBuffers[] =
 	{
 		fullResolutionFbo,
 		halfResolutionFbo,
-		resolution4Fbo,
-		resolution8Fbo,
-		resolution16Fbo,
-		resolution32Fbo,
-		resolution64Fbo
 	};
 	glDeleteFramebuffers(sizeof(frameBuffers) / sizeof(GLuint), frameBuffers);
 }
@@ -103,10 +87,6 @@ void PostProcessRenderer::init()
 {
 	// create shaders
 	singlePassEffectsShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Misc/singlePassEffects.frag");
-	lensFlareGenShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/LensFlares/lensFlareGen.frag");
-	lensFlareBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/LensFlares/lensFlareBlur.frag");
-	downsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Misc/downsample.frag");
-	upsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Misc/upsample.frag");
 
 	hdrShader = ShaderProgram::createShaderProgram(
 		{
@@ -137,29 +117,9 @@ void PostProcessRenderer::init()
 	uExposureH.create(hdrShader);
 	uAnamorphicFlareColorH.create(hdrShader);
 
-	// lens flare gen uniforms
-	uGhostsLFG.create(lensFlareGenShader);
-	uGhostDispersalLFG.create(lensFlareGenShader);
-	uHaloRadiusLFG.create(lensFlareGenShader);
-	uDistortionLFG.create(lensFlareGenShader);
-	uScaleLFG.create(lensFlareGenShader);
-	uBiasLFG.create(lensFlareGenShader);
-
-	// lens flare blur shader
-	uDirectionLFB.create(lensFlareBlurShader);
-
-	// bloom upscale
-	uAddPreviousBU.create(upsampleShader);
-	uRadiusBU.create(upsampleShader);
-
 	// create FBO
 	glGenFramebuffers(1, &fullResolutionFbo);
 	glGenFramebuffers(1, &halfResolutionFbo);
-	glGenFramebuffers(1, &resolution4Fbo);
-	glGenFramebuffers(1, &resolution8Fbo);
-	glGenFramebuffers(1, &resolution16Fbo);
-	glGenFramebuffers(1, &resolution32Fbo);
-	glGenFramebuffers(1, &resolution64Fbo);
 	glGenFramebuffers(1, &velocityFbo);
 	glGenFramebuffers(1, &cocFbo);
 	glGenFramebuffers(1, &smaaFbo);
@@ -203,16 +163,29 @@ void PostProcessRenderer::init()
 	cocNeighborTileMaxRenderPass = new CocNeighborTileMaxRenderPass(cocFbo, window->getWidth() / dofTileSize, window->getHeight() / dofTileSize);
 	velocityTileMaxRenderPass = new VelocityTileMaxRenderPass(velocityFbo, window->getWidth(), window->getHeight());
 	velocityNeighborTileMaxRenderPass = new VelocityNeighborTileMaxRenderPass(velocityFbo, window->getWidth() / mbTileSize, window->getHeight() / mbTileSize);
-
+	lensFlareGenRenderPass = new LensFlareGenRenderPass(halfResolutionFbo, window->getWidth() / 2, window->getHeight() / 2);
+	lensFlareBlurRenderPass = new LensFlareBlurRenderPass(halfResolutionFbo, window->getWidth() / 2, window->getHeight() / 2);
+	bloomDownsampleComputePass = new BloomDownsampleComputePass(window->getWidth(), window->getHeight());
+	bloomUpsampleComputePass = new BloomUpsampleComputePass(window->getWidth(), window->getHeight());
 }
 
 void PostProcessRenderer::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
 {
+	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+
+	RenderPass *previousRenderPass = nullptr;
+
 	if (_effects.smaa.enabled)
 	{
-		smaa(_effects, _colorTexture, _velocityTexture, _effects.smaa.temporalAntiAliasing);
+		currentSmaaTexture = !currentSmaaTexture;
+
+		smaaEdgeDetectionRenderPass->render(_effects, _colorTexture, &previousRenderPass);
+		smaaBlendWeightRenderPass->render(_effects, fullResolutionSmaaEdgesTex, _effects.smaa.temporalAntiAliasing, currentSmaaTexture, &previousRenderPass);
+		smaaBlendRenderPass->render(_effects, _colorTexture, _velocityTexture, fullResolutionSmaaBlendTex, currentSmaaTexture, &previousRenderPass);
+
 		if (_effects.smaa.temporalAntiAliasing)
 		{
+			smaaTemporalResolveRenderPass->render(_effects, fullResolutionSmaaMLResultTex, _velocityTexture, currentSmaaTexture, &previousRenderPass);
 			_colorTexture = fullResolutionSmaaResultTex;
 		}
 		else
@@ -221,43 +194,52 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 		}
 	}
 
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-
 	// downsample/blur -> upsample/blur/combine with previous result
 	// use end result as bloom and input for lens flares
 	if (_effects.bloom.enabled || _effects.lensFlares.enabled)
 	{
-		// blurred chain in 1/2 res tex A
-		downsample(_colorTexture);
-		// combine all downsampled/blurred textures in 1/2 res tex B
-		upsample();
+		bloomDownsampleComputePass->execute(_colorTexture, halfResolutionHdrTexA);
+		bloomUpsampleComputePass->execute(halfResolutionHdrTexA, halfResolutionHdrTexB);
+	}
 
-		// flares in 1/2 A
-		if (_effects.lensFlares.enabled)
-		{
-			// we still have the proper fbo and viewport set from last upsampling step
-			generateFlares(_effects);
-		}
+	// flares in 1/2 A
+	if (_effects.lensFlares.enabled)
+	{
+		// texture B contains combined blurred mipmap chain
+		// generate ghosts by sampling blurred texture with threshold
+		lensFlareGenRenderPass->render(_effects, halfResolutionHdrTexB, &previousRenderPass);
+		// blur result (maybe skip this step, since source should already be pretty blurry)
+		lensFlareBlurRenderPass->render(halfResolutionHdrTexA, halfResolutionHdrTexC, &previousRenderPass);
 	}
 
 	if (_effects.anamorphicFlares.enabled)
 	{
-		anamorphicFlares(_effects, _colorTexture);
+		anamorphicPrefilterComputePass->execute(_effects, _colorTexture, anamorphicPrefilter);
+		int lastUsedTexture;
+		unsigned int lastWidth;
+		anamorphicDownsampleComputePass->execute(_effects, anamorphicPrefilter, anamorphicChain, 6, lastUsedTexture, lastWidth);
+		anamorphicUpsampleComputePass->execute(_effects, anamorphicPrefilter, anamorphicChain, 6, lastUsedTexture, lastWidth);
 	}
 
-	correctVelocities(_renderData, _velocityTexture, _depthTexture);
+	velocityCorrectionComputePass->execute(_renderData, _velocityTexture, _depthTexture);
 
 	if (_effects.motionBlur != MotionBlur::OFF)
 	{
-		RenderPass *prev = nullptr;
-		velocityTileMaxRenderPass->render(_velocityTexture, velocityTexTmp, velocityMaxTex, mbTileSize, &prev);
-		velocityNeighborTileMaxRenderPass->render(velocityMaxTex, velocityNeighborMaxTex, &prev);
+		velocityTileMaxRenderPass->render(_velocityTexture, velocityTexTmp, velocityMaxTex, mbTileSize, &previousRenderPass);
+		velocityNeighborTileMaxRenderPass->render(velocityMaxTex, velocityNeighborMaxTex, &previousRenderPass);
 	}
 
 	if (godrays && !_level->lights.directionalLights.empty())
 	{
 		glm::vec2 sunpos = glm::vec2(_renderData.viewProjectionMatrix * glm::vec4(_level->lights.directionalLights[0]->getDirection(), 0.0f)) * 0.5f + 0.5f;
-		godRays(_effects, sunpos, _colorTexture, _depthTexture);
+		GLuint godRayTextures[] = { halfResolutionGodRayTexA, halfResolutionGodRayTexB };
+		godRayMaskComputePass->execute(_effects, _colorTexture, _depthTexture, godRayTextures[0]);
+		godRayGenComputePass->execute(_effects, godRayTextures, sunpos);
+	}
+
+	if (_effects.depthOfField != DepthOfField::OFF)
+	{
+		cocComputePass->execute(_depthTexture, fullResolutionCocTexture, window->getFieldOfView(), Window::NEAR_PLANE, Window::FAR_PLANE);
 	}
 
 	switch (_effects.depthOfField)
@@ -265,21 +247,37 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 	case DepthOfField::OFF:
 		break;
 	case DepthOfField::SIMPLE:
-		calculateCoc(_depthTexture);
-		simpleDepthOfField(_colorTexture, _depthTexture);
+	{
+		GLuint cocTextures[] = { halfResolutionCocTexA , halfResolutionCocTexB };
+		simpleDofCocBlurComputePass->execute(fullResolutionCocTexture, cocTextures);
+		GLuint dofTextures[] = { halfResolutionDofTexA , halfResolutionDofTexB , halfResolutionDofTexC , halfResolutionDofTexD };
+		simpleDofBlurComputePass->execute(_colorTexture, halfResolutionCocTexB, dofTextures);
+		simpleDofFillComputePass->execute(dofTextures + 2);
+		simpleDofCompositeComputePass->execute(fullResolutionHdrTexture);
 		break;
+	}
 	case DepthOfField::SPRITE_BASED:
-		calculateCoc(_depthTexture);
-		spriteBasedDepthOfField(_colorTexture, _depthTexture);
+	{
+		spriteDofRenderPass->render(_colorTexture, _depthTexture, fullResolutionCocTexture, halfResolutionDofDoubleTex, &previousRenderPass);
+		spriteDofCompositeComputePass->execute(fullResolutionHdrTexture);
+
+		// TODO: move all render functionality into renderpass and/or rest to default state
+		glDisable(GL_BLEND);
 		break;
-	case DepthOfField::TILE_BASED_SEPERATE:
-		calculateCoc(_depthTexture);
-		tileBasedSeperateFieldDepthOfField(_colorTexture);
-		break;
+	}
 	case DepthOfField::TILE_BASED_COMBINED:
-		calculateCoc(_depthTexture);
-		tileBasedSeperateFieldDepthOfField(_colorTexture);
+	case DepthOfField::TILE_BASED_SEPERATE:
+	{
+		cocTileMaxRenderPass->render(fullResolutionCocTexture, cocTexTmp, cocMaxTex, dofTileSize, &previousRenderPass);
+		cocNeighborTileMaxRenderPass->render(cocMaxTex, cocNeighborMaxTex, &previousRenderPass);
+
+		seperateDofDownsampleComputePass->execute(_colorTexture, fullResolutionCocTexture, halfResolutionCocTexA, halfResolutionDofTexA, halfResolutionDofTexB);
+		GLuint dofTextures[] = { halfResolutionDofTexA , halfResolutionDofTexB , halfResolutionDofTexC , halfResolutionDofTexD };
+		seperateDofBlurComputePass->execute(dofTextures, halfResolutionCocTexA, cocNeighborMaxTex);
+		seperateDofFillComputePass->execute(dofTextures);
+		seperateDofCompositeComputePass->execute(_colorTexture, fullResolutionCocTexture, fullResolutionHdrTexture);
 		break;
+	}
 	default:
 		break;
 	}
@@ -403,7 +401,12 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 
 	if (_effects.fxaa.enabled)
 	{
-		fxaa(_effects);
+		GLenum drawBuffer = (finishedTexture == fullResolutionTextureA) ? GL_COLOR_ATTACHMENT1 : GL_COLOR_ATTACHMENT0;
+
+		RenderPass *prev = nullptr;
+		fxaaRenderPass->render(_effects, finishedTexture, drawBuffer, &prev);
+
+		finishedTexture = (finishedTexture == fullResolutionTextureA) ? fullResolutionTextureB : fullResolutionTextureA;
 	}
 
 	if (_effects.chromaticAberration.enabled || _effects.vignette.enabled || _effects.filmGrain.enabled)
@@ -422,21 +425,6 @@ void PostProcessRenderer::resize(const std::pair<unsigned int, unsigned int> &_r
 		halfResolutionHdrTexA,
 		halfResolutionHdrTexB,
 		halfResolutionHdrTexC,
-
-		resolution4HdrTexA,
-		resolution4HdrTexB,
-
-		resolution8HdrTexA,
-		resolution8HdrTexB,
-
-		resolution16HdrTexA,
-		resolution16HdrTexB,
-
-		resolution32HdrTexA,
-		resolution32HdrTexB,
-
-		resolution64HdrTexA,
-		resolution64HdrTexB,
 	};
 	glDeleteTextures(sizeof(textures) / sizeof(GLuint), textures);
 	createFboAttachments(_resolution);
@@ -445,34 +433,6 @@ void PostProcessRenderer::resize(const std::pair<unsigned int, unsigned int> &_r
 GLuint PostProcessRenderer::getFinishedTexture() const
 {
 	return finishedTexture;
-}
-
-void PostProcessRenderer::fxaa(const Effects &_effects)
-{
-	GLenum drawBuffer = (finishedTexture == fullResolutionTextureA) ? GL_COLOR_ATTACHMENT1 : GL_COLOR_ATTACHMENT0;
-
-	RenderPass *prev = nullptr;
-	fxaaRenderPass->render(_effects, finishedTexture, drawBuffer, &prev);
-
-	finishedTexture = (finishedTexture == fullResolutionTextureA) ? fullResolutionTextureB : fullResolutionTextureA;
-}
-
-void PostProcessRenderer::smaa(const Effects &_effects, GLuint _colorTexture, GLuint _velocityTexture, bool _temporalAA)
-{
-	currentSmaaTexture = !currentSmaaTexture;
-
-	RenderPass *previousRenderPass = nullptr;
-
-	smaaEdgeDetectionRenderPass->render(_effects, _colorTexture, &previousRenderPass);
-	smaaBlendWeightRenderPass->render(_effects, fullResolutionSmaaEdgesTex, _temporalAA, currentSmaaTexture, &previousRenderPass);
-	smaaBlendRenderPass->render(_effects, _colorTexture, _velocityTexture, fullResolutionSmaaBlendTex, currentSmaaTexture, &previousRenderPass);
-
-	if (!_temporalAA)
-	{
-		return;
-	}
-
-	smaaTemporalResolveRenderPass->render(_effects, fullResolutionSmaaMLResultTex, _velocityTexture, currentSmaaTexture, &previousRenderPass);
 }
 
 void PostProcessRenderer::singlePassEffects(const Effects &_effects)
@@ -491,236 +451,6 @@ void PostProcessRenderer::singlePassEffects(const Effects &_effects)
 
 	fullscreenTriangle->getSubMesh()->render();
 	finishedTexture = (finishedTexture == fullResolutionTextureA) ? fullResolutionTextureB : fullResolutionTextureA;
-}
-
-void PostProcessRenderer::downsample(GLuint _colorTexture)
-{
-	unsigned int windowWidth = window->getWidth();
-	unsigned int windowHeight = window->getHeight();
-
-	glm::vec2 viewports[] =
-	{
-		glm::vec2(windowWidth / 2.0f, windowHeight / 2.0f),
-		glm::vec2(windowWidth / 4.0f, windowHeight / 4.0f),
-		glm::vec2(windowWidth / 8.0f, windowHeight / 8.0f),
-		glm::vec2(windowWidth / 16.0f, windowHeight / 16.0f),
-		glm::vec2(windowWidth / 32.0f, windowHeight / 32.0f),
-		glm::vec2(windowWidth / 64.0f, windowHeight / 64.0f)
-	};
-
-	GLuint colorTextures[] =
-	{
-		_colorTexture,
-		halfResolutionHdrTexA,
-		resolution4HdrTexA,
-		resolution8HdrTexA,
-		resolution16HdrTexA,
-		resolution32HdrTexA,
-		resolution64HdrTexA,
-	};
-
-	GLuint fbos[] =
-	{
-		halfResolutionFbo,
-		resolution4Fbo,
-		resolution8Fbo,
-		resolution16Fbo,
-		resolution32Fbo,
-		resolution64Fbo,
-	};
-
-	downsampleShader->bind();
-
-	for (size_t i = 0; i < 6; ++i)
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, fbos[i]);
-		glViewport(0, 0, (GLsizei)viewports[i].x, (GLsizei)viewports[i].y);
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, colorTextures[i]);
-
-		fullscreenTriangle->getSubMesh()->render();
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-	}
-}
-
-void PostProcessRenderer::upsample()
-{
-	unsigned int windowWidth = window->getWidth();
-	unsigned int windowHeight = window->getHeight();
-
-	glm::vec2 viewports[] =
-	{
-		glm::vec2(windowWidth / 64.0f, windowHeight / 64.0f),
-		glm::vec2(windowWidth / 32.0f, windowHeight / 32.0f),
-		glm::vec2(windowWidth / 16.0f, windowHeight / 16.0f),
-		glm::vec2(windowWidth / 8.0f, windowHeight / 8.0f),
-		glm::vec2(windowWidth / 4.0f, windowHeight / 4.0f),
-		glm::vec2(windowWidth / 2.0f, windowHeight / 2.0f)
-	};
-
-	GLuint fbos[] =
-	{
-		resolution64Fbo,
-		resolution32Fbo,
-		resolution16Fbo,
-		resolution8Fbo,
-		resolution4Fbo,
-		halfResolutionFbo
-	};
-
-	GLuint sourceTextures[] =
-	{
-		resolution64HdrTexA,
-		resolution32HdrTexA,
-		resolution16HdrTexA,
-		resolution8HdrTexA,
-		resolution4HdrTexA,
-		halfResolutionHdrTexA
-	};
-
-	GLuint targetTextures[] =
-	{
-		resolution64HdrTexB,
-		resolution32HdrTexB,
-		resolution16HdrTexB,
-		resolution8HdrTexB,
-		resolution4HdrTexB,
-	};
-
-	float radiusMult[] =
-	{
-		1.3f, 1.25f, 1.2f, 1.15f, 1.1f, 1.05f
-	};
-
-	upsampleShader->bind();
-	uAddPreviousBU.set(false);
-
-	for (size_t i = 0; i < 6; ++i)
-	{
-		// first iteration without previous blur, all other combine with previous
-		if (i == 1)
-		{
-			uAddPreviousBU.set(true);
-		}
-
-		if (i > 0)
-		{
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, targetTextures[i - 1]);
-		}
-
-		uRadiusBU.set((1.0f / viewports[i]) * radiusMult[i]);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, fbos[i]);
-		glViewport(0, 0, (GLsizei)viewports[i].x, (GLsizei)viewports[i].y);
-		glDrawBuffer(GL_COLOR_ATTACHMENT1);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, sourceTextures[i]);
-
-		fullscreenTriangle->getSubMesh()->render();
-	}
-}
-
-void PostProcessRenderer::generateFlares(const Effects &_effects)
-{
-	// texture B contains combined blurred mipmap chain
-	// generate ghosts by sampling blurred texture with threshold
-	glDrawBuffer(GL_COLOR_ATTACHMENT0); // write to A
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, halfResolutionHdrTexB); // read from B
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(lensColorTexture->getTarget(), lensColorTexture->getId());
-
-	lensFlareGenShader->bind();
-	uGhostsLFG.set(_effects.lensFlares.flareCount);
-	uGhostDispersalLFG.set(_effects.lensFlares.flareSpacing);
-	uHaloRadiusLFG.set(_effects.lensFlares.haloWidth);
-	uDistortionLFG.set(_effects.lensFlares.chromaticDistortion);
-
-	fullscreenTriangle->getSubMesh()->render();
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	// blur result (maybe skip this step, since source should already be pretty blurry)
-
-	glDrawBuffer(GL_COLOR_ATTACHMENT2); // write to C
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, halfResolutionHdrTexA); // read from A
-
-	lensFlareBlurShader->bind();
-	uDirectionLFB.set(true);
-
-	fullscreenTriangle->getSubMesh()->render();
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	glDrawBuffer(GL_COLOR_ATTACHMENT0); // write to A
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, halfResolutionHdrTexC); // read from C
-
-	uDirectionLFB.set(false);
-
-	fullscreenTriangle->getSubMesh()->render();
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
-}
-
-void PostProcessRenderer::anamorphicFlares(const Effects &_effects, GLuint _colorTexture)
-{
-	anamorphicPrefilterComputePass->execute(_effects, _colorTexture, anamorphicPrefilter);
-	int lastUsedTexture;
-	unsigned int lastWidth;
-	anamorphicDownsampleComputePass->execute(_effects, anamorphicPrefilter, anamorphicChain, 6, lastUsedTexture, lastWidth);
-	anamorphicUpsampleComputePass->execute(_effects, anamorphicPrefilter, anamorphicChain, 6, lastUsedTexture, lastWidth);
-}
-
-void PostProcessRenderer::calculateCoc(GLuint _depthTexture)
-{
-	cocComputePass->execute(_depthTexture, fullResolutionCocTexture, window->getFieldOfView(), Window::NEAR_PLANE, Window::FAR_PLANE);
-}
-
-void PostProcessRenderer::calculateCocTileTexture()
-{
-	RenderPass *prev = nullptr;
-	cocTileMaxRenderPass->render(fullResolutionCocTexture, cocTexTmp, cocMaxTex, dofTileSize, &prev);
-	cocNeighborTileMaxRenderPass->render(cocMaxTex, cocNeighborMaxTex, &prev);
-}
-
-void PostProcessRenderer::simpleDepthOfField(GLuint _colorTexture, GLuint _depthTexture)
-{
-	GLuint cocTextures[] = { halfResolutionCocTexA , halfResolutionCocTexB };
-	simpleDofCocBlurComputePass->execute(fullResolutionCocTexture, cocTextures);
-	GLuint dofTextures[] = { halfResolutionDofTexA , halfResolutionDofTexB , halfResolutionDofTexC , halfResolutionDofTexD };
-	simpleDofBlurComputePass->execute(_colorTexture, halfResolutionCocTexB, dofTextures);
-	simpleDofFillComputePass->execute(dofTextures + 2);
-	simpleDofCompositeComputePass->execute(fullResolutionHdrTexture);
-}
-
-void PostProcessRenderer::tileBasedSeperateFieldDepthOfField(GLuint _colorTexture)
-{
-	calculateCocTileTexture();
-
-	seperateDofDownsampleComputePass->execute(_colorTexture, fullResolutionCocTexture, halfResolutionCocTexA, halfResolutionDofTexA, halfResolutionDofTexB);
-	GLuint dofTextures[] = { halfResolutionDofTexA , halfResolutionDofTexB , halfResolutionDofTexC , halfResolutionDofTexD };
-	seperateDofBlurComputePass->execute(dofTextures, halfResolutionCocTexA, cocNeighborMaxTex);
-	seperateDofFillComputePass->execute(dofTextures);
-	seperateDofCompositeComputePass->execute(_colorTexture, fullResolutionCocTexture, fullResolutionHdrTexture);
-}
-
-void PostProcessRenderer::spriteBasedDepthOfField(GLuint _colorTexture, GLuint _depthTexture)
-{
-	RenderPass *prev = nullptr;
-	spriteDofRenderPass->render(_colorTexture, _depthTexture, fullResolutionCocTexture, halfResolutionDofDoubleTex, &prev);
-	spriteDofCompositeComputePass->execute(fullResolutionHdrTexture);
-
-	glDisable(GL_BLEND);
-}
-
-void PostProcessRenderer::godRays(const Effects &_effects, const glm::vec2 &_sunpos, GLuint _colorTexture, GLuint _depthTexture)
-{
-	GLuint godRayTextures[] = { halfResolutionGodRayTexA, halfResolutionGodRayTexB };
-	godRayMaskComputePass->execute(_effects, _colorTexture, _depthTexture, godRayTextures[0]);
-	godRayGenComputePass->execute(_effects, godRayTextures, _sunpos);
 }
 
 void PostProcessRenderer::calculateLuminance(const Effects &_effects, GLuint _colorTexture)
@@ -751,11 +481,6 @@ void PostProcessRenderer::calculateLuminanceHistogram(GLuint _colorTexture)
 	luminanceHistogramComputePass->execute(_colorTexture, luminanceHistogramIntermediary, params);
 	luminanceHistogramReduceComputePass->execute(luminanceHistogram);
 	luminanceHistogramAdaptionComputePass->execute(luminanceHistogram, luminanceTexture, currentLuminanceTexture, params);
-}
-
-void PostProcessRenderer::correctVelocities(const RenderData & _renderData, GLuint _velocityTexture, GLuint _depthTexture)
-{
-	velocityCorrectionComputePass->execute(_renderData, _velocityTexture, _depthTexture);
 }
 
 void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution)
@@ -895,19 +620,23 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		glGenTextures(1, &halfResolutionHdrTexA);
 		glBindTexture(GL_TEXTURE_2D, halfResolutionHdrTexA);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, _resolution.first / 2, _resolution.second / 2, 0, GL_RGB, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, halfResolutionHdrTexA, 0);
 
 		glGenTextures(1, &halfResolutionHdrTexB);
 		glBindTexture(GL_TEXTURE_2D, halfResolutionHdrTexB);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, _resolution.first / 2, _resolution.second / 2, 0, GL_RGB, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, halfResolutionHdrTexB, 0);
 
 		glGenTextures(1, &halfResolutionHdrTexC);
@@ -998,147 +727,6 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
 			std::cout << "1/2 Res Framebuffer not complete!" << std::endl;
-		}
-	}
-
-	// 1/4 res
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, resolution4Fbo);
-
-		glGenTextures(1, &resolution4HdrTexA);
-		glBindTexture(GL_TEXTURE_2D, resolution4HdrTexA);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, _resolution.first / 4, _resolution.second / 4, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, resolution4HdrTexA, 0);
-
-		glGenTextures(1, &resolution4HdrTexB);
-		glBindTexture(GL_TEXTURE_2D, resolution4HdrTexB);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, _resolution.first / 4, _resolution.second / 4, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, resolution4HdrTexB, 0);
-
-		GLUtility::glErrorCheck("");
-	}
-
-	// 1/8 res
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, resolution8Fbo);
-
-
-		glGenTextures(1, &resolution8HdrTexA);
-		glBindTexture(GL_TEXTURE_2D, resolution8HdrTexA);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, _resolution.first / 8, _resolution.second / 8, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, resolution8HdrTexA, 0);
-
-		glGenTextures(1, &resolution8HdrTexB);
-		glBindTexture(GL_TEXTURE_2D, resolution8HdrTexB);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, _resolution.first / 8, _resolution.second / 8, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, resolution8HdrTexB, 0);
-
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			std::cout << "1/8 Res Framebuffer not complete!" << std::endl;
-		}
-	}
-
-
-	// 1/16 res
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, resolution16Fbo);
-
-
-		glGenTextures(1, &resolution16HdrTexA);
-		glBindTexture(GL_TEXTURE_2D, resolution16HdrTexA);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, _resolution.first / 16, _resolution.second / 16, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, resolution16HdrTexA, 0);
-
-		glGenTextures(1, &resolution16HdrTexB);
-		glBindTexture(GL_TEXTURE_2D, resolution16HdrTexB);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, _resolution.first / 16, _resolution.second / 16, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, resolution16HdrTexB, 0);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			std::cout << "1/16 Res Framebuffer not complete!" << std::endl;
-		}
-	}
-
-	// 1/32 res
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, resolution32Fbo);
-
-		glGenTextures(1, &resolution32HdrTexA);
-		glBindTexture(GL_TEXTURE_2D, resolution32HdrTexA);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, _resolution.first / 32, _resolution.second / 32, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, resolution32HdrTexA, 0);
-
-		glGenTextures(1, &resolution32HdrTexB);
-		glBindTexture(GL_TEXTURE_2D, resolution32HdrTexB);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, _resolution.first / 32, _resolution.second / 32, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, resolution32HdrTexB, 0);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			std::cout << "1/32 Res Framebuffer not complete!" << std::endl;
-		}
-	}
-
-	// 1/64 res
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, resolution64Fbo);
-
-		glGenTextures(1, &resolution64HdrTexA);
-		glBindTexture(GL_TEXTURE_2D, resolution64HdrTexA);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, _resolution.first / 64, _resolution.second / 64, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, resolution64HdrTexA, 0);
-
-		glGenTextures(1, &resolution64HdrTexB);
-		glBindTexture(GL_TEXTURE_2D, resolution64HdrTexB);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, _resolution.first / 64, _resolution.second / 64, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, resolution64HdrTexB, 0);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			std::cout << "1/64 Res Framebuffer not complete!" << std::endl;
 		}
 	}
 

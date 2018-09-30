@@ -1,0 +1,43 @@
+#version 450 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(r11f_g11f_b10f, binding = 0) uniform writeonly image2D uImgOut;
+
+layout(binding = 0) uniform sampler2D uInputTexture;
+
+uniform int uLevel;
+
+void main()
+{	
+	vec2 domainSize = textureSize(uInputTexture, uLevel).xy * 0.5;
+	vec2 texelSize = vec2(1.0 / domainSize);
+	vec2 centerCoord = vec2(vec2(gl_GlobalInvocationID.xy) + 0.5) * texelSize;
+	
+	vec3 sum = vec3(0.0);
+
+	vec2 upLeft = vec2(-texelSize.x, texelSize.y) * 0.5;
+	vec2 downRight = vec2(texelSize.x, -texelSize.y) * 0.5;
+	vec2 up = vec2(0.0, texelSize.y) * 0.5;
+	vec2 left = vec2(-texelSize.x, 0.0) * 0.5;
+
+	const int level = uLevel;
+	
+	sum += 0.125 * textureLod(uInputTexture,  2 * upLeft		+ centerCoord, level).rgb;
+	sum += 0.25  * textureLod(uInputTexture,  2 * up			+ centerCoord, level).rgb;
+	sum += 0.125 * textureLod(uInputTexture,  2 * texelSize		+ centerCoord, level).rgb;
+	sum += 0.5   * textureLod(uInputTexture,  1 * upLeft		+ centerCoord, level).rgb;
+	sum += 0.5   * textureLod(uInputTexture,  1 * texelSize		+ centerCoord, level).rgb;
+	sum += 0.25  * textureLod(uInputTexture,  2 * left			+ centerCoord, level).rgb;
+	sum += 0.5   * textureLod(uInputTexture,					  centerCoord, level).rgb;
+	sum += 0.25  * textureLod(uInputTexture,  2 * -left			+ centerCoord, level).rgb;
+	sum += 0.5   * textureLod(uInputTexture,  1 * -texelSize	+ centerCoord, level).rgb;
+	sum += 0.5   * textureLod(uInputTexture,  1 * -upLeft		+ centerCoord, level).rgb;
+	sum += 0.125 * textureLod(uInputTexture,  2 * -texelSize	+ centerCoord, level).rgb;
+	sum += 0.25  * textureLod(uInputTexture,  2 * -up			+ centerCoord, level).rgb;
+	sum += 0.125 * textureLod(uInputTexture,  2 * -upLeft		+ centerCoord, level).rgb;
+
+	sum *= 0.25;
+	
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(sum, 1.0));
+}

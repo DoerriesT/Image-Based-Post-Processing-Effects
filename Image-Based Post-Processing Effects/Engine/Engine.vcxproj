@@ -46,6 +46,8 @@
     <ClInclude Include="Code\Graphics\Effects.h" />
     <ClInclude Include="Code\Graphics\EntityRenderData.h" />
     <ClInclude Include="Code\Graphics\Frustum.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Bloom\BloomDownsampleComputePass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Bloom\BloomUpsampleComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CocComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofBlurComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofCompositeComputePass.h" />
@@ -72,10 +74,14 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAABlendWeightRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAAEdgeDetectionRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAATemporalResolveRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Bloom\BloomDownsampleRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Bloom\BloomUpsampleRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Debug\BoundingBoxRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\CocNeighborTileMaxRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\CocTileMaxRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\SpriteDofRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LensFlares\LensFlareBlurRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LensFlares\LensFlareGenRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\DeferredEnvironmentProbeRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Lighting\StencilRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\LPV\GeometryInjectionRenderPass.h" />
@@ -216,6 +222,8 @@
     <ClCompile Include="Code\Graphics\Mesh.cpp" />
     <ClCompile Include="Code\Graphics\Model.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\Buffer.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Bloom\BloomDownsampleComputePass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Bloom\BloomUpsampleComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CocComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofBlurComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofCompositeComputePass.cpp" />
@@ -249,6 +257,8 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAABlendWeightRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAAEdgeDetectionRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAATemporalResolveRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Bloom\BloomDownsampleRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Bloom\BloomUpsampleRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Debug\BoundingBoxRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\CocNeighborTileMaxRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\DepthOfField\CocTileMaxRenderPass.cpp" />
@@ -260,6 +270,8 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\LightProbeRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\OutlineRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Geometry\SkyboxRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LensFlares\LensFlareBlurRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\LensFlares\LensFlareGenRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\AmbientLightRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\DeferredEnvironmentProbeRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Lighting\DirectionalLightRenderPass.cpp" />

@@ -1,0 +1,41 @@
+#version 450 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(r11f_g11f_b10f, binding = 0) uniform writeonly image2D uImgOut;
+
+layout(binding = 0) uniform sampler2D uInputTexture;
+layout(binding = 1) uniform sampler2D uPreviousBlurredTexture;
+
+uniform bool uAddPrevious;
+uniform float uRadius;
+uniform int uLevel;
+
+void main()
+{	
+	vec2 domainSize = textureSize(uInputTexture, uLevel).xy;
+	vec2 texelSize = vec2(1.0 / domainSize);
+	vec2 centerCoord = vec2(vec2(gl_GlobalInvocationID.xy) + 0.5) * texelSize;
+
+	vec3 sum = vec3(0.0);
+	const int level = uLevel;
+	
+	sum += textureLod(uInputTexture, vec2(-texelSize.x, texelSize.y) * uRadius + centerCoord, level).rgb;
+	sum += textureLod(uInputTexture, vec2(0.0, texelSize.y) * uRadius + centerCoord, level).rgb * 2;
+	sum += textureLod(uInputTexture, vec2(texelSize.x, texelSize.y) * uRadius + centerCoord, level).rgb;
+	sum += textureLod(uInputTexture, vec2(-texelSize.x, 0.0) * uRadius + centerCoord, level).rgb * 2;
+	sum += textureLod(uInputTexture, centerCoord, level).rgb * 4;
+	sum += textureLod(uInputTexture, vec2(texelSize.x, 0.0) * uRadius + centerCoord, level).rgb * 2;
+	sum += textureLod(uInputTexture, vec2(-texelSize.x, -texelSize.y) * uRadius + centerCoord, level).rgb;
+	sum += textureLod(uInputTexture, vec2(0.0, -texelSize.y) * uRadius + centerCoord, level).rgb * 2;
+	sum += textureLod(uInputTexture, vec2(texelSize.x, -texelSize.y) * uRadius + centerCoord, level).rgb;
+
+	sum *= (1.0f / 16.0);
+
+	if (uAddPrevious)
+	{
+		sum += textureLod(uPreviousBlurredTexture, centerCoord, level + 1).rgb;
+	}
+	
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(sum, 1.0));
+}

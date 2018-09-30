@@ -40,6 +40,10 @@ class CocTileMaxRenderPass;
 class CocNeighborTileMaxRenderPass;
 class VelocityTileMaxRenderPass;
 class VelocityNeighborTileMaxRenderPass;
+class LensFlareGenRenderPass;
+class LensFlareBlurRenderPass;
+class BloomDownsampleComputePass;
+class BloomUpsampleComputePass;
 
 class PostProcessRenderer
 {
@@ -58,10 +62,6 @@ public:
 private:
 	std::shared_ptr<ShaderProgram> singlePassEffectsShader;
 	std::shared_ptr<ShaderProgram> hdrShader;
-	std::shared_ptr<ShaderProgram> lensFlareGenShader;
-	std::shared_ptr<ShaderProgram> lensFlareBlurShader;
-	std::shared_ptr<ShaderProgram> downsampleShader;
-	std::shared_ptr<ShaderProgram> upsampleShader;
 	std::shared_ptr<Window> window;
 
 	std::shared_ptr<Texture> lensColorTexture;
@@ -101,6 +101,10 @@ private:
 	CocNeighborTileMaxRenderPass *cocNeighborTileMaxRenderPass;
 	VelocityTileMaxRenderPass *velocityTileMaxRenderPass;
 	VelocityNeighborTileMaxRenderPass *velocityNeighborTileMaxRenderPass;
+	LensFlareGenRenderPass *lensFlareGenRenderPass;
+	LensFlareBlurRenderPass *lensFlareBlurRenderPass;
+	BloomDownsampleComputePass *bloomDownsampleComputePass;
+	BloomUpsampleComputePass *bloomUpsampleComputePass;
 
 	GLuint luminanceHistogramIntermediary;
 	GLuint luminanceHistogram;
@@ -142,26 +146,6 @@ private:
 	GLuint halfResolutionGodRayTexA;
 	GLuint halfResolutionGodRayTexB;
 
-	GLuint resolution4Fbo;
-	GLuint resolution4HdrTexA;
-	GLuint resolution4HdrTexB;
-
-	GLuint resolution8Fbo;
-	GLuint resolution8HdrTexA;
-	GLuint resolution8HdrTexB;
-
-	GLuint resolution16Fbo;
-	GLuint resolution16HdrTexA;
-	GLuint resolution16HdrTexB;
-
-	GLuint resolution32Fbo;
-	GLuint resolution32HdrTexA;
-	GLuint resolution32HdrTexB;
-
-	GLuint resolution64Fbo;
-	GLuint resolution64HdrTexA;
-	GLuint resolution64HdrTexB;
-
 	GLuint velocityFbo;
 	GLuint velocityTexTmp;
 	GLuint velocityMaxTex;
@@ -190,37 +174,9 @@ private:
 	Uniform<GLfloat> uExposureH = Uniform<GLfloat>("uExposure");
 	Uniform<glm::vec3> uAnamorphicFlareColorH = Uniform<glm::vec3>("uAnamorphicFlareColor");
 
-	// lens flare gen uniforms
-	Uniform<GLint> uGhostsLFG = Uniform<GLint>("uGhosts");
-	Uniform<GLfloat> uGhostDispersalLFG = Uniform<GLfloat>("uGhostDispersal");
-	Uniform<GLfloat> uHaloRadiusLFG = Uniform<GLfloat>("uHaloRadius");
-	Uniform<GLfloat> uDistortionLFG = Uniform<GLfloat>("uDistortion");
-	Uniform<glm::vec4> uScaleLFG = Uniform<glm::vec4>("uScale");
-	Uniform<glm::vec4> uBiasLFG = Uniform<glm::vec4>("uBias");
-
-	// lens flare blur shader
-	Uniform<GLboolean> uDirectionLFB = Uniform<GLboolean>("uDirection");
-
-	// bloom upscale
-	Uniform<GLboolean> uAddPreviousBU = Uniform<GLboolean>("uAddPrevious");
-	Uniform<glm::vec2> uRadiusBU = Uniform<glm::vec2>("uRadius");
-
-	void fxaa(const Effects &_effects);
-	void smaa(const Effects &_effects, GLuint _colorTexture, GLuint _velocityTexture, bool _temporalAA);
 	void singlePassEffects(const Effects &_effects);
-	void downsample(GLuint _colorTexture);
-	void upsample();
-	void generateFlares(const Effects &_effects);
-	void anamorphicFlares(const Effects &_effects, GLuint _colorTexture);
-	void calculateCoc(GLuint _depthTexture);
-	void calculateCocTileTexture();
-	void simpleDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
-	void tileBasedSeperateFieldDepthOfField(GLuint _colorTexture);
-	void spriteBasedDepthOfField(GLuint _colorTexture, GLuint _depthTexture);
-	void godRays(const Effects &_effects, const glm::vec2 &_sunpos, GLuint _colorTexture, GLuint _depthTexture);
 	void calculateLuminance(const Effects &_effects, GLuint _colorTexture);
 	void calculateLuminanceHistogram(GLuint _colorTexture);
-	void correctVelocities(const RenderData &_renderData, GLuint _velocityTexture, GLuint _depthTexture);
 	void createFboAttachments(const std::pair<unsigned int, unsigned int> &_resolution);
 
 };
