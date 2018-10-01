@@ -66,6 +66,12 @@ const float E = 0.02; // toe numerator
 const float F = 0.30; // toe denominator
 const vec3 W = vec3(11.2); // linear white point value
 
+float interleavedGradientNoise(vec2 v)
+{
+	vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
+	return fract(magic.z * dot(v, magic.xy));
+}
+
 vec3 accurateLinearToSRGB(in vec3 linearCol)
 {
 	vec3 sRGBLo = linearCol * 12.92;
@@ -118,7 +124,7 @@ float hash12(vec2 p)
 // Jitter function for tile lookup
 vec2 jitterTile(vec2 uv)
 {
-	float val = hash12(uv + vec2(2.0, 0.0)) * PI * 2.0;
+	float val = interleavedGradientNoise(uv + vec2(2.0, 0.0)) * PI * 2.0;
 	return vec2(sin(val), cos(val)) * (1.0 / textureSize(uVelocityNeighborMaxTexture, 0).xy) * 0.25;
 }
 
@@ -247,7 +253,7 @@ void main()
 #elif MOTION_BLUR == 3
 	vec2 texSize = textureSize(uScreenTexture, 0);
 	
-	float j = 0.0;//(hash12(vTexCoord) - 0.5) * 2.0;
+	float j = interleavedGradientNoise(vTexCoord * texSize);//(hash12(vTexCoord) - 0.5) * 2.0;
 	vec2 vmax = texture(uVelocityNeighborMaxTexture, vTexCoord + jitterTile(vTexCoord)).rg * texSize;
 	float vmaxLength = length(vmax);
 
