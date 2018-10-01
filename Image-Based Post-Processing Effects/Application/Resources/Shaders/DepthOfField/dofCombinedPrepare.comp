@@ -1,0 +1,71 @@
+#version 450 core
+
+#define DOF_DEPTH_SCALE_FOREGROUND (0.2)
+#define PI (3.14159265359)
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(r11f_g11f_b10f, binding = 0) uniform writeonly image2D uColorOut;
+layout(r11f_g11f_b10f, binding = 0) uniform writeonly image2D uPresortOut;
+
+layout(binding = 0) uniform sampler2D uColorTexture;
+layout(binding = 1) uniform sampler2D uDepthTexture;
+layout(binding = 2) uniform sampler2D uTileMaxTexture;
+
+uniform float uFocalLength;
+uniform float uApertureSize;
+uniform vec2 uNearFar;
+uniform float uScale = 1.0;
+
+vec2 depthCmp2(float depth, float closestDepth)
+{
+	float d = DOF_DEPTH_SCALE_FOREGROUND * (depth - closestDepth);
+	vec2 depthCmp;
+	depthCmp.x = smoothstep(0.0, 1.0, d); // background
+	depthCmp.y = 1.0 - depthCmp.x; // foreground
+	return depthCmp;
+}
+
+float sampleAlpha(float sampleCoc)
+{
+	return min(
+		1.0 / (PI * sampleCoc * sampleCoc),
+		1.0 / (PI * length(vec2(0.5)) * length(vec2(0.5))));
+}
+
+float linearDepth(float depth)
+{
+    float z_n = 2.0 * depth - 1.0;
+    return 2.0 * uNearFar.x * uNearFar.y / (uNearFar.y + uNearFar.x - z_n * (uNearFar.y - uNearFar.x));
+}
+
+float calculateCoc(float depth)
+{
+	float centerDepth = linearDepth(texture(uDepthTexture, vec2(0.5)).x);
+
+	float nominator = uFocalLength * (centerDepth - depth);
+	float denominator = depth * (centerDepth - uFocalLength);
+	float coc = uApertureSize * (nominator / denominator);
+
+	vec2 resolution = textureSize(uDepthTexture, 0).xy;
+	coc *= max(resolution.x * (1.0 / 1920.0), resolution.y * (1.0 / 1080.0)) * uScale;
+}
+
+void main()
+{	
+	vec2 domainSize = textureSize(uColorTexture, 0).xy;
+	vec2 texelSize = vec2(1.0 / domainSize);
+	vec2 centerCoord = vec2(vec2(gl_GlobalInvocationID.xy) + 0.5) * texelSize;
+	
+	vec3 color = texture(uColorTexture, centerCoord).rgb;
+	imageStore(uColorOut, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
+	
+	vec4 depth4 = textureGather(uDepthTexture, centerCoord);
+	float depth = linearDepth(min(min(depth4.x, depth4.y), min(depth4.z, depth4.w)));
+	
+	vec3 presortData;
+	presortData.x = calculateCoc(depth);
+	presortData.yz = sampleAlpha(presortData.x) * depthCmp2(depth, texture(uTileMaxTexture, centerCoord).y);
+	imageStore(uPresortOut, ivec2(gl_GlobalInvocationID.xy), vec4(presortData, 1.0));
+	
+}

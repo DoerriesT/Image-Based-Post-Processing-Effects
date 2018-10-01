@@ -1,0 +1,60 @@
+#version 450 core
+
+#define TILE_SIZE (40)
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(rg16f, binding = 0) uniform writeonly image2D uImgOut;
+
+layout(binding = 0) uniform sampler2D uDepthTexture;
+
+uniform float uFocalLength;
+uniform float uApertureSize;
+uniform vec2 uNearFar;
+uniform float uScale = 1.0;
+uniform bool uDirection;
+
+float linearDepth(float depth)
+{
+    float z_n = 2.0 * depth - 1.0;
+    return 2.0 * uNearFar.x * uNearFar.y / (uNearFar.y + uNearFar.x - z_n * (uNearFar.y - uNearFar.x));
+}
+
+float calculateCoc(float depth, float centerDepth)
+{
+	float nominator = uFocalLength * (centerDepth - depth);
+	float denominator = depth * (centerDepth - uFocalLength);
+	float coc = uApertureSize * (nominator / denominator);
+
+	vec2 resolution = textureSize(uDepthTexture, 0).xy;
+	coc *= max(resolution.x * (1.0 / 1920.0), resolution.y * (1.0 / 1080.0)) * uScale;
+}
+
+void main()
+{	
+	ivec2 offset = ivec2(1);
+	
+	if(uDirection)
+	{
+		offset.x = 0;
+	}
+	else
+	{
+		offset.y = 0;
+	}
+	
+	float centerDepth = linearDepth(texture(uDepthTexture, vec2(0.5)).x);
+	float maxCoc = 0.0;
+	float minDepth = uNearFar.y;
+	
+	for(int i = TILE_SIZE / -2; i < TILE_SIZE / 2; ++i)
+	{
+		float depth = linearDepth(texelFetch(uDepthTexture, i * offset + ivec2(gl_GlobalInvocationID.xy), 0).x);
+		float coc = calculateCoc(depth, centerDepth);
+		maxCoc = max(maxCoc, coc);
+		minDepth = min(minDepth, depth);
+	}
+	
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(vec2(maxCoc, minDepth), 0.0, 1.0));
+	
+}
