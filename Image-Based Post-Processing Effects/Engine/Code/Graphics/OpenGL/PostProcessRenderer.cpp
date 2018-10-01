@@ -85,46 +85,49 @@ void PostProcessRenderer::init()
 	glGenFramebuffers(1, &velocityFbo);
 	glGenFramebuffers(1, &cocFbo);
 	glGenFramebuffers(1, &smaaFbo);
-	createFboAttachments(std::make_pair(window->getWidth(), window->getHeight()));
 
+	unsigned int windowWidth = window->getWidth();
+	unsigned int windowHeight = window->getHeight();
 
-	anamorphicPrefilterComputePass = new AnamorphicPrefilterComputePass(window->getWidth(), window->getHeight());
-	anamorphicDownsampleComputePass = new AnamorphicDownsampleComputePass(window->getWidth(), window->getHeight());
-	anamorphicUpsampleComputePass = new AnamorphicUpsampleComputePass(window->getWidth(), window->getHeight());
-	fxaaRenderPass = new FXAARenderPass(fullResolutionFbo, window->getWidth(), window->getHeight());
-	smaaEdgeDetectionRenderPass = new SMAAEdgeDetectionRenderPass(smaaFbo, window->getWidth(), window->getHeight());
-	smaaBlendWeightRenderPass = new SMAABlendWeightRenderPass(smaaFbo, window->getWidth(), window->getHeight());
-	smaaBlendRenderPass = new SMAABlendRenderPass(smaaFbo, window->getWidth(), window->getHeight());
-	smaaTemporalResolveRenderPass = new SMAATemporalResolveRenderPass(smaaFbo, window->getWidth(), window->getHeight());
-	godRayMaskComputePass = new GodRayMaskComputePass(window->getWidth(), window->getHeight());
-	godRayGenComputePass = new GodRayGenComputePass(window->getWidth(), window->getHeight());
-	luminanceGenComputePass = new LuminanceGenComputePass(window->getWidth(), window->getHeight());
-	luminanceAdaptionComputePass = new LuminanceAdaptionComputePass(window->getWidth(), window->getHeight());
-	velocityCorrectionComputePass = new VelocityCorrectionComputePass(window->getWidth(), window->getHeight());
-	simpleDofCocBlurComputePass = new SimpleDofCocBlurComputePass(window->getWidth(), window->getHeight());
-	simpleDofBlurComputePass = new SimpleDofBlurComputePass(window->getWidth(), window->getHeight());
-	simpleDofFillComputePass = new SimpleDofFillComputePass(window->getWidth(), window->getHeight());
-	simpleDofCompositeComputePass = new SimpleDofCompositeComputePass(window->getWidth(), window->getHeight());
-	spriteDofRenderPass = new SpriteDofRenderPass(cocFbo, window->getWidth(), window->getHeight() / 2);
-	spriteDofCompositeComputePass = new SpriteDofCompositeComputePass(window->getWidth(), window->getHeight());
-	seperateDofDownsampleComputePass = new SeperateDofDownsampleComputePass(window->getWidth(), window->getHeight());
-	seperateDofBlurComputePass = new SeperateDofBlurComputePass(window->getWidth(), window->getHeight());
-	seperateDofFillComputePass = new SeperateDofFillComputePass(window->getWidth(), window->getHeight());
-	seperateDofCompositeComputePass = new SeperateDofCompositeComputePass(window->getWidth(), window->getHeight());
-	luminanceHistogramComputePass = new LuminanceHistogramComputePass(window->getWidth(), window->getHeight());
-	luminanceHistogramReduceComputePass = new LuminanceHistogramReduceComputePass(window->getWidth(), window->getHeight());
-	luminanceHistogramAdaptionComputePass = new LuminanceHistogramAdaptionComputePass(window->getWidth(), window->getHeight());
-	cocComputePass = new CocComputePass(window->getWidth(), window->getHeight());
-	cocTileMaxRenderPass = new CocTileMaxRenderPass(cocFbo, window->getWidth(), window->getHeight());
-	cocNeighborTileMaxRenderPass = new CocNeighborTileMaxRenderPass(cocFbo, window->getWidth() / dofTileSize, window->getHeight() / dofTileSize);
-	velocityTileMaxRenderPass = new VelocityTileMaxRenderPass(velocityFbo, window->getWidth(), window->getHeight());
-	velocityNeighborTileMaxRenderPass = new VelocityNeighborTileMaxRenderPass(velocityFbo, window->getWidth() / mbTileSize, window->getHeight() / mbTileSize);
-	lensFlareGenRenderPass = new LensFlareGenRenderPass(halfResolutionFbo, window->getWidth() / 2, window->getHeight() / 2);
-	lensFlareBlurRenderPass = new LensFlareBlurRenderPass(halfResolutionFbo, window->getWidth() / 2, window->getHeight() / 2);
-	bloomDownsampleComputePass = new BloomDownsampleComputePass(window->getWidth(), window->getHeight());
-	bloomUpsampleComputePass = new BloomUpsampleComputePass(window->getWidth(), window->getHeight());
-	simplePostEffectsRenderPass = new SimplePostEffectsRenderPass(fullResolutionFbo, window->getWidth(), window->getHeight());
-	toneMapRenderPass = new ToneMapRenderPass(fullResolutionFbo, window->getWidth(), window->getHeight());
+	createFboAttachments(std::make_pair(windowWidth, windowHeight));
+
+	anamorphicPrefilterComputePass = new AnamorphicPrefilterComputePass(windowWidth, windowHeight);
+	anamorphicDownsampleComputePass = new AnamorphicDownsampleComputePass(windowWidth, windowHeight);
+	anamorphicUpsampleComputePass = new AnamorphicUpsampleComputePass(windowWidth, windowHeight);
+	fxaaRenderPass = new FXAARenderPass(fullResolutionFbo, windowWidth, windowHeight);
+	smaaEdgeDetectionRenderPass = new SMAAEdgeDetectionRenderPass(smaaFbo, windowWidth, windowHeight);
+	smaaBlendWeightRenderPass = new SMAABlendWeightRenderPass(smaaFbo, windowWidth, windowHeight);
+	smaaBlendRenderPass = new SMAABlendRenderPass(smaaFbo, windowWidth, windowHeight);
+	smaaTemporalResolveRenderPass = new SMAATemporalResolveRenderPass(smaaFbo, windowWidth, windowHeight);
+	godRayMaskComputePass = new GodRayMaskComputePass(windowWidth, windowHeight);
+	godRayGenComputePass = new GodRayGenComputePass(windowWidth, windowHeight);
+	luminanceGenComputePass = new LuminanceGenComputePass(windowWidth, windowHeight);
+	luminanceAdaptionComputePass = new LuminanceAdaptionComputePass(windowWidth, windowHeight);
+	velocityCorrectionComputePass = new VelocityCorrectionComputePass(windowWidth, windowHeight);
+	simpleDofCocBlurComputePass = new SimpleDofCocBlurComputePass(windowWidth, windowHeight);
+	simpleDofBlurComputePass = new SimpleDofBlurComputePass(windowWidth, windowHeight);
+	simpleDofFillComputePass = new SimpleDofFillComputePass(windowWidth, windowHeight);
+	simpleDofCompositeComputePass = new SimpleDofCompositeComputePass(windowWidth, windowHeight);
+	spriteDofRenderPass = new SpriteDofRenderPass(cocFbo, windowWidth, windowHeight / 2);
+	spriteDofCompositeComputePass = new SpriteDofCompositeComputePass(windowWidth, windowHeight);
+	seperateDofDownsampleComputePass = new SeperateDofDownsampleComputePass(windowWidth, windowHeight);
+	seperateDofBlurComputePass = new SeperateDofBlurComputePass(windowWidth, windowHeight);
+	seperateDofFillComputePass = new SeperateDofFillComputePass(windowWidth, windowHeight);
+	seperateDofCompositeComputePass = new SeperateDofCompositeComputePass(windowWidth, windowHeight);
+	luminanceHistogramComputePass = new LuminanceHistogramComputePass(windowWidth, windowHeight);
+	luminanceHistogramReduceComputePass = new LuminanceHistogramReduceComputePass(windowWidth, windowHeight);
+	luminanceHistogramAdaptionComputePass = new LuminanceHistogramAdaptionComputePass(windowWidth, windowHeight);
+	cocComputePass = new CocComputePass(windowWidth, windowHeight);
+	cocTileMaxRenderPass = new CocTileMaxRenderPass(cocFbo, windowWidth, windowHeight);
+	cocNeighborTileMaxRenderPass = new CocNeighborTileMaxRenderPass(cocFbo, windowWidth / dofTileSize, windowHeight / dofTileSize);
+	velocityTileMaxRenderPass = new VelocityTileMaxRenderPass(velocityFbo, windowWidth, windowHeight);
+	velocityNeighborTileMaxRenderPass = new VelocityNeighborTileMaxRenderPass(velocityFbo, windowWidth / mbTileSize, windowHeight / mbTileSize);
+	lensFlareGenRenderPass = new LensFlareGenRenderPass(halfResolutionFbo, windowWidth / 2, windowHeight / 2);
+	lensFlareBlurRenderPass = new LensFlareBlurRenderPass(halfResolutionFbo, windowWidth / 2, windowHeight / 2);
+	bloomDownsampleComputePass = new BloomDownsampleComputePass(windowWidth, windowHeight);
+	bloomUpsampleComputePass = new BloomUpsampleComputePass(windowWidth, windowHeight);
+	simplePostEffectsRenderPass = new SimplePostEffectsRenderPass(fullResolutionFbo, windowWidth, windowHeight);
+	toneMapRenderPass = new ToneMapRenderPass(fullResolutionFbo, windowWidth, windowHeight);
 }
 
 void PostProcessRenderer::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
@@ -283,13 +286,97 @@ void PostProcessRenderer::resize(const std::pair<unsigned int, unsigned int> &_r
 	{
 		fullResolutionTextureA,
 		fullResolutionTextureB,
+		fullResolutionHdrTexture,
+		fullResolutionCocTexture,
+		fullResolutionDofTexA,
+		fullResolutionDofTexB,
+		fullResolutionDofTexC,
+		fullResolutionDofTexD,
+
+		fullResolutionSmaaEdgesTex,
+		fullResolutionSmaaBlendTex,
+		fullResolutionSmaaMLResultTex[0],
+		fullResolutionSmaaMLResultTex[1],
+		fullResolutionSmaaResultTex,
 
 		halfResolutionHdrTexA,
 		halfResolutionHdrTexB,
 		halfResolutionHdrTexC,
+		halfResolutionCocTexA,
+		halfResolutionCocTexB,
+		halfResolutionDofTexA,
+		halfResolutionDofTexB,
+		halfResolutionDofTexC,
+		halfResolutionDofTexD,
+		halfResolutionDofDoubleTex,
+		halfResolutionGodRayTexA,
+		halfResolutionGodRayTexB,
+
+		velocityTexTmp,
+		velocityMaxTex,
+		velocityNeighborMaxTex,
+
+		cocTexTmp,
+		cocMaxTex,
+		cocNeighborMaxTex,
+
+		anamorphicPrefilter,
+		anamorphicChain[0],
+		anamorphicChain[1],
+		anamorphicChain[2],
+		anamorphicChain[3],
+		anamorphicChain[4],
+		anamorphicChain[5],
+
+		luminanceHistogramIntermediary,
+		luminanceHistogram,
+		luminanceTempTexture,
+		luminanceTexture[0],
+		luminanceTexture[1]
 	};
 	glDeleteTextures(sizeof(textures) / sizeof(GLuint), textures);
 	createFboAttachments(_resolution);
+
+	unsigned int windowWidth = _resolution.first;
+	unsigned int windowHeight = _resolution.second;
+
+	anamorphicPrefilterComputePass->resize(windowWidth, windowHeight);
+	anamorphicDownsampleComputePass->resize(windowWidth, windowHeight);
+	anamorphicUpsampleComputePass->resize(windowWidth, windowHeight);
+	fxaaRenderPass->resize(windowWidth, windowHeight);
+	smaaEdgeDetectionRenderPass->resize(windowWidth, windowHeight);
+	smaaBlendWeightRenderPass->resize(windowWidth, windowHeight);
+	smaaBlendRenderPass->resize(windowWidth, windowHeight);
+	smaaTemporalResolveRenderPass->resize(windowWidth, windowHeight);
+	godRayMaskComputePass->resize(windowWidth, windowHeight);
+	godRayGenComputePass->resize(windowWidth, windowHeight);
+	luminanceGenComputePass->resize(windowWidth, windowHeight);
+	luminanceAdaptionComputePass->resize(windowWidth, windowHeight);
+	velocityCorrectionComputePass->resize(windowWidth, windowHeight);
+	simpleDofCocBlurComputePass->resize(windowWidth, windowHeight);
+	simpleDofBlurComputePass->resize(windowWidth, windowHeight);
+	simpleDofFillComputePass->resize(windowWidth, windowHeight);
+	simpleDofCompositeComputePass->resize(windowWidth, windowHeight);
+	spriteDofRenderPass->resize(windowWidth, windowHeight / 2);
+	spriteDofCompositeComputePass->resize(windowWidth, windowHeight);
+	seperateDofDownsampleComputePass->resize(windowWidth, windowHeight);
+	seperateDofBlurComputePass->resize(windowWidth, windowHeight);
+	seperateDofFillComputePass->resize(windowWidth, windowHeight);
+	seperateDofCompositeComputePass->resize(windowWidth, windowHeight);
+	luminanceHistogramComputePass->resize(windowWidth, windowHeight);
+	luminanceHistogramReduceComputePass->resize(windowWidth, windowHeight);
+	luminanceHistogramAdaptionComputePass->resize(windowWidth, windowHeight);
+	cocComputePass->resize(windowWidth, windowHeight);
+	cocTileMaxRenderPass->resize(windowWidth, windowHeight);
+	cocNeighborTileMaxRenderPass->resize(windowWidth / dofTileSize, windowHeight / dofTileSize);
+	velocityTileMaxRenderPass->resize(windowWidth, windowHeight);
+	velocityNeighborTileMaxRenderPass->resize(windowWidth / mbTileSize, windowHeight / mbTileSize);
+	lensFlareGenRenderPass->resize(windowWidth / 2, windowHeight / 2);
+	lensFlareBlurRenderPass->resize(windowWidth / 2, windowHeight / 2);
+	bloomDownsampleComputePass->resize(windowWidth, windowHeight);
+	bloomUpsampleComputePass->resize(windowWidth, windowHeight);
+	simplePostEffectsRenderPass->resize(windowWidth, windowHeight);
+	toneMapRenderPass->resize(windowWidth, windowHeight);
 }
 
 GLuint PostProcessRenderer::getFinishedTexture() const
