@@ -48,7 +48,7 @@ void SeperateDofFillComputePass::execute(GLuint * _dofTextures)
 	glBindImageTexture(0, _dofTextures[0], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 	glBindImageTexture(1, _dofTextures[1], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 	GLUtility::glDispatchComputeHelper(width / 2, height / 2, 1, 8, 8, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
 void SeperateDofFillComputePass::resize(unsigned int _width, unsigned int _height)

@@ -17,7 +17,7 @@ void LuminanceGenComputePass::execute(const Effects & _effects, GLuint _colorTex
 
 	glBindImageTexture(0, _luminanceTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);
 	GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 
 	glBindTexture(GL_TEXTURE_2D, _luminanceTexture);
 	glGenerateMipmap(GL_TEXTURE_2D);

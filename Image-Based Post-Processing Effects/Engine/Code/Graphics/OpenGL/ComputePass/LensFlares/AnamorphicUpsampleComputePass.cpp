@@ -23,7 +23,7 @@ void AnamorphicUpsampleComputePass::execute(const Effects &_effects, GLuint _pre
 
 		glBindImageTexture(0, _anamorphicTextureChain[i], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
 		GLUtility::glDispatchComputeHelper(_lastWidth, height / 2, 1, 8, 8, 1);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 	}
 
 	glActiveTexture(GL_TEXTURE0);
@@ -33,7 +33,7 @@ void AnamorphicUpsampleComputePass::execute(const Effects &_effects, GLuint _pre
 
 	glBindImageTexture(0, _prefilterTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
 	GLUtility::glDispatchComputeHelper(width, height / 2, 1, 8, 8, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
 void AnamorphicUpsampleComputePass::resize(unsigned int _width, unsigned int _height)

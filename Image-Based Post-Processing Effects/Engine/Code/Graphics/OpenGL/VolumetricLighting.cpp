@@ -291,7 +291,7 @@ void VolumetricLighting::computePhaseLUT()
 
 	glBindImageTexture(0, phaseLUT, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 	glDispatchCompute(8, 1, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
 void VolumetricLighting::createLightVolumeMesh()

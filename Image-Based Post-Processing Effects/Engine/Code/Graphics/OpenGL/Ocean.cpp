@@ -357,7 +357,7 @@ void Ocean::precomputeFftTextures(const Water & _water, RenderPass **_previousRe
 			glBindImageTexture(0, tildeH0kTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
 			glBindImageTexture(1, tildeH0minusKTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
 			glDispatchCompute(_water.simulationResolution / 8, _water.simulationResolution / 8, 1);
-			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+			glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 		}
 
 		// butterfly precompute
@@ -382,7 +382,7 @@ void Ocean::precomputeFftTextures(const Water & _water, RenderPass **_previousRe
 
 			glBindImageTexture(0, twiddleIndicesTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 			glDispatchCompute(glm::log2(_water.simulationResolution), _water.simulationResolution / 8, 1);
-			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+			glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 		}
 	}
 	else
@@ -409,7 +409,7 @@ void Ocean::computeFft(const Water & _water, RenderPass **_previousRenderPass)
 			glBindImageTexture(3, tildeH0kTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG16F);
 			glBindImageTexture(4, tildeH0minusKTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG16F);
 			glDispatchCompute(_water.simulationResolution / 8, _water.simulationResolution / 8, 1);
-			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+			glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 		}
 
 		// butterfly computation/ inversion
@@ -434,7 +434,7 @@ void Ocean::computeFft(const Water & _water, RenderPass **_previousRenderPass)
 					uPingPongBCC.set(pingpong);
 
 					glDispatchCompute(_water.simulationResolution / 8, _water.simulationResolution / 8, 1);
-					glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+					glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 
 					pingpong = 1 - pingpong;
 				}
@@ -450,7 +450,7 @@ void Ocean::computeFft(const Water & _water, RenderPass **_previousRenderPass)
 				glBindImageTexture(6, waterDisplacementFoldingTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F);
 
 				glDispatchCompute(_water.simulationResolution / 8, _water.simulationResolution / 8, 1);
-				glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+				glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 
 				// generate mips
 				glActiveTexture(GL_TEXTURE0);
@@ -467,7 +467,7 @@ void Ocean::computeFft(const Water & _water, RenderPass **_previousRenderPass)
 				glBindImageTexture(0, waterNormalTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
 
 				glDispatchCompute(_water.simulationResolution / 8, _water.simulationResolution / 8, 1);
-				glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+				glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 
 				// generate mips
 				glActiveTexture(GL_TEXTURE0);

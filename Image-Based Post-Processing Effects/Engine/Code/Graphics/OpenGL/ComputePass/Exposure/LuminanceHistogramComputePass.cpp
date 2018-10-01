@@ -21,7 +21,7 @@ void LuminanceHistogramComputePass::execute(GLuint _colorTexture, GLuint _interm
 
 	glBindImageTexture(0, _intermediaryTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 	GLUtility::glDispatchComputeHelper(width / 8 + ((width % 8 == 0) ? 0 : 1), height / 8 + ((height % 8 == 0) ? 0 : 1), 1, 8, 8, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
 void LuminanceHistogramComputePass::resize(unsigned int _width, unsigned int _height)

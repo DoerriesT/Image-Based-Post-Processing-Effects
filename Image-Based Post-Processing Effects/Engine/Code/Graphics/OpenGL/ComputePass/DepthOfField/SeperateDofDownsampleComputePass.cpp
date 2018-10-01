@@ -21,7 +21,7 @@ void SeperateDofDownsampleComputePass::execute(GLuint _colorTexture, GLuint _coc
 	glBindImageTexture(1, _destinationNearTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 	glBindImageTexture(2, _destinationFarTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 	GLUtility::glDispatchComputeHelper(width / 2, height / 2, 1, 8, 8, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
 void SeperateDofDownsampleComputePass::resize(unsigned int _width, unsigned int _height)

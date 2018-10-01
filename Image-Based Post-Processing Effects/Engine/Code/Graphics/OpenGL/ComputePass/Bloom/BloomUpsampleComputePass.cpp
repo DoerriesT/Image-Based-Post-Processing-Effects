@@ -44,7 +44,7 @@ void BloomUpsampleComputePass::execute(GLuint _sourceTexture, GLuint _destinatio
 
 		glBindImageTexture(0, _destinationTexture, 5 - i, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
 		GLUtility::glDispatchComputeHelper(w, h, 1, 8, 8, 1);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 	}
 }
 

@@ -30,7 +30,7 @@ void CocComputePass::execute(GLuint _depthTexture, GLuint _destinationCocTexture
 
 	glBindImageTexture(0, _destinationCocTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
 	GLUtility::glDispatchComputeHelper(width, height, 1, 8, 8, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
 void CocComputePass::resize(unsigned int _width, unsigned int _height)
