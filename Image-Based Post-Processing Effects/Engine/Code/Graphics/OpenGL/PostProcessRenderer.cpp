@@ -198,7 +198,7 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 
 	if (_effects.depthOfField != DepthOfField::OFF)
 	{
-		cocComputePass->execute(_depthTexture, fullResolutionCocTexture, window->getFieldOfView(), Window::NEAR_PLANE, Window::FAR_PLANE);
+		cocComputePass->execute(_depthTexture, fullResolutionCocTexture, glm::radians(window->getFieldOfView()), Window::NEAR_PLANE, Window::FAR_PLANE);
 	}
 
 	switch (_effects.depthOfField)

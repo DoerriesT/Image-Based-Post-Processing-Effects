@@ -16,7 +16,7 @@ void CocComputePass::execute(GLuint _depthTexture, GLuint _destinationCocTexture
 {
 	cocShader->bind();
 
-	const float filmWidth = 35.0f;
+	const float filmWidth = 0.035f;
 	const float apertureSize = 8.0f;
 
 	float focalLength = (0.5f * filmWidth) / glm::tan(_fieldOfView * 0.5f);
