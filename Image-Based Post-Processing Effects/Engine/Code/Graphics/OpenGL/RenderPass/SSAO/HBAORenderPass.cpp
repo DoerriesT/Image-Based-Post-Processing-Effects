@@ -55,10 +55,9 @@ void HBAORenderPass::render(const RenderData & _renderData, const Effects & _eff
 	glBindTexture(GL_TEXTURE_2D, _noiseTexture);
 
 	float aspectRatio = _renderData.resolution.second / (float)_renderData.resolution.first;
-	float fovy = 2.0f * glm::atan(glm::tan(glm::radians(_renderData.fov) * 0.5f) * aspectRatio);
 	glm::vec2 focalLength;
-	focalLength.x = 1.0f / tanf(fovy * 0.5f) * aspectRatio;
-	focalLength.y = 1.0f / tanf(fovy * 0.5f);
+	focalLength.x = 1.0f / tanf(glm::radians(_renderData.fov) * 0.5f) * aspectRatio;
+	focalLength.y = 1.0f / tanf(glm::radians(_renderData.fov) * 0.5f);
 
 	glm::vec2 res(_renderData.resolution.first, _renderData.resolution.second);
 	float radius = 0.3f;

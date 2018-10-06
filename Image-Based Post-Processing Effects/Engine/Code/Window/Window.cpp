@@ -4,7 +4,7 @@
 #include "GLFW\IInputListener.h"
 #include "GLFW\WindowFramework.h"
 
-const float Window::DEFAULT_FOV = 60.0f;
+const float Window::DEFAULT_FOV = 59.0f;
 const float Window::NEAR_PLANE = 0.1f;
 const float Window::FAR_PLANE = 300.0f;
 

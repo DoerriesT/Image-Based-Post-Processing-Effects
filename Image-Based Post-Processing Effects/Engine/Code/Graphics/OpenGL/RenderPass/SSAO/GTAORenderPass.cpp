@@ -49,9 +49,7 @@ void GTAORenderPass::render(const RenderData &_renderData, const Effects &_effec
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	float aspectRatio = _renderData.resolution.second / (float)_renderData.resolution.first;
-	float fovy = 2.0f * glm::atan(glm::tan(glm::radians(_renderData.fov) * 0.5f) * aspectRatio);
-	float focalLength;
-	focalLength = 1.0f / tanf(fovy * 0.5f) * aspectRatio;
+	float focalLength = 1.0f / tanf(glm::radians(_renderData.fov) * 0.5f) * aspectRatio;
 
 	glm::vec2 res(_renderData.resolution.first, _renderData.resolution.second);
 
