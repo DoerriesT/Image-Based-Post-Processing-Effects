@@ -51,7 +51,7 @@ SoundBuffer::SoundBuffer(const std::string &_file, bool _instantLoading)
 	{
 		stb_vorbis_info info;
 
-		std::vector<char> vorbisData = Utility::readBinaryFile(_file.c_str());
+		std::vector<char> vorbisData = Utility::readBinaryFile(_file);
 		int error = 0;
 		stb_vorbis *decoder = stb_vorbis_open_memory((unsigned char *)vorbisData.data(), (int)vorbisData.size(), &error, nullptr);
 		if (!decoder)

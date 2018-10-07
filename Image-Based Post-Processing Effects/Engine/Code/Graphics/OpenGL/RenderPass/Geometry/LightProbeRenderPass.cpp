@@ -59,12 +59,13 @@ void LightProbeRenderPass::render(const RenderData & _renderData, const std::sha
 
 	sphereMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
 
-	glm::ivec3 dims = _level->environment.irradianceVolume->getDimensions();
-	glm::vec3 origin = _level->environment.irradianceVolume->getOrigin();
-	float spacing = _level->environment.irradianceVolume->getSpacing();
+	std::shared_ptr<IrradianceVolume> volume = _level->environment.irradianceVolume;
+	glm::ivec3 dims = volume->getDimensions();
+	glm::vec3 origin = volume->getOrigin();
+	float spacing = volume->getSpacing();
 
 	glActiveTexture(GL_TEXTURE13);
-	glBindTexture(GL_TEXTURE_2D, _level->environment.irradianceVolume->getProbeTexture()->getId());
+	glBindTexture(GL_TEXTURE_2D, volume->getProbeTexture()->getId());
 
 	for (unsigned int z = 0; z < dims.z; ++z)
 	{
@@ -77,7 +78,7 @@ void LightProbeRenderPass::render(const RenderData & _renderData, const std::sha
 				int index = z * (dims.x * dims.y) + y * dims.x + x;
 				uIndex.set(index);
 
-				auto data = _level->environment.irradianceVolume->getProbeData({x, y, z});
+				auto data = volume->getProbeData({x, y, z});
 
 				sphereMesh->getSubMesh()->render();
 			}

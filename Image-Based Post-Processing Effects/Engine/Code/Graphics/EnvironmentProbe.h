@@ -56,7 +56,7 @@ public:
 	glm::ivec3 getDimensions() const;
 	float getSpacing() const;
 	std::shared_ptr<Texture> getProbeTexture() const;
-	ProbeData getProbeData(glm::ivec3 _index);
+	ProbeData getProbeData(const glm::ivec3 &_index);
 	void updateProbeData(const glm::ivec3 &_index, const ProbeData &_probeData);
 	void flushToGpu();
 	void saveToFile(const std::string &_filepath);

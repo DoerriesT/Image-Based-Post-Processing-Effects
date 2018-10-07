@@ -7,7 +7,11 @@
 #include "Camera.h"
 
 CameraPath::CameraPath(const std::vector<CameraPathSegment> &_pathSegments)
-	:pathSegments(_pathSegments)
+	:pathSegments(_pathSegments),
+	started(false),
+	repeat(false),
+	currentStartTime(),
+	currentSegmentIndex()
 {
 }
 

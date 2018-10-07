@@ -15,7 +15,7 @@ class AmbientLightRenderPass : public RenderPass
 {
 public:
 	explicit AmbientLightRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height);
-	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, GLuint *_lpv, Volume _volume, RenderPass **_previousRenderPass = nullptr);
+	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, GLuint *_lpv, const Volume &_volume, RenderPass **_previousRenderPass = nullptr);
 
 private:
 	std::shared_ptr<ShaderProgram> ambientLightShader;

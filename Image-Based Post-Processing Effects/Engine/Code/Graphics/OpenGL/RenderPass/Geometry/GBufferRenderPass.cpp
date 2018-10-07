@@ -111,17 +111,18 @@ void GBufferRenderPass::render(const RenderData &_renderData, const Scene &_scen
 			textureOffset = glm::vec2((float)col / columns, (float)row / rows);
 		}
 
-		glm::mat4 transformation = _renderData.viewProjectionMatrix * entityRenderData->transformationComponent->transformation;
-		glm::mat4 prevTransformation = _renderData.prevInvJitter * _renderData.prevViewProjectionMatrix * entityRenderData->transformationComponent->prevTransformation;
+		glm::mat4 transformation = entityRenderData->transformationComponent->transformation;
+		glm::mat4 modelViewProjection = _renderData.viewProjectionMatrix * transformation;
+		glm::mat4 prevModelViewProjection = _renderData.prevInvJitter * _renderData.prevViewProjectionMatrix * entityRenderData->transformationComponent->prevTransformation;
 
 
 		uCamPosG.set(_renderData.cameraPosition);
 		uViewMatrixG.set(glm::mat3(_renderData.viewMatrix));
-		uModelMatrixG.set(entityRenderData->transformationComponent->transformation);
+		uModelMatrixG.set(transformation);
 		uAtlasDataG.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
-		uModelViewProjectionMatrixG.set(transformation);
-		uPrevTransformG.set(prevTransformation);
-		uCurrTransformG.set(_renderData.invJitter * transformation);
+		uModelViewProjectionMatrixG.set(modelViewProjection);
+		uPrevTransformG.set(prevModelViewProjection);
+		uCurrTransformG.set(_renderData.invJitter * modelViewProjection);
 		uVelG.set(entityRenderData->transformationComponent->vel / glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
 		const float frameRateTarget = 60.0f;
 		uExposureTimeG.set((float(Engine::getFps()) / frameRateTarget));

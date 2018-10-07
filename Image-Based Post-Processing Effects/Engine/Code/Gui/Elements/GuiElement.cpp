@@ -358,8 +358,6 @@ size_t GuiComboBox::getSelectedItem()
 void GuiComboBox::setSelectedItem(const size_t &item)
 {
 	selectedItem = item % itemCount;
-	if (selectedItem < 0) selectedItem = 0;
-
 }
 
 void GuiComboBox::clearItems()

@@ -180,7 +180,7 @@ std::shared_ptr<Texture> IrradianceVolume::getProbeTexture() const
 	return probeTexture;
 }
 
-IrradianceVolume::ProbeData IrradianceVolume::getProbeData(glm::ivec3 _index)
+IrradianceVolume::ProbeData IrradianceVolume::getProbeData(const glm::ivec3 &_index)
 {
 	unsigned int probeOffset = _index.z * (dimensions.x * dimensions.y) + _index.y * dimensions.x + _index.x;
 	return data[probeOffset];

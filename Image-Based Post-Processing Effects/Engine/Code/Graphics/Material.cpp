@@ -32,30 +32,6 @@ Material::Material(const std::shared_ptr<Texture> &_albedoMap,
 	emissiveMap(_emissiveMap),
 	displacementMap(_displacementMap)
 {
-	if (albedoMap)
-	{
-		mapBitField |= ALBEDO;
-	}
-	if (normalMap)
-	{
-		mapBitField |= NORMAL;
-	}
-	if (metallicMap)
-	{
-		mapBitField |= METALLIC;
-	}
-	if (roughnessMap)
-	{
-		mapBitField |= ROUGHNESS;
-	}
-	if (aoMap)
-	{
-		mapBitField |= AO;
-	}
-	if (emissiveMap)
-	{
-		mapBitField |= EMISSIVE;
-	}
 }
 
 Material::Material(const std::string &_basePath, std::uint32_t _flags)
@@ -67,37 +43,31 @@ Material::Material(const std::string &_basePath, std::uint32_t _flags)
 	std::string roughnessPath = _basePath + "_r.dds";
 	std::string aoPath = _basePath + "_ao.dds";
 	std::string emissivePath = _basePath + "_e.dds";
-	std::string displacementPath = _basePath + "_d.dds";
+	//std::string displacementPath = _basePath + "_d.dds";
 
 	if ((_flags & ALBEDO) == ALBEDO)
 	{
 		albedoMap = Texture::createTexture(albedoPath.c_str());
-		mapBitField |= ALBEDO;
 	}
 	if ((_flags & NORMAL) == NORMAL)
 	{
 		normalMap = Texture::createTexture(normalPath.c_str());
-		mapBitField |= NORMAL;
 	}
 	if ((_flags & METALLIC) == METALLIC)
 	{
 		metallicMap = Texture::createTexture(metallicPath.c_str());
-		mapBitField |= METALLIC;
 	}
 	if ((_flags & ROUGHNESS) == ROUGHNESS)
 	{
 		roughnessMap = Texture::createTexture(roughnessPath.c_str());
-		mapBitField |= ROUGHNESS;
 	}
 	if ((_flags & AO) == AO)
 	{
 		aoMap = Texture::createTexture(aoPath.c_str());
-		mapBitField |= AO;
 	}
 	if ((_flags & EMISSIVE) == EMISSIVE)
 	{
 		emissiveMap = Texture::createTexture(emissivePath.c_str());
-		mapBitField |= EMISSIVE;
 	}
 }
 
@@ -189,79 +159,31 @@ const glm::vec3 &Material::getEmissive() const
 void Material::setAlbedoMap(const std::shared_ptr<Texture> &_albedoMap)
 {
 	albedoMap = _albedoMap;
-	if (albedoMap)
-	{
-		mapBitField |= ALBEDO;
-	}
-	else
-	{
-		mapBitField ^= ALBEDO;
-	}
 }
 
 void Material::setNormalMap(const std::shared_ptr<Texture> &_normalMap)
 {
 	normalMap = _normalMap;
-	if (normalMap)
-	{
-		mapBitField |= NORMAL;
-	}
-	else
-	{
-		mapBitField ^= NORMAL;
-	}
 }
 
 void Material::setMetallicMap(const std::shared_ptr<Texture> &_metallicMap)
 {
 	metallicMap = _metallicMap;
-	if (metallicMap)
-	{
-		mapBitField |= METALLIC;
-	}
-	else
-	{
-		mapBitField ^= METALLIC;
-	}
 }
 
 void Material::setRoughnessMap(const std::shared_ptr<Texture> &_roughnessMap)
 {
 	roughnessMap = _roughnessMap;
-	if (roughnessMap)
-	{
-		mapBitField |= ROUGHNESS;
-	}
-	else
-	{
-		mapBitField ^= ROUGHNESS;
-	}
 }
 
 void Material::setAoMap(const std::shared_ptr<Texture> &_aoMap)
 {
 	aoMap = _aoMap;
-	if (aoMap)
-	{
-		mapBitField |= AO;
-	}
-	else
-	{
-		mapBitField ^= AO;
-	}
 }
 
 void Material::setEmissiveMap(const std::shared_ptr<Texture> &_emissiveMap)
 {
 	emissiveMap = _emissiveMap;
-	if (emissiveMap)
-	{
-		mapBitField |= EMISSIVE;
-	}
-	else
-	{
-		mapBitField ^= EMISSIVE;
-	}
 }
 
 void Material::setDisplacementMap(const std::shared_ptr<Texture> &_displacementMap)

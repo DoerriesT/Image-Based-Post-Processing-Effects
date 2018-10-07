@@ -10,16 +10,16 @@
 
 
 ShaderProgram::ShaderProgram(
-	const std::vector<std::tuple<ShaderType, std::string, int>> &_defines, 
+	const std::vector<std::tuple<ShaderType, std::string, int>> &_defines,
 	const char *_vertexShaderPath,
 	const char *_fragmentShaderPath,
 	const char *_tesselationControlShaderPath,
 	const char *_tesselationEvaluationShaderPath,
 	const char *_geometryShaderPath)
-	:defines(_defines)
+	:defines(_defines),
+	vertexShaderPath(_vertexShaderPath),
+	fragmentShaderPath(_fragmentShaderPath)
 {
-	vertexShaderPath = _vertexShaderPath;
-	fragmentShaderPath = _fragmentShaderPath;
 	if (_tesselationControlShaderPath)
 	{
 		tesselationControlShaderPath = _tesselationControlShaderPath;
@@ -36,9 +36,9 @@ ShaderProgram::ShaderProgram(
 }
 
 ShaderProgram::ShaderProgram(const std::vector<std::tuple<ShaderType, std::string, int>> &_defines, const char *_computeShaderPath)
-	:defines(_defines)
+	:defines(_defines),
+	computeShaderPath(_computeShaderPath)
 {
-	computeShaderPath = _computeShaderPath;
 	create();
 }
 
@@ -236,11 +236,11 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createShaderProgram(
 }
 
 std::shared_ptr<ShaderProgram> ShaderProgram::createShaderProgram(
-	const std::vector<std::tuple<ShaderType, std::string, int>> &_defines, 
-	const char * _vertexShaderPath, 
-	const char * _fragmentShaderPath, 
-	const char * _tesselationControlShaderPath, 
-	const char * _tesselationEvaluationShaderPath, 
+	const std::vector<std::tuple<ShaderType, std::string, int>> &_defines,
+	const char * _vertexShaderPath,
+	const char * _fragmentShaderPath,
+	const char * _tesselationControlShaderPath,
+	const char * _tesselationEvaluationShaderPath,
 	const char * _geometryShaderPath)
 {
 	return std::shared_ptr<ShaderProgram>(new ShaderProgram(_defines, _vertexShaderPath, _fragmentShaderPath, _tesselationControlShaderPath, _tesselationEvaluationShaderPath, _geometryShaderPath));

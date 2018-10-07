@@ -24,7 +24,12 @@ Engine::Engine(const std::string &_title, IGameLogic & _gameLogic)
 	gameLogic(_gameLogic), 
 	userInput(UserInput::getInstance()),
 	title(_title), 
-	systemManager(SystemManager::getInstance())
+	systemManager(SystemManager::getInstance()),
+	lastFrame(),
+	time(),
+	timeDelta(),
+	lastFpsMeasure(),
+	fps()
 {
 	assert(!instance);
 	instance = this;

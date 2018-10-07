@@ -15,8 +15,8 @@ struct CameraPathSegment
 	glm::vec3 targetEndPosition;
 	glm::vec3 targetStartTangent;
 	glm::vec3 targetEndTangent;
-	double totalDuration;
-	double(*easingFunction)(double, double );
+	double totalDuration = 1.0;
+	double(*easingFunction)(double, double) = nullptr;
 	bool fadeIn = false;
 	bool fadeOut = false;
 	double fadeTime = 2.0;

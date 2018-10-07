@@ -22,7 +22,9 @@ RenderSystem::RenderSystem(std::shared_ptr<Window> _window)
 	exposureMultiplier(1.0f),
 	entityManager(EntityManager::getInstance()),
 	bakedReflections(false),
-	bakedIrradianceVolume(false)
+	bakedIrradianceVolume(false),
+	scene(),
+	effects()
 {
 	validBitMaps.push_back(Component<TransformationComponent>::getTypeId() | Component<ModelComponent>::getTypeId() | Component<RenderableComponent>::getTypeId());
 }
@@ -252,10 +254,12 @@ void RenderSystem::render()
 		}
 	}
 
-	if (level->environment.useAtmosphere && !level->environment.isAtmosphereValid)
+	Environment &environment = level->environment;
+
+	if (environment.useAtmosphere && !environment.isAtmosphereValid)
 	{
-		level->environment.environmentMap = graphicsFramework->render(level->environment.atmosphereParams);
-		level->environment.isAtmosphereValid = true;
+		environment.environmentMap = graphicsFramework->render(environment.atmosphereParams);
+		environment.isAtmosphereValid = true;
 	}
 
 	if (level->loaded &&

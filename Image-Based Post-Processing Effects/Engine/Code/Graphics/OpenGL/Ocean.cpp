@@ -106,9 +106,11 @@ void Ocean::prepareRender(const RenderData &_renderData, const std::shared_ptr<L
 {
 	bool recompute = false;
 
-	if (currentWaterConfig.simulationResolution != _level->water.simulationResolution)
+	Water &water = _level->water;
+
+	if (currentWaterConfig.simulationResolution != water.simulationResolution)
 	{
-		currentWaterConfig.simulationResolution = _level->water.simulationResolution;
+		currentWaterConfig.simulationResolution = water.simulationResolution;
 		recompute = true;
 		createWaterAttachments(currentWaterConfig.simulationResolution);
 
@@ -120,16 +122,16 @@ void Ocean::prepareRender(const RenderData &_renderData, const std::shared_ptr<L
 		tildeHktRenderPass->resize(currentWaterConfig.simulationResolution, currentWaterConfig.simulationResolution);
 	}
 
-	if (currentWaterConfig.normalizedWindDirection != _level->water.normalizedWindDirection ||
-		currentWaterConfig.waveAmplitude != _level->water.waveAmplitude ||
-		currentWaterConfig.waveSuppressionExponent != _level->water.waveSuppressionExponent ||
-		currentWaterConfig.windSpeed != _level->water.windSpeed ||
-		currentWaterConfig.worldSize != _level->water.worldSize)
+	if (currentWaterConfig.normalizedWindDirection != water.normalizedWindDirection ||
+		currentWaterConfig.waveAmplitude != water.waveAmplitude ||
+		currentWaterConfig.waveSuppressionExponent != water.waveSuppressionExponent ||
+		currentWaterConfig.windSpeed != water.windSpeed ||
+		currentWaterConfig.worldSize != water.worldSize)
 	{
 		recompute = true;
 	}
 
-	currentWaterConfig = _level->water;
+	currentWaterConfig = water;
 
 	if (recompute)
 	{

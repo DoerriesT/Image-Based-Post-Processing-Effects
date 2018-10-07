@@ -1,8 +1,8 @@
 #include "SoundListener.h"
 
 SoundListener::SoundListener(const glm::vec3 &_position)
+	:position(_position)
 {
-	position = _position;
 	updatePosition();
 	alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f);
 }

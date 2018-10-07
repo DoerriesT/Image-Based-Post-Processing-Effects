@@ -94,7 +94,7 @@ std::string GLUtility::shaderIncludeResolve(const std::string & _sourceCode)
 			std::string includeFileName;
 			bool foundStart = false;
 			size_t start = 0;
-			size_t end;
+			size_t end = 0;
 
 			for (size_t i = pos + includeWordLength + 1; i < result.size(); ++i)
 			{

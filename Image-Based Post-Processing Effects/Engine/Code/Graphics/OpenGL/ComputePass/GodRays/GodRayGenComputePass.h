@@ -8,7 +8,7 @@ class GodRayGenComputePass
 {
 public:
 	explicit GodRayGenComputePass(unsigned int _width, unsigned int _height);
-	void execute(const Effects &_effects, GLuint *_godRayTextures, glm::vec2 _lightPosition);
+	void execute(const Effects &_effects, GLuint *_godRayTextures, const glm::vec2 &_lightPosition);
 	void resize(unsigned int _width, unsigned int _height);
 
 private:

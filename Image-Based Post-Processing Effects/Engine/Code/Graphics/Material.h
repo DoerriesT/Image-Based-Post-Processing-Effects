@@ -62,5 +62,4 @@ private:
 	std::shared_ptr<Texture> aoMap;
 	std::shared_ptr<Texture> emissiveMap;
 	std::shared_ptr<Texture> displacementMap;
-	std::uint32_t mapBitField;
 };

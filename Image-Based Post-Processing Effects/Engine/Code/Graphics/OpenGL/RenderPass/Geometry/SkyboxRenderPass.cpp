@@ -40,7 +40,8 @@ SkyboxRenderPass::SkyboxRenderPass(GLuint _fbo, unsigned int _width, unsigned in
 
 void SkyboxRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass)
 {
-	if (!_level->environment.skyboxEntity)
+	Environment &environment = _level->environment;
+	if (!environment.skyboxEntity)
 	{
 		return;
 	}
@@ -57,16 +58,16 @@ void SkyboxRenderPass::render(const RenderData &_renderData, const std::shared_p
 
 	EntityManager &entityManager = EntityManager::getInstance();
 
-	uHasAlbedoMapB.set(_level->environment.environmentMap ? true : false);
+	uHasAlbedoMapB.set(environment.environmentMap ? true : false);
 	uColorB.set(DEFAULT_ALBEDO_COLOR);
 
-	if (_level->environment.environmentMap)
+	if (environment.environmentMap)
 	{
 		glActiveTexture(GL_TEXTURE11);
-		glBindTexture(_level->environment.environmentMap->getTarget(), _level->environment.environmentMap->getId());
+		glBindTexture(environment.environmentMap->getTarget(), environment.environmentMap->getId());
 	}
 
-	TransformationComponent *transformationComponent = entityManager.getComponent<TransformationComponent>(_level->environment.skyboxEntity);
+	TransformationComponent *transformationComponent = entityManager.getComponent<TransformationComponent>(environment.skyboxEntity);
 	glm::mat4 mvpMatrix = _renderData.projectionMatrix * glm::mat4(glm::mat3(_renderData.viewMatrix));
 
 	if (transformationComponent)

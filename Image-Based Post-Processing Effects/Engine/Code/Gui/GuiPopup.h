@@ -159,9 +159,14 @@ private:
 			 const std::vector<std::string> &buttons,
 			 const std::vector<std::string> &textfields = {},
 			 const std::vector<GuiTextFieldType> &textfieldTypes = {})
-		: IIdentifiable(id), title(title), messages(messages), buttons(buttons),
-		textfields(textfields), textfieldTypes(textfieldTypes),
-		errorPopup(false)
+		: IIdentifiable(id), 
+		title(title), 
+		messages(messages), 
+		buttons(buttons),
+		textfields(textfields), 
+		textfieldTypes(textfieldTypes),
+		errorPopup(false),
+		userData()
 	{
 		assert(messages.size() <= 4);
 		assert(textfields.size() <= 4);

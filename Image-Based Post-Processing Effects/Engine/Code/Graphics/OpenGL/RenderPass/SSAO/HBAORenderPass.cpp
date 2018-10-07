@@ -60,7 +60,6 @@ void HBAORenderPass::render(const RenderData & _renderData, const Effects & _eff
 	focalLength.y = 1.0f / tanf(glm::radians(_renderData.fov) * 0.5f);
 
 	glm::vec2 res(_renderData.resolution.first, _renderData.resolution.second);
-	float radius = 0.3f;
 
 	hbaoShader->bind();
 	uFocalLengthHBAO.set(focalLength);

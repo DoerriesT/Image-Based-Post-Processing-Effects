@@ -1,7 +1,7 @@
 #include "SampleKernel.h"
 #include <glm/gtc/constants.hpp>
 
-glm::vec2 shirleyUnitSquareToDisk(const glm::vec2 _point)
+glm::vec2 shirleyUnitSquareToDisk(const glm::vec2 &_point)
 {
 	float max_fstops = 8;
 	float min_fstops = 1;

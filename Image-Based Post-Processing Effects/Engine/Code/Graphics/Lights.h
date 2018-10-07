@@ -98,7 +98,6 @@ private:
 	glm::vec3 position;
 	glm::vec3 viewPosition;
 	float luminousPower;
-	float luminousIntensity;
 	float radius;
 	bool renderShadows;
 	unsigned int shadowMap;
@@ -182,7 +181,6 @@ private:
 	glm::vec3 viewDirection;
 	glm::vec4 boundingSphere;
 	float luminousPower;
-	float luminousIntensity;
 	float outerAngle;
 	float innerAngle;
 	float angleScale;

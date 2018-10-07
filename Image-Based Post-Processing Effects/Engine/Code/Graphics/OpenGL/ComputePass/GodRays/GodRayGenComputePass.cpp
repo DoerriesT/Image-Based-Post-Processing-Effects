@@ -10,7 +10,7 @@ GodRayGenComputePass::GodRayGenComputePass(unsigned int _width, unsigned int _he
 	uSunPosGR.create(godRayGenShader);
 }
 
-void GodRayGenComputePass::execute(const Effects & _effects, GLuint *_godRayTextures, glm::vec2 _lightPosition)
+void GodRayGenComputePass::execute(const Effects & _effects, GLuint *_godRayTextures, const glm::vec2 &_lightPosition)
 {
 	godRayGenShader->bind();
 	uSunPosGR.set(_lightPosition);

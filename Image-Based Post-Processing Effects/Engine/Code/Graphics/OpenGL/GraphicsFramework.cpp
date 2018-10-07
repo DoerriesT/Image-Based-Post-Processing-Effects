@@ -223,11 +223,12 @@ void GraphicsFramework::bake(const Scene &_scene, const std::shared_ptr<Level> &
 		
 
 		// bake irradiance volume
-		if (_irradianceVolume && _level->environment.irradianceVolume)
+		std::shared_ptr<IrradianceVolume> volume = _level->environment.irradianceVolume;
+		if (_irradianceVolume && volume)
 		{
-			glm::ivec3 dims = _level->environment.irradianceVolume->getDimensions();
-			glm::vec3 origin = _level->environment.irradianceVolume->getOrigin();
-			float spacing = _level->environment.irradianceVolume->getSpacing();
+			glm::ivec3 dims = volume->getDimensions();
+			glm::vec3 origin = volume->getOrigin();
+			float spacing = volume->getSpacing();
 
 			for (unsigned int z = 0; z < dims.z; ++z)
 			{
@@ -260,11 +261,11 @@ void GraphicsFramework::bake(const Scene &_scene, const std::shared_ptr<Level> &
 							sceneRenderer.render(renderData, _scene, _level, effects);
 							environmentRenderer.updateCubeSide(i, sceneRenderer.getColorTexture());
 						}
-						environmentRenderer.calculateIrradiance(_level->environment.irradianceVolume, glm::ivec3(x, y, z));
+						environmentRenderer.calculateIrradiance(volume, glm::ivec3(x, y, z));
 					}
 				}
 			}
-			_level->environment.irradianceVolume->flushToGpu();
+			volume->flushToGpu();
 		}
 	}
 

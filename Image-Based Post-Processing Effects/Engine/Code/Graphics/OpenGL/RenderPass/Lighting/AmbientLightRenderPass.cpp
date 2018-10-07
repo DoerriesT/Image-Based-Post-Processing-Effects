@@ -52,7 +52,7 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 
 bool gtaoMultiBounce = false;
 
-void AmbientLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, GLuint *_lpv, Volume _volume, RenderPass **_previousRenderPass)
+void AmbientLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, GLuint *_lpv, const Volume &_volume, RenderPass **_previousRenderPass)
 {
 	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
@@ -166,9 +166,10 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	}
 	else
 	{
-		uVolumeOrigin.set(_level->environment.irradianceVolume->getOrigin());
-		uVolumeDimensions.set(_level->environment.irradianceVolume->getDimensions());
-		uSpacing.set(_level->environment.irradianceVolume->getSpacing());
+		std::shared_ptr<IrradianceVolume> volume = _level->environment.irradianceVolume;
+		uVolumeOrigin.set(volume->getOrigin());
+		uVolumeDimensions.set(volume->getDimensions());
+		uSpacing.set(volume->getSpacing());
 	}
 
 	if (_effects.diffuseAmbientSource != DiffuseAmbientSource::FLAT)
