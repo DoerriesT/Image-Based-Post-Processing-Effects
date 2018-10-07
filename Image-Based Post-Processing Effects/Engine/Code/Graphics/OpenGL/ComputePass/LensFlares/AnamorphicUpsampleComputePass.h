@@ -8,7 +8,7 @@ class AnamorphicUpsampleComputePass
 {
 public:
 	explicit AnamorphicUpsampleComputePass(unsigned int _width, unsigned int _height);
-	void execute(const Effects &_effects, GLuint _prefilterTexture, GLuint *_anamorphicTextureChain, size_t _chainSize, int _lastUsedTexture, unsigned int _lastWidth);
+	void execute(const Effects &_effects, GLuint _prefilterTexture, GLuint *_anamorphicTextureChain, size_t _chainSize, size_t _lastUsedTexture, unsigned int _lastWidth);
 	void resize(unsigned int _width, unsigned int _height);
 
 private:

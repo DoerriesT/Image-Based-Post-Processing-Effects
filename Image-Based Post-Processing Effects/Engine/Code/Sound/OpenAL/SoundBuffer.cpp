@@ -63,11 +63,11 @@ SoundBuffer::SoundBuffer(const std::string &_file, bool _instantLoading)
 		int channels = info.channels;
 		unsigned int lengthSamples = stb_vorbis_stream_length_in_samples(decoder);
 
-		short *data = new short[lengthSamples];
+		short *data = new short[static_cast<size_t>(lengthSamples)];
 		stb_vorbis_get_samples_short_interleaved(decoder, channels, data, lengthSamples);
 		stb_vorbis_close(decoder);
 
-		auto *result = new std::tuple<short *, unsigned int, unsigned int, int>(data, lengthSamples * sizeof(short), info.sample_rate, info.channels);
+		auto *result = new std::tuple<short *, unsigned int, unsigned int, int>(data, static_cast<size_t>(lengthSamples) * sizeof(short), info.sample_rate, info.channels);
 		job->setUserData(result);
 	};
 

@@ -186,7 +186,7 @@ void ShadowRenderPass::renderShadows(const glm::mat4 & _viewProjectionMatrix, co
 			currentMesh->enableVertexAttribArraysPositionOnly();
 		}
 
-		glDrawElements(GL_TRIANGLES, currentMesh->getIndices().size(), GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(currentMesh->getIndices().size()), GL_UNSIGNED_INT, NULL);
 	}
 }
 

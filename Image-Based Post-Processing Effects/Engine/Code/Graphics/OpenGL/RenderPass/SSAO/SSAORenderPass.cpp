@@ -90,7 +90,7 @@ void SSAORenderPass::render(const RenderData & _renderData, const Effects & _eff
 	if (generateKernel)
 	{
 		generateKernel = false;
-		for (unsigned int i = 0; i < currentKernelSize; ++i)
+		for (size_t i = 0; i < static_cast<size_t>(currentKernelSize); ++i)
 		{
 			ssaoShader->setUniform(uSamplesAO[i], ssaoKernel[i]);
 		}

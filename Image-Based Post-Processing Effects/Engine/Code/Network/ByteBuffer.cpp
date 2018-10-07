@@ -60,10 +60,6 @@ void ByteBuffer::mark()
 
 void ByteBuffer::reset()
 {
-	if (mark_ < 0)
-	{
-		throw std::exception("ByteBuffer reset failed, no marked position.");
-	}
 	pos_ = mark_;
 }
 

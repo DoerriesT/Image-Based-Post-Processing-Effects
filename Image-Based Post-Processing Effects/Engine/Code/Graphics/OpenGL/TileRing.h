@@ -1,5 +1,6 @@
 #pragma once
 #include <glad\glad.h>
+#include <memory>
 
 struct TileData
 {
@@ -17,7 +18,7 @@ const unsigned int TILE_DIMENSIONS = 8;
 class TileRing
 {
 public:
-	explicit TileRing(int _innerWidth, int _outerWidth, float _tileSize);
+	explicit TileRing(size_t _innerWidth, size_t _outerWidth, float _tileSize);
 	~TileRing();
 	TileRing(const TileRing&) = delete;
 	TileRing& operator=(const TileRing&) = delete;
@@ -25,16 +26,16 @@ public:
 	float getTileSize() const;
 
 private:
-	int outerWidth;
-	int innerWidth;
-	int ringWidth;
-	int numtiles;
-	float tileSize;
-	TileData *tileData;
+	std::unique_ptr<TileData[]> tileData;
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
+	size_t outerWidth;
+	size_t innerWidth;
+	size_t ringWidth;
+	size_t numtiles;
+	float tileSize;
 
-	void assignNeighborSizes(int _x, int _y, TileData *_tileData);
+	void assignNeighborSizes(size_t _x, size_t _y, TileData *_tileData);
 	void generateTileData();
 };

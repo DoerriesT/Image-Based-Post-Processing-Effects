@@ -11,18 +11,18 @@
 #include <glm\ext.hpp>
 #include "Graphics\Volume.h"
 
-int RSM_SIZE = 512;
-int VOLUME_SIZE = 64;
+size_t RSM_SIZE = 512;
+size_t VOLUME_SIZE = 64;
 
 void LightPropagationVolumes::init()
 {
 	glCreateFramebuffers(1, &propagationFbo);
 	glCreateFramebuffers(1, &rsmFbo);
 
-	rsmRenderPass = std::make_unique<RSMRenderPass>(rsmFbo, RSM_SIZE, RSM_SIZE);
-	lightInjectionRenderPass = std::make_unique<LightInjectionRenderPass>(propagationFbo, VOLUME_SIZE * VOLUME_SIZE, VOLUME_SIZE);
-	geometryInjectionRenderPass = std::make_unique<GeometryInjectionRenderPass>(propagationFbo, VOLUME_SIZE * VOLUME_SIZE, VOLUME_SIZE);
-	lightPropagationRenderPass = std::make_unique<LightPropagationRenderPass>(propagationFbo, VOLUME_SIZE * VOLUME_SIZE, VOLUME_SIZE);
+	rsmRenderPass = std::make_unique<RSMRenderPass>(rsmFbo, static_cast<unsigned int>(RSM_SIZE), static_cast<unsigned int>(RSM_SIZE));
+	lightInjectionRenderPass = std::make_unique<LightInjectionRenderPass>(propagationFbo, static_cast<unsigned int>(VOLUME_SIZE * VOLUME_SIZE), static_cast<unsigned int>(VOLUME_SIZE));
+	geometryInjectionRenderPass = std::make_unique<GeometryInjectionRenderPass>(propagationFbo, static_cast<unsigned int>(VOLUME_SIZE * VOLUME_SIZE), static_cast<unsigned int>(VOLUME_SIZE));
+	lightPropagationRenderPass = std::make_unique<LightPropagationRenderPass>(propagationFbo, static_cast<unsigned int>(VOLUME_SIZE * VOLUME_SIZE), static_cast<unsigned int>(VOLUME_SIZE));
 
 	// RSM textures
 	{
@@ -30,7 +30,7 @@ void LightPropagationVolumes::init()
 
 		glGenTextures(1, &rsmDepth);
 		glBindTexture(GL_TEXTURE_2D, rsmDepth);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, RSM_SIZE, RSM_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, static_cast<GLsizei>(RSM_SIZE), static_cast<GLsizei>(RSM_SIZE), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -43,7 +43,7 @@ void LightPropagationVolumes::init()
 
 		glGenTextures(1, &rsmFlux);
 		glBindTexture(GL_TEXTURE_2D, rsmFlux);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, RSM_SIZE, RSM_SIZE, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, static_cast<GLsizei>(RSM_SIZE), static_cast<GLsizei>(RSM_SIZE), 0, GL_RGB, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -52,48 +52,12 @@ void LightPropagationVolumes::init()
 
 		glGenTextures(1, &rsmNormal);
 		glBindTexture(GL_TEXTURE_2D, rsmNormal);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, RSM_SIZE, RSM_SIZE, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, static_cast<GLsizei>(RSM_SIZE), static_cast<GLsizei>(RSM_SIZE), 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, rsmNormal, 0);
-	}
-
-	// 3d textures
-	{
-		glGenTextures(1, &propagationVolumeRed);
-		glBindTexture(GL_TEXTURE_3D, propagationVolumeRed);
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, VOLUME_SIZE, VOLUME_SIZE, VOLUME_SIZE, 0, GL_RGBA, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, 0);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 0);
-
-		glGenTextures(1, &propagationVolumeGreen);
-		glBindTexture(GL_TEXTURE_3D, propagationVolumeGreen);
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, VOLUME_SIZE, VOLUME_SIZE, VOLUME_SIZE, 0, GL_RGBA, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, 0);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 0);
-
-		glGenTextures(1, &propagationVolumeBlue);
-		glBindTexture(GL_TEXTURE_3D, propagationVolumeBlue);
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, VOLUME_SIZE, VOLUME_SIZE, VOLUME_SIZE, 0, GL_RGBA, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, 0);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 0);
 	}
 
 	// 2d textures
@@ -102,7 +66,7 @@ void LightPropagationVolumes::init()
 
 		glGenTextures(1, &geometry2DVolume);
 		glBindTexture(GL_TEXTURE_2D, geometry2DVolume);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, VOLUME_SIZE * VOLUME_SIZE, VOLUME_SIZE, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(VOLUME_SIZE * VOLUME_SIZE), static_cast<GLsizei>(VOLUME_SIZE), 0, GL_RGBA, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -111,7 +75,7 @@ void LightPropagationVolumes::init()
 
 		glGenTextures(1, &propagation2DAccumVolumeRed);
 		glBindTexture(GL_TEXTURE_2D, propagation2DAccumVolumeRed);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, VOLUME_SIZE * VOLUME_SIZE, VOLUME_SIZE, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(VOLUME_SIZE * VOLUME_SIZE), static_cast<GLsizei>(VOLUME_SIZE), 0, GL_RGBA, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -119,7 +83,7 @@ void LightPropagationVolumes::init()
 
 		glGenTextures(1, &propagation2DAccumVolumeGreen);
 		glBindTexture(GL_TEXTURE_2D, propagation2DAccumVolumeGreen);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, VOLUME_SIZE * VOLUME_SIZE, VOLUME_SIZE, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(VOLUME_SIZE * VOLUME_SIZE), static_cast<GLsizei>(VOLUME_SIZE), 0, GL_RGBA, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -127,7 +91,7 @@ void LightPropagationVolumes::init()
 
 		glGenTextures(1, &propagation2DAccumVolumeBlue);
 		glBindTexture(GL_TEXTURE_2D, propagation2DAccumVolumeBlue);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, VOLUME_SIZE * VOLUME_SIZE, VOLUME_SIZE, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(VOLUME_SIZE * VOLUME_SIZE), static_cast<GLsizei>(VOLUME_SIZE), 0, GL_RGBA, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -135,7 +99,7 @@ void LightPropagationVolumes::init()
 
 		glGenTextures(1, &propagation2DVolumeRed0);
 		glBindTexture(GL_TEXTURE_2D, propagation2DVolumeRed0);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, VOLUME_SIZE * VOLUME_SIZE, VOLUME_SIZE, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(VOLUME_SIZE * VOLUME_SIZE), static_cast<GLsizei>(VOLUME_SIZE), 0, GL_RGBA, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -144,7 +108,7 @@ void LightPropagationVolumes::init()
 
 		glGenTextures(1, &propagation2DVolumeGreen0);
 		glBindTexture(GL_TEXTURE_2D, propagation2DVolumeGreen0);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, VOLUME_SIZE * VOLUME_SIZE, VOLUME_SIZE, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(VOLUME_SIZE * VOLUME_SIZE), static_cast<GLsizei>(VOLUME_SIZE), 0, GL_RGBA, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -153,7 +117,7 @@ void LightPropagationVolumes::init()
 
 		glGenTextures(1, &propagation2DVolumeBlue0);
 		glBindTexture(GL_TEXTURE_2D, propagation2DVolumeBlue0);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, VOLUME_SIZE * VOLUME_SIZE, VOLUME_SIZE, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(VOLUME_SIZE * VOLUME_SIZE), static_cast<GLsizei>(VOLUME_SIZE), 0, GL_RGBA, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -162,7 +126,7 @@ void LightPropagationVolumes::init()
 
 		glGenTextures(1, &propagation2DVolumeRed1);
 		glBindTexture(GL_TEXTURE_2D, propagation2DVolumeRed1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, VOLUME_SIZE * VOLUME_SIZE, VOLUME_SIZE, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(VOLUME_SIZE * VOLUME_SIZE), static_cast<GLsizei>(VOLUME_SIZE), 0, GL_RGBA, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -171,7 +135,7 @@ void LightPropagationVolumes::init()
 
 		glGenTextures(1, &propagation2DVolumeGreen1);
 		glBindTexture(GL_TEXTURE_2D, propagation2DVolumeGreen1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, VOLUME_SIZE * VOLUME_SIZE, VOLUME_SIZE, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(VOLUME_SIZE * VOLUME_SIZE), static_cast<GLsizei>(VOLUME_SIZE), 0, GL_RGBA, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -180,7 +144,7 @@ void LightPropagationVolumes::init()
 
 		glGenTextures(1, &propagation2DVolumeBlue1);
 		glBindTexture(GL_TEXTURE_2D, propagation2DVolumeBlue1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, VOLUME_SIZE * VOLUME_SIZE, VOLUME_SIZE, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(VOLUME_SIZE * VOLUME_SIZE), static_cast<GLsizei>(VOLUME_SIZE), 0, GL_RGBA, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -193,7 +157,7 @@ void LightPropagationVolumes::init()
 
 void LightPropagationVolumes::render(const RenderData &_renderData, const Scene &_scene, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass)
 {
-	glm::ivec3 volumeDimensions = glm::ivec3(VOLUME_SIZE);
+	glm::ivec3 volumeDimensions = glm::ivec3(static_cast<int>(VOLUME_SIZE));
 	float volumeSpacing = 0.5f;
 	glm::vec2 target = glm::vec2(0.0f);
 	glm::vec3 volumeOrigin = glm::round(glm::vec3(target.x - volumeDimensions.x * volumeSpacing * 0.5f, 0.0f, target.y - volumeDimensions.z * volumeSpacing * 0.5f));
@@ -246,9 +210,8 @@ void LightPropagationVolumes::render(const RenderData &_renderData, const Scene 
 	GLuint redTextures[] = { propagation2DVolumeRed0, propagation2DVolumeRed1 };
 	GLuint greenTextures[] = { propagation2DVolumeGreen0, propagation2DVolumeGreen1 };
 	GLuint blueTextures[] = { propagation2DVolumeBlue0, propagation2DVolumeBlue1 };
-	GLuint accumTextures[] = { propagationVolumeRed, propagationVolumeGreen, propagationVolumeBlue };
-	//glMemoryBarrier(GL_ALL_BARRIER_BITS);
-	lightPropagationRenderPass->render(propagationVolume, geometry2DVolume, redTextures, greenTextures, blueTextures, accumTextures, _previousRenderPass);
+
+	lightPropagationRenderPass->render(propagationVolume, geometry2DVolume, redTextures, greenTextures, blueTextures, _previousRenderPass);
 }
 
 GLuint LightPropagationVolumes::getRedVolume() const

@@ -16,15 +16,15 @@ public:
 	void remove(const Entity *_entity);
 	void update(const Entity *_entity);
 	void sort();
-	unsigned int getOutlineCount() const;
-	unsigned int getTransparencyCount() const;
-	unsigned int getCustomOpaqueCount() const;
-	unsigned int getCustomTransparencyCount() const;
+	size_t getOutlineCount() const;
+	size_t getTransparencyCount() const;
+	size_t getCustomOpaqueCount() const;
+	size_t getCustomTransparencyCount() const;
 
 private:
 	std::vector<std::unique_ptr<EntityRenderData>> meshEntityData;
-	unsigned int outlineCount;
-	unsigned int transparencyCount;
-	unsigned int customOpaqueCount;
-	unsigned int customTransparencyCount;
+	size_t outlineCount;
+	size_t transparencyCount;
+	size_t customOpaqueCount;
+	size_t customTransparencyCount;
 };

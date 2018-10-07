@@ -67,11 +67,11 @@ void LightProbeRenderPass::render(const RenderData & _renderData, const std::sha
 	glActiveTexture(GL_TEXTURE13);
 	glBindTexture(GL_TEXTURE_2D, volume->getProbeTexture()->getId());
 
-	for (unsigned int z = 0; z < dims.z; ++z)
+	for (int z = 0; z < dims.z; ++z)
 	{
-		for (unsigned int y = 0; y < dims.y; ++y)
+		for (int y = 0; y < dims.y; ++y)
 		{
-			for (unsigned int x = 0; x < dims.x; ++x)
+			for (int x = 0; x < dims.x; ++x)
 			{
 				glm::vec3 position = origin + glm::vec3(x, y, z) * spacing;
 				uModelViewProjectionMatrix.set(_renderData.viewProjectionMatrix * glm::translate(position) * glm::scale(glm::vec3(0.2f)));

@@ -94,22 +94,22 @@ void Scene::sort()
 	std::sort(meshEntityData.begin(), meshEntityData.end(), [](const std::unique_ptr<EntityRenderData> &_lhv, const std::unique_ptr<EntityRenderData> &_rhv) { return _lhv->mesh < _rhv->mesh; });
 }
 
-unsigned int Scene::getOutlineCount() const
+size_t Scene::getOutlineCount() const
 {
 	return outlineCount;
 }
 
-unsigned int Scene::getTransparencyCount() const
+size_t Scene::getTransparencyCount() const
 {
 	return transparencyCount;
 }
 
-unsigned int Scene::getCustomOpaqueCount() const
+size_t Scene::getCustomOpaqueCount() const
 {
 	return customOpaqueCount;
 }
 
-unsigned int Scene::getCustomTransparencyCount() const
+size_t Scene::getCustomTransparencyCount() const
 {
 	return customTransparencyCount;
 }

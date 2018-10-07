@@ -230,11 +230,11 @@ void GraphicsFramework::bake(const Scene &_scene, const std::shared_ptr<Level> &
 			glm::vec3 origin = volume->getOrigin();
 			float spacing = volume->getSpacing();
 
-			for (unsigned int z = 0; z < dims.z; ++z)
+			for (int z = 0; z < dims.z; ++z)
 			{
-				for (unsigned int y = 0; y < dims.y; ++y)
+				for (int y = 0; y < dims.y; ++y)
 				{
-					for (unsigned int x = 0; x < dims.x; ++x)
+					for (int x = 0; x < dims.x; ++x)
 					{
 						glm::vec3 position = origin + glm::vec3(x, y, z) * spacing;
 						glm::mat4 viewMatrices[] =
@@ -279,18 +279,16 @@ std::shared_ptr<Texture> GraphicsFramework::render(const AtmosphereParams &_para
 
 void save2DTextureToFile(GLuint _texture, unsigned int _width, unsigned int _height)
 {
-	unsigned char *textureData = new unsigned char[_width * _height * 4];
+	std::unique_ptr<uint32_t[]> textureData = std::make_unique<uint32_t[]>(static_cast<size_t>(_width * _height));
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _texture);
 
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData.get());
 
 	std::string filename = "screenshot-" + Utility::getFormatedTime() + ".png";
 	stbi_flip_vertically_on_write(true);
-	stbi_write_png(filename.c_str(), _width, _height, 4, textureData, 0);
-
-	delete[] textureData;
+	stbi_write_png(filename.c_str(), _width, _height, 4, textureData.get(), 0);
 
 }
 

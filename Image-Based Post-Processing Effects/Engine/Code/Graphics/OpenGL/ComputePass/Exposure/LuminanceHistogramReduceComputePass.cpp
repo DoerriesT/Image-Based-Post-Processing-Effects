@@ -22,7 +22,9 @@ void LuminanceHistogramReduceComputePass::execute(GLuint _histogramTexture)
 
 	uLinesLHR.set(numGroupsX * numGroupsY);
 
-	glDispatchCompute(64 / 4, 1, 1);
+	const unsigned int histogramBuckets = 64;
+
+	glDispatchCompute(histogramBuckets / 4, 1, 1);
 	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 

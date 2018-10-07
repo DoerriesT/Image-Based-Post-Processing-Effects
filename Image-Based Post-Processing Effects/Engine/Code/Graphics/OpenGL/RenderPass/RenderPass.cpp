@@ -105,7 +105,7 @@ void RenderPass::begin(const RenderPass *_previousRenderPass)
 
 		if (!updateDrawBuffers && _previousRenderPass)
 		{
-			for (unsigned int i = 0; i < drawBuffers.size(); ++i)
+			for (size_t i = 0; i < drawBuffers.size(); ++i)
 			{
 				if (drawBuffers[i] != _previousRenderPass->drawBuffers[i])
 				{
@@ -117,7 +117,7 @@ void RenderPass::begin(const RenderPass *_previousRenderPass)
 
 		if (!_previousRenderPass || updateDrawBuffers || _previousRenderPass->fbo != fbo)
 		{
-			glDrawBuffers(drawBuffers.size(), drawBuffers.data());
+			glDrawBuffers(static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data());
 		}
 	}
 

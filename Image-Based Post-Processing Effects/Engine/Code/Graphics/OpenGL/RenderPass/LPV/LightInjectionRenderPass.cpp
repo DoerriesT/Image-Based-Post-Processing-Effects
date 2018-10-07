@@ -1,8 +1,8 @@
 #include "LightInjectionRenderPass.h"
 #include "Graphics\Volume.h"
 
-extern int VOLUME_SIZE;
-extern int RSM_SIZE;
+extern size_t VOLUME_SIZE;
+extern size_t RSM_SIZE;
 
 LightInjectionRenderPass::LightInjectionRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -36,9 +36,9 @@ LightInjectionRenderPass::LightInjectionRenderPass(GLuint _fbo, unsigned int _wi
 
 	std::unique_ptr<glm::vec2[]> positions = std::make_unique<glm::vec2[]>(512 * 512);
 
-	for (unsigned int y = 0; y < RSM_SIZE; ++y)
+	for (size_t y = 0; y < RSM_SIZE; ++y)
 	{
-		for (unsigned int x = 0; x < RSM_SIZE; ++x)
+		for (size_t x = 0; x < RSM_SIZE; ++x)
 		{
 			positions[y * RSM_SIZE + x] = { x, y };
 		}
@@ -75,7 +75,7 @@ void LightInjectionRenderPass::render(const Volume &_lightPropagationVolume,
 
 	lightInjectionShader->bind();
 	uInvViewProjection.set(_invViewProjection);
-	uRsmWidth.set(RSM_SIZE);
+	uRsmWidth.set(static_cast<GLint>(RSM_SIZE));
 	uGridOrigin.set(_lightPropagationVolume.origin);
 	uGridSize.set(glm::vec3(_lightPropagationVolume.dimensions));
 	uGridSpacing.set(glm::vec2(_lightPropagationVolume.spacing, 1.0f / _lightPropagationVolume.spacing));
@@ -87,5 +87,5 @@ void LightInjectionRenderPass::render(const Volume &_lightPropagationVolume,
 
 	glBindVertexArray(VAO);
 	glEnableVertexAttribArray(0);
-	glDrawArrays(GL_POINTS, 0, RSM_SIZE * RSM_SIZE);
+	glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(RSM_SIZE * RSM_SIZE));
 }

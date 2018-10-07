@@ -8,20 +8,20 @@ AnamorphicUpsampleComputePass::AnamorphicUpsampleComputePass(unsigned int _width
 	upsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/LensFlares/anamorphicUpsample.comp");
 }
 
-void AnamorphicUpsampleComputePass::execute(const Effects &_effects, GLuint _prefilterTexture, GLuint *_anamorphicTextureChain, size_t _chainSize, int _lastUsedTexture, unsigned int _lastWidth)
+void AnamorphicUpsampleComputePass::execute(const Effects &_effects, GLuint _prefilterTexture, GLuint *_anamorphicTextureChain, size_t _chainSize, size_t _lastUsedTexture, unsigned int _lastWidth)
 {
 	upsampleShader->bind();
 
-	for (int i = _lastUsedTexture - 1; i >= 0; --i)
+	for (int i = static_cast<int>(_lastUsedTexture) - 1; i >= 0; --i)
 	{
 		_lastWidth *= 2;
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, _anamorphicTextureChain[i]);
+		glBindTexture(GL_TEXTURE_2D, _anamorphicTextureChain[static_cast<size_t>(i)]);
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, _anamorphicTextureChain[i + 1]);
+		glBindTexture(GL_TEXTURE_2D, _anamorphicTextureChain[static_cast<size_t>(i) + 1]);
 
-		glBindImageTexture(0, _anamorphicTextureChain[i], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
+		glBindImageTexture(0, _anamorphicTextureChain[static_cast<size_t>(i)], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
 		GLUtility::glDispatchComputeHelper(_lastWidth, height / 2, 1, 8, 8, 1);
 		glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 	}

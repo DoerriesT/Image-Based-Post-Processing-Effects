@@ -126,10 +126,10 @@ void PhysicsSystem::update(double _currentTime, double _timeDelta)
 				const std::vector<std::uint32_t> &indices = mc->model[i].first->getIndices();
 
 				btIndexedMesh indexedMesh;
-				indexedMesh.m_numTriangles = indices.size() / 3;
+				indexedMesh.m_numTriangles = static_cast<int>(indices.size()) / 3;
 				indexedMesh.m_triangleIndexBase = (unsigned char *)indices.data();
 				indexedMesh.m_triangleIndexStride = sizeof(std::uint32_t) * 3;
-				indexedMesh.m_numVertices = vertices.size();
+				indexedMesh.m_numVertices = static_cast<int>(vertices.size());
 				indexedMesh.m_vertexBase = (unsigned char *)vertices.data();
 				indexedMesh.m_vertexStride = sizeof(glm::vec3);
 

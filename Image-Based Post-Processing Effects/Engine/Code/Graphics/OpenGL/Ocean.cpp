@@ -364,23 +364,21 @@ void Ocean::precomputeFftTextures(const Water & _water, RenderPass **_previousRe
 
 		// butterfly precompute
 		{
-			std::uint32_t *bitReversedIndices = new std::uint32_t[_water.simulationResolution];
+			std::unique_ptr<uint32_t[]> bitReversedIndices = std::make_unique<uint32_t[]>(static_cast<size_t>(_water.simulationResolution));
 
 			for (std::uint32_t i = 0; i < _water.simulationResolution; ++i)
 			{
 				std::uint32_t x = glm::bitfieldReverse(i);
 				x = glm::bitfieldRotateRight(x, glm::log2(_water.simulationResolution));
-				bitReversedIndices[i] = x;
+				bitReversedIndices[static_cast<size_t>(i)] = x;
 			}
 
 			butterflyPrecomputeCompShader->bind();
 			uSimulationResolutionBPC.set(_water.simulationResolution);
-			for (unsigned int i = 0; i < _water.simulationResolution; ++i)
+			for (size_t i = 0; i < static_cast<size_t>(_water.simulationResolution); ++i)
 			{
 				butterflyPrecomputeCompShader->setUniform(uJBPC[i], (int)bitReversedIndices[i]);
 			}
-
-			delete[] bitReversedIndices;
 
 			glBindImageTexture(0, twiddleIndicesTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 			glDispatchCompute(glm::log2(_water.simulationResolution), _water.simulationResolution / 8, 1);

@@ -362,6 +362,8 @@
     <None Include="..\Application\Resources\Shaders\AntiAliasing\smaaNeighborhoodBlending.frag" />
     <None Include="..\Application\Resources\Shaders\AntiAliasing\smaaNeighborhoodBlending.vert" />
     <None Include="..\Application\Resources\Shaders\AntiAliasing\smaaResolve.frag" />
+    <None Include="..\Application\Resources\Shaders\Bloom\downsample.comp" />
+    <None Include="..\Application\Resources\Shaders\Bloom\upsample.comp" />
     <None Include="..\Application\Resources\Shaders\Debug\boundingBox.frag" />
     <None Include="..\Application\Resources\Shaders\Debug\boundingBox.vert" />
     <None Include="..\Application\Resources\Shaders\DepthOfField\coc.comp" />

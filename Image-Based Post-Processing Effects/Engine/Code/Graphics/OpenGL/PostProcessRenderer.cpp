@@ -174,7 +174,7 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 	if (_effects.anamorphicFlares.enabled)
 	{
 		anamorphicPrefilterComputePass->execute(_effects, _colorTexture, anamorphicPrefilter);
-		int lastUsedTexture;
+		size_t lastUsedTexture;
 		unsigned int lastWidth;
 		anamorphicDownsampleComputePass->execute(_effects, anamorphicPrefilter, anamorphicChain, 6, lastUsedTexture, lastWidth);
 		anamorphicUpsampleComputePass->execute(_effects, anamorphicPrefilter, anamorphicChain, 6, lastUsedTexture, lastWidth);
@@ -766,9 +766,11 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		numGroupsX = numGroupsX / 8 + ((numGroupsX % 8 == 0) ? 0 : 1);
 		numGroupsY = numGroupsY / 8 + ((numGroupsY % 8 == 0) ? 0 : 1);
 
+		const unsigned int histogramBuckets = 64;
+
 		glGenTextures(1, &luminanceHistogramIntermediary);
 		glBindTexture(GL_TEXTURE_2D, luminanceHistogramIntermediary);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 64 / 4, numGroupsX * numGroupsY, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, histogramBuckets / 4, numGroupsX * numGroupsY, 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -776,7 +778,7 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 
 		glGenTextures(1, &luminanceHistogram);
 		glBindTexture(GL_TEXTURE_2D, luminanceHistogram);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 64 / 4, 1, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, histogramBuckets / 4, 1, 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

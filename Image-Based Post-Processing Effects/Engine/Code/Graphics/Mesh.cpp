@@ -63,7 +63,7 @@ AxisAlignedBoundingBox Mesh::getAABB() const
 Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instantLoading)
 	:filepath(_filepath), valid(false)
 {
-	for (unsigned int i = 0; i < _reserveCount; ++i)
+	for (size_t i = 0; i < _reserveCount; ++i)
 	{
 		subMeshes.push_back(SubMesh::createSubMesh());
 	}
@@ -89,14 +89,14 @@ Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instan
 		std::size_t currentOffset = sizeof(std::uint32_t);
 
 		// read subMesh count and reserve space
-		std::size_t numSubMeshes = *(std::uint32_t *)&rawData[currentOffset];
+		std::size_t numSubMeshes = static_cast<size_t>(*(std::uint32_t *)&rawData[currentOffset]);
 		subMeshes.reserve(numSubMeshes);
 
 		// skip past sub mesh count
 		currentOffset += sizeof(std::uint32_t);
 
 		// read all sub mesh data
-		for (unsigned int i = 0; i < numSubMeshes; ++i)
+		for (size_t i = 0; i < numSubMeshes; ++i)
 		{
 			// read aabb
 			AxisAlignedBoundingBox meshAabb = *(AxisAlignedBoundingBox *)&rawData[currentOffset];
@@ -104,7 +104,7 @@ Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instan
 			currentOffset += sizeof(AxisAlignedBoundingBox);
 
 			// read buffer size
-			std::uint32_t vertexBufferSize = *(std::uint32_t *)&rawData[currentOffset];
+			std::size_t vertexBufferSize = static_cast<size_t>(*(std::uint32_t *)&rawData[currentOffset]);
 			// skip past bufferSize
 			currentOffset += sizeof(std::uint32_t);
 			// get pointer to buffer data
@@ -113,7 +113,7 @@ Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instan
 			currentOffset += vertexBufferSize;
 
 			// read buffer size
-			std::uint32_t indexBufferSize = *(std::uint32_t *)&rawData[currentOffset];
+			std::size_t indexBufferSize = static_cast<size_t>(*(std::uint32_t *)&rawData[currentOffset]);
 			// skip past bufferSize
 			currentOffset += sizeof(std::uint32_t);
 			// get pointer to buffer data
@@ -124,11 +124,11 @@ Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instan
 			if (_reserveCount)
 			{
 				assert(_reserveCount == numSubMeshes);
-				subMeshes[i]->setData(vertexBufferSize, vertexBuffer, indexBufferSize, indexBuffer, meshAabb);
+				subMeshes[i]->setData(static_cast<uint32_t>(vertexBufferSize), vertexBuffer, static_cast<uint32_t>(indexBufferSize), indexBuffer, meshAabb);
 			}
 			else
 			{
-				subMeshes.push_back(SubMesh::createSubMesh(vertexBufferSize, vertexBuffer, indexBufferSize, indexBuffer, meshAabb));
+				subMeshes.push_back(SubMesh::createSubMesh(static_cast<uint32_t>(vertexBufferSize), vertexBuffer, static_cast<uint32_t>(indexBufferSize), indexBuffer, meshAabb));
 			}
 		}
 
@@ -183,12 +183,12 @@ void SubMesh::setData(std::uint32_t _vertexBufferSize, char *_vertices, std::uin
 {
 	assert(!dataIsSet);
 	dataIsSet = true;
-	indexCount = _indexBufferSize / sizeof(std::uint32_t);
+	indexCount = static_cast<size_t>(_indexBufferSize) / sizeof(std::uint32_t);
 	aabb = _aabb;
 
 	// create vertex data for physics
 	{
-		for (std::size_t i = 0; i < _vertexBufferSize/sizeof(Vertex); ++i)
+		for (std::size_t i = 0; i < static_cast<size_t>(_vertexBufferSize)/sizeof(Vertex); ++i)
 		{
 			vertices.push_back(((Vertex *)_vertices)[i].position);
 		}
@@ -205,9 +205,9 @@ void SubMesh::setData(std::uint32_t _vertexBufferSize, char *_vertices, std::uin
 	glGenBuffers(1, &EBO);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, _vertexBufferSize, _vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, static_cast<size_t>(_vertexBufferSize), _vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indexBufferSize, _indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<size_t>(_indexBufferSize), _indices, GL_STATIC_DRAW);
 
 	// vertex positions
 	glEnableVertexAttribArray(0);

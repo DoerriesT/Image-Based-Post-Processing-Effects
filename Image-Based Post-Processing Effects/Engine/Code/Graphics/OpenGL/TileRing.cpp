@@ -1,7 +1,7 @@
 ﻿#include "TileRing.h"
 #include <cassert>
 
-TileRing::TileRing(int _innerWidth, int _outerWidth, float _tileSize)
+TileRing::TileRing(size_t _innerWidth, size_t _outerWidth, float _tileSize)
 	:innerWidth(_innerWidth),
 	outerWidth(_outerWidth),
 	tileSize(_tileSize),
@@ -14,8 +14,6 @@ TileRing::TileRing(int _innerWidth, int _outerWidth, float _tileSize)
 
 TileRing::~TileRing()
 {
-	delete[] tileData;
-
 	glBindVertexArray(VAO);
 	glDisableVertexAttribArray(0);
 
@@ -33,7 +31,7 @@ void TileRing::render() const
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glPatchParameteri(GL_PATCH_VERTICES, 4);
-	glDrawElementsInstanced(GL_PATCHES, TILE_DIMENSIONS * TILE_DIMENSIONS * 4, GL_UNSIGNED_INT, NULL, numtiles);
+	glDrawElementsInstanced(GL_PATCHES, TILE_DIMENSIONS * TILE_DIMENSIONS * 4, GL_UNSIGNED_INT, NULL, static_cast<GLsizei>(numtiles));
 }
 
 float TileRing::getTileSize() const
@@ -41,7 +39,7 @@ float TileRing::getTileSize() const
 	return tileSize;
 }
 
-void TileRing::assignNeighborSizes(int _x, int _y, TileData * _tileData)
+void TileRing::assignNeighborSizes(size_t _x, size_t _y, TileData * _tileData)
 {
 	_tileData->neighbourPlusX = 1.0f;
 	_tileData->neighbourPlusY = 1.0f;
@@ -101,13 +99,13 @@ void TileRing::assignNeighborSizes(int _x, int _y, TileData * _tileData)
 
 void TileRing::generateTileData()
 {
-	int index = 0;
-	tileData = new TileData[numtiles];
+	size_t index = 0;
+	tileData = std::make_unique<TileData[]>(numtiles);
 
 	const float halfWidth = 0.5f * (float)outerWidth;
-	for (int y = 0; y < outerWidth; ++y)
+	for (size_t y = 0; y < outerWidth; ++y)
 	{
-		for (int x = 0; x < outerWidth; ++x)
+		for (size_t x = 0; x < outerWidth; ++x)
 		{
 			if (x < ringWidth || y < ringWidth || x >= outerWidth - ringWidth || y >= outerWidth - ringWidth)
 			{
@@ -140,7 +138,7 @@ void TileRing::generateTileData()
 	glGenBuffers(1, &EBO);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, numtiles * sizeof(TileData), tileData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, numtiles * sizeof(TileData), tileData.get(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 

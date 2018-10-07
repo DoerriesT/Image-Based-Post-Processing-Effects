@@ -11,8 +11,8 @@ class Texture;
 class EnvironmentProbe
 {
 public:
-	static const unsigned int REFLECTION_TEXTURE_RESOLUTION;
-	static const unsigned int IRRADIANCE_TEXTURE_RESOLUTION;
+	static const size_t REFLECTION_TEXTURE_RESOLUTION;
+	static const size_t IRRADIANCE_TEXTURE_RESOLUTION;
 
 	static std::shared_ptr<EnvironmentProbe> createEnvironmentProbe(const glm::vec3 &_position, const AxisAlignedBoundingBox &_aabb, const std::string &_filePath, bool _loadFromFile = true);
 	

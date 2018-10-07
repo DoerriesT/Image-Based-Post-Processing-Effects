@@ -33,7 +33,7 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 	// material count
 	std::getline(matFile, str);
 	assert(!str.empty());
-	unsigned int materialCount = std::stoi(str.substr(MATERIAL_COUNT_STRING.size()));
+	size_t materialCount = static_cast<size_t>(std::stoi(str.substr(MATERIAL_COUNT_STRING.size())));
 
 	// reserve space
 	submeshMaterialPairs.reserve(materialCount);
@@ -46,7 +46,7 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 	mesh = Mesh::createMesh("Resources/Models/" + meshFilepath, materialCount, _instantLoading);
 
 	// load materials
-	for (unsigned int i = 0; i < materialCount; ++i)
+	for (size_t i = 0; i < materialCount; ++i)
 	{
 		Material material;
 

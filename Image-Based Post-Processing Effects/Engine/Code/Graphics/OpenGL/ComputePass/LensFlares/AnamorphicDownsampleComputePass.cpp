@@ -8,7 +8,7 @@ AnamorphicDownsampleComputePass::AnamorphicDownsampleComputePass(unsigned int _w
 	downsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/LensFlares/anamorphicDownsample.comp");
 }
 
-void AnamorphicDownsampleComputePass::execute(const Effects & _effects, GLuint _prefilterTexture, GLuint *_anamorphicTextureChain, size_t _chainSize, int &_lastUsedTexture, unsigned int &_lastWidth)
+void AnamorphicDownsampleComputePass::execute(const Effects & _effects, GLuint _prefilterTexture, GLuint *_anamorphicTextureChain, size_t _chainSize, size_t &_lastUsedTexture, unsigned int &_lastWidth)
 {
 	downsampleShader->bind();
 
@@ -17,7 +17,7 @@ void AnamorphicDownsampleComputePass::execute(const Effects & _effects, GLuint _
 
 	_lastWidth = width;
 
-	for (int i = 0; i < (int)_chainSize && width > 16; ++i)
+	for (size_t i = 0; i < _chainSize && _lastWidth > 16; ++i)
 	{
 		_lastWidth /= 2;
 

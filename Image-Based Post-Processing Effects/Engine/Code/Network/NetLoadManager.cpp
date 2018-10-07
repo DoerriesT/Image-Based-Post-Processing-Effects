@@ -308,7 +308,7 @@ void NetLoadManager::runUpload(UpLoad *load)
 				bodyStream << "Content-Type: text/plain; charset=" + charset << CRLF;
 				bodyStream << CRLF;
 
-				std::vector<char> fileContent = Utility::readBinaryFile(filePath.c_str());
+				std::vector<char> fileContent = Utility::readBinaryFile(filePath);
 				bodyStream.write(fileContent.data(), fileContent.size());
 				bodyStream << CRLF;
 			}
@@ -334,7 +334,7 @@ void NetLoadManager::runUpload(UpLoad *load)
 		stream << "POST " << load->path << " HTTP/1.1" << CRLF;
 		stream << "Host: " << load->host  << CRLF;
 		stream << "Accept: */*"<< CRLF;
-		stream << "Content-Length: "<< (size_t)bodyLength << CRLF;
+		stream << "Content-Length: "<< static_cast<uint32_t>(bodyLength) << CRLF;
 		stream << "Content-Type: multipart/form-data; boundary=" << boundary << CRLF;
 		stream << "Connection: close" << CRLF;
 		stream << CRLF;

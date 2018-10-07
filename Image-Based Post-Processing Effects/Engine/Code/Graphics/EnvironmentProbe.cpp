@@ -4,8 +4,8 @@
 #include "Texture.h"
 #include "OpenGL\GLUtility.h"
 
-const unsigned int EnvironmentProbe::REFLECTION_TEXTURE_RESOLUTION = 1024;
-const unsigned int EnvironmentProbe::IRRADIANCE_TEXTURE_RESOLUTION = 64;
+const size_t EnvironmentProbe::REFLECTION_TEXTURE_RESOLUTION = 1024;
+const size_t EnvironmentProbe::IRRADIANCE_TEXTURE_RESOLUTION = 64;
 
 std::shared_ptr<EnvironmentProbe> EnvironmentProbe::createEnvironmentProbe(const glm::vec3 &_position, const AxisAlignedBoundingBox &_aabb, const std::string &_filePath, bool _loadFromFile)
 {
@@ -51,15 +51,15 @@ void EnvironmentProbe::saveToFile()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, reflectionTexture->getId());
 
-	for (unsigned int level = 0; level < 5; ++level)
+	for (size_t level = 0; level < 5; ++level)
 	{
-		glGetTexImage(GL_TEXTURE_2D, level, GL_RGB, GL_UNSIGNED_INT_10F_11F_11F_REV, buffer.get());
+		glGetTexImage(GL_TEXTURE_2D, static_cast<GLint>(level), GL_RGB, GL_UNSIGNED_INT_10F_11F_11F_REV, buffer.get());
 
-		unsigned int mipRes = unsigned int(REFLECTION_TEXTURE_RESOLUTION * std::pow(0.5f, level));
+		size_t mipRes = static_cast<size_t>(static_cast<double>(REFLECTION_TEXTURE_RESOLUTION) * std::pow(0.5f, level));
 
-		for (unsigned int y = 0; y < mipRes; ++y)
+		for (size_t y = 0; y < mipRes; ++y)
 		{
-			for (unsigned int x = 0; x < mipRes; ++x)
+			for (size_t x = 0; x < mipRes; ++x)
 			{
 				texture.store<glm::uint32>(gli::extent2d(x, y), level, buffer[(x + y * mipRes)]);
 			}
@@ -97,7 +97,7 @@ EnvironmentProbe::EnvironmentProbe(const glm::vec3 &_position, const AxisAligned
 		GLuint reflectionId;
 		glGenTextures(1, &reflectionId);
 		glBindTexture(GL_TEXTURE_2D, reflectionId);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, REFLECTION_TEXTURE_RESOLUTION, REFLECTION_TEXTURE_RESOLUTION, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, static_cast<GLsizei>(REFLECTION_TEXTURE_RESOLUTION), static_cast<GLsizei>(REFLECTION_TEXTURE_RESOLUTION), 0, GL_RGB, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -182,13 +182,13 @@ std::shared_ptr<Texture> IrradianceVolume::getProbeTexture() const
 
 IrradianceVolume::ProbeData IrradianceVolume::getProbeData(const glm::ivec3 &_index)
 {
-	unsigned int probeOffset = _index.z * (dimensions.x * dimensions.y) + _index.y * dimensions.x + _index.x;
+	size_t probeOffset = static_cast<size_t>(_index.z * (dimensions.x * dimensions.y) + _index.y * dimensions.x + _index.x);
 	return data[probeOffset];
 }
 
 void IrradianceVolume::updateProbeData(const glm::ivec3 &_index, const ProbeData &_probeData)
 {
-	unsigned int probeOffset = _index.z * (dimensions.x * dimensions.y) + _index.y * dimensions.x + _index.x;
+	size_t probeOffset = static_cast<size_t>(_index.z * (dimensions.x * dimensions.y) + _index.y * dimensions.x + _index.x);
 	data[probeOffset] = _probeData;
 }
 
@@ -202,8 +202,8 @@ void IrradianceVolume::flushToGpu()
 
 void IrradianceVolume::saveToFile(const std::string &_filepath)
 {
-	const int width = 9;
-	const int height = dimensions.x * dimensions.y * dimensions.z;
+	const size_t width = 9;
+	const size_t height = static_cast<size_t>(dimensions.x * dimensions.y * dimensions.z);
 	std::unique_ptr<glm::vec3[]> buffer = std::make_unique<glm::vec3[]>(width * height);
 
 	gli::texture2d texture = gli::texture2d(gli::format::FORMAT_RGB32_SFLOAT_PACK32, gli::extent2d(width, height), 1);
@@ -212,9 +212,9 @@ void IrradianceVolume::saveToFile(const std::string &_filepath)
 	glBindTexture(GL_TEXTURE_2D, probeTexture->getId());
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, buffer.get());
 
-	for (unsigned int y = 0; y < height; ++y)
+	for (size_t y = 0; y < height; ++y)
 	{
-		for (unsigned int x = 0; x < width; ++x)
+		for (size_t x = 0; x < width; ++x)
 		{
 			texture.store<glm::vec3>(gli::extent2d(x, y), 0, buffer[(x + y * width)]);
 		}

@@ -2,8 +2,8 @@
 #include "Graphics\Volume.h"
 #include "Graphics\Texture.h"
 
-extern int VOLUME_SIZE;
-extern int RSM_SIZE;
+extern size_t VOLUME_SIZE;
+extern size_t RSM_SIZE;
 
 LightPropagationRenderPass::LightPropagationRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -38,7 +38,7 @@ LightPropagationRenderPass::LightPropagationRenderPass(GLuint _fbo, unsigned int
 
 float occAmp = 1.0f;
 
-void LightPropagationRenderPass::render(const Volume &_lightPropagationVolume, GLuint _geometryTexture, GLuint *_redTexture, GLuint *_greenTexture, GLuint *_blueTexture, GLuint *accumTextures, RenderPass ** _previousRenderPass)
+void LightPropagationRenderPass::render(const Volume &_lightPropagationVolume, GLuint _geometryTexture, GLuint *_redTexture, GLuint *_greenTexture, GLuint *_blueTexture, RenderPass ** _previousRenderPass)
 {
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
@@ -57,7 +57,7 @@ void LightPropagationRenderPass::render(const Volume &_lightPropagationVolume, G
 
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArraysPositionOnly();
 
-	for (unsigned int i = 0; i < _lightPropagationVolume.dimensions.x; ++i)
+	for (size_t i = 0; i < static_cast<size_t>(_lightPropagationVolume.dimensions.x); ++i)
 	{
 		glDrawBuffers(3, targets[i % 2]);
 		glActiveTexture(GL_TEXTURE0);

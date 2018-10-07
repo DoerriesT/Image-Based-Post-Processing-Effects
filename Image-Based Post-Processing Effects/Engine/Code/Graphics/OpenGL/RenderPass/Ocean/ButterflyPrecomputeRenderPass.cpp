@@ -42,18 +42,18 @@ void ButterflyPrecomputeRenderPass::render(const Water & _water, RenderPass ** _
 
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
-	std::unique_ptr<uint32_t[]> bitReversedIndices = std::make_unique<uint32_t[]>(_water.simulationResolution);
+	std::unique_ptr<uint32_t[]> bitReversedIndices = std::make_unique<uint32_t[]>(static_cast<size_t>(_water.simulationResolution));
 
 	for (std::uint32_t i = 0; i < _water.simulationResolution; ++i)
 	{
 		std::uint32_t x = glm::bitfieldReverse(i);
 		x = glm::bitfieldRotateRight(x, glm::log2(_water.simulationResolution));
-		bitReversedIndices[i] = x;
+		bitReversedIndices[static_cast<size_t>(i)] = x;
 	}
 
 	butterflyPrecomputeShader->bind();
 	uSimulationResolutionBP.set(_water.simulationResolution);
-	for (unsigned int i = 0; i < _water.simulationResolution; ++i)
+	for (size_t i = 0; i < static_cast<size_t>(_water.simulationResolution); ++i)
 	{
 		butterflyPrecomputeShader->setUniform(uJBP[i], (int)bitReversedIndices[i]);
 	}

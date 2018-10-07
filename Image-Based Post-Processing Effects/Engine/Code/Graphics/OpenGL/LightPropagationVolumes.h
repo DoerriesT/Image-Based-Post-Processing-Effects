@@ -33,11 +33,6 @@ private:
 	GLuint rsmFlux;
 	GLuint rsmNormal;
 
-	// actual 3d textures
-	GLuint propagationVolumeRed;
-	GLuint propagationVolumeGreen;
-	GLuint propagationVolumeBlue;
-
 	GLuint propagationFbo;
 	
 	// 2d textures
