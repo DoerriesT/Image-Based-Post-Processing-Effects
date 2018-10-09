@@ -47,7 +47,10 @@
 #include "ComputePass/Bloom/BloomUpsampleComputePass.h"
 #include "RenderPass/Misc/SimplePostEffectsRenderPass.h"
 #include "RenderPass/Misc/ToneMapRenderPass.h"
-
+#include "ComputePass/DepthOfField/CombinedDofTileMaxComputePass.h"
+#include "ComputePass/DepthOfField/CombinedDofNeighborTileMaxComputePass.h"
+#include "ComputePass/DepthOfField/SeperateDofTileMaxComputePass.h"
+#include "Input/UserInput.h"
 
 unsigned int mbTileSize = 40;
 unsigned int dofTileSize = 16;
@@ -128,6 +131,9 @@ void PostProcessRenderer::init()
 	bloomUpsampleComputePass = new BloomUpsampleComputePass(windowWidth, windowHeight);
 	simplePostEffectsRenderPass = new SimplePostEffectsRenderPass(fullResolutionFbo, windowWidth, windowHeight);
 	toneMapRenderPass = new ToneMapRenderPass(fullResolutionFbo, windowWidth, windowHeight);
+	combinedDofTileMaxComputePass = new CombinedDofTileMaxComputePass(windowWidth, windowHeight);
+	combinedDofNeighborTileMaxComputePass = new CombinedDofNeighborTileMaxComputePass(windowWidth, windowHeight);
+	seperateDofTileMaxComputePass = new SeperateDofTileMaxComputePass(windowWidth, windowHeight);
 }
 
 void PostProcessRenderer::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
@@ -231,6 +237,7 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 		cocNeighborTileMaxRenderPass->render(cocMaxTex, cocNeighborMaxTex, &previousRenderPass);
 
 		seperateDofDownsampleComputePass->execute(_colorTexture, fullResolutionCocTexture, halfResolutionCocTexA, halfResolutionDofTexA, halfResolutionDofTexB);
+		//seperateDofTileMaxComputePass->execute(halfResolutionCocTexA);
 		GLuint dofTextures[] = { halfResolutionDofTexA , halfResolutionDofTexB , halfResolutionDofTexC , halfResolutionDofTexD };
 		seperateDofBlurComputePass->execute(dofTextures, halfResolutionCocTexA, cocNeighborMaxTex);
 		seperateDofFillComputePass->execute(dofTextures);
@@ -240,6 +247,9 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 	default:
 		break;
 	}
+
+	combinedDofTileMaxComputePass->execute(_depthTexture, cocTexTmp, cocMaxTex, dofTileSize, glm::radians(window->getFieldOfView()), Window::NEAR_PLANE, Window::FAR_PLANE);
+	combinedDofNeighborTileMaxComputePass->execute(cocMaxTex, cocNeighborMaxTex, dofTileSize);
 
 	calculateLuminance(_effects, _colorTexture);
 	//calculateLuminanceHistogram(_colorTexture);
@@ -622,10 +632,11 @@ void PostProcessRenderer::createFboAttachments(const std::pair<unsigned int, uns
 		glGenTextures(1, &halfResolutionCocTexA);
 		glBindTexture(GL_TEXTURE_2D, halfResolutionCocTexA);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, _resolution.first / 2, _resolution.second / 2, 0, GL_RG, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glGenerateMipmap(GL_TEXTURE_2D);
 
 		glGenTextures(1, &halfResolutionCocTexB);
 		glBindTexture(GL_TEXTURE_2D, halfResolutionCocTexB);

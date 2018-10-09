@@ -1,0 +1,29 @@
+#version 450 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(rg16f, binding = 0) uniform writeonly image2D uImgOut;
+
+layout(binding = 0) uniform sampler2D uCocTexture;
+
+uniform int uLevel;
+
+void main()
+{	
+	vec2 domainSize = textureSize(uCocTexture, uLevel).xy;
+	vec2 texelSize = vec2(1.0 / domainSize);
+	vec2 centerCoord = vec2(vec2(gl_GlobalInvocationID.xy) + 0.5) * texelSize * 2.0;
+	
+	vec2 coc0 = textureLod(uCocTexture, centerCoord + vec2(-texelSize.x, 0.0), uLevel).xy;
+	vec2 coc1 = textureLod(uCocTexture, centerCoord + vec2(texelSize.x, 0.0), uLevel).xy;
+	vec2 coc2 = textureLod(uCocTexture, centerCoord + vec2(0.0, -texelSize.y), uLevel).xy;
+	vec2 coc3 = textureLod(uCocTexture, centerCoord + vec2(0.0, texelSize.y), uLevel).xy;
+	vec2 coc4 = textureLod(uCocTexture, centerCoord + vec2(-texelSize.x, -texelSize.y), uLevel).xy;
+	vec2 coc5 = textureLod(uCocTexture, centerCoord + vec2(texelSize.x, texelSize.y), uLevel).xy;
+	vec2 coc6 = textureLod(uCocTexture, centerCoord + vec2(-texelSize.x, texelSize.y), uLevel).xy;
+	vec2 coc7 = textureLod(uCocTexture, centerCoord + vec2(texelSize.x, -texelSize.y), uLevel).xy;
+	
+	vec2 maxCoc = max(max(max(coc0, coc1), max(coc2, coc3)), max(max(coc4, coc5), max(coc6, coc7)));
+	
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(maxCoc, 0.0, 0.0));
+}

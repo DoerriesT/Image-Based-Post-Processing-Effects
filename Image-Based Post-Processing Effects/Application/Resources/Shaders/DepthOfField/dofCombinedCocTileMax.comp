@@ -7,11 +7,12 @@ layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 layout(rg16f, binding = 0) uniform writeonly image2D uImgOut;
 
 layout(binding = 0) uniform sampler2D uDepthTexture;
+layout(binding = 1) uniform sampler2D uTmpTexture;
 
 uniform float uFocalLength;
 uniform float uApertureSize;
 uniform vec2 uNearFar;
-uniform float uScale = 1.0;
+uniform float uScale = 50.0;
 uniform bool uDirection;
 
 float linearDepth(float depth)
@@ -28,31 +29,44 @@ float calculateCoc(float depth, float centerDepth)
 
 	vec2 resolution = textureSize(uDepthTexture, 0).xy;
 	coc *= max(resolution.x * (1.0 / 1920.0), resolution.y * (1.0 / 1080.0)) * uScale;
+	
+	return coc;
 }
 
 void main()
 {	
 	ivec2 offset = ivec2(1);
 	
+	float maxCoc = 0.0;
+	float minDepth = uNearFar.y;
+	
 	if(uDirection)
 	{
 		offset.x = 0;
+		
+		ivec2 centerCoord = ivec2(gl_GlobalInvocationID.xy) * ivec2(1, TILE_SIZE);
+		
+		for(int i = 0; i < TILE_SIZE; ++i)
+		{
+			vec2 cocDepth = texelFetch(uTmpTexture, i * offset + centerCoord, 0).xy;
+			maxCoc = max(maxCoc, cocDepth.x);
+			minDepth = min(minDepth, cocDepth.y);
+		}
 	}
 	else
 	{
 		offset.y = 0;
-	}
+		
+		float centerDepth = linearDepth(texture(uDepthTexture, vec2(0.5)).x);
+		ivec2 centerCoord = ivec2(gl_GlobalInvocationID.xy) * ivec2(TILE_SIZE, 1);
 	
-	float centerDepth = linearDepth(texture(uDepthTexture, vec2(0.5)).x);
-	float maxCoc = 0.0;
-	float minDepth = uNearFar.y;
-	
-	for(int i = TILE_SIZE / -2; i < TILE_SIZE / 2; ++i)
-	{
-		float depth = linearDepth(texelFetch(uDepthTexture, i * offset + ivec2(gl_GlobalInvocationID.xy), 0).x);
-		float coc = calculateCoc(depth, centerDepth);
-		maxCoc = max(maxCoc, coc);
-		minDepth = min(minDepth, depth);
+		for(int i = 0; i < TILE_SIZE; ++i)
+		{
+			float depth = linearDepth(texelFetch(uDepthTexture, i * offset + centerCoord, 0).x);
+			float coc = abs(calculateCoc(depth, centerDepth));
+			maxCoc = max(maxCoc, coc);
+			minDepth = min(minDepth, depth);
+		}
 	}
 	
 	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(vec2(maxCoc, minDepth), 0.0, 1.0));

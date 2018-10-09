@@ -20,15 +20,15 @@ void main()
 {	
 	vec2 maxCocMinDepth = vec2(0.0, 100000.0);
 	
-	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(-1, 1)).rg);
-	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(0, 1)).rg);
-	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(1)).rg);
-	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(-1, 0)).rg);
-	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(0, 0)).rg);
-	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(1, 0)).rg);
-	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(-1)).rg);
-	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(0, -1)).rg);
-	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(1, -1)).rg);
+	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(-1, 1), 0).rg);
+	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(0, 1), 0).rg);
+	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(1), 0).rg);
+	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(-1, 0), 0).rg);
+	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(0, 0), 0).rg);
+	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(1, 0), 0).rg);
+	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(-1), 0).rg);
+	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(0, -1), 0).rg);
+	maxCocMinDepth = maxmin(maxCocMinDepth, texelFetch(uTileMaxTexture, ivec2(gl_GlobalInvocationID.xy) + ivec2(1, -1), 0).rg);
 	
 	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(maxCocMinDepth, 0.0, 1.0));
 	

@@ -46,6 +46,9 @@ class BloomDownsampleComputePass;
 class BloomUpsampleComputePass;
 class SimplePostEffectsRenderPass;
 class ToneMapRenderPass;
+class CombinedDofTileMaxComputePass;
+class CombinedDofNeighborTileMaxComputePass;
+class SeperateDofTileMaxComputePass;
 
 class PostProcessRenderer
 {
@@ -101,6 +104,9 @@ private:
 	BloomUpsampleComputePass *bloomUpsampleComputePass;
 	SimplePostEffectsRenderPass *simplePostEffectsRenderPass;
 	ToneMapRenderPass *toneMapRenderPass;
+	CombinedDofTileMaxComputePass *combinedDofTileMaxComputePass;
+	CombinedDofNeighborTileMaxComputePass *combinedDofNeighborTileMaxComputePass;
+	SeperateDofTileMaxComputePass *seperateDofTileMaxComputePass;
 
 	GLuint luminanceHistogramIntermediary;
 	GLuint luminanceHistogram;

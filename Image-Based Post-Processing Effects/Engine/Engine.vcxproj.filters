@@ -722,6 +722,18 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Misc\ToneMapRenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass\Misc</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CombinedDofTileMaxComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CombinedDofNeighborTileMaxComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CombinedDofPrepareComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofTileMaxComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -1176,6 +1188,18 @@
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Misc\ToneMapRenderPass.cpp">
       <Filter>Code\Graphics\OpenGL\RenderPass\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CombinedDofTileMaxComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CombinedDofNeighborTileMaxComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CombinedDofPrepareComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofTileMaxComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
