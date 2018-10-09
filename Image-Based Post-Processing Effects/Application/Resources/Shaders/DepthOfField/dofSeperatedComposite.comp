@@ -87,7 +87,7 @@ void main()
 	dofNear.a = clamp(dofNear.a, 0.0, 1.0);
 
 	dofFar.rgb = dofFar.rgb / (dofFar.a > 0.0 ? dofFar.a : 1.0);
-	dofFar.a = clamp(dofFar.a, 0.0, 1.0);
+	dofFar.a = clamp(coc.y, 0.0, 1.0);
 	
 	color = mix(color, dofFar.rgb, dofFar.a);
 	color = mix(color, dofNear.rgb, dofNear.a);

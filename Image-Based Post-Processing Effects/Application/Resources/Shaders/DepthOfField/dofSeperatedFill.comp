@@ -36,7 +36,7 @@ void main()
 		// near field
 		if (tileMaxCoc.x > 0.0)
 		{
-			vec2 offset = tileMaxCoc.x * kernelSampleCoord * texelSize;
+			vec2 offset = kernelSampleCoord * texelSize;
 			vec4 tap = texture(uNearColorTexture, centerCoord + offset);
 	    
 			maxValNear = max(tap, maxValNear);
@@ -44,7 +44,7 @@ void main()
         
 		// far field
 		{
-			vec2 offset = farCoc * kernelSampleCoord * texelSize;
+			vec2 offset = kernelSampleCoord * texelSize;
 			vec4 tap = texture(uFarColorTexture, centerCoord + offset);
 	    
 			maxValFar = max(tap, maxValFar);

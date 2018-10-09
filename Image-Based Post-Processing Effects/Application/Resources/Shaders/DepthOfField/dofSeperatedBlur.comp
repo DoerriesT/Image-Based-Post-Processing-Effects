@@ -42,7 +42,7 @@ void main()
 			vec4 tap = texture(uNearColorTexture, centerCoord + offset);
 
 			float k = 1.075;
-			float sampleWeight = (tap.w >= tileMaxCoc.x * k) ? 1.0 : clamp(tileMaxCoc.x * k - tap.w, 0.0, 1.0);
+			float sampleWeight = 1.0 - clamp(length(offset * domainSize) - tap.w, 0.0, 1.0); //(tap.w >= tileMaxCoc.x * k) ? 1.0 : clamp(tileMaxCoc.x * k - tap.w, 0.0, 1.0);
 	
 			sumNear += tap * sampleWeight;
 			weightNear += sampleWeight;
