@@ -25,6 +25,8 @@ void main()
 	vec4 centerNear = texture(uNearColorTexture, centerCoord);
 	vec4 centerFar = texture(uFarColorTexture, centerCoord);
 	
+	vec2 cocScale = max(domainSize.x * 2.0 * (1.0 / 1920), domainSize.y * 2.0 * (1.0 / 1080)) * texelSize * 4.0;
+
 	vec2 tileMaxCoc = texture(uCocTileNeighborMaxTexture, centerCoord).xy * 0.5;
 	
 	vec4 sumNear = vec4(0.0);
@@ -38,18 +40,18 @@ void main()
 		// near field
 		if (tileMaxCoc.x > 0.0)
 		{
-			vec2 offset = tileMaxCoc.x * kernelSampleCoord * texelSize;
+			vec2 offset = tileMaxCoc.x * kernelSampleCoord * cocScale;
 			vec4 tap = texture(uNearColorTexture, centerCoord + offset);
 
 			float k = 1.075;
-			float sampleWeight = 1.0 - clamp(length(offset * domainSize) - tap.w, 0.0, 1.0); //(tap.w >= tileMaxCoc.x * k) ? 1.0 : clamp(tileMaxCoc.x * k - tap.w, 0.0, 1.0);
+			float sampleWeight = (tap.w >= tileMaxCoc.x * k) ? 1.0 : clamp(tileMaxCoc.x * k - tap.w, 0.0, 1.0);
 	
 			sumNear += tap * sampleWeight;
 			weightNear += sampleWeight;
 		}
 		// far field
 		{
-			vec2 offset = centerFar.w * kernelSampleCoord * texelSize;
+			vec2 offset = centerFar.w * kernelSampleCoord * cocScale;
 			vec4 tap = texture(uFarColorTexture, centerCoord + offset);
 
 			float sampleWeight = (tap.w >= centerFar.w) ? 1.0 : clamp(tap.w, 0.0, 1.0);

@@ -28,10 +28,10 @@ void main()
 
 	coc *= uScale;
 
-	vec2 resolution = textureSize(uDepthTexture, 0).xy;
-	coc *= max(resolution.x * (1.0 / 1920), resolution.y * (1.0 / 1080));
+	//vec2 resolution = textureSize(uDepthTexture, 0).xy;
+	//coc *= max(resolution.x * (1.0 / 1920), resolution.y * (1.0 / 1080));
 	
 	vec4 cocData = vec4(max(0.0, coc), abs(min(0.0, coc)), 0.0, 0.0);
 	
-	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), min(cocData, vec4(8.0)));
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), min(cocData, vec4(4.0)));
 }
