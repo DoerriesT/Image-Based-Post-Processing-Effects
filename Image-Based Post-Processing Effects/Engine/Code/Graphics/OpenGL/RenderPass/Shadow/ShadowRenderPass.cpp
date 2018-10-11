@@ -54,7 +54,7 @@ void ShadowRenderPass::render(const RenderData &_renderData, const std::shared_p
 
 	float splits[SHADOW_CASCADES];
 	float nearPlane = Window::NEAR_PLANE;
-	float farPlane = Window::FAR_PLANE * 0.25f;
+	float farPlane = Window::FAR_PLANE * 0.1f;
 	float blendWeight = 0.7f;
 	for (unsigned int i = 1; i < SHADOW_CASCADES; ++i)
 	{
@@ -248,29 +248,29 @@ glm::mat4 ShadowRenderPass::calculateLightViewProjection(const RenderData & _ren
 		viewAABBMin /= viewAABBMin.w;
 		viewAABBMax /= viewAABBMax.w;
 
-		viewAABBMin = glm::min(viewAABBMin, viewAABBMax);
-		viewAABBMax = glm::max(viewAABBMin, viewAABBMax);
+		glm::vec3 viewAABBMin3 = glm::min(viewAABBMin, viewAABBMax);
+		glm::vec3 viewAABBMax3 = glm::max(viewAABBMin, viewAABBMax);
 
-		if (viewAABBMin.x > minCorner.x && viewAABBMin.x < maxCorner.x)
+		if (viewAABBMin3.x > minCorner.x && viewAABBMin3.x < maxCorner.x)
 		{
-			minCorner.x = viewAABBMin.x;
+			minCorner.x = viewAABBMin3.x;
 		}
-		if (viewAABBMin.y > minCorner.y && viewAABBMin.y < maxCorner.y)
+		if (viewAABBMin3.y > minCorner.y && viewAABBMin3.y < maxCorner.y)
 		{
-			minCorner.y = viewAABBMin.y;
+			minCorner.y = viewAABBMin3.y;
 		}
 		/*if (viewAABBMax.z < maxCorner.z && viewAABBMax.z > minCorner.z)
 		{
 		maxCorner.z = viewAABBMax.z;
 		}*/
 
-		if (viewAABBMax.x < maxCorner.x && viewAABBMax.x > minCorner.x)
+		if (viewAABBMax3.x < maxCorner.x && viewAABBMax3.x > minCorner.x)
 		{
-			maxCorner.x = viewAABBMax.x;
+			maxCorner.x = viewAABBMax3.x;
 		}
-		if (viewAABBMax.y < maxCorner.y && viewAABBMax.y > minCorner.y)
+		if (viewAABBMax3.y < maxCorner.y && viewAABBMax3.y > minCorner.y)
 		{
-			maxCorner.y = viewAABBMax.y;
+			maxCorner.y = viewAABBMax3.y;
 		}
 		/*if (viewAABBMax.z < maxCorner.z && viewAABBMax.z > minCorner.z)
 		{

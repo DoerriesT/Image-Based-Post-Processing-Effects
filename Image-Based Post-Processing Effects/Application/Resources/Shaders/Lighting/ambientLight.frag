@@ -99,7 +99,7 @@ vec3 sphericalHarmonicsIrradiance(vec3 P, vec3 N)
 	float totalWeight = 0.0;
 
 	vec3 irradiance = vec3(0.0);
-	
+
 	for (int i = 0; i < 8; ++i)
 	{
 		const ivec3 offset = ivec3(i, i >> 1, i >> 2) & ivec3(1);
@@ -107,7 +107,7 @@ vec3 sphericalHarmonicsIrradiance(vec3 P, vec3 N)
 		const vec3 probePos = uSpacing * vec3(probeCoord) + minCorner;
 		const vec3 toProbe = probePos - P;
 		const vec3 alpha = 1.0 - (abs(toProbe) / uSpacing);
-		const float weight = alpha.x * alpha.y * alpha.z * float(probeCoord == clamp(probeCoord, ivec3(0), uVolumeDimensions - ivec3(1))) * max(0.005, dot(normalize(toProbe), N));
+		const float weight = alpha.x * alpha.y * alpha.z * float(probeCoord == clamp(probeCoord, ivec3(0), uVolumeDimensions - ivec3(1)));// * max(0.005, dot(normalize(toProbe), N));
 		totalWeight += weight;
 
 		const int index = probeCoord.z * (uVolumeDimensions.x * uVolumeDimensions.y) + probeCoord.y * uVolumeDimensions.x + probeCoord.x;

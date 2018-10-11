@@ -96,9 +96,13 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(upperEnd0ProbePos, upperEnd0Aabb, level->filepath + "upperEnd0Probe.dds", !bakeReflections));
 	level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(upperEnd1ProbePos, upperEnd1Aabb, level->filepath + "upperEnd1Probe.dds", !bakeReflections));
 
+	const glm::vec3 irradianceVolumeOrigin = glm::vec3(-14.0f, 1.0f, -7.0f);
+	const glm::ivec3 irradianceVolumeDimensions = glm::ivec3(15, 6, 8);
+	const float irradianceVolumeSpacing = 2.0f;
+
 	bool bakeIrradianceVolume = SettingsManager::getInstance().getBoolSetting("graphics", "bake_irradiance_volume", false)->get();
-	level->environment.irradianceVolume = bakeIrradianceVolume ? level->environment.irradianceVolume = IrradianceVolume::createIrradianceVolume(glm::vec3(-12.5f, 0.5f, -5.0f), glm::ivec3(26, 12, 12), 1.0f) :
-		IrradianceVolume::createIrradianceVolume(glm::vec3(-12.5f, 0.5f, -5.0f), glm::ivec3(26, 12, 12), 1.0f, Texture::createTexture(level->filepath + "probes.dds", true));
+	level->environment.irradianceVolume = bakeIrradianceVolume ? level->environment.irradianceVolume = IrradianceVolume::createIrradianceVolume(irradianceVolumeOrigin, irradianceVolumeDimensions, irradianceVolumeSpacing) :
+		IrradianceVolume::createIrradianceVolume(irradianceVolumeOrigin, irradianceVolumeDimensions, irradianceVolumeSpacing, Texture::createTexture(level->filepath + "probes.dds", true));
 
 	AtmosphereParams params;
 	params.intensity = glm::vec3(1.0f, 1.0f, 1.0f);

@@ -264,7 +264,7 @@ void RenderSystem::render()
 
 	if (level->loaded &&
 		((!bakedReflections && bakeReflections->get()) ||
-		(bakedIrradianceVolume && bakeIrradianceVolume->get())))
+		(!bakedIrradianceVolume && bakeIrradianceVolume->get())))
 	{
 		graphicsFramework->bake(scene, level, 2, !bakedReflections && bakeReflections->get(), !bakedIrradianceVolume && bakeIrradianceVolume->get());
 
