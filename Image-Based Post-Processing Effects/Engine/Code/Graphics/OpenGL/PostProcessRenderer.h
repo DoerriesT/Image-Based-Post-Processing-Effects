@@ -49,6 +49,8 @@ class ToneMapRenderPass;
 class CombinedDofTileMaxComputePass;
 class CombinedDofNeighborTileMaxComputePass;
 class SeperateDofTileMaxComputePass;
+class AntiAliasingTonemapComputePass;
+class AntiAliasingReverseTonemapComputePass;
 
 class PostProcessRenderer
 {
@@ -107,6 +109,8 @@ private:
 	CombinedDofTileMaxComputePass *combinedDofTileMaxComputePass;
 	CombinedDofNeighborTileMaxComputePass *combinedDofNeighborTileMaxComputePass;
 	SeperateDofTileMaxComputePass *seperateDofTileMaxComputePass;
+	AntiAliasingTonemapComputePass *antiAliasingTonemapComputePass;
+	AntiAliasingReverseTonemapComputePass *antiAliasingReverseTonemapComputePass;
 
 	GLuint luminanceHistogramIntermediary;
 	GLuint luminanceHistogram;

@@ -46,6 +46,8 @@
     <ClInclude Include="Code\Graphics\Effects.h" />
     <ClInclude Include="Code\Graphics\EntityRenderData.h" />
     <ClInclude Include="Code\Graphics\Frustum.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\AntiAliasing\AntiAliasingReverseTonemapComputePass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\AntiAliasing\AntiAliasingTonemapComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Bloom\BloomDownsampleComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\Bloom\BloomUpsampleComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CocComputePass.h" />
@@ -228,6 +230,8 @@
     <ClCompile Include="Code\Graphics\Mesh.cpp" />
     <ClCompile Include="Code\Graphics\Model.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\Buffer.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\AntiAliasing\AntiAliasingReverseTonemapComputePass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\AntiAliasing\AntiAliasingTonemapComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Bloom\BloomDownsampleComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\Bloom\BloomUpsampleComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\CocComputePass.cpp" />

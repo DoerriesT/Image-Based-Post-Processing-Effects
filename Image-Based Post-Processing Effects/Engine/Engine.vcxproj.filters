@@ -180,6 +180,9 @@
     <Filter Include="Resources\Shaders\Bloom">
       <UniqueIdentifier>{7b069cfa-0942-4d2b-9d2b-5407b293adc6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Graphics\OpenGL\ComputePass\AntiAliasing">
+      <UniqueIdentifier>{9c02a222-0ea2-43af-9990-97dff1278fab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Engine.h">
@@ -734,6 +737,12 @@
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofTileMaxComputePass.h">
       <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\AntiAliasing\AntiAliasingTonemapComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\AntiAliasing</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\AntiAliasing\AntiAliasingReverseTonemapComputePass.h">
+      <Filter>Code\Graphics\OpenGL\ComputePass\AntiAliasing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -1200,6 +1209,12 @@
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SeperateDofTileMaxComputePass.cpp">
       <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\AntiAliasing\AntiAliasingTonemapComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\AntiAliasing</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\AntiAliasing\AntiAliasingReverseTonemapComputePass.cpp">
+      <Filter>Code\Graphics\OpenGL\ComputePass\AntiAliasing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

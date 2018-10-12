@@ -1,0 +1,23 @@
+#version 450 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(rgba16f, binding = 0) uniform image2D uColorImage;
+
+vec3 accurateSRGBToLinear(in vec3 sRGBCol)
+{
+	vec3 linearRGBLo = sRGBCol / 12.92;
+	vec3 linearRGBHi = pow((sRGBCol + 0.055) / 1.055, vec3(2.4));
+	vec3 linearRGB = mix(linearRGBLo, linearRGBHi, vec3(greaterThan(sRGBCol, vec3(0.04045))));
+	return linearRGB;
+}
+
+void main()
+{	
+	vec3 color = imageLoad(uColorImage, ivec2(gl_GlobalInvocationID.xy)).rgb;
+	
+	color = accurateSRGBToLinear(color);
+	color = color / (1.0 - dot(color.rgb, vec3(0.299, 0.587, 0.114)));
+	
+	imageStore(uColorImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
+}

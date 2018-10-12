@@ -123,7 +123,7 @@ vec3 sphericalHarmonicsIrradiance(vec3 P, vec3 N)
 		irradiance += weight * texelFetch(uIrradianceMap, ivec2(8, index), 0).rgb * 0.546274f * (N.x * N.x - N.y * N.y);
 	}
 
-    return irradiance * (1.0 / totalWeight);
+    return max(irradiance, vec3(0.0)) * (1.0 / totalWeight);
 }
 
 #elif IRRADIANCE_SOURCE == 2 // light propagation volume

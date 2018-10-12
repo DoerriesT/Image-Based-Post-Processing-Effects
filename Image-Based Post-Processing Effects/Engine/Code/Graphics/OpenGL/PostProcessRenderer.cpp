@@ -50,6 +50,8 @@
 #include "ComputePass/DepthOfField/CombinedDofTileMaxComputePass.h"
 #include "ComputePass/DepthOfField/CombinedDofNeighborTileMaxComputePass.h"
 #include "ComputePass/DepthOfField/SeperateDofTileMaxComputePass.h"
+#include "ComputePass/AntiAliasing/AntiAliasingTonemapComputePass.h"
+#include "ComputePass/AntiAliasing/AntiAliasingReverseTonemapComputePass.h"
 #include "Input/UserInput.h"
 
 unsigned int mbTileSize = 40;
@@ -134,6 +136,8 @@ void PostProcessRenderer::init()
 	combinedDofTileMaxComputePass = new CombinedDofTileMaxComputePass(windowWidth, windowHeight);
 	combinedDofNeighborTileMaxComputePass = new CombinedDofNeighborTileMaxComputePass(windowWidth, windowHeight);
 	seperateDofTileMaxComputePass = new SeperateDofTileMaxComputePass(windowWidth, windowHeight);
+	antiAliasingTonemapComputePass = new AntiAliasingTonemapComputePass(windowWidth, windowHeight);
+	antiAliasingReverseTonemapComputePass = new AntiAliasingReverseTonemapComputePass(windowWidth, windowHeight);
 }
 
 void PostProcessRenderer::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _colorTexture, GLuint _depthTexture, GLuint _velocityTexture, const std::shared_ptr<Camera> &_camera)
@@ -143,6 +147,8 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 	if (_effects.smaa.enabled)
 	{
 		currentSmaaTexture = !currentSmaaTexture;
+
+		antiAliasingTonemapComputePass->execute(_colorTexture);
 
 		smaaEdgeDetectionRenderPass->render(_effects, _colorTexture, &previousRenderPass);
 		smaaBlendWeightRenderPass->render(_effects, fullResolutionSmaaEdgesTex, _effects.smaa.temporalAntiAliasing, currentSmaaTexture, &previousRenderPass);
@@ -157,6 +163,8 @@ void PostProcessRenderer::render(const RenderData &_renderData, const std::share
 		{
 			_colorTexture = fullResolutionSmaaMLResultTex[currentSmaaTexture];
 		}
+
+		antiAliasingReverseTonemapComputePass->execute(_colorTexture);
 	}
 
 	// downsample/blur -> upsample/blur/combine with previous result
