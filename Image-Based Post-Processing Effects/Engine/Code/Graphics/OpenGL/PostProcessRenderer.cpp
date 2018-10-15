@@ -395,6 +395,11 @@ void PostProcessRenderer::resize(const std::pair<unsigned int, unsigned int> &_r
 	bloomUpsampleComputePass->resize(windowWidth, windowHeight);
 	simplePostEffectsRenderPass->resize(windowWidth, windowHeight);
 	toneMapRenderPass->resize(windowWidth, windowHeight);
+	combinedDofTileMaxComputePass->resize(windowWidth, windowHeight);
+	combinedDofNeighborTileMaxComputePass->resize(windowWidth, windowHeight);
+	seperateDofTileMaxComputePass->resize(windowWidth, windowHeight);
+	antiAliasingTonemapComputePass->resize(windowWidth, windowHeight);
+	antiAliasingReverseTonemapComputePass->resize(windowWidth, windowHeight);
 }
 
 GLuint PostProcessRenderer::getFinishedTexture() const

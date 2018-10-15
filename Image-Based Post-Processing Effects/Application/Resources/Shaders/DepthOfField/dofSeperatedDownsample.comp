@@ -24,10 +24,10 @@ void main()
 	imageStore(uDownsampledCoc, ivec2(gl_GlobalInvocationID.xy), vec4(near, far, 0.0, 1.0));
 	
 	vec3 color = texture(uColorTexture, centerCoord).rgb;
-	vec3 color0 = texture(uColorTexture, 0.5 * vec2(-texelSize.x, texelSize.y) + centerCoord).rgb;
-	vec3 color1 = texture(uColorTexture, 0.5 * vec2(texelSize.x, texelSize.y) + centerCoord).rgb;
-	vec3 color2 = texture(uColorTexture, 0.5 * vec2(-texelSize.x, -texelSize.y) + centerCoord).rgb;
-	vec3 color3 = texture(uColorTexture, 0.5 * vec2(texelSize.x, -texelSize.y) + centerCoord).rgb;
+	vec3 color0 = color;//texture(uColorTexture, 0.5 * vec2(-texelSize.x, texelSize.y) + centerCoord).rgb;
+	vec3 color1 = color;//texture(uColorTexture, 0.5 * vec2(texelSize.x, texelSize.y) + centerCoord).rgb;
+	vec3 color2 = color;//texture(uColorTexture, 0.5 * vec2(-texelSize.x, -texelSize.y) + centerCoord).rgb;
+	vec3 color3 = color;//texture(uColorTexture, 0.5 * vec2(texelSize.x, -texelSize.y) + centerCoord).rgb;
 	
 	vec4 nearLayer = vec4((color + color0 + color1 + color2 + color3) * 0.2, near);
 	vec4 farLayer = vec4(nearLayer.rgb, far);
