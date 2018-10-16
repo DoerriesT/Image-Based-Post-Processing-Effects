@@ -4,6 +4,8 @@
 #define SAMPLE_COUNT (7 * 7)
 #endif // SAMPLE_COUNT
 
+#define PI (3.14159265359)
+
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 layout(rgba16f, binding = 0) uniform writeonly image2D uNearField;
@@ -25,7 +27,7 @@ void main()
 	vec4 centerNear = texture(uNearColorTexture, centerCoord);
 	vec4 centerFar = texture(uFarColorTexture, centerCoord);
 	
-	vec2 cocScale = max(domainSize.x * 2.0 * (1.0 / 1920), domainSize.y * 2.0 * (1.0 / 1080)) * texelSize * 4.0;
+	vec2 cocScale = texelSize;// max(domainSize.x * 2.0 * (1.0 / 1920), domainSize.y * 2.0 * (1.0 / 1080)) * texelSize * 4.0;
 
 	vec2 tileMaxCoc = texture(uCocTileNeighborMaxTexture, centerCoord).xy * 0.5;
 	
@@ -33,6 +35,8 @@ void main()
 	float weightNear = 0.0;
 	vec4 sumFar = vec4(0.0);
 	float weightFar = 0.0;
+
+	float pixelToRingScale = 1.0 / (tileMaxCoc.x / 3.0);
  
     for (int i = 0; i < SAMPLE_COUNT; ++i)
     {
@@ -43,8 +47,13 @@ void main()
 			vec2 offset = tileMaxCoc.x * kernelSampleCoord * cocScale;
 			vec4 tap = texture(uNearColorTexture, centerCoord + offset);
 
-			float k = 1.075;
-			float sampleWeight = (tap.w >= tileMaxCoc.x * k) ? 1.0 : clamp(tileMaxCoc.x * k - tap.w, 0.0, 1.0);
+			float sampleWeight = clamp(tap.w * pixelToRingScale - length(offset * domainSize) * pixelToRingScale + 1.0, 0.0, 1.0);
+
+			float cocAreaWeight = min(1.0 / (PI * tap.w * tap.w), 1.0 / (PI * 0.25));
+			sampleWeight *= cocAreaWeight;
+
+			//float k = 1.075;
+			//float sampleWeight = (tap.w >= tileMaxCoc.x * k) ? 1.0 : clamp(tileMaxCoc.x * k - tap.w, 0.0, 1.0);
 	
 			sumNear += tap * sampleWeight;
 			weightNear += sampleWeight;

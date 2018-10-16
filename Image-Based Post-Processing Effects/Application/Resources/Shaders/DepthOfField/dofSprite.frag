@@ -13,7 +13,7 @@ uniform int uWidth;
 void main()
 {
 	vec4 spriteColor = texture(uSpriteTexture, vTexCoord).rgba;
-	oFragColor = vec4(vColor.rgb * spriteColor.rgb, spriteColor.a);// * vColor.a;
+	oFragColor = vec4(vColor.rgb * spriteColor.rgb, spriteColor.a) * vColor.a;
 	
 	bool leftSide = (gl_FragCoord.x < uWidth);
 	float borderAlpha = float(bool(vNear) == leftSide);
