@@ -55,7 +55,7 @@
 #include "Input/UserInput.h"
 
 unsigned int mbTileSize = 40;
-unsigned int dofTileSize = 30;
+unsigned int dofTileSize = 16;
 
 PostProcessRenderer::PostProcessRenderer(std::shared_ptr<Window> _window)
 	:window(_window)

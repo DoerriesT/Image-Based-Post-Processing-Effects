@@ -37,7 +37,7 @@ void main()
 	float weightFar = 0.0;
 
 	float pixelToRingScale = 1.0 / (tileMaxCoc.x / 3.0);
- 
+
     for (int i = 0; i < SAMPLE_COUNT; ++i)
     {
 		vec2 kernelSampleCoord = uSampleCoords[i];
@@ -49,8 +49,7 @@ void main()
 
 			float sampleWeight = clamp(tap.w * pixelToRingScale - length(offset * domainSize) * pixelToRingScale + 1.0, 0.0, 1.0);
 
-			float cocAreaWeight = min(1.0 / (PI * tap.w * tap.w), 1.0 / (PI * 0.25));
-			sampleWeight *= cocAreaWeight;
+			sampleWeight *= 1.0 / (PI * max(tap.w * tap.w * 4.0, 0.5));
 
 			//float k = 1.075;
 			//float sampleWeight = (tap.w >= tileMaxCoc.x * k) ? 1.0 : clamp(tileMaxCoc.x * k - tap.w, 0.0, 1.0);
