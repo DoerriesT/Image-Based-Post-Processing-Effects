@@ -75,6 +75,7 @@
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\LensFlares\AnamorphicPrefilterComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\LensFlares\AnamorphicUpsampleComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\MotionBlur\VelocityCorrectionComputePass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\GLTimerQuery.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\FXAARenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAABlendRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAABlendWeightRenderPass.h" />
@@ -261,6 +262,7 @@
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\MotionBlur\VelocityCorrectionComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\EnvironmentRenderer.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\glad.c" />
+    <ClCompile Include="Code\Graphics\OpenGL\GLTimerQuery.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\GLUtility.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\GraphicsFramework.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\LightPropagationVolumes.cpp" />

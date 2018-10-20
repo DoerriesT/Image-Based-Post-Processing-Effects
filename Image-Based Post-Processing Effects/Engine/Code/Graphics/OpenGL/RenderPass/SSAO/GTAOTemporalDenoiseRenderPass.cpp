@@ -1,6 +1,7 @@
 #include "GTAOTemporalDenoiseRenderPass.h"
 #include "Engine.h"
 #include "Graphics\OpenGL\RenderData.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 GTAOTemporalDenoiseRenderPass::GTAOTemporalDenoiseRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -31,8 +32,11 @@ GTAOTemporalDenoiseRenderPass::GTAOTemporalDenoiseRenderPass(GLuint _fbo, unsign
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
+double gtaoTemporalDenoiseTime;
+
 void GTAOTemporalDenoiseRenderPass::render(const RenderData & _renderData, const Effects & _effects, const GBuffer & _gbuffer, GLuint * _ssaoTextures, RenderPass **_previousRenderPass)
 {
+	GLTimerQuery timer(gtaoTemporalDenoiseTime);
 	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;

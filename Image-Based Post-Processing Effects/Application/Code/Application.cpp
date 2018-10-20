@@ -36,6 +36,9 @@ extern float occAmp;
 extern bool gtaoMultiBounce;
 extern bool freeze;
 extern bool anamorphicFlares;
+extern double gtaoRenderTime;
+extern double gtaoSpatialDenoiseTime;
+extern double gtaoTemporalDenoiseTime;
 
 namespace App
 {
@@ -175,6 +178,9 @@ namespace App
 				TwAddVarRO(settingsTweakBar, "Frame Time", TW_TYPE_STDSTRING, &frameTimeStr, "group=Timings");
 				TwAddVarRO(settingsTweakBar, "Frame Time Average", TW_TYPE_STDSTRING, &frameTimeAvgStr, "group=Timings");
 				TwAddVarRO(settingsTweakBar, "Frame Time Worst", TW_TYPE_STDSTRING, &frameTimeWorstStr, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "GTAO Render", TW_TYPE_DOUBLE, &gtaoRenderTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "GTAO Spatial", TW_TYPE_DOUBLE, &gtaoSpatialDenoiseTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "GTAO Temporal", TW_TYPE_DOUBLE, &gtaoTemporalDenoiseTime, "group=Timings");
 			}
 
 			// mouse

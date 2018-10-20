@@ -743,6 +743,9 @@
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\AntiAliasing\AntiAliasingReverseTonemapComputePass.h">
       <Filter>Code\Graphics\OpenGL\ComputePass\AntiAliasing</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\GLTimerQuery.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -1215,6 +1218,9 @@
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\AntiAliasing\AntiAliasingReverseTonemapComputePass.cpp">
       <Filter>Code\Graphics\OpenGL\ComputePass\AntiAliasing</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\GLTimerQuery.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

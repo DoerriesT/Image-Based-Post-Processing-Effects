@@ -1,6 +1,7 @@
 #include "GTAOSpatialDenoiseRenderPass.h"
 #include "Engine.h"
 #include "Graphics\OpenGL\RenderData.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 GTAOSpatialDenoiseRenderPass::GTAOSpatialDenoiseRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -31,8 +32,11 @@ GTAOSpatialDenoiseRenderPass::GTAOSpatialDenoiseRenderPass(GLuint _fbo, unsigned
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
+double gtaoSpatialDenoiseTime;
+
 void GTAOSpatialDenoiseRenderPass::render(const RenderData & _renderData, const Effects & _effects, const GBuffer & _gbuffer, GLuint * _ssaoTextures, RenderPass **_previousRenderPass)
 {
+	GLTimerQuery timer(gtaoSpatialDenoiseTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
