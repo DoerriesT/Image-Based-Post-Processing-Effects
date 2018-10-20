@@ -57,6 +57,7 @@ struct DirectionalLight
 uniform DirectionalLight uDirectionalLight;
 #endif // DIRECTIONAL_LIGHT_ENABLED
 
+uniform float uTime;
 uniform mat4 uInverseView;
 uniform mat4 uInverseProjection;
 #if SSR_ENABLED
@@ -84,7 +85,11 @@ const float Z_FAR = 300.0;
 #define BS_MAX_ITERATIONS		30						// Maximal number of iterations for bineary search
 #define BS_DELTA_EPSILON 0.0001
 
-
+float interleavedGradientNoise(vec2 v)
+{
+	vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
+	return fract(magic.z * dot(v, magic.xy));
+}
 
 #if IRRADIANCE_SOURCE == 1 // precomputed irradiance volume
 
@@ -373,17 +378,33 @@ void main()
 
 		float shadow = 0.0;
 
-		float count = 0.0;
-		const float radius = 2.0;
-		for(float row = -radius; row <= radius; ++row)
+		const float noise = interleavedGradientNoise(gl_FragCoord.xy);
+
+		const float rotSin = sin(2.0 * PI * noise);
+		const float rotCos = cos(2.0 * PI * noise);
+
+		const mat2 rotation = mat2(rotCos, rotSin, -rotSin, rotCos);
+
+		const vec2 samples[8] = 
+		{ 
+			vec2(-0.7071, 0.7071),
+			vec2(0.0, -0.8750),
+			vec2(0.5303, 0.5303),
+			vec2(-0.625, 0.0),
+			vec2(0.3536, -0.3536),
+			vec2(0.0, 0.375),
+			vec2(-0.1768, -0.1768),
+			vec2(0.125, 0.0)
+		};
+
+		const float splitMult[3] = { 6.0, 3.0, 0.5 };
+
+		for(int i = 0; i < 8; ++i)
 		{
-			for(float col = -radius; col <= radius; ++col)
-			{
-				++count;
-				shadow += texture(uShadowMap, vec4(projCoords.xy + vec2(col, row) * invShadowMapSize, split, projCoords.z)).x;
-			}
+			vec2 offset = rotation * samples[i];
+			shadow += texture(uShadowMap, vec4(projCoords.xy + offset * invShadowMapSize * splitMult[int(split)], split, projCoords.z)).x;
 		}
-		shadow *= 1.0 / count;
+		shadow *= 1.0 / 8.0;
 
 		// assuming there is only the directional light contribution in oFragColor.rgb
 		oFragColor.rgb *= (1.0 - shadow);

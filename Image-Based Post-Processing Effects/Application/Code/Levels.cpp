@@ -43,7 +43,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	level->water = water;
 
 	// sun
-	level->sun.direction = glm::normalize(glm::vec3(0.0f, 2.0f, -1.0f));
+	level->sun.direction = glm::normalize(glm::vec3(0.1f, 3.0f, -1.0f));
 
 	/*- set skybox entity and environment maps*/
 	const Entity *skyboxEntity = entityManager.createEntity();
