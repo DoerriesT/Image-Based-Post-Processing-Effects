@@ -23,7 +23,7 @@ private:
 
 	UniformDirectionalLight uDirectionalLight = UniformDirectionalLight("uDirectionalLight");
 
-	Uniform<GLfloat> uTime = Uniform<GLfloat>("uTime");
+	Uniform<GLboolean> uOddFrame = Uniform<GLboolean>("uOddFrame");
 	Uniform<glm::mat4> uProjectionE = Uniform<glm::mat4>("uProjection");
 	Uniform<glm::mat4> uInverseProjectionE = Uniform<glm::mat4>("uInverseProjection");
 	Uniform<glm::mat4> uInverseViewE = Uniform<glm::mat4>("uInverseView");

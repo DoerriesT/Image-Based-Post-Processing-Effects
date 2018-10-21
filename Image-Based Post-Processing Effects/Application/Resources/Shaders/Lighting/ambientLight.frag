@@ -57,7 +57,7 @@ struct DirectionalLight
 uniform DirectionalLight uDirectionalLight;
 #endif // DIRECTIONAL_LIGHT_ENABLED
 
-uniform float uTime;
+uniform bool uOddFrame;
 uniform mat4 uInverseView;
 uniform mat4 uInverseProjection;
 #if SSR_ENABLED
@@ -362,23 +362,26 @@ void main()
 	if(uDirectionalLight.renderShadows)
 	{		
 		float split = SHADOW_CASCADES - 1.0;
+		vec3 shadowCoord = vec3(2.0);
 		for (float i = 0.0; i < SHADOW_CASCADES; ++i)
 		{
-			if(-viewSpacePosition.z < uDirectionalLight.splits[int(i)])
+			const vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(i)] * uInverseView * vec4(0.1 * uDirectionalLight.direction + viewSpacePosition.xyz, 1.0);
+			shadowCoord = (projCoords4 / projCoords4.w).xyz * 0.5 + 0.5; 
+
+			// test if projected coordinate is inside texture
+			// add small guard band at edges to avoid PCF sampling outside texture
+			if(all(greaterThanEqual(shadowCoord.xy, vec2(0.003))) && all(lessThan(shadowCoord.xy, vec2(1.0 - 0.003))))
 			{
 				split = i;
 				break;
 			}
 		}
 
-		const vec4 projCoords4 = uDirectionalLight.viewProjectionMatrices[int(split)] * uInverseView * vec4(0.1 * uDirectionalLight.direction + viewSpacePosition.xyz, 1.0);
-		vec3 projCoords = (projCoords4 / projCoords4.w).xyz;
-		projCoords = projCoords * 0.5 + 0.5; 
 		const vec2 invShadowMapSize = vec2(1.0 / (textureSize(uShadowMap, 0).xy));
 
 		float shadow = 0.0;
 
-		const float noise = interleavedGradientNoise(gl_FragCoord.xy);
+		const float noise = interleavedGradientNoise(gl_FragCoord.xy);// * 0.5 + (uOddFrame ? 0.5 : 0.0);
 
 		const float rotSin = sin(2.0 * PI * noise);
 		const float rotCos = cos(2.0 * PI * noise);
@@ -397,12 +400,12 @@ void main()
 			vec2(0.125, 0.0)
 		};
 
-		const float splitMult[3] = { 6.0, 3.0, 0.5 };
+		const float splitMult = split == 0.0 ? 6.0 : split == 1.0 ? 3.0 : 1.5;
 
 		for(int i = 0; i < 8; ++i)
 		{
 			vec2 offset = rotation * samples[i];
-			shadow += texture(uShadowMap, vec4(projCoords.xy + offset * invShadowMapSize * splitMult[int(split)], split, projCoords.z)).x;
+			shadow += texture(uShadowMap, vec4(shadowCoord.xy + offset * invShadowMapSize * splitMult, split, shadowCoord.z)).x;
 		}
 		shadow *= 1.0 / 8.0;
 

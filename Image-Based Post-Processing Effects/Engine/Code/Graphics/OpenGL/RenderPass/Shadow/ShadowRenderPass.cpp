@@ -50,8 +50,6 @@ void ShadowRenderPass::render(const RenderData &_renderData, const std::shared_p
 
 	unsigned int frameCounter = _renderData.frame % SHADOW_CASCADES;
 
-	AxisAlignedBoundingBox sceneAABB = calculateSceneAABB(_scene);
-
 	float splits[SHADOW_CASCADES];
 	float nearPlane = Window::NEAR_PLANE;
 	float farPlane = Window::FAR_PLANE * 0.1f;
@@ -73,7 +71,7 @@ void ShadowRenderPass::render(const RenderData &_renderData, const std::shared_p
 			{
 				if (i <= frameCounter || !_cascadeSkipOptimization)
 				{
-					lightViewProjections[i] = calculateLightViewProjection(_renderData, sceneAABB, directionalLight->getDirection(), i == 0 ? 0.05f : splits[i - 1], splits[i], true);
+					lightViewProjections[i] = calculateLightViewProjection(_renderData, directionalLight->getDirection(), i == 0 ? 0.05f : splits[i - 1], splits[i]);
 				}
 				else
 				{
@@ -190,34 +188,35 @@ void ShadowRenderPass::renderShadows(const glm::mat4 & _viewProjectionMatrix, co
 	}
 }
 
-glm::mat4 ShadowRenderPass::calculateLightViewProjection(const RenderData & _renderData, const AxisAlignedBoundingBox & _sceneAABB, const glm::vec3 & _lightDir, float _nearPlane, float _farPlane, bool _useAABB)
+glm::mat4 ShadowRenderPass::calculateLightViewProjection(const RenderData & _renderData, const glm::vec3 & _lightDir, float _nearPlane, float _farPlane)
 {
 	glm::mat4 cameraProjection = glm::perspective(glm::radians(_renderData.fov), _renderData.resolution.first / (float)_renderData.resolution.second, _nearPlane, _farPlane);
-	glm::mat4 invProjectionViewMatrix = glm::inverse(cameraProjection * _renderData.viewMatrix);
+	glm::mat4 invProjection = glm::inverse(cameraProjection);
 
-	// generate cube corners and transform them into worldspace and make them match view frustum corners
-	glm::vec4 frustumCorners[8];
-	frustumCorners[0] = glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f); // xyz
-	frustumCorners[1] = glm::vec4(1.0f, -1.0f, -1.0f, 1.0f); // Xyz
-	frustumCorners[2] = glm::vec4(-1.0f, 1.0f, -1.0f, 1.0f); // xYz
-	frustumCorners[3] = glm::vec4(1.0f, 1.0f, -1.0f, 1.0f); // XYz
-	frustumCorners[4] = glm::vec4(-1.0f, -1.0f, 1.0f, 1.0f); // xyZ
-	frustumCorners[5] = glm::vec4(1.0f, -1.0f, 1.0f, 1.0f); // XyZ
-	frustumCorners[6] = glm::vec4(-1.0f, 1.0f, 1.0f, 1.0f); // xYZ
-	frustumCorners[7] = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // XYZ
+	glm::vec3 frustumCorners[8];
+	frustumCorners[0] = glm::vec3(-1.0f, -1.0f, -1.0f); // xyz
+	frustumCorners[1] = glm::vec3(1.0f, -1.0f, -1.0f); // Xyz
+	frustumCorners[2] = glm::vec3(-1.0f, 1.0f, -1.0f); // xYz
+	frustumCorners[3] = glm::vec3(1.0f, 1.0f, -1.0f); // XYz
+	frustumCorners[4] = glm::vec3(-1.0f, -1.0f, 1.0f); // xyZ
+	frustumCorners[5] = glm::vec3(1.0f, -1.0f, 1.0f); // XyZ
+	frustumCorners[6] = glm::vec3(-1.0f, 1.0f, 1.0f); // xYZ
+	frustumCorners[7] = glm::vec3(1.0f, 1.0f, 1.0f); // XYZ
 
-	// transform corners to world space and calculate frustum center
-	glm::vec3 frustumCenter;
-	for (glm::vec4 &corner : frustumCorners)
+	AxisAlignedBoundingBox bb = { glm::vec3(std::numeric_limits<float>::max()) , glm::vec3(std::numeric_limits<float>::lowest()) };
+
+	for (size_t i = 0; i < 8; ++i)
 	{
-		corner = invProjectionViewMatrix * corner;
-		corner /= corner.w;
-		frustumCenter += glm::vec3(corner);
+		glm::vec4 corner4 = invProjection * glm::vec4(frustumCorners[i], 1.0f);
+		glm::vec3 corner = corner4 /= corner4.w;
+		bb.min = glm::min(bb.min, corner);
+		bb.max = glm::max(bb.max, corner);
 	}
-	frustumCenter /= 8.0f;
-	float distance = 100.0f;//glm::distance(frustumCorners[0], frustumCorners[7]);
 
-	glm::vec3 lightPos = _lightDir * distance + frustumCenter;
+	float radius = glm::distance(bb.min, bb.max) * 0.5f;
+	glm::vec3 sphereCenter = (bb.min + bb.max) * 0.5f;
+	glm::vec3 target = _renderData.invViewMatrix * glm::vec4(sphereCenter, 1.0f);
+
 	glm::vec3 upDir(0.0f, 1.0f, 0.0f);
 
 	// choose different up vector if light direction would be linearly dependent otherwise
@@ -226,110 +225,10 @@ glm::mat4 ShadowRenderPass::calculateLightViewProjection(const RenderData & _ren
 		upDir = glm::vec3(1.0f, 1.0f, 0.0f);
 	}
 
-	glm::mat4 lightView = glm::lookAt(lightPos, frustumCenter, upDir);
+	glm::mat4 lightView = glm::lookAt(target + _lightDir * 150.0f, target - _lightDir * 150.0f, upDir);
 
-	glm::vec3 minCorner(std::numeric_limits<float>::max());
-	glm::vec3 maxCorner(std::numeric_limits<float>::lowest());
-	for (glm::vec4 corner : frustumCorners)
-	{
-		corner = lightView * corner;
-		corner /= corner.w;
-		glm::vec3 corner3 = glm::vec3(corner);
-		minCorner = glm::min(corner3, minCorner);
-		maxCorner = glm::max(corner3, maxCorner);
-	}
+	lightView[3].x -= fmodf(lightView[3].x, (radius / 2048.0f) * 2.0f);
+	lightView[3].y -= fmodf(lightView[3].y, (radius / 2048.0f) * 2.0f);
 
-	if (_useAABB)
-	{
-		glm::vec4 viewAABBMin = glm::vec4(_sceneAABB.min, 1.0f);
-		glm::vec4 viewAABBMax = glm::vec4(_sceneAABB.max, 1.0f);
-		viewAABBMin = lightView * viewAABBMin;
-		viewAABBMax = lightView * viewAABBMax;
-		viewAABBMin /= viewAABBMin.w;
-		viewAABBMax /= viewAABBMax.w;
-
-		glm::vec3 viewAABBMin3 = glm::min(viewAABBMin, viewAABBMax);
-		glm::vec3 viewAABBMax3 = glm::max(viewAABBMin, viewAABBMax);
-
-		if (viewAABBMin3.x > minCorner.x && viewAABBMin3.x < maxCorner.x)
-		{
-			minCorner.x = viewAABBMin3.x;
-		}
-		if (viewAABBMin3.y > minCorner.y && viewAABBMin3.y < maxCorner.y)
-		{
-			minCorner.y = viewAABBMin3.y;
-		}
-		/*if (viewAABBMax.z < maxCorner.z && viewAABBMax.z > minCorner.z)
-		{
-		maxCorner.z = viewAABBMax.z;
-		}*/
-
-		if (viewAABBMax3.x < maxCorner.x && viewAABBMax3.x > minCorner.x)
-		{
-			maxCorner.x = viewAABBMax3.x;
-		}
-		if (viewAABBMax3.y < maxCorner.y && viewAABBMax3.y > minCorner.y)
-		{
-			maxCorner.y = viewAABBMax3.y;
-		}
-		/*if (viewAABBMax.z < maxCorner.z && viewAABBMax.z > minCorner.z)
-		{
-		maxCorner.z = viewAABBMax.z;
-		}*/
-	}
-
-	float distz = maxCorner.z - minCorner.z;
-	float projFarPlane = distz + distance;
-	return glm::ortho(minCorner.x, maxCorner.x, minCorner.y, maxCorner.y, 0.0f, 300.0f) * lightView;
-}
-
-AxisAlignedBoundingBox ShadowRenderPass::calculateSceneAABB(const Scene & _scene)
-{
-	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
-
-	glm::vec3 minCorner(std::numeric_limits<float>::max());
-	glm::vec3 maxCorner(std::numeric_limits<float>::lowest());
-
-	for (size_t i = 0; i < data.size(); ++i)
-	{
-		const std::unique_ptr<EntityRenderData> &entityRenderData = data[i];
-
-		// skip this iteration if its supposed to be rendered with another method or does not have sufficient components
-		if (entityRenderData->customTransparencyShaderComponent ||
-			!entityRenderData->modelComponent ||
-			!entityRenderData->transformationComponent)
-		{
-			continue;
-		}
-
-		std::shared_ptr<SubMesh> &currentMesh = entityRenderData->mesh;
-
-		// skip this mesh if its transparent
-		if (entityRenderData->transparencyComponent && ContainerUtility::contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
-		{
-			continue;
-		}
-
-		// skip this iteration if the mesh is not yet valid
-		if (!currentMesh->isValid())
-		{
-			continue;
-		}
-
-		glm::mat4 modelMatrix = entityRenderData->transformationComponent->transformation;
-
-		AxisAlignedBoundingBox meshAABB = currentMesh->getAABB();
-		glm::vec4 meshAABBMin = glm::vec4(meshAABB.min, 1.0);
-		glm::vec4 meshAABBMax = glm::vec4(meshAABB.max, 1.0);
-
-		meshAABBMin = modelMatrix * meshAABBMin;
-		meshAABBMin /= meshAABBMin.w;
-		meshAABBMax = modelMatrix * meshAABBMax;
-		meshAABBMax /= meshAABBMax.w;
-
-		minCorner = glm::min(glm::vec3(meshAABBMin), minCorner);
-		maxCorner = glm::max(glm::vec3(meshAABBMax), maxCorner);
-	}
-
-	return { minCorner, maxCorner };
+	return glm::ortho(-radius, radius, -radius, radius, 0.0f, 300.0f) * lightView;
 }

@@ -155,7 +155,7 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 		uDirectionalLight.set(light);
 	}
 
-	uTime.set(_renderData.time);
+	uOddFrame.set(_renderData.frame & 1);
 	uInverseViewE.set(_renderData.invViewMatrix);
 	uInverseProjectionE.set(_renderData.invProjectionMatrix);
 
@@ -186,7 +186,7 @@ void AmbientLightRenderPass::createUniforms()
 {
 	uDirectionalLight.create(ambientLightShader);
 
-	uTime.create(ambientLightShader);
+	uOddFrame.create(ambientLightShader);
 	uInverseProjectionE.create(ambientLightShader);
 	uInverseViewE.create(ambientLightShader);
 	uProjectionE.create(ambientLightShader);
