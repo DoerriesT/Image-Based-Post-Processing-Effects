@@ -71,7 +71,7 @@ void ShadowRenderPass::render(const RenderData &_renderData, const std::shared_p
 			{
 				if (i <= frameCounter || !_cascadeSkipOptimization)
 				{
-					lightViewProjections[i] = calculateLightViewProjection(_renderData, directionalLight->getDirection(), i == 0 ? 0.05f : splits[i - 1], splits[i]);
+					lightViewProjections[i] = calculateLightViewProjection(_renderData, directionalLight->getDirection(), i == 0 ? 0.05f : splits[i - 1], splits[i], directionalLight->getShadowMapResolution());
 				}
 				else
 				{
@@ -188,7 +188,7 @@ void ShadowRenderPass::renderShadows(const glm::mat4 & _viewProjectionMatrix, co
 	}
 }
 
-glm::mat4 ShadowRenderPass::calculateLightViewProjection(const RenderData & _renderData, const glm::vec3 & _lightDir, float _nearPlane, float _farPlane)
+glm::mat4 ShadowRenderPass::calculateLightViewProjection(const RenderData & _renderData, const glm::vec3 & _lightDir, float _nearPlane, float _farPlane, unsigned int _shadowMapSize)
 {
 	glm::mat4 cameraProjection = glm::perspective(glm::radians(_renderData.fov), _renderData.resolution.first / (float)_renderData.resolution.second, _nearPlane, _farPlane);
 	glm::mat4 invProjection = glm::inverse(cameraProjection);
@@ -227,8 +227,8 @@ glm::mat4 ShadowRenderPass::calculateLightViewProjection(const RenderData & _ren
 
 	glm::mat4 lightView = glm::lookAt(target + _lightDir * 150.0f, target - _lightDir * 150.0f, upDir);
 
-	lightView[3].x -= fmodf(lightView[3].x, (radius / 2048.0f) * 2.0f);
-	lightView[3].y -= fmodf(lightView[3].y, (radius / 2048.0f) * 2.0f);
+	lightView[3].x -= fmodf(lightView[3].x, (radius / static_cast<float>(_shadowMapSize)) * 2.0f);
+	lightView[3].y -= fmodf(lightView[3].y, (radius / static_cast<float>(_shadowMapSize)) * 2.0f);
 
 	return glm::ortho(-radius, radius, -radius, radius, 0.0f, 300.0f) * lightView;
 }

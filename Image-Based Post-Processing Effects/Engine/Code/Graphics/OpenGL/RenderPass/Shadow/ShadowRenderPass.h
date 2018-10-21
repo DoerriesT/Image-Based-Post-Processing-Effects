@@ -19,5 +19,5 @@ private:
 	Uniform<glm::mat4> uModelViewProjectionMatrix = Uniform<glm::mat4>("uModelViewProjectionMatrix");
 
 	void renderShadows(const glm::mat4 &_viewProjectionMatrix, const Scene &_scene);
-	glm::mat4 calculateLightViewProjection(const RenderData &_renderData, const glm::vec3 &_lightDir, float _nearPlane, float _farPlane);
+	glm::mat4 calculateLightViewProjection(const RenderData &_renderData, const glm::vec3 &_lightDir, float _nearPlane, float _farPlane, unsigned int _shadowMapSize);
 };

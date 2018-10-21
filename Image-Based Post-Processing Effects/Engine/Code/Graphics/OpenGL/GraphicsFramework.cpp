@@ -116,6 +116,8 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 		glm::vec2(-0.25f, 0.25f)
 	};
 
+	++frame;
+
 	glm::mat4 jitterMatrix = _effects.smaa.enabled && _effects.smaa.temporalAntiAliasing ?
 		glm::translate(glm::mat4(), glm::vec3(jitters[frame % 2].x / float(window->getWidth()), jitters[frame % 2].y / float(window->getHeight()), 0.0f))
 		: glm::mat4();
@@ -139,7 +141,7 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 		renderData.cameraPosition = _camera->getPosition();
 		renderData.viewDirection = _camera->getForwardDirection();
 		renderData.fov = window->getFieldOfView();
-		renderData.frame = ++frame;
+		renderData.frame = frame;
 		renderData.bake = false;
 
 		invViewMat = renderData.invViewMatrix;
