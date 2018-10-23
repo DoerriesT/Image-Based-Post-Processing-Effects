@@ -376,8 +376,8 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 	glGenTextures(1, &gDepthStencilTexture);
 	glBindTexture(GL_TEXTURE_2D, gDepthStencilTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, _resolution.first, _resolution.second, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
@@ -396,15 +396,20 @@ void SceneRenderer::createFboAttachments(const std::pair<unsigned int, unsigned 
 
 void SceneRenderer::createSsaoAttachments(const std::pair<unsigned int, unsigned int> &_resolution)
 {
-	std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0);
+	std::uniform_real_distribution<GLfloat> randomFloats(-1.0, 1.0);
 	std::default_random_engine generator;
 	glm::vec3 ssaoNoise[16];
 	for (unsigned int i = 0; i < 16; ++i)
 	{
 		glm::vec3 noise(
-			randomFloats(generator) * 2.0 - 1.0,
-			randomFloats(generator) * 2.0 - 1.0,
-			randomFloats(generator) * 2.0 - 1.0);
+			randomFloats(generator),
+			randomFloats(generator),
+			randomFloats(generator));
+
+		// scale samples s.t. they're more aligned to center of kernel
+		float scale = i / 16.0f;
+		noise *= glm::mix(0.1f, 1.0f, scale * scale);
+
 		ssaoNoise[i] = noise;
 	}
 

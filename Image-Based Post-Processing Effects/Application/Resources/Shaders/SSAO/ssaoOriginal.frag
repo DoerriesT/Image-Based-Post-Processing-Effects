@@ -65,8 +65,8 @@ void main()
 					vec3 vSamplePos = vec3(vTexCoord, centerDepth);
 					
 					// shift coordinates by offset vector (range convert and width depth value)
-					//vSamplePos += vec3(vRotatedOffset.xy, vRotatedOffset.z * centerDepth * 2.0);
-					vSamplePos += vRotatedOffset;
+					vSamplePos += vec3(vRotatedOffset.xy, vRotatedOffset.z * centerDepth * 2.0);
+					//vSamplePos += vRotatedOffset;
 					
 					// read scene depth at sampling point and convert into meters
 					float sampleDepth = linearDepth(texture(uDepthTexture, vSamplePos.xy).x);
