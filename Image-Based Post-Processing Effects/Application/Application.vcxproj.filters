@@ -15,7 +15,7 @@
     <ClCompile Include="Code\CameraController.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Levels.cpp">
+    <ClCompile Include="Code\SponzaLevel.cpp">
       <Filter>Code</Filter>
     </ClCompile>
   </ItemGroup>
@@ -26,7 +26,7 @@
     <ClInclude Include="Code\CameraController.h">
       <Filter>Code</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Levels.h">
+    <ClInclude Include="Code\SponzaLevel.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>

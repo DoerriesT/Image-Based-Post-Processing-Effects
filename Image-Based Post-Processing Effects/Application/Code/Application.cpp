@@ -1,6 +1,6 @@
 #define NK_IMPLEMENTATION
 #include "Application.h"
-#include "Levels.h"
+#include "SponzaLevel.h"
 #include <EntityComponentSystem\SystemManager.h>
 #include <EntityComponentSystem\EntityManager.h>
 #include <Engine.h>

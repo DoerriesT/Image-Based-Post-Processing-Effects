@@ -63,7 +63,6 @@ private:
 	std::pair<unsigned int, unsigned int> selectedResolution;
 	size_t selectedResolutionIndex;
 	bool vsync;
-	unsigned int antialiasing;
 	GLFWwindow *window = nullptr;
 	std::vector<std::pair<unsigned int, unsigned int>> supportedResolutions;
 	WindowMode windowMode;

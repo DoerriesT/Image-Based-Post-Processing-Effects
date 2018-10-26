@@ -1,74 +1,8 @@
 #pragma once
 #include <memory>
 #include <glad\glad.h>
-#include "GLRenderResources.h"
-#include "RenderPass\Shadow\ShadowRenderPass.h"
-#include "RenderPass\Geometry\GBufferRenderPass.h"
-#include "RenderPass\Geometry\GBufferCustomRenderPass.h"
-#include "RenderPass\SSAO\SSAOOriginalRenderPass.h"
-#include "RenderPass\SSAO\SSAORenderPass.h"
-#include "RenderPass\SSAO\HBAORenderPass.h"
-#include "RenderPass\SSAO\GTAORenderPass.h"
-#include "RenderPass\SSAO\GTAOSpatialDenoiseRenderPass.h"
-#include "RenderPass\SSAO\GTAOTemporalDenoiseRenderPass.h"
-#include "RenderPass\SSAO\SSAOBlurRenderPass.h"
-#include "RenderPass\SSAO\SSAOBilateralBlurRenderPass.h"
-#include "RenderPass\Geometry\SkyboxRenderPass.h"
-#include "RenderPass\Lighting\AmbientLightRenderPass.h"
-#include "RenderPass\Lighting\DirectionalLightRenderPass.h"
-#include "RenderPass\Lighting\StencilRenderPass.h"
-#include "RenderPass\Lighting\DeferredEnvironmentProbeRenderPass.h"
-#include "RenderPass\Lighting\PointLightRenderPass.h"
-#include "RenderPass\Lighting\SpotLightRenderPass.h"
-#include "RenderPass\Geometry\ForwardRenderPass.h"
-#include "RenderPass\Geometry\ForwardCustomRenderPass.h"
-#include "RenderPass\Geometry\OutlineRenderPass.h"
-#include "RenderPass\Geometry\LightProbeRenderPass.h"
-#include "ComputePass/LensFlares/AnamorphicPrefilterComputePass.h"
-#include "ComputePass/LensFlares/AnamorphicDownsampleComputePass.h"
-#include "ComputePass/LensFlares/AnamorphicUpsampleComputePass.h"
-#include "RenderPass/AntiAliasing/FXAARenderPass.h"
-#include "RenderPass/AntiAliasing/SMAAEdgeDetectionRenderPass.h"
-#include "RenderPass/AntiAliasing/SMAABlendWeightRenderPass.h"
-#include "RenderPass/AntiAliasing/SMAABlendRenderPass.h"
-#include "RenderPass/AntiAliasing/SMAATemporalResolveRenderPass.h"
-#include "ComputePass/GodRays/GodRayMaskComputePass.h"
-#include "ComputePass/GodRays/GodRayGenComputePass.h"
-#include "ComputePass/Exposure/LuminanceGenComputePass.h"
-#include "ComputePass/Exposure/LuminanceAdaptionComputePass.h"
-#include "ComputePass/MotionBlur/VelocityCorrectionComputePass.h"
-#include "ComputePass/DepthOfField/SimpleDofCocBlurComputePass.h"
-#include "ComputePass/DepthOfField/SimpleDofBlurComputePass.h"
-#include "ComputePass/DepthOfField/SimpleDofFillComputePass.h"
-#include "ComputePass/DepthOfField/SimpleDofCompositeComputePass.h"
-#include "RenderPass/DepthOfField/SpriteDofRenderPass.h"
-#include "ComputePass/DepthOfField/SpriteDofCompositeComputePass.h"
-#include "ComputePass/DepthOfField/SeperateDofDownsampleComputePass.h"
-#include "ComputePass/DepthOfField/SeperateDofBlurComputePass.h"
-#include "ComputePass/DepthOfField/SeperateDofFillComputePass.h"
-#include "ComputePass/DepthOfField/SeperateDofCompositeComputePass.h"
-#include "ComputePass/DepthOfField/CocComputePass.h"
-#include "RenderPass/DepthOfField/CocTileMaxRenderPass.h"
-#include "RenderPass/DepthOfField/CocNeighborTileMaxRenderPass.h"
-#include "ComputePass/Exposure/LuminanceHistogramComputePass.h"
-#include "ComputePass/Exposure/LuminanceHistogramReduceComputePass.h"
-#include "ComputePass/Exposure/LuminanceHistogramAdaptionComputePass.h"
-#include "RenderPass/MotionBlur/VelocityTileMaxRenderPass.h"
-#include "RenderPass/MotionBlur/VelocityNeighborTileMaxRenderPass.h"
-#include "RenderPass/LensFlares/LensFlareGenRenderPass.h"
-#include "RenderPass/LensFlares/LensFlareBlurRenderPass.h"
-#include "ComputePass/Bloom/BloomDownsampleComputePass.h"
-#include "ComputePass/Bloom/BloomUpsampleComputePass.h"
-#include "RenderPass/Misc/SimplePostEffectsRenderPass.h"
-#include "RenderPass/Misc/ToneMapRenderPass.h"
-#include "ComputePass/DepthOfField/CombinedDofTileMaxComputePass.h"
-#include "ComputePass/DepthOfField/CombinedDofNeighborTileMaxComputePass.h"
-#include "ComputePass/DepthOfField/SeperateDofTileMaxComputePass.h"
-#include "ComputePass/AntiAliasing/AntiAliasingTonemapComputePass.h"
-#include "ComputePass/AntiAliasing/AntiAliasingReverseTonemapComputePass.h"
-#include "RenderPass/Debug/BoundingBoxRenderPass.h"
 
-struct RenderResources;
+struct GLRenderResources;
 class Scene;
 struct Effects;
 struct Level;
@@ -140,11 +74,13 @@ class CombinedDofNeighborTileMaxComputePass;
 class SeperateDofTileMaxComputePass;
 class AntiAliasingTonemapComputePass;
 class AntiAliasingReverseTonemapComputePass;
+class BoundingBoxRenderPass;
 
 class GLRenderer
 {
 public:
 	explicit GLRenderer();
+	~GLRenderer();
 	GLRenderer(const GLRenderer &) = delete;
 	GLRenderer(const GLRenderer &&) = delete;
 	GLRenderer &operator= (const GLRenderer &) = delete;
@@ -236,9 +172,9 @@ private:
 	// debug
 	std::unique_ptr<BoundingBoxRenderPass> m_boundingBoxRenderPass;
 
-	unsigned int frame;
-	bool currentLuminanceTexture;
-	bool currentSmaaTexture;
-	GLuint finishedTexture;
-	GLuint ssaoTexture;
+	unsigned int m_frame;
+	bool m_currentLuminanceTexture;
+	bool m_currentSmaaTexture;
+	GLuint m_finishedTexture;
+	GLuint m_ssaoTexture;
 };

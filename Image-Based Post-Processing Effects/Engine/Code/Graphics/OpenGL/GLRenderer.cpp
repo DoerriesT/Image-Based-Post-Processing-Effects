@@ -2,11 +2,84 @@
 #include "RenderData.h"
 #include "Level.h"
 #include "Graphics/Effects.h"
+#include "GLRenderResources.h"
+#include "RenderPass\Shadow\ShadowRenderPass.h"
+#include "RenderPass\Geometry\GBufferRenderPass.h"
+#include "RenderPass\Geometry\GBufferCustomRenderPass.h"
+#include "RenderPass\SSAO\SSAOOriginalRenderPass.h"
+#include "RenderPass\SSAO\SSAORenderPass.h"
+#include "RenderPass\SSAO\HBAORenderPass.h"
+#include "RenderPass\SSAO\GTAORenderPass.h"
+#include "RenderPass\SSAO\GTAOSpatialDenoiseRenderPass.h"
+#include "RenderPass\SSAO\GTAOTemporalDenoiseRenderPass.h"
+#include "RenderPass\SSAO\SSAOBlurRenderPass.h"
+#include "RenderPass\SSAO\SSAOBilateralBlurRenderPass.h"
+#include "RenderPass\Geometry\SkyboxRenderPass.h"
+#include "RenderPass\Lighting\AmbientLightRenderPass.h"
+#include "RenderPass\Lighting\DirectionalLightRenderPass.h"
+#include "RenderPass\Lighting\StencilRenderPass.h"
+#include "RenderPass\Lighting\DeferredEnvironmentProbeRenderPass.h"
+#include "RenderPass\Lighting\PointLightRenderPass.h"
+#include "RenderPass\Lighting\SpotLightRenderPass.h"
+#include "RenderPass\Geometry\ForwardRenderPass.h"
+#include "RenderPass\Geometry\ForwardCustomRenderPass.h"
+#include "RenderPass\Geometry\OutlineRenderPass.h"
+#include "RenderPass\Geometry\LightProbeRenderPass.h"
+#include "ComputePass/LensFlares/AnamorphicPrefilterComputePass.h"
+#include "ComputePass/LensFlares/AnamorphicDownsampleComputePass.h"
+#include "ComputePass/LensFlares/AnamorphicUpsampleComputePass.h"
+#include "RenderPass/AntiAliasing/FXAARenderPass.h"
+#include "RenderPass/AntiAliasing/SMAAEdgeDetectionRenderPass.h"
+#include "RenderPass/AntiAliasing/SMAABlendWeightRenderPass.h"
+#include "RenderPass/AntiAliasing/SMAABlendRenderPass.h"
+#include "RenderPass/AntiAliasing/SMAATemporalResolveRenderPass.h"
+#include "ComputePass/GodRays/GodRayMaskComputePass.h"
+#include "ComputePass/GodRays/GodRayGenComputePass.h"
+#include "ComputePass/Exposure/LuminanceGenComputePass.h"
+#include "ComputePass/Exposure/LuminanceAdaptionComputePass.h"
+#include "ComputePass/MotionBlur/VelocityCorrectionComputePass.h"
+#include "ComputePass/DepthOfField/SimpleDofCocBlurComputePass.h"
+#include "ComputePass/DepthOfField/SimpleDofBlurComputePass.h"
+#include "ComputePass/DepthOfField/SimpleDofFillComputePass.h"
+#include "ComputePass/DepthOfField/SimpleDofCompositeComputePass.h"
+#include "RenderPass/DepthOfField/SpriteDofRenderPass.h"
+#include "ComputePass/DepthOfField/SpriteDofCompositeComputePass.h"
+#include "ComputePass/DepthOfField/SeperateDofDownsampleComputePass.h"
+#include "ComputePass/DepthOfField/SeperateDofBlurComputePass.h"
+#include "ComputePass/DepthOfField/SeperateDofFillComputePass.h"
+#include "ComputePass/DepthOfField/SeperateDofCompositeComputePass.h"
+#include "ComputePass/DepthOfField/CocComputePass.h"
+#include "RenderPass/DepthOfField/CocTileMaxRenderPass.h"
+#include "RenderPass/DepthOfField/CocNeighborTileMaxRenderPass.h"
+#include "ComputePass/Exposure/LuminanceHistogramComputePass.h"
+#include "ComputePass/Exposure/LuminanceHistogramReduceComputePass.h"
+#include "ComputePass/Exposure/LuminanceHistogramAdaptionComputePass.h"
+#include "RenderPass/MotionBlur/VelocityTileMaxRenderPass.h"
+#include "RenderPass/MotionBlur/VelocityNeighborTileMaxRenderPass.h"
+#include "RenderPass/LensFlares/LensFlareGenRenderPass.h"
+#include "RenderPass/LensFlares/LensFlareBlurRenderPass.h"
+#include "ComputePass/Bloom/BloomDownsampleComputePass.h"
+#include "ComputePass/Bloom/BloomUpsampleComputePass.h"
+#include "RenderPass/Misc/SimplePostEffectsRenderPass.h"
+#include "RenderPass/Misc/ToneMapRenderPass.h"
+#include "ComputePass/DepthOfField/CombinedDofTileMaxComputePass.h"
+#include "ComputePass/DepthOfField/CombinedDofNeighborTileMaxComputePass.h"
+#include "ComputePass/DepthOfField/SeperateDofTileMaxComputePass.h"
+#include "ComputePass/AntiAliasing/AntiAliasingTonemapComputePass.h"
+#include "ComputePass/AntiAliasing/AntiAliasingReverseTonemapComputePass.h"
+#include "RenderPass/Debug/BoundingBoxRenderPass.h"
 
 unsigned int mbTileSize = 40;
 unsigned int dofTileSize = 16;
 
 GLRenderer::GLRenderer()
+	:m_frame(0),
+	m_currentLuminanceTexture(false),
+	m_currentSmaaTexture(false)
+{
+}
+
+GLRenderer::~GLRenderer()
 {
 }
 
@@ -86,12 +159,12 @@ void GLRenderer::init(unsigned int width, unsigned int height)
 void GLRenderer::render(const RenderData &renderData, const Scene &scene, const std::shared_ptr<Level> &level, const Effects &effects, bool bake, bool debugDraw)
 {
 	RenderPass *previousRenderPass = nullptr;
-	frame = renderData.frame;
+	m_frame = renderData.frame;
 
 	m_shadowRenderPass->render(renderData, level, scene, true, &previousRenderPass);
 
 	const GLenum lightColorAttachments[] = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5 };
-	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 , lightColorAttachments[frame % 2], GL_COLOR_ATTACHMENT6 };
+	const GLenum firstPassDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 , lightColorAttachments[m_frame % 2], GL_COLOR_ATTACHMENT6 };
 
 	// bind g-buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, m_renderResources->m_gBufferFbo);
@@ -114,28 +187,28 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_gDepthStencilTexture);
 
-	ssaoTexture = m_renderResources->m_ssaoTextureA;
+	m_ssaoTexture = m_renderResources->m_ssaoTextureA;
 	switch (effects.ambientOcclusion)
 	{
 	case AmbientOcclusion::SSAO_ORIGINAL:
 	{
 		m_ssaoOriginalRenderPass->render(renderData, effects, m_renderResources->m_noiseTexture, &previousRenderPass);
 		m_ssaoBilateralBlurRenderPass->render(renderData, effects, m_renderResources->m_ssaoTextureA, &previousRenderPass);
-		ssaoTexture = m_renderResources->m_ssaoTextureB;
+		m_ssaoTexture = m_renderResources->m_ssaoTextureB;
 		break;
 	}
 	case AmbientOcclusion::SSAO:
 	{
 		m_ssaoRenderPass->render(renderData, effects, m_renderResources->m_noiseTexture, &previousRenderPass);
 		m_ssaoBilateralBlurRenderPass->render(renderData, effects, m_renderResources->m_ssaoTextureA, &previousRenderPass);
-		ssaoTexture = m_renderResources->m_ssaoTextureB;
+		m_ssaoTexture = m_renderResources->m_ssaoTextureB;
 		break;
 	}
 	case AmbientOcclusion::HBAO:
 	{
 		m_hbaoRenderPass->render(renderData, effects, m_renderResources->m_noiseTexture2, &previousRenderPass);
 		m_ssaoBilateralBlurRenderPass->render(renderData, effects, m_renderResources->m_ssaoTextureA, &previousRenderPass);
-		ssaoTexture = m_renderResources->m_ssaoTextureB;
+		m_ssaoTexture = m_renderResources->m_ssaoTextureB;
 		break;
 	}
 	case AmbientOcclusion::GTAO:
@@ -144,7 +217,7 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 		GLuint ssaoTextures[3] = { m_renderResources->m_ssaoTextureA, m_renderResources->m_ssaoTextureB, m_renderResources->m_ssaoTextureC };
 		m_gtaoSpatialDenoiseRenderPass->render(renderData, effects, ssaoTextures, &previousRenderPass);
 		m_gtaoTemporalDenoiseRenderPass->render(renderData, effects, m_renderResources->m_gVelocityTexture, ssaoTextures, &previousRenderPass);
-		ssaoTexture = renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
+		m_ssaoTexture = renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
 		break;
 	}
 	default:
@@ -152,10 +225,10 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 	}
 
 	m_skyboxRenderPass->render(renderData, level, &previousRenderPass);
-	m_ambientLightRenderPass->render(renderData, level, effects, ssaoTexture, m_renderResources->m_brdfLUT, &previousRenderPass);
+	m_ambientLightRenderPass->render(renderData, level, effects, m_ssaoTexture, m_renderResources->m_brdfLUT, &previousRenderPass);
 	m_directionalLightRenderPass->render(renderData, level, &previousRenderPass);
 	m_stencilRenderPass->render(renderData, level, &previousRenderPass);
-	m_deferredEnvironmentProbeRenderPass->render(renderData, level, effects, ssaoTexture, m_renderResources->m_brdfLUT, &previousRenderPass);
+	m_deferredEnvironmentProbeRenderPass->render(renderData, level, effects, m_ssaoTexture, m_renderResources->m_brdfLUT, &previousRenderPass);
 	m_pointLightRenderPass->render(renderData, level, &previousRenderPass);
 	m_spotLightRenderPass->render(renderData, level, &previousRenderPass);
 	m_forwardRenderPass->render(renderData, level, scene, &previousRenderPass);
@@ -165,7 +238,7 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 
 	// generate mips
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_gLightColorTextures[frame % 2]);
+	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_gLightColorTextures[m_frame % 2]);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	if (bake)
@@ -177,27 +250,27 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 		return;
 	}
 
-	GLuint colorTexture = m_renderResources->m_gLightColorTextures[frame % 2];
+	GLuint colorTexture = m_renderResources->m_gLightColorTextures[m_frame % 2];
 
 	// post-processing
 	if (effects.smaa.enabled)
 	{
-		currentSmaaTexture = !currentSmaaTexture;
+		m_currentSmaaTexture = !m_currentSmaaTexture;
 
 		m_antiAliasingTonemapComputePass->execute(colorTexture);
 
 		m_smaaEdgeDetectionRenderPass->render(effects, colorTexture, &previousRenderPass);
-		m_smaaBlendWeightRenderPass->render(effects, m_renderResources->m_fullResolutionSmaaEdgesTex, effects.smaa.temporalAntiAliasing, currentSmaaTexture, &previousRenderPass);
-		m_smaaBlendRenderPass->render(effects, colorTexture, m_renderResources->m_gVelocityTexture, m_renderResources->m_fullResolutionSmaaBlendTex, currentSmaaTexture, &previousRenderPass);
+		m_smaaBlendWeightRenderPass->render(effects, m_renderResources->m_fullResolutionSmaaEdgesTex, effects.smaa.temporalAntiAliasing, m_currentSmaaTexture, &previousRenderPass);
+		m_smaaBlendRenderPass->render(effects, colorTexture, m_renderResources->m_gVelocityTexture, m_renderResources->m_fullResolutionSmaaBlendTex, m_currentSmaaTexture, &previousRenderPass);
 
 		if (effects.smaa.temporalAntiAliasing)
 		{
-			m_smaaTemporalResolveRenderPass->render(effects, m_renderResources->m_fullResolutionSmaaMLResultTex, m_renderResources->m_gVelocityTexture, currentSmaaTexture, &previousRenderPass);
+			m_smaaTemporalResolveRenderPass->render(effects, m_renderResources->m_fullResolutionSmaaMLResultTex, m_renderResources->m_gVelocityTexture, m_currentSmaaTexture, &previousRenderPass);
 			colorTexture = m_renderResources->m_fullResolutionSmaaResultTex;
 		}
 		else
 		{
-			colorTexture = m_renderResources->m_fullResolutionSmaaMLResultTex[currentSmaaTexture];
+			colorTexture = m_renderResources->m_fullResolutionSmaaMLResultTex[m_currentSmaaTexture];
 		}
 
 		m_antiAliasingReverseTonemapComputePass->execute(colorTexture);
@@ -291,14 +364,14 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 
 	if (true)
 	{
-		currentLuminanceTexture = !currentLuminanceTexture;
+		m_currentLuminanceTexture = !m_currentLuminanceTexture;
 
 		m_luminanceGenComputePass->execute(effects, colorTexture, m_renderResources->m_luminanceTempTexture);
-		m_luminanceAdaptionComputePass->execute(effects, m_renderResources->m_luminanceTempTexture, m_renderResources->m_luminanceTexture, currentLuminanceTexture);
+		m_luminanceAdaptionComputePass->execute(effects, m_renderResources->m_luminanceTempTexture, m_renderResources->m_luminanceTexture, m_currentLuminanceTexture);
 	}
 	else
 	{
-		currentLuminanceTexture = !currentLuminanceTexture;
+		m_currentLuminanceTexture = !m_currentLuminanceTexture;
 
 		// example min/max: -8 .. 4   means a range from 1/256 to 4  pow(2,-8) .. pow(2,4)
 		float histogramLogMin = -8;
@@ -312,7 +385,7 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 
 		m_luminanceHistogramComputePass->execute(colorTexture, m_renderResources->m_luminanceHistogramIntermediary, params);
 		m_luminanceHistogramReduceComputePass->execute(m_renderResources->m_luminanceHistogram);
-		m_luminanceHistogramAdaptionComputePass->execute(m_renderResources->m_luminanceHistogram, m_renderResources->m_luminanceTexture, currentLuminanceTexture, params);
+		m_luminanceHistogramAdaptionComputePass->execute(m_renderResources->m_luminanceHistogram, m_renderResources->m_luminanceTexture, m_currentLuminanceTexture, params);
 	}
 
 	glActiveTexture(GL_TEXTURE0);
@@ -328,7 +401,7 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_velocityNeighborMaxTex);
 	glActiveTexture(GL_TEXTURE8);
-	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_luminanceTexture[currentLuminanceTexture]);
+	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_luminanceTexture[m_currentLuminanceTexture]);
 	glActiveTexture(GL_TEXTURE9);
 	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_halfResolutionGodRayTexB);
 	glActiveTexture(GL_TEXTURE10);
@@ -336,24 +409,24 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 
 	m_toneMapRenderPass->render(effects, glm::dot(glm::vec3(1.0), renderData.viewDirection), &previousRenderPass);
 
-	finishedTexture = m_renderResources->m_fullResolutionTextureA;
+	m_finishedTexture = m_renderResources->m_fullResolutionTextureA;
 
 	if (effects.fxaa.enabled)
 	{
-		m_fxaaRenderPass->render(effects, finishedTexture, (finishedTexture == m_renderResources->m_fullResolutionTextureA) ? GL_COLOR_ATTACHMENT1 : GL_COLOR_ATTACHMENT0, &previousRenderPass);
-		finishedTexture = (finishedTexture == m_renderResources->m_fullResolutionTextureA) ? m_renderResources->m_fullResolutionTextureB : m_renderResources->m_fullResolutionTextureA;
+		m_fxaaRenderPass->render(effects, m_finishedTexture, (m_finishedTexture == m_renderResources->m_fullResolutionTextureA) ? GL_COLOR_ATTACHMENT1 : GL_COLOR_ATTACHMENT0, &previousRenderPass);
+		m_finishedTexture = (m_finishedTexture == m_renderResources->m_fullResolutionTextureA) ? m_renderResources->m_fullResolutionTextureB : m_renderResources->m_fullResolutionTextureA;
 	}
 
 	if (effects.chromaticAberration.enabled || effects.vignette.enabled || effects.filmGrain.enabled)
 	{
-		m_simplePostEffectsRenderPass->render(effects, finishedTexture, (finishedTexture == m_renderResources->m_fullResolutionTextureA) ? GL_COLOR_ATTACHMENT1 : GL_COLOR_ATTACHMENT0, &previousRenderPass);
-		finishedTexture = (finishedTexture == m_renderResources->m_fullResolutionTextureA) ? m_renderResources->m_fullResolutionTextureB : m_renderResources->m_fullResolutionTextureA;
+		m_simplePostEffectsRenderPass->render(effects, m_finishedTexture, (m_finishedTexture == m_renderResources->m_fullResolutionTextureA) ? GL_COLOR_ATTACHMENT1 : GL_COLOR_ATTACHMENT0, &previousRenderPass);
+		m_finishedTexture = (m_finishedTexture == m_renderResources->m_fullResolutionTextureA) ? m_renderResources->m_fullResolutionTextureB : m_renderResources->m_fullResolutionTextureA;
 	}
 
 	if (debugDraw)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_renderResources->m_debugFbo);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, finishedTexture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_finishedTexture, 0);
 		m_boundingBoxRenderPass->render(renderData, level, scene, &previousRenderPass);
 	}
 
@@ -437,7 +510,7 @@ void GLRenderer::resize(unsigned int width, unsigned int height)
 
 GLuint GLRenderer::getColorTexture() const
 {
-	return m_renderResources->m_gLightColorTextures[frame % 2];
+	return m_renderResources->m_gLightColorTextures[m_frame % 2];
 }
 
 GLuint GLRenderer::getAlbedoTexture() const
@@ -467,7 +540,7 @@ GLuint GLRenderer::getVelocityTexture() const
 
 GLuint GLRenderer::getAmbientOcclusionTexture() const
 {
-	return ssaoTexture;
+	return m_ssaoTexture;
 }
 
 GLuint GLRenderer::getBrdfLUT() const
@@ -477,5 +550,5 @@ GLuint GLRenderer::getBrdfLUT() const
 
 GLuint GLRenderer::getFinishedTexture() const
 {
-	return finishedTexture;
+	return m_finishedTexture;
 }
