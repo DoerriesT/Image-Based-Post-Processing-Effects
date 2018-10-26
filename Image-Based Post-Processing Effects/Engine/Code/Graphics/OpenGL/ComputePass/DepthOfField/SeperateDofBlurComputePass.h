@@ -12,11 +12,11 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> blurShader;
+	std::shared_ptr<ShaderProgram> m_blurShader;
 
-	std::vector<GLint> uSampleCoordsSDOFB;
+	std::vector<GLint> m_uSampleCoords;
 
-	bool blurSamplesSet;
-	unsigned int width;
-	unsigned int height;
+	bool m_blurSamplesSet;
+	unsigned int m_width;
+	unsigned int m_height;
 };

@@ -13,17 +13,17 @@ public:
 	void render(const RenderData &_renderData, const Scene &_scene, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> gBufferPassShader;
+	std::shared_ptr<ShaderProgram> m_gBufferPassShader;
 
-	Uniform<glm::vec3> uCamPosG = Uniform<glm::vec3>("uCamPos");
-	Uniform<glm::mat3> uViewMatrixG = Uniform<glm::mat3>("uViewMatrix");
-	Uniform<glm::mat4> uModelMatrixG = Uniform<glm::mat4>("uModelMatrix");
-	Uniform<glm::mat4> uModelViewProjectionMatrixG = Uniform<glm::mat4>("uModelViewProjectionMatrix");
-	Uniform<glm::mat4> uPrevTransformG = Uniform<glm::mat4>("uPrevTransform");
-	Uniform<glm::mat4> uCurrTransformG = Uniform<glm::mat4>("uCurrTransform");
-	Uniform<glm::vec4> uAtlasDataG = Uniform<glm::vec4>("uAtlasData");
-	Uniform<glm::vec2> uVelG = Uniform<glm::vec2>("uVel");
-	Uniform<GLfloat> uExposureTimeG = Uniform<GLfloat>("uExposureTime");
-	Uniform<GLfloat> uMaxVelocityMagG = Uniform<GLfloat>("uMaxVelocityMag");
-	UniformMaterial uMaterialG = UniformMaterial("uMaterial");
+	Uniform<glm::vec3> m_uCamPos = Uniform<glm::vec3>("uCamPos");
+	Uniform<glm::mat3> m_uViewMatrix = Uniform<glm::mat3>("uViewMatrix");
+	Uniform<glm::mat4> m_uModelMatrix = Uniform<glm::mat4>("uModelMatrix");
+	Uniform<glm::mat4> m_uModelViewProjectionMatrix = Uniform<glm::mat4>("uModelViewProjectionMatrix");
+	Uniform<glm::mat4> m_uPrevTransform = Uniform<glm::mat4>("uPrevTransform");
+	Uniform<glm::mat4> m_uCurrTransform = Uniform<glm::mat4>("uCurrTransform");
+	Uniform<glm::vec4> m_uAtlasData = Uniform<glm::vec4>("uAtlasData");
+	Uniform<glm::vec2> m_uVel = Uniform<glm::vec2>("uVel");
+	Uniform<GLfloat> m_uExposureTime = Uniform<GLfloat>("uExposureTime");
+	Uniform<GLfloat> m_uMaxVelocityMag = Uniform<GLfloat>("uMaxVelocityMag");
+	UniformMaterial m_uMaterial = UniformMaterial("uMaterial");
 };

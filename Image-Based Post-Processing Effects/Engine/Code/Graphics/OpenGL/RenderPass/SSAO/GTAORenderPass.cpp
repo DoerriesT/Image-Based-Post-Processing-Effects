@@ -6,39 +6,39 @@
 
 GTAORenderPass::GTAORenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT0 };
-	state.blendState.enabled = false;
-	state.blendState.sFactor = GL_ONE;
-	state.blendState.dFactor = GL_ONE;
-	state.cullFaceState.enabled = false;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = false;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT0 };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_blendState.m_sFactor = GL_ONE;
+	m_state.m_blendState.m_dFactor = GL_ONE;
+	m_state.m_cullFaceState.m_enabled = false;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = false;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_FALSE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	gtaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/gtao.frag");
+	m_gtaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/gtao.frag");
 
-	uFocalLengthGTAO.create(gtaoShader);
-	uInverseProjectionGTAO.create(gtaoShader);
-	uAOResGTAO.create(gtaoShader);
-	uInvAOResGTAO.create(gtaoShader);
-	uStrengthGTAO.create(gtaoShader);
-	uRadiusGTAO.create(gtaoShader);
-	uMaxRadiusPixelsGTAO.create(gtaoShader);
-	uNumStepsGTAO.create(gtaoShader);
-	uFrameGTAO.create(gtaoShader);
+	m_uFocalLength.create(m_gtaoShader);
+	m_uInverseProjection.create(m_gtaoShader);
+	m_uAORes.create(m_gtaoShader);
+	m_uInvAORes.create(m_gtaoShader);
+	m_uStrength.create(m_gtaoShader);
+	m_uRadius.create(m_gtaoShader);
+	m_uMaxRadiusPixels.create(m_gtaoShader);
+	m_uNumSteps.create(m_gtaoShader);
+	m_uFrame.create(m_gtaoShader);
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 double gtaoRenderTime;
@@ -46,27 +46,27 @@ double gtaoRenderTime;
 void GTAORenderPass::render(const RenderData &_renderData, const Effects &_effects, RenderPass **_previousRenderPass)
 {
 	GLTimerQuery timer(gtaoRenderTime);
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0;
+	m_drawBuffers[0] = _renderData.m_frame % 2 ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	m_fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
-	float aspectRatio = _renderData.resolution.second / (float)_renderData.resolution.first;
-	float focalLength = 1.0f / tanf(glm::radians(_renderData.fov) * 0.5f) * aspectRatio;
+	float aspectRatio = _renderData.m_resolution.second / (float)_renderData.m_resolution.first;
+	float focalLength = 1.0f / tanf(glm::radians(_renderData.m_fov) * 0.5f) * aspectRatio;
 
-	glm::vec2 res(_renderData.resolution.first, _renderData.resolution.second);
+	glm::vec2 res(_renderData.m_resolution.first, _renderData.m_resolution.second);
 
-	gtaoShader->bind();
-	uFrameGTAO.set(_renderData.frame % 12);
-	uFocalLengthGTAO.set(focalLength);
-	uInverseProjectionGTAO.set(_renderData.invProjectionMatrix);
-	uAOResGTAO.set(res);
-	uInvAOResGTAO.set(1.0f / res);
-	uStrengthGTAO.set(_effects.gtao.strength);
-	uRadiusGTAO.set(_effects.gtao.radius);
-	uMaxRadiusPixelsGTAO.set(_effects.gtao.maxRadiusPixels);
-	uNumStepsGTAO.set((float)_effects.gtao.steps);
+	m_gtaoShader->bind();
+	m_uFrame.set(_renderData.m_frame % 12);
+	m_uFocalLength.set(focalLength);
+	m_uInverseProjection.set(_renderData.m_invProjectionMatrix);
+	m_uAORes.set(res);
+	m_uInvAORes.set(1.0f / res);
+	m_uStrength.set(_effects.m_gtao.m_strength);
+	m_uRadius.set(_effects.m_gtao.m_radius);
+	m_uMaxRadiusPixels.set(_effects.m_gtao.m_maxRadiusPixels);
+	m_uNumSteps.set((float)_effects.m_gtao.m_steps);
 
-	fullscreenTriangle->getSubMesh()->render();
+	m_fullscreenTriangle->getSubMesh()->render();
 }

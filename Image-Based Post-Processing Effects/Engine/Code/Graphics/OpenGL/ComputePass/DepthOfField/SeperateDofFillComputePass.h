@@ -12,11 +12,11 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> fillShader;
+	std::shared_ptr<ShaderProgram> m_fillShader;
 
-	std::vector<GLint> uSampleCoordsSDOFF;
+	std::vector<GLint> m_uSampleCoords;
 
-	bool fillSamplesSet;
-	unsigned int width;
-	unsigned int height;
+	bool m_fillSamplesSet;
+	unsigned int m_width;
+	unsigned int m_height;
 };

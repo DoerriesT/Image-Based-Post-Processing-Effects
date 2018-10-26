@@ -2,22 +2,22 @@
 #include "Engine.h"
 
 LuminanceHistogramAdaptionComputePass::LuminanceHistogramAdaptionComputePass(unsigned int _width, unsigned int _height)
-	:width(_width),
-	height(_height)
+	:m_width(_width),
+	m_height(_height)
 {
-	adaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/Exposure/histogramAdaption.comp");
+	m_adaptionShader = ShaderProgram::createShaderProgram("Resources/Shaders/Exposure/histogramAdaption.comp");
 
-	uTimeDeltaLHA.create(adaptionShader);
-	uTauLHA.create(adaptionShader);
-	uParamsLHA.create(adaptionShader);
+	m_uTimeDelta.create(m_adaptionShader);
+	m_uTau.create(m_adaptionShader);
+	m_uParams.create(m_adaptionShader);
 }
 
 void LuminanceHistogramAdaptionComputePass::execute(GLuint _histogramTexture, GLuint * _temporalLuminanceTextures, bool _currentLuminanceTexture, const glm::vec2 & _params)
 {
-	adaptionShader->bind();
-	uTimeDeltaLHA.set((float)Engine::getTimeDelta());
-	uTauLHA.set(2.5f);
-	uParamsLHA.set(_params);
+	m_adaptionShader->bind();
+	m_uTimeDelta.set((float)Engine::getTimeDelta());
+	m_uTau.set(2.5f);
+	m_uParams.set(_params);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _temporalLuminanceTextures[!_currentLuminanceTexture]);
@@ -31,6 +31,6 @@ void LuminanceHistogramAdaptionComputePass::execute(GLuint _histogramTexture, GL
 
 void LuminanceHistogramAdaptionComputePass::resize(unsigned int _width, unsigned int _height)
 {
-	width = _width;
-	height = _height;
+	m_width = _width;
+	m_height = _height;
 }

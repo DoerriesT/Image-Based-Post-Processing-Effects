@@ -9,71 +9,71 @@
 
 SpotLightRenderPass::SpotLightRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT4 };
-	state.blendState.enabled = true;
-	state.blendState.sFactor = GL_ONE;
-	state.blendState.dFactor = GL_ONE;
-	state.cullFaceState.enabled = true;
-	state.cullFaceState.face = GL_FRONT;
-	state.depthState.enabled = false;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = true;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_NOTEQUAL;
-	state.stencilState.frontRef = state.stencilState.backRef = 0;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT4 };
+	m_state.m_blendState.m_enabled = true;
+	m_state.m_blendState.m_sFactor = GL_ONE;
+	m_state.m_blendState.m_dFactor = GL_ONE;
+	m_state.m_cullFaceState.m_enabled = true;
+	m_state.m_cullFaceState.m_face = GL_FRONT;
+	m_state.m_depthState.m_enabled = false;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_FALSE;
+	m_state.m_stencilState.m_enabled = true;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_NOTEQUAL;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 0;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	spotLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/lightProxy.vert", "Resources/Shaders/Lighting/spotLight.frag");
+	m_spotLightPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/lightProxy.vert", "Resources/Shaders/Lighting/spotLight.frag");
 
-	uModelViewProjectionS.create(spotLightPassShader);
-	uSpotLightS.create(spotLightPassShader);
-	uInverseViewS.create(spotLightPassShader);
-	uInverseProjectionS.create(spotLightPassShader);
-	uShadowsEnabledS.create(spotLightPassShader);
-	uViewportSizeS.create(spotLightPassShader);
+	m_uModelViewProjection.create(m_spotLightPassShader);
+	m_uSpotLight.create(m_spotLightPassShader);
+	m_uInverseView.create(m_spotLightPassShader);
+	m_uInverseProjection.create(m_spotLightPassShader);
+	m_uShadowsEnabled.create(m_spotLightPassShader);
+	m_uViewportSize.create(m_spotLightPassShader);
 
-	spotLightMesh = Mesh::createMesh("Resources/Models/spotlight.mesh", 1, true);
+	m_spotLightMesh = Mesh::createMesh("Resources/Models/spotlight.mesh", 1, true);
 }
 
 void SpotLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass)
 {
-	if (_level->lights.spotLights.empty())
+	if (_level->m_lights.m_spotLights.empty())
 	{
 		return;
 	}
 
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
+	m_drawBuffers[0] = _renderData.m_frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
-	spotLightMesh->getSubMesh()->enableVertexAttribArrays();
+	m_spotLightMesh->getSubMesh()->enableVertexAttribArrays();
 
-	spotLightPassShader->bind();
+	m_spotLightPassShader->bind();
 
-	uInverseViewS.set(_renderData.invViewMatrix);
-	uInverseProjectionS.set(_renderData.invProjectionMatrix);
-	uShadowsEnabledS.set(_renderData.shadows);
-	uViewportSizeS.set(glm::vec2(_renderData.resolution.first, _renderData.resolution.second));
+	m_uInverseView.set(_renderData.m_invViewMatrix);
+	m_uInverseProjection.set(_renderData.m_invProjectionMatrix);
+	m_uShadowsEnabled.set(_renderData.m_shadows);
+	m_uViewportSize.set(glm::vec2(_renderData.m_resolution.first, _renderData.m_resolution.second));
 
-	for (std::shared_ptr<SpotLight> spotLight : _level->lights.spotLights)
+	for (std::shared_ptr<SpotLight> spotLight : _level->m_lights.m_spotLights)
 	{
-		if (_renderData.bake && spotLight->getMobility() != Mobility::STATIC)
+		if (_renderData.m_bake && spotLight->getMobility() != Mobility::STATIC)
 		{
 			continue;
 		}
 
-		if (!_renderData.frustum.testSphere(spotLight->getBoundingSphere()))
+		if (!_renderData.m_frustum.testSphere(spotLight->getBoundingSphere()))
 		{
 			continue;
 		}
 
-		spotLight->updateViewValues(_renderData.viewMatrix);
+		spotLight->updateViewValues(_renderData.m_viewMatrix);
 
 		if (spotLight->isRenderShadows())
 		{
@@ -92,11 +92,11 @@ void SpotLightRenderPass::render(const RenderData &_renderData, const std::share
 
 		const glm::vec3 defaultDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 
-		uModelViewProjectionS.set(_renderData.viewProjectionMatrix
+		m_uModelViewProjection.set(_renderData.m_viewProjectionMatrix
 			* glm::translate(spotLight->getPosition())
 			* glm::mat4_cast(glm::rotation(defaultDirection, spotLight->getDirection()))
 			* glm::scale(glm::vec3(scale, spotLight->getRadius(), scale)));
-		uSpotLightS.set(spotLight);
-		spotLightMesh->getSubMesh()->render();
+		m_uSpotLight.set(spotLight);
+		m_spotLightMesh->getSubMesh()->render();
 	}
 }

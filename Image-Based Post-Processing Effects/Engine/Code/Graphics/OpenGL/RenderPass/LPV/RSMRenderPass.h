@@ -14,13 +14,13 @@ public:
 	void render(const glm::mat4 &_viewProjection, std::shared_ptr<DirectionalLight> _light, const Scene &_scene, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> rsmPassShader;
+	std::shared_ptr<ShaderProgram> m_rsmPassShader;
 
-	Uniform<glm::mat3> uModelMatrix = Uniform<glm::mat3>("uModelMatrix");
-	Uniform<glm::mat4> uModelViewProjectionMatrix = Uniform<glm::mat4>("uModelViewProjectionMatrix");
-	Uniform<glm::vec4> uAtlasData = Uniform<glm::vec4>("uAtlasData");
-	Uniform<GLboolean> uHasTexture = Uniform<GLboolean>("uHasTexture");
-	Uniform<glm::vec3> uAlbedo = Uniform<glm::vec3>("uAlbedo");
-	Uniform<glm::vec3> uLightColor = Uniform<glm::vec3>("uLightColor");
-	Uniform<glm::vec3> uLightDir = Uniform<glm::vec3>("uLightDir");
+	Uniform<glm::mat3> m_uModelMatrix = Uniform<glm::mat3>("uModelMatrix");
+	Uniform<glm::mat4> m_uModelViewProjectionMatrix = Uniform<glm::mat4>("uModelViewProjectionMatrix");
+	Uniform<glm::vec4> m_uAtlasData = Uniform<glm::vec4>("uAtlasData");
+	Uniform<GLboolean> m_uHasTexture = Uniform<GLboolean>("uHasTexture");
+	Uniform<glm::vec3> m_uAlbedo = Uniform<glm::vec3>("uAlbedo");
+	Uniform<glm::vec3> m_uLightColor = Uniform<glm::vec3>("uLightColor");
+	Uniform<glm::vec3> m_uLightDir = Uniform<glm::vec3>("uLightDir");
 };

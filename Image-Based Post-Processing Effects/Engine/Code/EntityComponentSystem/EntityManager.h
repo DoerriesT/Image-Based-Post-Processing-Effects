@@ -26,8 +26,8 @@ public:
 	Entity(const Id &_id, const Id &_version);
 	~Entity() = default;
 
-	const Id id;
-	const Version version;
+	const Id m_id;
+	const Version m_version;
 };
 
 class EntityManager
@@ -60,18 +60,18 @@ public:
 	void removeOnComponentRemovedListener(IOnComponentRemovedListener *_listener);
 
 private:
-	std::uint64_t nextFreeId;
-	std::vector<std::uint64_t> freeIds;
-	std::set<Entity> entities;
-	std::unordered_map<Entity::Id, std::uint64_t> entityIdToComponentBitFieldMap;
-	std::unordered_map<Entity::Id, std::uint64_t> entityIdToFamilyBitFieldMap;
-	std::unordered_map<Entity::Id, std::unordered_map<std::uint64_t, BaseComponent *>> entityIdToComponentMap;
-	std::unordered_map<Entity::Id, std::unordered_map<std::uint64_t, BaseComponent *>> entityIdToFamilyMap;
-	std::unordered_map<Entity::Id, Entity::Version> entityIdVersionMap;
-	std::vector<IOnEntityCreatedListener *> onEntityCreatedListeners;
-	std::vector<IOnEntityDestructionListener *> onEntityDestructionListeners;
-	std::vector<IOnComponentAddedListener *> onComponentAddedListeners;
-	std::vector<IOnComponentRemovedListener *> onComponentRemovedListeners;
+	std::uint64_t m_nextFreeId;
+	std::vector<std::uint64_t> m_freeIds;
+	std::set<Entity> m_entities;
+	std::unordered_map<Entity::Id, std::uint64_t> m_entityIdToComponentBitFieldMap;
+	std::unordered_map<Entity::Id, std::uint64_t> m_entityIdToFamilyBitFieldMap;
+	std::unordered_map<Entity::Id, std::unordered_map<std::uint64_t, BaseComponent *>> m_entityIdToComponentMap;
+	std::unordered_map<Entity::Id, std::unordered_map<std::uint64_t, BaseComponent *>> m_entityIdToFamilyMap;
+	std::unordered_map<Entity::Id, Entity::Version> m_entityIdVersionMap;
+	std::vector<IOnEntityCreatedListener *> m_onEntityCreatedListeners;
+	std::vector<IOnEntityDestructionListener *> m_onEntityDestructionListeners;
+	std::vector<IOnComponentAddedListener *> m_onComponentAddedListeners;
+	std::vector<IOnComponentRemovedListener *> m_onComponentRemovedListeners;
 
 	EntityManager() = default;
 	~EntityManager() = default;
@@ -83,34 +83,34 @@ ComponentType *EntityManager::addComponent(const Entity *_entity, Args&& ..._arg
 {
 	assert(validateEntity(_entity));
 
-	const Entity::Id &id = _entity->id;
+	const Entity::Id &id = _entity->m_id;
 
 	std::uint64_t typeId = ComponentType::getTypeId();
 	std::uint64_t familyId = ComponentType::getFamilyId();
 
 	// if a component of this type or family already exists, remove it
-	if (entityIdToComponentBitFieldMap[id] & typeId)
+	if (m_entityIdToComponentBitFieldMap[id] & typeId)
 	{
 		removeComponent<ComponentType>(_entity);
 	}
-	else if (entityIdToFamilyBitFieldMap[id] & familyId)
+	else if (m_entityIdToFamilyBitFieldMap[id] & familyId)
 	{
 		removeComponentFamily(_entity, familyId);
 	}
 
 	// set the type and family bit
-	entityIdToComponentBitFieldMap[id] |= typeId;
-	entityIdToFamilyBitFieldMap[id] |= familyId;
+	m_entityIdToComponentBitFieldMap[id] |= typeId;
+	m_entityIdToFamilyBitFieldMap[id] |= familyId;
 
 	// create the new component
 	ComponentType *component = new ComponentType(std::forward<Args>(_args)...);
 
 	// add the component to type and family maps
-	entityIdToComponentMap[id].emplace(typeId, component);
-	entityIdToFamilyMap[id].emplace(familyId, component);
+	m_entityIdToComponentMap[id].emplace(typeId, component);
+	m_entityIdToFamilyMap[id].emplace(familyId, component);
 
 	//invoke listeners
-	for (IOnComponentAddedListener *listener : onComponentAddedListeners)
+	for (IOnComponentAddedListener *listener : m_onComponentAddedListeners)
 	{
 		listener->onComponentAdded(_entity, component);
 	}
@@ -123,26 +123,26 @@ void EntityManager::removeComponent(const Entity *_entity, bool _notify)
 {
 	assert(validateEntity(_entity));
 
-	const Entity::Id &id = _entity->id;
+	const Entity::Id &id = _entity->m_id;
 
 	std::uint64_t typeId = ComponentType::getTypeId();
 	std::uint64_t familyId = ComponentType::getFamilyId();
 
 	// only do something if the component is actually attached to the entity
-	if (entityIdToComponentBitFieldMap[id] & typeId)
+	if (m_entityIdToComponentBitFieldMap[id] & typeId)
 	{
 		// fetch the component pointer
-		BaseComponent *component = entityIdToComponentMap[id][typeId];
+		BaseComponent *component = m_entityIdToComponentMap[id][typeId];
 		assert(component);
 
 		// remove type and family bits from their map
-		entityIdToComponentBitFieldMap[id] ^= typeId;
-		entityIdToFamilyBitFieldMap[id] ^= familyId;
+		m_entityIdToComponentBitFieldMap[id] ^= typeId;
+		m_entityIdToFamilyBitFieldMap[id] ^= familyId;
 
 		// invoke listeners
 		if (_notify)
 		{
-			for (IOnComponentRemovedListener *listener : onComponentRemovedListeners)
+			for (IOnComponentRemovedListener *listener : m_onComponentRemovedListeners)
 			{
 				listener->onComponentRemoved(_entity, component);
 			}
@@ -150,8 +150,8 @@ void EntityManager::removeComponent(const Entity *_entity, bool _notify)
 
 		// delete pointer and remove component from maps
 		delete component;
-		ContainerUtility::remove(entityIdToComponentMap[id], typeId);
-		ContainerUtility::remove(entityIdToFamilyMap[id], familyId);
+		ContainerUtility::remove(m_entityIdToComponentMap[id], typeId);
+		ContainerUtility::remove(m_entityIdToFamilyMap[id], familyId);
 	}
 }
 
@@ -163,13 +163,13 @@ inline ComponentType *EntityManager::getComponent(const Entity *_entity)
 	ComponentType *component = nullptr;
 
 	//assert that there is a bitmap attached to the entity
-	assert(ContainerUtility::contains(entityIdToComponentBitFieldMap, _entity->id));
+	assert(ContainerUtility::contains(m_entityIdToComponentBitFieldMap, _entity->m_id));
 
 	// check if the component is attached to the entity
-	if((entityIdToComponentBitFieldMap[_entity->id] & ComponentType::getTypeId()) == ComponentType::getTypeId())
+	if((m_entityIdToComponentBitFieldMap[_entity->m_id] & ComponentType::getTypeId()) == ComponentType::getTypeId())
 	{
-		assert(ContainerUtility::contains(entityIdToComponentMap[_entity->id], ComponentType::getTypeId()));
-		component = static_cast<ComponentType *>(entityIdToComponentMap[_entity->id][ComponentType::getTypeId()]);
+		assert(ContainerUtility::contains(m_entityIdToComponentMap[_entity->m_id], ComponentType::getTypeId()));
+		component = static_cast<ComponentType *>(m_entityIdToComponentMap[_entity->m_id][ComponentType::getTypeId()]);
 	}
 
 	return component;

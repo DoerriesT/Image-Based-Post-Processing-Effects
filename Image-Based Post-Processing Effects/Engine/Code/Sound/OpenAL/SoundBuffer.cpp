@@ -4,48 +4,48 @@
 #include "Utilities\Utility.h"
 #include <cassert>
 
-std::map<std::string, std::weak_ptr<SoundBuffer>> SoundBuffer::soundMap;
+std::map<std::string, std::weak_ptr<SoundBuffer>> SoundBuffer::m_soundMap;
 
 std::shared_ptr<SoundBuffer> SoundBuffer::createSoundBuffer(const std::string &_file, bool _instantLoading)
 {
-	if (ContainerUtility::contains(soundMap, _file))
+	if (ContainerUtility::contains(m_soundMap, _file))
 	{
-		return std::shared_ptr<SoundBuffer>(soundMap[_file]);
+		return std::shared_ptr<SoundBuffer>(m_soundMap[_file]);
 	}
 	else
 	{
 		std::shared_ptr<SoundBuffer> soundBuffer = std::shared_ptr<SoundBuffer>(new SoundBuffer(_file, _instantLoading));
-		soundMap[_file] = soundBuffer;
+		m_soundMap[_file] = soundBuffer;
 		return soundBuffer;
 	}
 }
 
 SoundBuffer::~SoundBuffer()
 {
-	if (dataJob)
+	if (m_dataJob)
 	{
-		dataJob->kill();
+		m_dataJob->kill();
 	}
-	ContainerUtility::remove(soundMap, filepath);
-	if (valid)
+	ContainerUtility::remove(m_soundMap, m_filepath);
+	if (m_valid)
 	{
-		alDeleteBuffers(1, &bufferId);
+		alDeleteBuffers(1, &m_bufferId);
 	}
 }
 
 ALuint SoundBuffer::getBufferId() const
 {
-	assert(valid);
-	return bufferId;
+	assert(m_valid);
+	return m_bufferId;
 }
 
 bool SoundBuffer::isValid() const
 {
-	return valid;
+	return m_valid;
 }
 
 SoundBuffer::SoundBuffer(const std::string &_file, bool _instantLoading)
-	:filepath(_file), valid(false), dataJob(nullptr)
+	:m_filepath(_file), m_valid(false), m_dataJob(nullptr)
 {
 	auto dataPreparation = [=](JobManager::SharedJob job)
 	{
@@ -71,7 +71,7 @@ SoundBuffer::SoundBuffer(const std::string &_file, bool _instantLoading)
 		job->setUserData(result);
 	};
 
-	ALuint &bId = bufferId;
+	ALuint &bId = m_bufferId;
 
 	auto dataInitialization = [&](JobManager::SharedJob job)
 	{
@@ -84,8 +84,8 @@ SoundBuffer::SoundBuffer(const std::string &_file, bool _instantLoading)
 
 
 
-		valid = true;
-		dataJob.reset();
+		m_valid = true;
+		m_dataJob.reset();
 
 		job->markDone(true);
 	};
@@ -103,7 +103,7 @@ SoundBuffer::SoundBuffer(const std::string &_file, bool _instantLoading)
 	}
 	else
 	{
-		dataJob = JobManager::getInstance().queue(dataPreparation, dataInitialization, dataCleanup);
+		m_dataJob = JobManager::getInstance().queue(dataPreparation, dataInitialization, dataCleanup);
 	}
 
 }

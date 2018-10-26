@@ -3,7 +3,7 @@
 #include ".\..\Graphics\Material.h"
 
 
-std::uint64_t BaseComponent::typeCount = 0;
+std::uint64_t BaseComponent::m_typeCount = 0;
 
 const std::uint64_t BoundingBoxComponent::FAMILY_ID = BOUNDING_BOX_FAMILY;
 const std::uint64_t CleanupComponent::FAMILY_ID = 64;

@@ -29,11 +29,11 @@ public:
 	void saveToFile();
 
 private:
-	std::shared_ptr<Texture> reflectionTexture;
-	glm::vec3 position;
-	AxisAlignedBoundingBox aabb;
-	std::string filePath;
-	bool valid;
+	std::shared_ptr<Texture> m_reflectionTexture;
+	glm::vec3 m_position;
+	AxisAlignedBoundingBox m_aabb;
+	std::string m_filePath;
+	bool m_valid;
 
 	explicit EnvironmentProbe(const glm::vec3 &_position, const AxisAlignedBoundingBox &_aabb, const std::string &_filePath, bool _loadFromFile = true);
 };
@@ -62,11 +62,11 @@ public:
 	void saveToFile(const std::string &_filepath);
 
 private:
-	glm::vec3 origin;
-	glm::ivec3 dimensions;
-	float spacing;
-	std::shared_ptr<Texture> probeTexture;
-	std::vector<ProbeData> data;
+	glm::vec3 m_origin;
+	glm::ivec3 m_dimensions;
+	float m_spacing;
+	std::shared_ptr<Texture> m_probeTexture;
+	std::vector<ProbeData> m_data;
 
 	explicit IrradianceVolume(const glm::vec3 &_origin, const glm::ivec3 &_dimensions, float _spacing);
 	explicit IrradianceVolume(const glm::vec3 &_origin, const glm::ivec3 &_dimensions, float _spacing, const std::shared_ptr<Texture> &_probeTexture);

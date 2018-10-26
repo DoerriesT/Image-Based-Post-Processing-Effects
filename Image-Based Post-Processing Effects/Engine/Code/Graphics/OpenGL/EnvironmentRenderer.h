@@ -35,51 +35,51 @@ public:
 
 private:
 	// shaders
-	std::shared_ptr<ShaderProgram> atmosphereShader;
-	std::shared_ptr<ShaderProgram> blitShader;
-	std::shared_ptr<ShaderProgram> reflectanceOctShader;
-	std::shared_ptr<ShaderProgram> irradianceOctShader;
+	std::shared_ptr<ShaderProgram> m_atmosphereShader;
+	std::shared_ptr<ShaderProgram> m_blitShader;
+	std::shared_ptr<ShaderProgram> m_reflectanceOctShader;
+	std::shared_ptr<ShaderProgram> m_irradianceOctShader;
 
-	std::unique_ptr<float[]> cubeFaceBuffer;
+	std::unique_ptr<float[]> m_cubeFaceBuffer;
 
 	// fullscreenTriangle
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	GLuint environmentFbo;
-	GLuint convolutionFbo;
+	GLuint m_environmentFbo;
+	GLuint m_convolutionFbo;
 
-	GLuint environmentMap;
+	GLuint m_environmentMap;
 
 	// blit
-	GLint uScreenTextureBlit;
+	GLint m_uScreenTextureBlit;
 
 	// irradiance
-	Uniform<glm::vec2> uImageSizeIO = Uniform<glm::vec2>("uImageSize");
+	Uniform<glm::vec2> m_uImageSizeIO = Uniform<glm::vec2>("uImageSize");
 
 	// reflectance
-	Uniform<GLint> uEnvironmentResolutionRO = Uniform<GLint>("uEnvironmentResolution");
-	Uniform<GLfloat> uRoughnessRO = Uniform<GLfloat>("uRoughness");
-	Uniform<glm::vec2> uImageSizeRO = Uniform<glm::vec2>("uImageSize");
+	Uniform<GLint> m_uEnvironmentResolution = Uniform<GLint>("uEnvironmentResolution");
+	Uniform<GLfloat> m_uRoughnessRO = Uniform<GLfloat>("uRoughness");
+	Uniform<glm::vec2> m_uImageSizeRO = Uniform<glm::vec2>("uImageSize");
 
 	// atmosphere
-	Uniform<glm::mat3> uRotationA = Uniform<glm::mat3>("uRotation");
-	Uniform<glm::mat4> uInverseProjectionA = Uniform<glm::mat4>("uInverseProjection");
-	Uniform<glm::vec3> uLightDirA = Uniform<glm::vec3>("uLightDir");
-	Uniform<GLfloat> uRayleighBrightnessA = Uniform<GLfloat>("uRayleighBrightness");
-	Uniform<GLfloat> uMieBrightnessA = Uniform<GLfloat>("uMieBrightness");
-	Uniform<GLfloat> uMieDistributionA = Uniform<GLfloat>("uMieDistribution");
-	Uniform<GLfloat> uSpotBrightnessA = Uniform<GLfloat>("uSpotBrightness");
-	Uniform<GLfloat> uSurfaceHeightA = Uniform<GLfloat>("uSurfaceHeight");
-	Uniform<GLint> uStepCountA = Uniform<GLint>("uStepCount");
-	Uniform<glm::vec3> uIntensityA = Uniform<glm::vec3>("uIntensity");
-	Uniform<GLfloat> uScatterStrengthA = Uniform<GLfloat>("uScatterStrength");
-	Uniform<GLfloat> uRayleighStrengthA = Uniform<GLfloat>("uRayleighStrength");
-	Uniform<GLfloat> uMieStrengthA = Uniform<GLfloat>("uMieStrength");
-	Uniform<GLfloat> uRayleighCollectionPowerA = Uniform<GLfloat>("uRayleighCollectionPower");
-	Uniform<GLfloat> uMieCollectionPowerA = Uniform<GLfloat>("uMieCollectionPower");
+	Uniform<glm::mat3> m_uRotationA = Uniform<glm::mat3>("uRotation");
+	Uniform<glm::mat4> m_uInverseProjectionA = Uniform<glm::mat4>("uInverseProjection");
+	Uniform<glm::vec3> m_uLightDirA = Uniform<glm::vec3>("uLightDir");
+	Uniform<GLfloat> m_uRayleighBrightnessA = Uniform<GLfloat>("uRayleighBrightness");
+	Uniform<GLfloat> m_uMieBrightnessA = Uniform<GLfloat>("uMieBrightness");
+	Uniform<GLfloat> m_uMieDistributionA = Uniform<GLfloat>("uMieDistribution");
+	Uniform<GLfloat> m_uSpotBrightnessA = Uniform<GLfloat>("uSpotBrightness");
+	Uniform<GLfloat> m_uSurfaceHeightA = Uniform<GLfloat>("uSurfaceHeight");
+	Uniform<GLint> m_uStepCountA = Uniform<GLint>("uStepCount");
+	Uniform<glm::vec3> m_uIntensityA = Uniform<glm::vec3>("uIntensity");
+	Uniform<GLfloat> m_uScatterStrengthA = Uniform<GLfloat>("uScatterStrength");
+	Uniform<GLfloat> m_uRayleighStrengthA = Uniform<GLfloat>("uRayleighStrength");
+	Uniform<GLfloat> m_uMieStrengthA = Uniform<GLfloat>("uMieStrength");
+	Uniform<GLfloat> m_uRayleighCollectionPowerA = Uniform<GLfloat>("uRayleighCollectionPower");
+	Uniform<GLfloat> m_uMieCollectionPowerA = Uniform<GLfloat>("uMieCollectionPower");
 
 	// orientations
-	glm::mat3 rotations[6];
+	glm::mat3 m_rotations[6];
 
 };
 

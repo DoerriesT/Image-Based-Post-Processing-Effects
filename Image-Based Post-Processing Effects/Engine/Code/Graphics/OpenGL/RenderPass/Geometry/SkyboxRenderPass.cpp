@@ -10,77 +10,77 @@
 
 SkyboxRenderPass::SkyboxRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT3 };
-	state.blendState.enabled = false;
-	state.cullFaceState.enabled = false;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = true;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT3 };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_cullFaceState.m_enabled = false;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = true;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_FALSE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	skyboxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Geometry/skybox.vert", "Resources/Shaders/Geometry/skybox.frag");
+	m_skyboxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Geometry/skybox.vert", "Resources/Shaders/Geometry/skybox.frag");
 
-	uInverseModelViewProjectionB.create(skyboxShader);
-	uColorB.create(skyboxShader);
-	uHasAlbedoMapB.create(skyboxShader);
-	uCurrentToPrevTransformB.create(skyboxShader);
+	m_uInverseModelViewProjection.create(m_skyboxShader);
+	m_uColor.create(m_skyboxShader);
+	m_uHasAlbedoMap.create(m_skyboxShader);
+	m_uCurrentToPrevTransform.create(m_skyboxShader);
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 void SkyboxRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass)
 {
-	Environment &environment = _level->environment;
-	if (!environment.skyboxEntity)
+	Environment &environment = _level->m_environment;
+	if (!environment.m_skyboxEntity)
 	{
 		return;
 	}
 
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
+	m_drawBuffers[0] = _renderData.m_frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
 	const glm::vec4 DEFAULT_ALBEDO_COLOR(1.0);
 	static glm::mat4 prevTransform;
 
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-	skyboxShader->bind();
+	m_fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	m_skyboxShader->bind();
 
 	EntityManager &entityManager = EntityManager::getInstance();
 
-	uHasAlbedoMapB.set(environment.environmentMap ? true : false);
-	uColorB.set(DEFAULT_ALBEDO_COLOR);
+	m_uHasAlbedoMap.set(environment.m_environmentMap ? true : false);
+	m_uColor.set(DEFAULT_ALBEDO_COLOR);
 
-	if (environment.environmentMap)
+	if (environment.m_environmentMap)
 	{
 		glActiveTexture(GL_TEXTURE11);
-		glBindTexture(environment.environmentMap->getTarget(), environment.environmentMap->getId());
+		glBindTexture(environment.m_environmentMap->getTarget(), environment.m_environmentMap->getId());
 	}
 
-	TransformationComponent *transformationComponent = entityManager.getComponent<TransformationComponent>(environment.skyboxEntity);
-	glm::mat4 mvpMatrix = _renderData.projectionMatrix * glm::mat4(glm::mat3(_renderData.viewMatrix));
+	TransformationComponent *transformationComponent = entityManager.getComponent<TransformationComponent>(environment.m_skyboxEntity);
+	glm::mat4 mvpMatrix = _renderData.m_projectionMatrix * glm::mat4(glm::mat3(_renderData.m_viewMatrix));
 
 	if (transformationComponent)
 	{
-		mvpMatrix *= glm::mat4_cast(transformationComponent->rotation);
+		mvpMatrix *= glm::mat4_cast(transformationComponent->m_rotation);
 	}
 
 	glm::mat4 invTransform = glm::inverse(mvpMatrix);
 
-	uInverseModelViewProjectionB.set(invTransform);
-	uCurrentToPrevTransformB.set(prevTransform * invTransform);
+	m_uInverseModelViewProjection.set(invTransform);
+	m_uCurrentToPrevTransform.set(prevTransform * invTransform);
 
 	prevTransform = mvpMatrix;
 
-	fullscreenTriangle->getSubMesh()->render();
+	m_fullscreenTriangle->getSubMesh()->render();
 }

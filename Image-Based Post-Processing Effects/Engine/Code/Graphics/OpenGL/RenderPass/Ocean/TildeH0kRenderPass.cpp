@@ -4,43 +4,43 @@
 
 TildeH0kRenderPass::TildeH0kRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-	state.blendState.enabled = false;
-	state.blendState.sFactor = GL_ONE;
-	state.blendState.dFactor = GL_ONE;
-	state.cullFaceState.enabled = false;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = false;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_blendState.m_sFactor = GL_ONE;
+	m_state.m_blendState.m_dFactor = GL_ONE;
+	m_state.m_cullFaceState.m_enabled = false;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = false;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_FALSE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	tildeH0kShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Ocean/tildeH0k.frag");
+	m_tildeH0kShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Ocean/tildeH0k.frag");
 
-	uSimulationResolutionH0.create(tildeH0kShader);
-	uWorldSizeH0.create(tildeH0kShader);
-	uWaveAmplitudeH0.create(tildeH0kShader);
-	uWindDirectionH0.create(tildeH0kShader);
-	uWindSpeedH0.create(tildeH0kShader);
+	m_uSimulationResolution.create(m_tildeH0kShader);
+	m_uWorldSize.create(m_tildeH0kShader);
+	m_uWaveAmplitude.create(m_tildeH0kShader);
+	m_uWindDirection.create(m_tildeH0kShader);
+	m_uWindSpeed.create(m_tildeH0kShader);
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-void TildeH0kRenderPass::render(const Water & _water, RenderPass ** _previousRenderPass)
+void TildeH0kRenderPass::render(const OceanParams & _water, RenderPass ** _previousRenderPass)
 {
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	m_fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	std::shared_ptr<Texture> noise0;
 	std::shared_ptr<Texture> noise1;
@@ -48,7 +48,7 @@ void TildeH0kRenderPass::render(const Water & _water, RenderPass ** _previousRen
 	std::shared_ptr<Texture> noise3;
 
 	// consider keeping these textures permanently in memory
-	switch (_water.simulationResolution)
+	switch (_water.m_simulationResolution)
 	{
 	case 512:
 		noise0 = Texture::createTexture("Resources/Textures/Noise512_0.dds", true);
@@ -65,14 +65,14 @@ void TildeH0kRenderPass::render(const Water & _water, RenderPass ** _previousRen
 		break;
 	}
 
-	tildeH0kShader->bind();
+	m_tildeH0kShader->bind();
 
-	uSimulationResolutionH0.set(_water.simulationResolution);
-	uWorldSizeH0.set(_water.worldSize);
-	uWaveAmplitudeH0.set(_water.waveAmplitude);
-	uWindDirectionH0.set(_water.normalizedWindDirection);
-	uWindSpeedH0.set(_water.windSpeed);
-	uWaveSuppressionExpH0.set(_water.waveSuppressionExponent);
+	m_uSimulationResolution.set(_water.m_simulationResolution);
+	m_uWorldSize.set(_water.m_worldSize);
+	m_uWaveAmplitude.set(_water.m_waveAmplitude);
+	m_uWindDirection.set(_water.m_normalizedWindDirection);
+	m_uWindSpeed.set(_water.m_windSpeed);
+	m_uWaveSuppressionExp.set(_water.m_waveSuppressionExponent);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, noise0->getId());
@@ -83,5 +83,5 @@ void TildeH0kRenderPass::render(const Water & _water, RenderPass ** _previousRen
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, noise3->getId());
 
-	fullscreenTriangle->getSubMesh()->render();
+	m_fullscreenTriangle->getSubMesh()->render();
 }

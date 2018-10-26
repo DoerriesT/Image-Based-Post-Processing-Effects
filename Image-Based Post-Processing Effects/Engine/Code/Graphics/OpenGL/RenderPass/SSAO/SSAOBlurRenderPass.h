@@ -16,9 +16,9 @@ public:
 	void render(const RenderData &_renderData, const Effects &_effects, GLuint _inputTexture, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> ssaoBlurShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_ssaoBlurShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<GLint> uBlurSizeAOB = Uniform<GLint>("uBlurSize"); // size of noise texture
+	Uniform<GLint> m_uBlurSize = Uniform<GLint>("uBlurSize"); // size of noise texture
 
 };

@@ -16,13 +16,13 @@ public:
 	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> pointLightPassShader;
-	std::shared_ptr<Mesh> pointLightMesh;
+	std::shared_ptr<ShaderProgram> m_pointLightPassShader;
+	std::shared_ptr<Mesh> m_pointLightMesh;
 
-	Uniform<glm::mat4> uModelViewProjectionP = Uniform<glm::mat4>("uModelViewProjection");
-	UniformPointLight uPointLightP = UniformPointLight("uPointLight");
-	Uniform<glm::mat4> uInverseProjectionP = Uniform<glm::mat4>("uInverseProjection");
-	Uniform<glm::mat4> uInverseViewP = Uniform<glm::mat4>("uInverseView");
-	Uniform<GLboolean> uShadowsEnabledP = Uniform<GLboolean>("uShadowsEnabled");
-	Uniform<glm::vec2> uViewportSizeP = Uniform<glm::vec2>("uViewportSize");
+	Uniform<glm::mat4> m_uModelViewProjection = Uniform<glm::mat4>("uModelViewProjection");
+	UniformPointLight m_uPointLight = UniformPointLight("uPointLight");
+	Uniform<glm::mat4> m_uInverseProjection = Uniform<glm::mat4>("uInverseProjection");
+	Uniform<glm::mat4> m_uInverseView = Uniform<glm::mat4>("uInverseView");
+	Uniform<GLboolean> m_uShadowsEnabled = Uniform<GLboolean>("uShadowsEnabled");
+	Uniform<glm::vec2> m_uViewportSize = Uniform<glm::vec2>("uViewportSize");
 };

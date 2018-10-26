@@ -26,15 +26,15 @@ public:
 	void onDestruction(const Entity *_entity) override;
 
 private:
-	EntityManager &entityManager;
-	std::vector<const Entity *> managedEntities;
-	std::vector<std::uint64_t> validBitMaps;
-	SoundFramework *soundFramework;
+	EntityManager &m_entityManager;
+	std::vector<const Entity *> m_managedEntities;
+	std::vector<std::uint64_t> m_validBitMaps;
+	SoundFramework *m_soundFramework;
 
-	std::shared_ptr<Setting<double>> masterVolume;
-	std::shared_ptr<Setting<double>> musicVolume;
-	std::shared_ptr<Setting<double>> effectVolume;
-	std::shared_ptr<Setting<double>> uiVolume;
+	std::shared_ptr<Setting<double>> m_masterVolume;
+	std::shared_ptr<Setting<double>> m_musicVolume;
+	std::shared_ptr<Setting<double>> m_effectVolume;
+	std::shared_ptr<Setting<double>> m_uiVolume;
 
 	bool validate(std::uint64_t _bitMap);
 };

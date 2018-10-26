@@ -39,15 +39,15 @@ public:
 	unsigned int getShadowMapResolution() const;
 
 private:
-	Mobility mobility;
-	glm::vec3 color;
-	glm::vec3 direction;
-	glm::vec3 viewDirection;
-	bool renderShadows;
-	unsigned int shadowMap;
-	unsigned int shadowMapResolution;
-	glm::mat4 viewProjectionMatrices[SHADOW_CASCADES];
-	float splits[SHADOW_CASCADES];
+	Mobility m_mobility;
+	glm::vec3 m_color;
+	glm::vec3 m_direction;
+	glm::vec3 m_viewDirection;
+	bool m_renderShadows;
+	unsigned int m_shadowMap;
+	unsigned int m_shadowMapResolution;
+	glm::mat4 m_viewProjectionMatrices[SHADOW_CASCADES];
+	float m_splits[SHADOW_CASCADES];
 
 	explicit DirectionalLight(Mobility _mobility, const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows = false, unsigned int _shadowMapResolution = DEFAULT_SHADOW_MAP_RESOLUTION);
 	void createShadowMap();
@@ -93,16 +93,16 @@ public:
 	unsigned int getShadowMapResolution() const;
 
 private:
-	Mobility mobility;
-	glm::vec3 color;
-	glm::vec3 position;
-	glm::vec3 viewPosition;
-	float luminousPower;
-	float radius;
-	bool renderShadows;
-	unsigned int shadowMap;
-	unsigned int shadowMapResolution;
-	glm::mat4 viewProjectionMatrices[6];
+	Mobility m_mobility;
+	glm::vec3 m_color;
+	glm::vec3 m_position;
+	glm::vec3 m_viewPosition;
+	float m_luminousPower;
+	float m_radius;
+	bool m_renderShadows;
+	unsigned int m_shadowMap;
+	unsigned int m_shadowMapResolution;
+	glm::mat4 m_viewProjectionMatrices[6];
 
 	explicit PointLight(Mobility _mobility, 
 		float _luminousPower,
@@ -173,25 +173,25 @@ public:
 	std::shared_ptr<Texture> getProjectionTexture() const;
 
 private:
-	Mobility mobility;
-	glm::vec3 color;
-	glm::vec3 position;
-	glm::vec3 direction;
-	glm::vec3 viewPosition;
-	glm::vec3 viewDirection;
-	glm::vec4 boundingSphere;
-	float luminousPower;
-	float outerAngle;
-	float innerAngle;
-	float angleScale;
-	float angleOffset;
-	float radius;
-	bool renderShadows;
-	bool projector;
-	unsigned int shadowMap;
-	unsigned int shadowMapResolution;
-	glm::mat4 viewProjectionMatrix;
-	std::shared_ptr<Texture> projectionTexture;
+	Mobility m_mobility;
+	glm::vec3 m_color;
+	glm::vec3 m_position;
+	glm::vec3 m_direction;
+	glm::vec3 m_viewPosition;
+	glm::vec3 m_viewDirection;
+	glm::vec4 m_boundingSphere;
+	float m_luminousPower;
+	float m_outerAngle;
+	float m_innerAngle;
+	float m_angleScale;
+	float m_angleOffset;
+	float m_radius;
+	bool m_renderShadows;
+	bool m_projector;
+	unsigned int m_shadowMap;
+	unsigned int m_shadowMapResolution;
+	glm::mat4 m_viewProjectionMatrix;
+	std::shared_ptr<Texture> m_projectionTexture;
 
 	explicit SpotLight(Mobility _mobility, 
 		float _luminousPower,
@@ -212,7 +212,7 @@ private:
 
 struct Lights
 {
-	std::vector<std::shared_ptr<DirectionalLight>> directionalLights;
-	std::vector<std::shared_ptr<PointLight>> pointLights;
-	std::vector<std::shared_ptr<SpotLight>> spotLights;
+	std::vector<std::shared_ptr<DirectionalLight>> m_directionalLights;
+	std::vector<std::shared_ptr<PointLight>> m_pointLights;
+	std::vector<std::shared_ptr<SpotLight>> m_spotLights;
 };

@@ -13,9 +13,9 @@ public:
 	void render(const Effects &_effects, GLuint _inputTexture, GLuint _velocityTexture, GLuint _blendWeightTexture, bool _currentSample, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> blendShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_blendShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<glm::vec4> uResolutionSMAAC = Uniform<glm::vec4>("uResolution");
+	Uniform<glm::vec4> m_uResolution = Uniform<glm::vec4>("uResolution");
 
 };

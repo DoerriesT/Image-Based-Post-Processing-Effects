@@ -28,30 +28,30 @@ public:
 	Volume getVolume() const;
 
 private:
-	GLuint rsmFbo;
-	GLuint rsmDepth;
-	GLuint rsmFlux;
-	GLuint rsmNormal;
+	GLuint m_rsmFbo;
+	GLuint m_rsmDepth;
+	GLuint m_rsmFlux;
+	GLuint m_rsmNormal;
 
-	GLuint propagationFbo;
+	GLuint m_propagationFbo;
 	
 	// 2d textures
-	GLuint propagation2DAccumVolumeRed;
-	GLuint propagation2DAccumVolumeGreen;
-	GLuint propagation2DAccumVolumeBlue;
-	GLuint geometry2DVolume;
-	GLuint propagation2DVolumeRed0;
-	GLuint propagation2DVolumeGreen0;
-	GLuint propagation2DVolumeBlue0;
-	GLuint propagation2DVolumeRed1;
-	GLuint propagation2DVolumeGreen1;
-	GLuint propagation2DVolumeBlue1;
+	GLuint m_propagation2DAccumVolumeRed;
+	GLuint m_propagation2DAccumVolumeGreen;
+	GLuint m_propagation2DAccumVolumeBlue;
+	GLuint m_geometry2DVolume;
+	GLuint m_propagation2DVolumeRed0;
+	GLuint m_propagation2DVolumeGreen0;
+	GLuint m_propagation2DVolumeBlue0;
+	GLuint m_propagation2DVolumeRed1;
+	GLuint m_propagation2DVolumeGreen1;
+	GLuint m_propagation2DVolumeBlue1;
 
-	Volume propagationVolume;
+	Volume m_propagationVolume;
 
 	// renderpasses
-	std::unique_ptr<RSMRenderPass> rsmRenderPass;
-	std::unique_ptr<LightInjectionRenderPass> lightInjectionRenderPass;
-	std::unique_ptr<GeometryInjectionRenderPass> geometryInjectionRenderPass;
-	std::unique_ptr<LightPropagationRenderPass> lightPropagationRenderPass;
+	std::unique_ptr<RSMRenderPass> m_rsmRenderPass;
+	std::unique_ptr<LightInjectionRenderPass> m_lightInjectionRenderPass;
+	std::unique_ptr<GeometryInjectionRenderPass> m_geometryInjectionRenderPass;
+	std::unique_ptr<LightPropagationRenderPass> m_lightPropagationRenderPass;
 };

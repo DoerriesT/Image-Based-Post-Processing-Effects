@@ -20,11 +20,11 @@ public:
 	bool isValid() const;
 
 private:
-	static std::map<std::string, std::weak_ptr<SoundBuffer>> soundMap;
-	std::string filepath;
-	bool valid;
-	JobManager::SharedJob dataJob;
-	ALuint bufferId;
+	static std::map<std::string, std::weak_ptr<SoundBuffer>> m_soundMap;
+	std::string m_filepath;
+	bool m_valid;
+	JobManager::SharedJob m_dataJob;
+	ALuint m_bufferId;
 
 	explicit SoundBuffer(const std::string &_file, bool _instantLoading = false);
 };

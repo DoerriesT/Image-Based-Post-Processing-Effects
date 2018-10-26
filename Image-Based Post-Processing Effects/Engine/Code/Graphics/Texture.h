@@ -30,13 +30,13 @@ public:
 	void setAnisotropicFiltering(float _anisotropicFiltering);
 
 private:
-	static std::map<std::string, std::weak_ptr<Texture>> textureMap;
-	static float anisotropicFiltering;
-	std::string filepath;
-	bool valid;
-	JobManager::SharedJob dataJob;
-	GLuint id;
-	GLenum target;
+	static std::map<std::string, std::weak_ptr<Texture>> m_textureMap;
+	static float m_anisotropicFiltering;
+	std::string m_filepath;
+	bool m_valid;
+	JobManager::SharedJob m_dataJob;
+	GLuint m_id;
+	GLenum m_target;
 
 
 	explicit Texture(GLuint _id, GLenum _target);

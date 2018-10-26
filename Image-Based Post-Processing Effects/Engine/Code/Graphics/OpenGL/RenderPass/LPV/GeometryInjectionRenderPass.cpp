@@ -6,34 +6,34 @@ extern size_t RSM_SIZE;
 
 GeometryInjectionRenderPass::GeometryInjectionRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT0 };
-	state.blendState.enabled = true;
-	state.blendState.sFactor = GL_ONE;
-	state.blendState.dFactor = GL_ONE;
-	state.cullFaceState.enabled = false;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = false;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT0 };
+	m_state.m_blendState.m_enabled = true;
+	m_state.m_blendState.m_sFactor = GL_ONE;
+	m_state.m_blendState.m_dFactor = GL_ONE;
+	m_state.m_cullFaceState.m_enabled = false;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = false;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_FALSE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	geometryInjectionShader = ShaderProgram::createShaderProgram("Resources/Shaders/LPV/geometryInjection.vert", "Resources/Shaders/LPV/geometryInjection.frag");
+	m_geometryInjectionShader = ShaderProgram::createShaderProgram("Resources/Shaders/LPV/geometryInjection.vert", "Resources/Shaders/LPV/geometryInjection.frag");
 
-	uInvViewProjection.create(geometryInjectionShader);
-	uRsmWidth.create(geometryInjectionShader);
-	uGridOrigin.create(geometryInjectionShader);
-	uGridSize.create(geometryInjectionShader);
-	uGridSpacing.create(geometryInjectionShader);
-	uLightDirection.create(geometryInjectionShader);
+	m_uInvViewProjection.create(m_geometryInjectionShader);
+	m_uRsmWidth.create(m_geometryInjectionShader);
+	m_uGridOrigin.create(m_geometryInjectionShader);
+	m_uGridSize.create(m_geometryInjectionShader);
+	m_uGridSpacing.create(m_geometryInjectionShader);
+	m_uLightDirection.create(m_geometryInjectionShader);
 
 	std::unique_ptr<glm::vec2[]> positions = std::make_unique<glm::vec2[]>(RSM_SIZE * RSM_SIZE);
 
@@ -46,10 +46,10 @@ GeometryInjectionRenderPass::GeometryInjectionRenderPass(GLuint _fbo, unsigned i
 	}
 
 	// create buffers/arrays
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glGenVertexArrays(1, &m_VAO);
+	glGenBuffers(1, &m_VBO);
+	glBindVertexArray(m_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	glBufferData(GL_ARRAY_BUFFER, RSM_SIZE * RSM_SIZE * sizeof(glm::vec2), positions.get(), GL_STATIC_DRAW);
 
 	// vertex positions
@@ -69,18 +69,18 @@ void GeometryInjectionRenderPass::render(const Volume & _geometryVolume, const g
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glPointSize(1.0f);
 
-	geometryInjectionShader->bind();
-	uInvViewProjection.set(_invViewProjection);
-	uRsmWidth.set(static_cast<GLint>(RSM_SIZE));
-	uGridOrigin.set(_geometryVolume.origin);
-	uGridSize.set(glm::vec3(_geometryVolume.dimensions));
-	uGridSpacing.set(glm::vec2(_geometryVolume.spacing, 1.0f / _geometryVolume.spacing));
-	uLightDirection.set(_lightDir);
+	m_geometryInjectionShader->bind();
+	m_uInvViewProjection.set(_invViewProjection);
+	m_uRsmWidth.set(static_cast<GLint>(RSM_SIZE));
+	m_uGridOrigin.set(_geometryVolume.m_origin);
+	m_uGridSize.set(glm::vec3(_geometryVolume.m_dimensions));
+	m_uGridSpacing.set(glm::vec2(_geometryVolume.m_spacing, 1.0f / _geometryVolume.m_spacing));
+	m_uLightDirection.set(_lightDir);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _normalTexture);
 
-	glBindVertexArray(VAO);
+	glBindVertexArray(m_VAO);
 	glEnableVertexAttribArray(0);
 	glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(RSM_SIZE * RSM_SIZE));
 }

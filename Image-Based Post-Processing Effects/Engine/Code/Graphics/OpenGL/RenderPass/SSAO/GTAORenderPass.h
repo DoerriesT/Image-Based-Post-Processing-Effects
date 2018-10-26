@@ -16,17 +16,17 @@ public:
 	void render(const RenderData &_renderData, const Effects &_effects, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> gtaoShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_gtaoShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<GLfloat> uFocalLengthGTAO = Uniform<GLfloat>("uFocalLength");
-	Uniform<glm::mat4> uInverseProjectionGTAO = Uniform<glm::mat4>("uInverseProjection");
-	Uniform<glm::vec2> uAOResGTAO = Uniform<glm::vec2>("uAORes");
-	Uniform<glm::vec2> uInvAOResGTAO = Uniform<glm::vec2>("uInvAORes");
-	Uniform<GLint> uFrameGTAO = Uniform<GLint>("uFrame");
-	Uniform<GLfloat> uStrengthGTAO = Uniform<GLfloat>("uStrength");
-	Uniform<GLfloat> uRadiusGTAO = Uniform<GLfloat>("uRadius");
-	Uniform<GLfloat> uMaxRadiusPixelsGTAO = Uniform<GLfloat>("uMaxRadiusPixels");
-	Uniform<GLfloat> uNumStepsGTAO = Uniform<GLfloat>("uNumSteps");
+	Uniform<GLfloat> m_uFocalLength = Uniform<GLfloat>("uFocalLength");
+	Uniform<glm::mat4> m_uInverseProjection = Uniform<glm::mat4>("uInverseProjection");
+	Uniform<glm::vec2> m_uAORes = Uniform<glm::vec2>("uAORes");
+	Uniform<glm::vec2> m_uInvAORes = Uniform<glm::vec2>("uInvAORes");
+	Uniform<GLint> m_uFrame = Uniform<GLint>("uFrame");
+	Uniform<GLfloat> m_uStrength = Uniform<GLfloat>("uStrength");
+	Uniform<GLfloat> m_uRadius = Uniform<GLfloat>("uRadius");
+	Uniform<GLfloat> m_uMaxRadiusPixels = Uniform<GLfloat>("uMaxRadiusPixels");
+	Uniform<GLfloat> m_uNumSteps = Uniform<GLfloat>("uNumSteps");
 
 };

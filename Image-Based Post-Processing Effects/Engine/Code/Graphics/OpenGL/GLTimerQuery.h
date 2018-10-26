@@ -12,6 +12,6 @@ public:
 	~GLTimerQuery();
 
 private:
-	double & result;
-	GLuint id;
+	double & m_result;
+	GLuint m_id;
 };

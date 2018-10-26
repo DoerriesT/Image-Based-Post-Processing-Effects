@@ -1,7 +1,7 @@
 #include "SoundListener.h"
 
 SoundListener::SoundListener(const glm::vec3 &_position)
-	:position(_position)
+	:m_position(_position)
 {
 	updatePosition();
 	alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f);
@@ -14,7 +14,7 @@ void SoundListener::setSpeed(const glm::vec3 &_speed)
 
 void SoundListener::setPosition(const glm::vec3 &_position)
 {
-	position = _position;
+	m_position = _position;
 	updatePosition();
 }
 
@@ -32,7 +32,7 @@ void SoundListener::setOrientation(const glm::vec3 &_at, const glm::vec3 &_up)
 
 void SoundListener::updatePosition()
 {
-	alListener3f(AL_POSITION, position.x, position.y, position.z);
+	alListener3f(AL_POSITION, m_position.x, m_position.y, m_position.z);
 }
 
 void SoundListener::setGain(const ALfloat &_gain)

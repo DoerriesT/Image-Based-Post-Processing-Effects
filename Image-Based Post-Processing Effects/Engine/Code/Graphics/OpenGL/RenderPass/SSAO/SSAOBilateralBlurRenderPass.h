@@ -16,7 +16,7 @@ public:
 	void render(const RenderData &_renderData, const Effects &_effects, GLuint _ssaoTexture, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> ssaoBilateralBlurShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_ssaoBilateralBlurShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
 };

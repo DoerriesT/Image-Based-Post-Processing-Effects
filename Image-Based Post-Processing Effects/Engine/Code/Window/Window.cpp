@@ -9,15 +9,15 @@ const float Window::NEAR_PLANE = 0.1f;
 const float Window::FAR_PLANE = 300.0f;
 
 Window::Window(const std::string &_title)
-	:vsync(SettingsManager::getInstance().getBoolSetting("graphics", "vsync", false)),
-	windowWidth(SettingsManager::getInstance().getIntSetting("graphics", "window_width", 1080)),
-	windowHeight(SettingsManager::getInstance().getIntSetting("graphics", "window_height", 720)),
-	windowMode(SettingsManager::getInstance().getIntSetting("graphics", "window_mode", 0)),
-	windowFramework(WindowFramework::createWindowFramework(_title, windowWidth->get(), windowHeight->get(), vsync->get(), (WindowMode)windowMode->get()))
+	:m_vsync(SettingsManager::getInstance().getBoolSetting("graphics", "vsync", false)),
+	m_windowWidth(SettingsManager::getInstance().getIntSetting("graphics", "window_width", 1080)),
+	m_windowHeight(SettingsManager::getInstance().getIntSetting("graphics", "window_height", 720)),
+	m_windowMode(SettingsManager::getInstance().getIntSetting("graphics", "window_mode", 0)),
+	m_windowFramework(WindowFramework::createWindowFramework(_title, m_windowWidth->get(), m_windowHeight->get(), m_vsync->get(), (WindowMode)m_windowMode->get()))
 {
-	fieldOfView = DEFAULT_FOV;
-	windowFramework->addResizeListener(this);
-	projectionMatrix = glm::perspective(glm::radians(fieldOfView), static_cast<float>(windowWidth->get()) / static_cast<float>(windowHeight->get()), NEAR_PLANE, FAR_PLANE);
+	m_fieldOfView = DEFAULT_FOV;
+	m_windowFramework->addResizeListener(this);
+	m_projectionMatrix = glm::perspective(glm::radians(m_fieldOfView), static_cast<float>(m_windowWidth->get()) / static_cast<float>(m_windowHeight->get()), NEAR_PLANE, FAR_PLANE);
 };
 
 std::shared_ptr<Window> Window::createWindow(const std::string &_title)
@@ -27,30 +27,30 @@ std::shared_ptr<Window> Window::createWindow(const std::string &_title)
 
 void Window::init()
 {
-	vsync->addListener([&](bool _value) 
+	m_vsync->addListener([&](bool _value) 
 	{ 
-		windowFramework->setVsync(_value); 
+		m_windowFramework->setVsync(_value); 
 	});
 
-	windowWidth->addListener([&](int _value) 
+	m_windowWidth->addListener([&](int _value) 
 	{ 
-		windowFramework->setResolution(std::make_pair<unsigned int, unsigned int>((unsigned int)_value, 0u));
+		m_windowFramework->setResolution(std::make_pair<unsigned int, unsigned int>((unsigned int)_value, 0u));
 		unsigned int w = getWidth();
 		unsigned int h = getHeight();
 		onResize(w, h);
 	});
 
-	windowHeight->addListener([&](int _value) 
+	m_windowHeight->addListener([&](int _value) 
 	{
-		windowFramework->setResolution(std::make_pair<unsigned int, unsigned int>(0u, (unsigned int)_value)); 
+		m_windowFramework->setResolution(std::make_pair<unsigned int, unsigned int>(0u, (unsigned int)_value)); 
 		unsigned int w = getWidth();
 		unsigned int h = getHeight();
 		onResize(w, h);
 	});
 
-	windowMode->addListener([&](int _value) 
+	m_windowMode->addListener([&](int _value) 
 	{ 
-		windowFramework->setWindowMode((WindowMode)_value); 
+		m_windowFramework->setWindowMode((WindowMode)_value); 
 		unsigned int w = getWidth();
 		unsigned int h = getHeight();
 		onResize(w, h);
@@ -58,111 +58,111 @@ void Window::init()
 
 	SettingsManager::getInstance().saveToIni();
 
-	windowFramework->init();
+	m_windowFramework->init();
 }
 
 bool Window::shouldClose()
 {
-	return windowFramework->shouldClose();
+	return m_windowFramework->shouldClose();
 }
 
 void Window::destroy()
 {
-	windowFramework->destroyWindow();
+	m_windowFramework->destroyWindow();
 }
 
 void Window::update()
 {
-	windowFramework->update();
+	m_windowFramework->update();
 }
 
 void Window::addInputListener(IInputListener *listener)
 {
-	windowFramework->addInputListener(listener);
+	m_windowFramework->addInputListener(listener);
 }
 
 void Window::removeInputListener(IInputListener *listener)
 {
-	windowFramework->removeInputListener(listener);
+	m_windowFramework->removeInputListener(listener);
 }
 
 void Window::addResizeListener(IWindowResizeListener *listener)
 {
-	resizeListeners.push_back(listener);
+	m_resizeListeners.push_back(listener);
 }
 
 void Window::removeResizeListener(IWindowResizeListener *listener)
 {
-	resizeListeners.erase(std::remove(resizeListeners.begin(), resizeListeners.end(), listener), resizeListeners.end());
+	m_resizeListeners.erase(std::remove(m_resizeListeners.begin(), m_resizeListeners.end(), listener), m_resizeListeners.end());
 }
 
 unsigned int Window::getWidth() const
 {
-	return windowFramework->getWidth();
+	return m_windowFramework->getWidth();
 }
 
 unsigned int Window::getHeight() const
 {
-	return windowFramework->getHeight();
+	return m_windowFramework->getHeight();
 }
 
 const glm::mat4 &Window::getProjectionMatrix() const
 {
-	return projectionMatrix;
+	return m_projectionMatrix;
 }
 
 size_t Window::getSelectedResolutionIndex() const
 {
-	return windowFramework->getSelectedResolutionIndex();
+	return m_windowFramework->getSelectedResolutionIndex();
 }
 
 void Window::setTitle(const std::string &_title)
 {
-	windowFramework->setTitle(_title);
+	m_windowFramework->setTitle(_title);
 }
 
 void Window::setIcon(size_t count, const char *sizes, unsigned char **pixelData)
 {
-	windowFramework->setIcon(count, sizes, pixelData);
+	m_windowFramework->setIcon(count, sizes, pixelData);
 }
 
 void Window::grabMouse(bool _grabMouse)
 {
-	windowFramework->grabMouse(_grabMouse);
+	m_windowFramework->grabMouse(_grabMouse);
 }
 
 void Window::setFieldOfView(float _fov)
 {
-	fieldOfView = _fov;
-	projectionMatrix = glm::perspective(glm::radians(fieldOfView), static_cast<float>(getWidth()) / static_cast<float>(getHeight()), NEAR_PLANE, FAR_PLANE);
+	m_fieldOfView = _fov;
+	m_projectionMatrix = glm::perspective(glm::radians(m_fieldOfView), static_cast<float>(getWidth()) / static_cast<float>(getHeight()), NEAR_PLANE, FAR_PLANE);
 }
 
 void Window::resetFieldOfView()
 {
-	fieldOfView = DEFAULT_FOV;
+	m_fieldOfView = DEFAULT_FOV;
 }
 
 float Window::getFieldOfView() const
 {
-	return fieldOfView;
+	return m_fieldOfView;
 }
 
 std::pair<unsigned int, unsigned int> Window::getSelectedResolution() const
 {
-	return windowFramework->getSelectedResolution();
+	return m_windowFramework->getSelectedResolution();
 }
 
 std::vector<std::pair<unsigned int, unsigned int>> Window::getSupportedResolutions()
 {
-	return windowFramework->getSupportedResolutions();
+	return m_windowFramework->getSupportedResolutions();
 }
 
 void Window::onResize(unsigned int width, unsigned int height)
 {
 	if (width != 0 && height != 0)
 	{
-		projectionMatrix = glm::perspective(glm::radians(fieldOfView), static_cast<float>(width) / static_cast<float>(height), NEAR_PLANE, FAR_PLANE);
-		for (IWindowResizeListener *listener : resizeListeners)
+		m_projectionMatrix = glm::perspective(glm::radians(m_fieldOfView), static_cast<float>(width) / static_cast<float>(height), NEAR_PLANE, FAR_PLANE);
+		for (IWindowResizeListener *listener : m_resizeListeners)
 		{
 			listener->onResize(width, height);
 		}

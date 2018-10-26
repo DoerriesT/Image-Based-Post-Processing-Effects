@@ -24,21 +24,21 @@ void charCallback(GLFWwindow *window, unsigned int codepoint);
 void joystickCallback(int joystickId, int event);
 
 WindowFramework::WindowFramework(const std::string &_title, unsigned int _width, unsigned int _height, bool _vsync, const WindowMode &_windowMode)
-	:title(_title), selectedResolution(std::make_pair(_width, _height)), currentResolution(&selectedResolution), vsync(_vsync), windowMode(_windowMode), gamepads(16), selectedResolutionIndex()
+	:m_title(_title), m_selectedResolution(std::make_pair(_width, _height)), m_currentResolution(&m_selectedResolution), m_vsync(_vsync), m_windowMode(_windowMode), m_gamepads(16), m_selectedResolutionIndex()
 {
 }
 
 void WindowFramework::updateSelectedResolutionIndex()
 {
-	assert(!supportedResolutions.empty());
+	assert(!m_supportedResolutions.empty());
 
-	for (size_t i = 0; i < supportedResolutions.size(); ++i)
+	for (size_t i = 0; i < m_supportedResolutions.size(); ++i)
 	{
-		const unsigned int w = supportedResolutions[i].first;
-		const unsigned int h = supportedResolutions[i].second;
-		if (w == selectedResolution.first && h == selectedResolution.second)
+		const unsigned int w = m_supportedResolutions[i].first;
+		const unsigned int h = m_supportedResolutions[i].second;
+		if (w == m_selectedResolution.first && h == m_selectedResolution.second)
 		{
-			selectedResolutionIndex = i;
+			m_selectedResolutionIndex = i;
 			return;
 		}
 	}
@@ -76,16 +76,16 @@ void WindowFramework::init()
 	glfwWindowHint(GLFW_DEPTH_BITS, 0);
 	glfwWindowHint(GLFW_STENCIL_BITS, 0);
 
-	window = glfwCreateWindow(currentResolution->first, currentResolution->second, title.c_str(), NULL, NULL);
-	if (window == nullptr)
+	m_window = glfwCreateWindow(m_currentResolution->first, m_currentResolution->second, m_title.c_str(), NULL, NULL);
+	if (m_window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return;
 	}
-	glfwMakeContextCurrent(window);
+	glfwMakeContextCurrent(m_window);
 
-	if (vsync)
+	if (m_vsync)
 	{
 		// Enable v-sync
 		glfwSwapInterval(1);
@@ -97,16 +97,16 @@ void WindowFramework::init()
 
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	glfwSetFramebufferSizeCallback(window, windowSizeCallback);
-	glfwSetCursorPosCallback(window, curserPosCallback);
-	glfwSetCursorEnterCallback(window, curserEnterCallback);
-	glfwSetScrollCallback(window, scrollCallback);
-	glfwSetMouseButtonCallback(window, mouseButtonCallback);
-	glfwSetKeyCallback(window, keyCallback);
-	glfwSetCharCallback(window, charCallback);
+	glfwSetFramebufferSizeCallback(m_window, windowSizeCallback);
+	glfwSetCursorPosCallback(m_window, curserPosCallback);
+	glfwSetCursorEnterCallback(m_window, curserEnterCallback);
+	glfwSetScrollCallback(m_window, scrollCallback);
+	glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
+	glfwSetKeyCallback(m_window, keyCallback);
+	glfwSetCharCallback(m_window, charCallback);
 	glfwSetJoystickCallback(joystickCallback);
 
-	glfwSetWindowUserPointer(window, this);
+	glfwSetWindowUserPointer(m_window, this);
 
 
 	// create list of supported resolutions
@@ -127,7 +127,7 @@ void WindowFramework::init()
 		}
 		// make sure we do not already have this resolution in our list
 		addToList = true;
-		for (std::pair<unsigned int, unsigned int> &resolution : supportedResolutions)
+		for (std::pair<unsigned int, unsigned int> &resolution : m_supportedResolutions)
 		{
 			if (resolution.first == width && resolution.second == height)
 			{
@@ -136,28 +136,28 @@ void WindowFramework::init()
 		}
 		if (addToList)
 		{
-			supportedResolutions.push_back(std::make_pair(width, height));
+			m_supportedResolutions.push_back(std::make_pair(width, height));
 		}
 	}
 
 	const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	nativeResolution = std::make_pair<unsigned int, unsigned int>((unsigned int)mode->width, (unsigned int)mode->height);
+	m_nativeResolution = std::make_pair<unsigned int, unsigned int>((unsigned int)mode->width, (unsigned int)mode->height);
 
-	for (std::pair<unsigned int, unsigned int> &resolution : supportedResolutions)
+	for (std::pair<unsigned int, unsigned int> &resolution : m_supportedResolutions)
 	{
-		if (resolution.first > nativeResolution.first || resolution.second > nativeResolution.second)
+		if (resolution.first > m_nativeResolution.first || resolution.second > m_nativeResolution.second)
 		{
-			ContainerUtility::remove(supportedResolutions, resolution);
+			ContainerUtility::remove(m_supportedResolutions, resolution);
 		}
 	}
 
-	setWindowMode(windowMode);
+	setWindowMode(m_windowMode);
 	updateSelectedResolutionIndex();
 }
 
 void WindowFramework::update()
 {
-	glfwSwapBuffers(window);
+	glfwSwapBuffers(m_window);
 	glfwPollEvents();
 
 	const float *axisValues;
@@ -200,109 +200,109 @@ void WindowFramework::update()
 			5 = RT
 			*/
 
-			gamepads[i].id = i;
-			gamepads[i].buttonA = buttonValues[0];
-			gamepads[i].buttonB = buttonValues[1];
-			gamepads[i].buttonX = buttonValues[2];
-			gamepads[i].buttonY = buttonValues[3];
-			gamepads[i].leftButton = buttonValues[4];
-			gamepads[i].rightButton = buttonValues[5];
-			gamepads[i].backButton = buttonValues[6];
-			gamepads[i].startButton = buttonValues[7];
-			gamepads[i].leftStick = buttonValues[8];
-			gamepads[i].rightStick = buttonValues[9];
-			gamepads[i].dPadUp = buttonValues[10];
-			gamepads[i].dPadRight = buttonValues[11];
-			gamepads[i].dPadDown = buttonValues[12];
-			gamepads[i].dPadLeft = buttonValues[13];
-			gamepads[i].leftStickX = axisValues[0];
-			gamepads[i].leftStickY = axisValues[1];
-			gamepads[i].rightStickX = axisValues[2];
-			gamepads[i].rightStickY = axisValues[3];
-			gamepads[i].leftTrigger = axisValues[4];
-			gamepads[i].rightTrigger = axisValues[5];
+			m_gamepads[i].m_id = i;
+			m_gamepads[i].m_buttonA = buttonValues[0];
+			m_gamepads[i].m_buttonB = buttonValues[1];
+			m_gamepads[i].m_buttonX = buttonValues[2];
+			m_gamepads[i].m_buttonY = buttonValues[3];
+			m_gamepads[i].m_leftButton = buttonValues[4];
+			m_gamepads[i].m_rightButton = buttonValues[5];
+			m_gamepads[i].m_backButton = buttonValues[6];
+			m_gamepads[i].m_startButton = buttonValues[7];
+			m_gamepads[i].m_leftStick = buttonValues[8];
+			m_gamepads[i].m_rightStick = buttonValues[9];
+			m_gamepads[i].m_dPadUp = buttonValues[10];
+			m_gamepads[i].m_dPadRight = buttonValues[11];
+			m_gamepads[i].m_dPadDown = buttonValues[12];
+			m_gamepads[i].m_dPadLeft = buttonValues[13];
+			m_gamepads[i].m_leftStickX = axisValues[0];
+			m_gamepads[i].m_leftStickY = axisValues[1];
+			m_gamepads[i].m_rightStickX = axisValues[2];
+			m_gamepads[i].m_rightStickY = axisValues[3];
+			m_gamepads[i].m_leftTrigger = axisValues[4];
+			m_gamepads[i].m_rightTrigger = axisValues[5];
 		}
 		else
 		{
-			gamepads[i].id = -1;
+			m_gamepads[i].m_id = -1;
 		}
 	}
 }
 
 void WindowFramework::addInputListener(IInputListener *listener)
 {
-	inputListeners.push_back(listener);
-	listener->gamepadUpdate(&gamepads);
+	m_inputListeners.push_back(listener);
+	listener->gamepadUpdate(&m_gamepads);
 }
 
 void WindowFramework::removeInputListener(IInputListener *listener)
 {
-	inputListeners.erase(std::remove(inputListeners.begin(), inputListeners.end(), listener), inputListeners.end());
+	m_inputListeners.erase(std::remove(m_inputListeners.begin(), m_inputListeners.end(), listener), m_inputListeners.end());
 }
 
 void WindowFramework::addResizeListener(IWindowResizeListener *listener)
 {
-	resizeListeners.push_back(listener);
+	m_resizeListeners.push_back(listener);
 }
 
 void WindowFramework::removeResizeListener(IWindowResizeListener *listener)
 {
-	resizeListeners.erase(std::remove(resizeListeners.begin(), resizeListeners.end(), listener), resizeListeners.end());
+	m_resizeListeners.erase(std::remove(m_resizeListeners.begin(), m_resizeListeners.end(), listener), m_resizeListeners.end());
 }
 
 unsigned int WindowFramework::getWidth() const
 {
-	return currentResolution->first;
+	return m_currentResolution->first;
 }
 
 unsigned int WindowFramework::getHeight() const
 {
-	return currentResolution->second;
+	return m_currentResolution->second;
 }
 
 size_t WindowFramework::getSelectedResolutionIndex() const
 {
-	return selectedResolutionIndex;
+	return m_selectedResolutionIndex;
 }
 
 std::pair<unsigned int, unsigned int> WindowFramework::getSelectedResolution() const
 {
-	return selectedResolution;
+	return m_selectedResolution;
 }
 
 std::vector<std::pair<unsigned int, unsigned int>> WindowFramework::getSupportedResolutions()
 {
-	return supportedResolutions;
+	return m_supportedResolutions;
 }
 
 void WindowFramework::destroyWindow()
 {
-	glfwDestroyWindow(window);
+	glfwDestroyWindow(m_window);
 }
 
 bool WindowFramework::shouldClose()
 {
-	return glfwWindowShouldClose(window);
+	return glfwWindowShouldClose(m_window);
 }
 
 void WindowFramework::setTitle(const std::string &_title)
 {
-	title = _title;
-	glfwSetWindowTitle(window, title.c_str());
+	m_title = _title;
+	glfwSetWindowTitle(m_window, m_title.c_str());
 }
 
 void WindowFramework::setVsync(bool _vsync)
 {
-	if (vsync != _vsync)
+	if (m_vsync != _vsync)
 	{
-		vsync = _vsync;
-		glfwSwapInterval(vsync);
+		m_vsync = _vsync;
+		glfwSwapInterval(m_vsync);
 	}
 }
 
 void WindowFramework::setShouldClose(bool _shouldClose)
 {
-	glfwSetWindowShouldClose(window, _shouldClose);
+	glfwSetWindowShouldClose(m_window, _shouldClose);
 }
 
 void WindowFramework::setWindowMode(const WindowMode &_windowMode)
@@ -311,86 +311,86 @@ void WindowFramework::setWindowMode(const WindowMode &_windowMode)
 
 	if (_windowMode == WindowMode::WINDOWED)
 	{
-		bool notify = selectedResolution != *currentResolution;
-		currentResolution = &selectedResolution;
+		bool notify = m_selectedResolution != *m_currentResolution;
+		m_currentResolution = &m_selectedResolution;
 		// request windowed video mode
 
 		const GLFWvidmode *vidMode = glfwGetVideoMode(monitor);
-		int x = vidMode->width/2 - currentResolution->first/2;
-		int y = vidMode->height/2 - currentResolution->second/2;
+		int x = vidMode->width/2 - m_currentResolution->first/2;
+		int y = vidMode->height/2 - m_currentResolution->second/2;
 		if (y < 32)
 		{
 			y = 32;
 		}
-		glfwSetWindowMonitor(window, NULL, x, y, currentResolution->first, currentResolution->second, GLFW_DONT_CARE);
+		glfwSetWindowMonitor(m_window, NULL, x, y, m_currentResolution->first, m_currentResolution->second, GLFW_DONT_CARE);
 		// notify listeners if resolution changed
 		if (notify)
 		{
-			for (IWindowResizeListener *listener : resizeListeners)
+			for (IWindowResizeListener *listener : m_resizeListeners)
 			{
-				listener->onResize(currentResolution->first, currentResolution->second);
+				listener->onResize(m_currentResolution->first, m_currentResolution->second);
 			}
 		}
 	}
 	else if (_windowMode == WindowMode::BORDERLESS_FULLSCREEN/* && windowMode != WindowMode::BORDERLESS_FULLSCREEN*/)
 	{
-		if (windowMode == WindowMode::FULLSCREEN)
+		if (m_windowMode == WindowMode::FULLSCREEN)
 		{
-			glfwSetWindowMonitor(window, NULL, 0, 0, 1, 1, GLFW_DONT_CARE);
+			glfwSetWindowMonitor(m_window, NULL, 0, 0, 1, 1, GLFW_DONT_CARE);
 		}
 		// request fake fullscreen window by requesting the current vidmode.
 		const GLFWvidmode *vidMode = glfwGetVideoMode(monitor);
-		glfwSetWindowMonitor(window, monitor, 0, 0, vidMode->width, vidMode->height, vidMode->refreshRate);
+		glfwSetWindowMonitor(m_window, monitor, 0, 0, vidMode->width, vidMode->height, vidMode->refreshRate);
 
-		bool notify = nativeResolution != *currentResolution;
-		currentResolution = &nativeResolution;
+		bool notify = m_nativeResolution != *m_currentResolution;
+		m_currentResolution = &m_nativeResolution;
 		// notify listeners if resolution changed
 		if (notify)
 		{
-			for (IWindowResizeListener *listener : resizeListeners)
+			for (IWindowResizeListener *listener : m_resizeListeners)
 			{
-				listener->onResize(currentResolution->first, currentResolution->second);
+				listener->onResize(m_currentResolution->first, m_currentResolution->second);
 			}
 		}
 	}
 	else if (_windowMode == WindowMode::FULLSCREEN)
 	{
-		bool notify = selectedResolution != *currentResolution;
-		currentResolution = &selectedResolution;
+		bool notify = m_selectedResolution != *m_currentResolution;
+		m_currentResolution = &m_selectedResolution;
 
 		// if we are currently in fake fullscreen set to windowed
-		if (windowMode == WindowMode::BORDERLESS_FULLSCREEN)
+		if (m_windowMode == WindowMode::BORDERLESS_FULLSCREEN)
 		{
-			glfwSetWindowMonitor(window, NULL, 0, 0, 1, 1, GLFW_DONT_CARE);
+			glfwSetWindowMonitor(m_window, NULL, 0, 0, 1, 1, GLFW_DONT_CARE);
 		}
 		// request fullscreen window
-		glfwSetWindowMonitor(window, monitor, 0, 0, currentResolution->first, currentResolution->second, GLFW_DONT_CARE);
+		glfwSetWindowMonitor(m_window, monitor, 0, 0, m_currentResolution->first, m_currentResolution->second, GLFW_DONT_CARE);
 		// notify listeners if resolution changed
 		if (notify)
 		{
-			for (IWindowResizeListener *listener : resizeListeners)
+			for (IWindowResizeListener *listener : m_resizeListeners)
 			{
-				listener->onResize(currentResolution->first, currentResolution->second);
+				listener->onResize(m_currentResolution->first, m_currentResolution->second);
 			}
 		}
 	}
 	// make sure vsync is set to the correct setting
-	glfwSwapInterval(vsync);
-	windowMode = _windowMode;
+	glfwSwapInterval(m_vsync);
+	m_windowMode = _windowMode;
 }
 
 void WindowFramework::setResolution(const std::pair<unsigned int, unsigned int> &_resolution)
 {
-	selectedResolution.first = _resolution.first ? _resolution.first : selectedResolution.first;
-	selectedResolution.second = _resolution.second ? _resolution.second : selectedResolution.second;
+	m_selectedResolution.first = _resolution.first ? _resolution.first : m_selectedResolution.first;
+	m_selectedResolution.second = _resolution.second ? _resolution.second : m_selectedResolution.second;
 	updateSelectedResolutionIndex();
-	setWindowMode(windowMode);
+	setWindowMode(m_windowMode);
 }
 
 void WindowFramework::setWindowModeAndResolution(const WindowMode &_windowMode, const std::pair<unsigned int, unsigned int> &_resolution)
 {
-	selectedResolution.first = _resolution.first ? _resolution.first : selectedResolution.first;
-	selectedResolution.second = _resolution.second ? _resolution.second : selectedResolution.second;
+	m_selectedResolution.first = _resolution.first ? _resolution.first : m_selectedResolution.first;
+	m_selectedResolution.second = _resolution.second ? _resolution.second : m_selectedResolution.second;
 	updateSelectedResolutionIndex();
 	setWindowMode(_windowMode);
 }
@@ -405,7 +405,7 @@ void WindowFramework::setIcon(size_t count, const char *sizes, unsigned char **p
 		images[i].height = sizes[i];
 		images[i].pixels = pixelData[i];
 	}
-	glfwSetWindowIcon(window, (int)count, images);
+	glfwSetWindowIcon(m_window, (int)count, images);
 	delete[] images;
 }
 
@@ -413,22 +413,22 @@ void WindowFramework::grabMouse(bool _grabMouse)
 {
 	if (_grabMouse)
 	{
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 	else
 	{
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 }
 
 WindowMode WindowFramework::getWindowMode() const
 {
-	return windowMode;
+	return m_windowMode;
 }
 
 std::pair<unsigned int, unsigned int> WindowFramework::getNativeResolution()
 {
-	return nativeResolution;
+	return m_nativeResolution;
 }
 
 // callback functions
@@ -447,7 +447,7 @@ void windowSizeCallback(GLFWwindow *window, int width, int height)
 void curserPosCallback(GLFWwindow *window, double xPos, double yPos)
 {
 	WindowFramework *windowFramework = static_cast<WindowFramework *>(glfwGetWindowUserPointer(window));
-	for (IInputListener *listener : windowFramework->inputListeners)
+	for (IInputListener *listener : windowFramework->m_inputListeners)
 	{
 		listener->onMouseMove(xPos, yPos);
 	}
@@ -456,7 +456,7 @@ void curserPosCallback(GLFWwindow *window, double xPos, double yPos)
 void curserEnterCallback(GLFWwindow *window, int entered)
 {
 	WindowFramework *windowFramework = static_cast<WindowFramework *>(glfwGetWindowUserPointer(window));
-	for (IInputListener *listener : windowFramework->inputListeners)
+	for (IInputListener *listener : windowFramework->m_inputListeners)
 	{
 		listener->onMouseEnter(entered);
 	}
@@ -465,7 +465,7 @@ void curserEnterCallback(GLFWwindow *window, int entered)
 void scrollCallback(GLFWwindow *window, double xOffset, double yOffset)
 {
 	WindowFramework *windowFramework = static_cast<WindowFramework *>(glfwGetWindowUserPointer(window));
-	for (IInputListener *listener : windowFramework->inputListeners)
+	for (IInputListener *listener : windowFramework->m_inputListeners)
 	{
 		listener->onMouseScroll(xOffset, yOffset);
 	}
@@ -474,7 +474,7 @@ void scrollCallback(GLFWwindow *window, double xOffset, double yOffset)
 void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
 	WindowFramework *windowFramework = static_cast<WindowFramework *>(glfwGetWindowUserPointer(window));
-	for (IInputListener *listener : windowFramework->inputListeners)
+	for (IInputListener *listener : windowFramework->m_inputListeners)
 	{
 		listener->onMouseButton(button, action);
 	}
@@ -483,7 +483,7 @@ void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
 	WindowFramework *windowFramework = static_cast<WindowFramework *>(glfwGetWindowUserPointer(window));
-	for (IInputListener *listener : windowFramework->inputListeners)
+	for (IInputListener *listener : windowFramework->m_inputListeners)
 	{
 		listener->onKey(key, action);
 	}
@@ -492,7 +492,7 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 void charCallback(GLFWwindow *window, unsigned int codepoint)
 {
 	WindowFramework *windowFramework = static_cast<WindowFramework *>(glfwGetWindowUserPointer(window));
-	for (IInputListener *listener : windowFramework->inputListeners)
+	for (IInputListener *listener : windowFramework->m_inputListeners)
 	{
 		listener->onChar(codepoint);
 	}

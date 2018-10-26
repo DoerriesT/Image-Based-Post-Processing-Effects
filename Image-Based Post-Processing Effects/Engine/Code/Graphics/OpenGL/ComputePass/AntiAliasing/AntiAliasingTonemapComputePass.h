@@ -13,8 +13,8 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> tonemapShader;
+	std::shared_ptr<ShaderProgram> m_tonemapShader;
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int m_width;
+	unsigned int m_height;
 };

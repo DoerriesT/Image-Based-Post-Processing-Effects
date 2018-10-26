@@ -28,11 +28,11 @@ namespace App
 
 		glm::vec3 cameraTranslation;
 
-		if (gamepad.id != -1)
+		if (gamepad.m_id != -1)
 		{
-			camera->rotate(glm::vec3(-gamepad.rightStickY, gamepad.rightStickX, 0.0) * (float)_timeDelta * 2.0f);
-			cameraTranslation.z = -5.0f * gamepad.leftStickY * (float)_timeDelta;
-			cameraTranslation.x = 5.0f * gamepad.leftStickX * (float)_timeDelta;
+			camera->rotate(glm::vec3(-gamepad.m_rightStickY, gamepad.m_rightStickX, 0.0) * (float)_timeDelta * 2.0f);
+			cameraTranslation.z = -5.0f * gamepad.m_leftStickY * (float)_timeDelta;
+			cameraTranslation.x = 5.0f * gamepad.m_leftStickX * (float)_timeDelta;
 			camera->translate(cameraTranslation);
 		}
 

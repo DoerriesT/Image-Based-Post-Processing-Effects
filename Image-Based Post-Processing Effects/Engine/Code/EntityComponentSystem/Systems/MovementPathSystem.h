@@ -20,11 +20,11 @@ public:
 	void onDestruction(const Entity *_entity) override;
 
 private:
-	EntityManager &entityManager;
-	std::vector<const Entity *> managedEntities;
-	std::vector<const Entity *> entitiesToRemove;
-	std::vector<const Entity *> entitiesToAdd;
-	std::vector<std::uint64_t> validBitMaps;
+	EntityManager &m_entityManager;
+	std::vector<const Entity *> m_managedEntities;
+	std::vector<const Entity *> m_entitiesToRemove;
+	std::vector<const Entity *> m_entitiesToAdd;
+	std::vector<std::uint64_t> m_validBitMaps;
 
 	bool validate(std::uint64_t _bitMap);
 };

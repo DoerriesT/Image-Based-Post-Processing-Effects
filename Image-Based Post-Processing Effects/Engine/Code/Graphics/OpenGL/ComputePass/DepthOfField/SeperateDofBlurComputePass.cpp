@@ -3,25 +3,25 @@
 #include "Graphics\SampleKernel.h"
 
 SeperateDofBlurComputePass::SeperateDofBlurComputePass(unsigned int _width, unsigned int _height)
-	:blurSamplesSet(false),
-	width(_width),
-	height(_height)
+	:m_blurSamplesSet(false),
+	m_width(_width),
+	m_height(_height)
 {
-	blurShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedBlur.comp");
+	m_blurShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedBlur.comp");
 
 	for (int i = 0; i < 7 * 7; ++i)
 	{
-		uSampleCoordsSDOFB.push_back(blurShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
+		m_uSampleCoords.push_back(m_blurShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
 	}
 }
 
 void SeperateDofBlurComputePass::execute(GLuint *_dofTextures, GLuint _cocTexture, GLuint _cocTileTexture)
 {
-	blurShader->bind();
+	m_blurShader->bind();
 
-	if (!blurSamplesSet)
+	if (!m_blurSamplesSet)
 	{
-		blurSamplesSet = true;
+		m_blurSamplesSet = true;
 
 		glm::vec2 blurSamples[7 * 7];
 
@@ -38,7 +38,7 @@ void SeperateDofBlurComputePass::execute(GLuint *_dofTextures, GLuint _cocTextur
 
 		for (int i = 0; i < 7 * 7; ++i)
 		{
-			blurShader->setUniform(uSampleCoordsSDOFB[i], blurSamples[i]);
+			m_blurShader->setUniform(m_uSampleCoords[i], blurSamples[i]);
 		}
 	}
 
@@ -57,12 +57,12 @@ void SeperateDofBlurComputePass::execute(GLuint *_dofTextures, GLuint _cocTextur
 
 	glBindImageTexture(0, _dofTextures[2], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 	glBindImageTexture(1, _dofTextures[3], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-	GLUtility::glDispatchComputeHelper(width / 2, height / 2, 1, 8, 8, 1);
+	GLUtility::glDispatchComputeHelper(m_width / 2, m_height / 2, 1, 8, 8, 1);
 	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
 void SeperateDofBlurComputePass::resize(unsigned int _width, unsigned int _height)
 {
-	width = _width;
-	height = _height;
+	m_width = _width;
+	m_height = _height;
 }

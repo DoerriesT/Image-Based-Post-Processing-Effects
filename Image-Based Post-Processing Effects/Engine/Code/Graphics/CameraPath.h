@@ -7,19 +7,19 @@ class Camera;
 
 struct CameraPathSegment
 {
-	glm::vec3 cameraStartPosition;
-	glm::vec3 cameraEndPosition;
-	glm::vec3 cameraStartTangent;
-	glm::vec3 cameraEndTangent;
-	glm::vec3 targetStartPosition;
-	glm::vec3 targetEndPosition;
-	glm::vec3 targetStartTangent;
-	glm::vec3 targetEndTangent;
-	double totalDuration = 1.0;
-	double(*easingFunction)(double, double) = nullptr;
-	bool fadeIn = false;
-	bool fadeOut = false;
-	double fadeTime = 2.0;
+	glm::vec3 m_cameraStartPosition;
+	glm::vec3 m_cameraEndPosition;
+	glm::vec3 m_cameraStartTangent;
+	glm::vec3 m_cameraEndTangent;
+	glm::vec3 m_targetStartPosition;
+	glm::vec3 m_targetEndPosition;
+	glm::vec3 m_targetStartTangent;
+	glm::vec3 m_targetEndTangent;
+	double m_totalDuration = 1.0;
+	double(*m_easingFunction)(double, double) = nullptr;
+	bool m_fadeIn = false;
+	bool m_fadeOut = false;
+	double m_fadeTime = 2.0;
 };
 
 class CameraPath
@@ -33,10 +33,10 @@ public:
 	bool isRepeating();
 
 private:
-	std::vector<CameraPathSegment> pathSegments;
-	std::shared_ptr<Camera> camera;
-	bool started;
-	bool repeat;
-	double currentStartTime;
-	size_t currentSegmentIndex;
+	std::vector<CameraPathSegment> m_pathSegments;
+	std::shared_ptr<Camera> m_camera;
+	bool m_started;
+	bool m_repeat;
+	double m_currentStartTime;
+	size_t m_currentSegmentIndex;
 };

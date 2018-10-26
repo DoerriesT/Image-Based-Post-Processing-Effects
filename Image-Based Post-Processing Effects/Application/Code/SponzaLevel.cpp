@@ -16,38 +16,38 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	std::shared_ptr<Level> level = std::make_shared<Level>();
 
 	// filepath
-	level->filepath = "Resources/Levels/sponza/";
+	level->m_filepath = "Resources/Levels/sponza/";
 
 	// camera(s)
 	std::shared_ptr<Camera> camera0 = std::make_shared<Camera>(glm::vec3(12.0f, 1.8f, 0.0f), glm::quat(glm::vec3(0.0f, glm::radians(-90.0f), 0.0f)));
 
-	level->cameras.push_back(camera0);
-	level->activeCameraIndex = 0;
+	level->m_cameras.push_back(camera0);
+	level->m_activeCameraIndex = 0;
 
 	// exposure
-	level->exposure = 1.0f;
+	level->m_exposure = 1.0f;
 
 	// water
-	Water water = { };
-	water.enabled = false;
-	water.level = 0.0f;
-	water.normalizedWindDirection = glm::normalize(glm::vec2(0.8f, 0.6f));
-	water.normalStrength = 0.1f;
-	water.simulationResolution = 512;
-	water.timeScale = 0.4f;
-	water.waveAmplitude = 0.65f;
-	water.waveChoppiness = 1.3f;
-	water.waveSuppressionExponent = 6.0f;
-	water.windSpeed = 600.0f;
-	water.worldSize = 2000;
-	level->water = water;
+	OceanParams oceanParams = { };
+	oceanParams.m_enabled = false;
+	oceanParams.m_level = 0.0f;
+	oceanParams.m_normalizedWindDirection = glm::normalize(glm::vec2(0.8f, 0.6f));
+	oceanParams.m_normalStrength = 0.1f;
+	oceanParams.m_simulationResolution = 512;
+	oceanParams.m_timeScale = 0.4f;
+	oceanParams.m_waveAmplitude = 0.65f;
+	oceanParams.m_waveChoppiness = 1.3f;
+	oceanParams.m_waveSuppressionExponent = 6.0f;
+	oceanParams.m_windSpeed = 600.0f;
+	oceanParams.m_worldSize = 2000;
+	level->m_oceanParams = oceanParams;
 
 	// sun
-	level->sun.direction = glm::normalize(glm::vec3(0.1f, 3.0f, -1.0f));
+	level->m_sun.m_direction = glm::normalize(glm::vec3(0.1f, 3.0f, -1.0f));
 
 	/*- set skybox entity and environment maps*/
 	const Entity *skyboxEntity = entityManager.createEntity();
-	level->environment.skyboxEntity = skyboxEntity;
+	level->m_environment.m_skyboxEntity = skyboxEntity;
 
 	//oceanLevel->environment.environmentMap = Texture::createTexture("Resources/Textures/oceanskybox.dds", true);
 
@@ -57,74 +57,74 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 
 	// lower halls
 	const AxisAlignedBoundingBox lowerHall0Aabb = { glm::vec3(-9.5, -0.01, 2.4), glm::vec3(9.5, 3.9, 6.1) };
-	const glm::vec3 lowerHall0ProbePos = (lowerHall0Aabb.min + lowerHall0Aabb.max) * 0.5f;
+	const glm::vec3 lowerHall0ProbePos = (lowerHall0Aabb.m_min + lowerHall0Aabb.m_max) * 0.5f;
 
 	const AxisAlignedBoundingBox lowerHall1Aabb = { glm::vec3(-9.5, -0.01, -6.1), glm::vec3(9.5, 3.9, -2.4) };
-	const glm::vec3 lowerHall1ProbePos = (lowerHall1Aabb.min + lowerHall1Aabb.max) * 0.5f;
+	const glm::vec3 lowerHall1ProbePos = (lowerHall1Aabb.m_min + lowerHall1Aabb.m_max) * 0.5f;
 
 	// lower end
 	const AxisAlignedBoundingBox lowerEnd0Aabb = { glm::vec3(-13.7, -0.01, -6.1), glm::vec3(-9.5, 3.9, 6.1) };
-	const glm::vec3 lowerEnd0ProbePos = (lowerEnd0Aabb.min + lowerEnd0Aabb.max) * 0.5f;
+	const glm::vec3 lowerEnd0ProbePos = (lowerEnd0Aabb.m_min + lowerEnd0Aabb.m_max) * 0.5f;
 
 	const AxisAlignedBoundingBox lowerEnd1Aabb = { glm::vec3(9.5, -0.01, -6.1), glm::vec3( 13.65, 3.9, 6.1) };
-	const glm::vec3 lowerEnd1ProbePos = (lowerEnd1Aabb.min + lowerEnd1Aabb.max) * 0.5f;
+	const glm::vec3 lowerEnd1ProbePos = (lowerEnd1Aabb.m_min + lowerEnd1Aabb.m_max) * 0.5f;
 
 	// upper halls
 	const AxisAlignedBoundingBox upperHall0Aabb = { glm::vec3(-9.8, 4.15, 2.8), glm::vec3(9.8, 8.7, 6.15) };
-	const glm::vec3 upperHall0ProbePos = (upperHall0Aabb.min + upperHall0Aabb.max) * 0.5f;
+	const glm::vec3 upperHall0ProbePos = (upperHall0Aabb.m_min + upperHall0Aabb.m_max) * 0.5f;
 	
 	const AxisAlignedBoundingBox upperHall1Aabb = { glm::vec3(-9.8, 4.15, -6.1), glm::vec3(9.8, 8.7, -2.8) };
-	const glm::vec3 upperHall1ProbePos = (upperHall1Aabb.min + upperHall1Aabb.max) * 0.5f;
+	const glm::vec3 upperHall1ProbePos = (upperHall1Aabb.m_min + upperHall1Aabb.m_max) * 0.5f;
 
 	// upper end
 	const AxisAlignedBoundingBox upperEnd0Aabb = { glm::vec3(-13.7, 4.15, -6.1), glm::vec3(-9.8, 8.7, 6.15) };
-	const glm::vec3 upperEnd0ProbePos = (upperEnd0Aabb.min + upperEnd0Aabb.max) * 0.5f;
+	const glm::vec3 upperEnd0ProbePos = (upperEnd0Aabb.m_min + upperEnd0Aabb.m_max) * 0.5f;
 
 	const AxisAlignedBoundingBox upperEnd1Aabb = { glm::vec3(9.8, 4.15, -6.1), glm::vec3(13.65, 8.7, 6.15) };
-	const glm::vec3 upperEnd1ProbePos = (upperEnd1Aabb.min + upperEnd1Aabb.max) * 0.5f;
+	const glm::vec3 upperEnd1ProbePos = (upperEnd1Aabb.m_min + upperEnd1Aabb.m_max) * 0.5f;
 
 
 	bool bakeReflections = SettingsManager::getInstance().getBoolSetting("graphics", "bake_reflections", false)->get();
 
-	level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(centerProbePos, centerAabb, level->filepath + "centerProbe.dds", !bakeReflections));
-	level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(lowerHall0ProbePos, lowerHall0Aabb, level->filepath + "lowerHall0Probe.dds", !bakeReflections));
-	level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(lowerHall1ProbePos, lowerHall1Aabb, level->filepath + "lowerHall1Probe.dds", !bakeReflections));
-	level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(lowerEnd0ProbePos, lowerEnd0Aabb, level->filepath + "lowerEnd0Probe.dds", !bakeReflections));
-	level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(lowerEnd1ProbePos, lowerEnd1Aabb, level->filepath + "lowerEnd1Probe.dds", !bakeReflections));
-	level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(upperHall0ProbePos, upperHall0Aabb, level->filepath + "upperHall0Probe.dds", !bakeReflections));
-	level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(upperHall1ProbePos, upperHall1Aabb, level->filepath + "upperHall1Probe.dds", !bakeReflections));
-	level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(upperEnd0ProbePos, upperEnd0Aabb, level->filepath + "upperEnd0Probe.dds", !bakeReflections));
-	level->environment.environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(upperEnd1ProbePos, upperEnd1Aabb, level->filepath + "upperEnd1Probe.dds", !bakeReflections));
+	level->m_environment.m_environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(centerProbePos, centerAabb, level->m_filepath + "centerProbe.dds", !bakeReflections));
+	level->m_environment.m_environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(lowerHall0ProbePos, lowerHall0Aabb, level->m_filepath + "lowerHall0Probe.dds", !bakeReflections));
+	level->m_environment.m_environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(lowerHall1ProbePos, lowerHall1Aabb, level->m_filepath + "lowerHall1Probe.dds", !bakeReflections));
+	level->m_environment.m_environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(lowerEnd0ProbePos, lowerEnd0Aabb, level->m_filepath + "lowerEnd0Probe.dds", !bakeReflections));
+	level->m_environment.m_environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(lowerEnd1ProbePos, lowerEnd1Aabb, level->m_filepath + "lowerEnd1Probe.dds", !bakeReflections));
+	level->m_environment.m_environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(upperHall0ProbePos, upperHall0Aabb, level->m_filepath + "upperHall0Probe.dds", !bakeReflections));
+	level->m_environment.m_environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(upperHall1ProbePos, upperHall1Aabb, level->m_filepath + "upperHall1Probe.dds", !bakeReflections));
+	level->m_environment.m_environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(upperEnd0ProbePos, upperEnd0Aabb, level->m_filepath + "upperEnd0Probe.dds", !bakeReflections));
+	level->m_environment.m_environmentProbes.push_back(EnvironmentProbe::createEnvironmentProbe(upperEnd1ProbePos, upperEnd1Aabb, level->m_filepath + "upperEnd1Probe.dds", !bakeReflections));
 
 	const glm::vec3 irradianceVolumeOrigin = glm::vec3(-14.0f, 1.0f, -7.0f);
 	const glm::ivec3 irradianceVolumeDimensions = glm::ivec3(15, 6, 8);
 	const float irradianceVolumeSpacing = 2.0f;
 
 	bool bakeIrradianceVolume = SettingsManager::getInstance().getBoolSetting("graphics", "bake_irradiance_volume", false)->get();
-	level->environment.irradianceVolume = bakeIrradianceVolume ? level->environment.irradianceVolume = IrradianceVolume::createIrradianceVolume(irradianceVolumeOrigin, irradianceVolumeDimensions, irradianceVolumeSpacing) :
-		IrradianceVolume::createIrradianceVolume(irradianceVolumeOrigin, irradianceVolumeDimensions, irradianceVolumeSpacing, Texture::createTexture(level->filepath + "probes.dds", true));
+	level->m_environment.m_irradianceVolume = bakeIrradianceVolume ? level->m_environment.m_irradianceVolume = IrradianceVolume::createIrradianceVolume(irradianceVolumeOrigin, irradianceVolumeDimensions, irradianceVolumeSpacing) :
+		IrradianceVolume::createIrradianceVolume(irradianceVolumeOrigin, irradianceVolumeDimensions, irradianceVolumeSpacing, Texture::createTexture(level->m_filepath + "probes.dds", true));
 
 	AtmosphereParams params;
-	params.intensity = glm::vec3(1.0f, 1.0f, 1.0f);
-	params.lightDir = level->sun.direction;
-	params.mieBrightness = 100.0f;
-	params.mieCollectionPower = 0.39f;
-	params.mieDistribution = 63.0f;
-	params.mieStrength = 264.0f;
-	params.rayleighBrightness = 33.0f;
-	params.rayleighCollectionPower = 0.81f;
-	params.rayleighStrength = 139.0f;
-	params.scatterStrength = 28.0f;
-	params.spotBrightness = 1000.0f;
-	params.stepCount = 16;
-	params.surfaceHeight = 0.99f;
+	params.m_intensity = glm::vec3(1.0f, 1.0f, 1.0f);
+	params.m_lightDir = level->m_sun.m_direction;
+	params.m_mieBrightness = 100.0f;
+	params.m_mieCollectionPower = 0.39f;
+	params.m_mieDistribution = 63.0f;
+	params.m_mieStrength = 264.0f;
+	params.m_rayleighBrightness = 33.0f;
+	params.m_rayleighCollectionPower = 0.81f;
+	params.m_rayleighStrength = 139.0f;
+	params.m_scatterStrength = 28.0f;
+	params.m_spotBrightness = 1000.0f;
+	params.m_stepCount = 16;
+	params.m_surfaceHeight = 0.99f;
 
-	level->environment.useAtmosphere = true;
-	level->environment.isAtmosphereValid = false;
-	level->environment.atmosphereParams = params;
+	level->m_environment.m_useAtmosphere = true;
+	level->m_environment.m_isAtmosphereValid = false;
+	level->m_environment.m_atmosphereParams = params;
 
 	/*- set the lights in the scene*/
-	level->lights.directionalLights.push_back(DirectionalLight::createDirectionalLight(Mobility::STATIC, params.intensity * 16.0f, level->sun.direction, true));
+	level->m_lights.m_directionalLights.push_back(DirectionalLight::createDirectionalLight(Mobility::STATIC, params.m_intensity * 16.0f, level->m_sun.m_direction, true));
 	float outerAngle = 50.0f;
 	float innerAngle = 1.0f;
 	float range = 25.0f;
@@ -137,14 +137,14 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 	// objects
 	{
 		const Entity *sponzaEntity = entityManager.createEntity();
-		level->entityMap["sponza"] = sponzaEntity;
+		level->m_entityMap["sponza"] = sponzaEntity;
 		entityManager.addComponent<ModelComponent>(sponzaEntity, Model("Resources/Models/sponza.meshmat", true));
 		entityManager.addComponent<TransformationComponent>(sponzaEntity, Mobility::STATIC);
 		entityManager.addComponent<RenderableComponent>(sponzaEntity);
 		//entityManager.addComponent<PhysicsComponent>(sponzaEntity, 0.0f, 1.0f, false);
 
 		const Entity *carEntity = entityManager.createEntity();
-		level->entityMap["car"] = carEntity;
+		level->m_entityMap["car"] = carEntity;
 		Model lamboModel("Resources/Models/aventador.meshmat", true);
 		entityManager.addComponent<ModelComponent>(carEntity, lamboModel);
 		entityManager.addComponent<TransformationComponent>(carEntity, Mobility::DYNAMIC, glm::vec3(6.0, 0.0, 0.0), glm::quat(glm::vec3(glm::radians(0.0f), 0.0f, 0.0f)), glm::vec3(1.0f));
@@ -198,7 +198,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 				glm::vec3 position = glm::vec3((i - 5.0f)  * 0.2f, 4.2f, j * 0.2f + 5.0f);
 
 				const Entity *teapotEntity = entityManager.createEntity();
-				level->entityMap["teapot" + std::to_string(i * 10 + j)] = teapotEntity;
+				level->m_entityMap["teapot" + std::to_string(i * 10 + j)] = teapotEntity;
 				Model model("Resources/Models/teapot.meshmat", true);
 				model[0].second.setRoughness(i / 10.0f);
 				model[0].second.setMetallic(1.0f - j);
@@ -210,7 +210,7 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 
 		{
 		const Entity *teapotEntity = entityManager.createEntity();
-		level->entityMap["teapot_mb0"] = teapotEntity;
+		level->m_entityMap["teapot_mb0"] = teapotEntity;
 		Model model("Resources/Models/teapot.meshmat", true);
 		model[0].second.setAlbedo(glm::vec4(1.0, 0.0, 0.0, 1.0));
 		model[0].second.setRoughness(1.0f);
@@ -219,12 +219,12 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 		auto *tc = entityManager.addComponent<TransformationComponent>(teapotEntity, Mobility::DYNAMIC, glm::vec3(0.25, 0.0, -0.5), glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(2.0f));
 		//entityManager.addComponent<RenderableComponent>(teapotEntity);
 
-		tc->vel = glm::vec2(40.0, 0.0);
+		tc->m_vel = glm::vec2(40.0, 0.0);
 		}
 
 		{
 		const Entity *teapotEntity = entityManager.createEntity();
-		level->entityMap["teapot_mb1"] = teapotEntity;
+		level->m_entityMap["teapot_mb1"] = teapotEntity;
 		Model model("Resources/Models/teapot.meshmat", true);
 		model[0].second.setAlbedo(glm::vec4(0.0, 1.0, 0.0, 1.0));
 		model[0].second.setRoughness(1.0f);
@@ -233,14 +233,14 @@ std::shared_ptr<Level> App::loadSponzaLevel()
 		auto *tc = entityManager.addComponent<TransformationComponent>(teapotEntity, Mobility::DYNAMIC, glm::vec3(), glm::quat(glm::vec3(0.0, glm::radians(40.0f), 0.0f)), glm::vec3(2.0f));
 		//entityManager.addComponent<RenderableComponent>(teapotEntity);
 
-		tc->vel = glm::vec2(0.0, 40.0);
+		tc->m_vel = glm::vec2(0.0, 40.0);
 		}
 	}
 
-	level->id = (size_t)1;
-	level->valid = true;
-	level->name = "sponza";
-	level->loaded = true;
+	level->m_id = (size_t)1;
+	level->m_valid = true;
+	level->m_name = "sponza";
+	level->m_loaded = true;
 
 	return level;
 }

@@ -27,23 +27,23 @@ public:
 	int getMaxAnisotropicFiltering();
 
 private:
-	static Engine *instance;
-	IGameLogic &gameLogic;
-	std::shared_ptr<Window> window;
-	UserInput &userInput;
-	SystemManager &systemManager;
-	std::string title;
-	double lastFrame;
-	double time;
-	double timeDelta;
-	bool shouldShutdown = false;
-	double lastFpsMeasure;
-	double fps;
+	static Engine *s_instance;
+	IGameLogic &m_gameLogic;
+	std::shared_ptr<Window> m_window;
+	UserInput &m_userInput;
+	SystemManager &m_systemManager;
+	std::string m_title;
+	double m_lastFrame;
+	double m_time;
+	double m_timeDelta;
+	bool m_shouldShutdown = false;
+	double m_lastFpsMeasure;
+	double m_fps;
 
-	std::mutex mutex;
-	std::vector<std::function<void()>> functionQueue;
+	std::mutex m_mutex;
+	std::vector<std::function<void()>> m_functionQueue;
 
-	std::shared_ptr<Setting<bool>> showFps;
+	std::shared_ptr<Setting<bool>> m_showFps;
 
 	void gameLoop();
 	void input(double _currentTime, double _timeDelta);

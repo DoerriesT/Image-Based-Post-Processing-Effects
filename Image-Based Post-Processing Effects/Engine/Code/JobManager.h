@@ -27,15 +27,15 @@ public:
 	bool usesMultithreading();
 
 private:
-	bool interrupted;
-	std::thread *thread;
-	std::vector<std::shared_ptr<Job>> jobs;
-	std::recursive_mutex mutex;
-	std::condition_variable_any hasWork;
-	std::vector<IJobManagerJobListener*> listeners;
+	bool m_interrupted;
+	std::thread *m_thread;
+	std::vector<std::shared_ptr<Job>> m_jobs;
+	std::recursive_mutex m_mutex;
+	std::condition_variable_any m_hasWork;
+	std::vector<IJobManagerJobListener*> m_listeners;
 
 	std::shared_ptr<Setting<bool>> useMultithreadingSetting;
-	bool useMutlithreading;
+	bool m_useMutlithreading;
 
 	JobManager();
 	~JobManager();	

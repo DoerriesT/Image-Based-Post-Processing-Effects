@@ -27,9 +27,9 @@ public:
 	std::shared_ptr<Level> getLevel();
 
 private:
-	bool initialized = false;
-	std::vector<BaseSystem *> systems;
-	std::shared_ptr<Level> level;
+	bool m_initialized = false;
+	std::vector<BaseSystem *> m_systems;
+	std::shared_ptr<Level> m_level;
 
 	SystemManager() = default;
 	~SystemManager();
@@ -39,13 +39,13 @@ template<typename SystemType, typename ...Args>
 inline SystemType *SystemManager::addSystem(Args&& ..._args)
 {
 	SystemType *system = new SystemType(std::forward<Args>(_args)...);
-	systems.push_back(system);
+	m_systems.push_back(system);
 	return system;
 }
 
 template<typename SystemType>
 inline SystemType *SystemManager::getSystem()
 {
-	auto it = std::find_if(systems.begin(), systems.end(), [](BaseSystem *_system) {return _system->getTypeIdOfDerived() == SystemType::getTypeId(); });
-	return it != systems.end() ? static_cast<SystemType *>(*it) : nullptr;
+	auto it = std::find_if(m_systems.begin(), m_systems.end(), [](BaseSystem *_system) {return _system->getTypeIdOfDerived() == SystemType::getTypeId(); });
+	return it != m_systems.end() ? static_cast<SystemType *>(*it) : nullptr;
 }

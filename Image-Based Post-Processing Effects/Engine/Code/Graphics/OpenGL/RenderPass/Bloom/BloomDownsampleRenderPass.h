@@ -11,7 +11,7 @@ public:
 	void render(GLuint *_textureChain, size_t _textureCount, GLuint *_fbos, size_t _fboCount, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> downsampleShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_downsampleShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
 };

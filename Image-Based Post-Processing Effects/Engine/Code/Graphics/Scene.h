@@ -22,9 +22,9 @@ public:
 	size_t getCustomTransparencyCount() const;
 
 private:
-	std::vector<std::unique_ptr<EntityRenderData>> meshEntityData;
-	size_t outlineCount;
-	size_t transparencyCount;
-	size_t customOpaqueCount;
-	size_t customTransparencyCount;
+	std::vector<std::unique_ptr<EntityRenderData>> m_meshEntityData;
+	size_t m_outlineCount;
+	size_t m_transparencyCount;
+	size_t m_customOpaqueCount;
+	size_t m_customTransparencyCount;
 };

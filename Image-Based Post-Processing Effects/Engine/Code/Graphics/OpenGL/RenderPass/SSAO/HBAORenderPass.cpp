@@ -5,43 +5,43 @@
 
 HBAORenderPass::HBAORenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT0 };
-	state.blendState.enabled = false;
-	state.blendState.sFactor = GL_ONE;
-	state.blendState.dFactor = GL_ONE;
-	state.cullFaceState.enabled = false;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = false;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT0 };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_blendState.m_sFactor = GL_ONE;
+	m_state.m_blendState.m_dFactor = GL_ONE;
+	m_state.m_cullFaceState.m_enabled = false;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = false;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_FALSE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	hbaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/hbao.frag");
+	m_hbaoShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/hbao.frag");
 
-	uFocalLengthHBAO.create(hbaoShader);
-	uInverseProjectionHBAO.create(hbaoShader);
-	uAOResHBAO.create(hbaoShader);
-	uInvAOResHBAO.create(hbaoShader);
-	uNoiseScaleHBAO.create(hbaoShader);
-	uStrengthHBAO.create(hbaoShader);
-	uRadiusHBAO.create(hbaoShader);
-	uRadius2HBAO.create(hbaoShader);
-	uNegInvR2HBAO.create(hbaoShader);
-	uTanBiasHBAO.create(hbaoShader);
-	uMaxRadiusPixelsHBAO.create(hbaoShader);
-	uNumDirectionsHBAO.create(hbaoShader);
-	uNumStepsHBAO.create(hbaoShader);
+	m_uFocalLength.create(m_hbaoShader);
+	m_uInverseProjection.create(m_hbaoShader);
+	m_uAORes.create(m_hbaoShader);
+	m_uInvAORes.create(m_hbaoShader);
+	m_uNoiseScale.create(m_hbaoShader);
+	m_uStrength.create(m_hbaoShader);
+	m_uRadius.create(m_hbaoShader);
+	m_uRadius2.create(m_hbaoShader);
+	m_uNegInvR2.create(m_hbaoShader);
+	m_uTanBias.create(m_hbaoShader);
+	m_uMaxRadiusPixels.create(m_hbaoShader);
+	m_uNumDirections.create(m_hbaoShader);
+	m_uNumSteps.create(m_hbaoShader);
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 void HBAORenderPass::render(const RenderData & _renderData, const Effects & _effects, GLuint _noiseTexture, RenderPass **_previousRenderPass)
@@ -49,32 +49,32 @@ void HBAORenderPass::render(const RenderData & _renderData, const Effects & _eff
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	m_fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, _noiseTexture);
 
-	float aspectRatio = _renderData.resolution.second / (float)_renderData.resolution.first;
+	float aspectRatio = _renderData.m_resolution.second / (float)_renderData.m_resolution.first;
 	glm::vec2 focalLength;
-	focalLength.x = 1.0f / tanf(glm::radians(_renderData.fov) * 0.5f) * aspectRatio;
-	focalLength.y = 1.0f / tanf(glm::radians(_renderData.fov) * 0.5f);
+	focalLength.x = 1.0f / tanf(glm::radians(_renderData.m_fov) * 0.5f) * aspectRatio;
+	focalLength.y = 1.0f / tanf(glm::radians(_renderData.m_fov) * 0.5f);
 
-	glm::vec2 res(_renderData.resolution.first, _renderData.resolution.second);
+	glm::vec2 res(_renderData.m_resolution.first, _renderData.m_resolution.second);
 
-	hbaoShader->bind();
-	uFocalLengthHBAO.set(focalLength);
-	uInverseProjectionHBAO.set(_renderData.invProjectionMatrix);
-	uAOResHBAO.set(res);
-	uInvAOResHBAO.set(1.0f / res);
-	uNoiseScaleHBAO.set(res * 0.25f);
-	uStrengthHBAO.set(_effects.hbao.strength);
-	uRadiusHBAO.set(_effects.hbao.radius);
-	uRadius2HBAO.set(_effects.hbao.radius * _effects.hbao.radius);
-	uNegInvR2HBAO.set(-1.0f / (_effects.hbao.radius * _effects.hbao.radius));
-	uTanBiasHBAO.set(_effects.hbao.angleBias);
-	uMaxRadiusPixelsHBAO.set(_effects.hbao.maxRadiusPixels);
-	uNumDirectionsHBAO.set((float)_effects.hbao.directions);
-	uNumStepsHBAO.set((float)_effects.hbao.steps);
+	m_hbaoShader->bind();
+	m_uFocalLength.set(focalLength);
+	m_uInverseProjection.set(_renderData.m_invProjectionMatrix);
+	m_uAORes.set(res);
+	m_uInvAORes.set(1.0f / res);
+	m_uNoiseScale.set(res * 0.25f);
+	m_uStrength.set(_effects.m_hbao.m_strength);
+	m_uRadius.set(_effects.m_hbao.m_radius);
+	m_uRadius2.set(_effects.m_hbao.m_radius * _effects.m_hbao.m_radius);
+	m_uNegInvR2.set(-1.0f / (_effects.m_hbao.m_radius * _effects.m_hbao.m_radius));
+	m_uTanBias.set(_effects.m_hbao.m_angleBias);
+	m_uMaxRadiusPixels.set(_effects.m_hbao.m_maxRadiusPixels);
+	m_uNumDirections.set((float)_effects.m_hbao.m_directions);
+	m_uNumSteps.set((float)_effects.m_hbao.m_steps);
 
-	fullscreenTriangle->getSubMesh()->render();
+	m_fullscreenTriangle->getSubMesh()->render();
 }

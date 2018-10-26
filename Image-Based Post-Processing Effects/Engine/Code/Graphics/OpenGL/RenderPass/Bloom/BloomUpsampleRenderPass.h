@@ -11,9 +11,9 @@ public:
 	void render(GLuint *_sourceTextureChain, size_t _sourceTextureCount, GLuint *_targetTextureChain, size_t targetTextureCount, GLuint *_fbos, size_t _fboCount, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> upsampleShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_upsampleShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<GLboolean> uAddPreviousBU = Uniform<GLboolean>("uAddPrevious");
-	Uniform<glm::vec2> uRadiusBU = Uniform<glm::vec2>("uRadius");
+	Uniform<GLboolean> m_uAddPreviousBU = Uniform<GLboolean>("uAddPrevious");
+	Uniform<glm::vec2> m_uRadiusBU = Uniform<glm::vec2>("uRadius");
 };

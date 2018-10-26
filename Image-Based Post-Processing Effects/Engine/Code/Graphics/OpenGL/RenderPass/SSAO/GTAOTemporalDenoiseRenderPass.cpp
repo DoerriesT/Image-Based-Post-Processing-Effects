@@ -5,31 +5,31 @@
 
 GTAOTemporalDenoiseRenderPass::GTAOTemporalDenoiseRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT1 };
-	state.blendState.enabled = false;
-	state.blendState.sFactor = GL_ONE;
-	state.blendState.dFactor = GL_ONE;
-	state.cullFaceState.enabled = false;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = false;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT1 };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_blendState.m_sFactor = GL_ONE;
+	m_state.m_blendState.m_dFactor = GL_ONE;
+	m_state.m_cullFaceState.m_enabled = false;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = false;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_FALSE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	gtaoDenoiseShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/gtaoTemporalDenoise.frag");
+	m_gtaoDenoiseShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/gtaoTemporalDenoise.frag");
 
-	uFrameTime.create(gtaoDenoiseShader);
+	m_uFrameTime.create(m_gtaoDenoiseShader);
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 double gtaoTemporalDenoiseTime;
@@ -37,21 +37,21 @@ double gtaoTemporalDenoiseTime;
 void GTAOTemporalDenoiseRenderPass::render(const RenderData & _renderData, const Effects & _effects, GLuint _velocityTexture, GLuint * _ssaoTextures, RenderPass **_previousRenderPass)
 {
 	GLTimerQuery timer(gtaoTemporalDenoiseTime);
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0;
+	m_drawBuffers[0] = _renderData.m_frame % 2 ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
-	gtaoDenoiseShader->bind();
+	m_gtaoDenoiseShader->bind();
 
-	glm::vec2 texelSize = 1.0f / glm::vec2(_renderData.resolution.first, _renderData.resolution.second);
-	uFrameTime.set((float)Engine::getTimeDelta());
+	glm::vec2 texelSize = 1.0f / glm::vec2(_renderData.m_resolution.first, _renderData.m_resolution.second);
+	m_uFrameTime.set((float)Engine::getTimeDelta());
 
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, _velocityTexture);
 	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, _renderData.frame % 2 ? _ssaoTextures[0] : _ssaoTextures[2]);
+	glBindTexture(GL_TEXTURE_2D, _renderData.m_frame % 2 ? _ssaoTextures[0] : _ssaoTextures[2]);
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, _ssaoTextures[1]);
 
-	fullscreenTriangle->getSubMesh()->render();
+	m_fullscreenTriangle->getSubMesh()->render();
 }

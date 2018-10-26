@@ -21,11 +21,11 @@
 #include <stb_image_write.h>
 
 GraphicsFramework::GraphicsFramework(std::shared_ptr<Window> _window)
-	:renderer(),
-	window(_window),
-	environmentRenderer()
+	:m_renderer(),
+	m_window(_window),
+	m_environmentRenderer()
 {
-	window->addResizeListener(this);
+	m_window->addResizeListener(this);
 }
 
 void APIENTRY  MessageCallback(GLenum source,
@@ -74,20 +74,20 @@ void GraphicsFramework::init()
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 #endif // _DEBUG
 
-	renderer.init(window->getWidth(), window->getHeight());
-	environmentRenderer.init();
+	m_renderer.init(m_window->getWidth(), m_window->getHeight());
+	m_environmentRenderer.init();
 
-	blitShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Shared/blit.frag");
+	m_blitShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Shared/blit.frag");
 
-	uScreenTextureBlit = blitShader->createUniform("uScreenTexture");
-	uRedToWhiteBlit = blitShader->createUniform("uRedToWhite");
-	uScaleBlit = blitShader->createUniform("uScale");
-	uNormalModeBlit = blitShader->createUniform("uNormalMode");
-	uInvViewMatrixBlit = blitShader->createUniform("uInvViewMatrix");
-	uPowerBlit = blitShader->createUniform("uPower");
-	uPowerValueBlit = blitShader->createUniform("uPowerValue");
+	m_uScreenTexture = m_blitShader->createUniform("uScreenTexture");
+	m_uRedToWhite = m_blitShader->createUniform("uRedToWhite");
+	m_uScale = m_blitShader->createUniform("uScale");
+	m_uNormalMode = m_blitShader->createUniform("uNormalMode");
+	m_uInvViewMatrix = m_blitShader->createUniform("uInvViewMatrix");
+	m_uPower = m_blitShader->createUniform("uPower");
+	m_uPowerValue = m_blitShader->createUniform("uPowerValue");
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 static glm::mat3 invViewMat;
@@ -107,44 +107,44 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 		glm::vec2(-0.25f, 0.25f)
 	};
 
-	++frame;
+	++m_frame;
 
-	glm::mat4 jitterMatrix = _effects.smaa.enabled && _effects.smaa.temporalAntiAliasing ?
-		glm::translate(glm::mat4(), glm::vec3(jitters[frame % 2].x / float(window->getWidth()), jitters[frame % 2].y / float(window->getHeight()), 0.0f))
+	glm::mat4 jitterMatrix = _effects.m_smaa.m_enabled && _effects.m_smaa.m_temporalAntiAliasing ?
+		glm::translate(glm::mat4(), glm::vec3(jitters[m_frame % 2].x / float(m_window->getWidth()), jitters[m_frame % 2].y / float(m_window->getHeight()), 0.0f))
 		: glm::mat4();
 
 	if (!freeze)
 	{
 		renderData = {};
-		renderData.frustum = _camera->getFrustum();
-		renderData.invJitter = glm::inverse(jitterMatrix);
-		renderData.prevInvJitter = prevInvJitter;
-		renderData.projectionMatrix = jitterMatrix * window->getProjectionMatrix();
-		renderData.invProjectionMatrix = glm::inverse(renderData.projectionMatrix);
-		renderData.viewMatrix = _camera->getViewMatrix();
-		renderData.invViewMatrix = glm::inverse(renderData.viewMatrix);
-		renderData.viewProjectionMatrix = renderData.projectionMatrix * renderData.viewMatrix;
-		renderData.invViewProjectionMatrix = glm::inverse(renderData.viewProjectionMatrix);
-		renderData.prevViewProjectionMatrix = prevViewProjectionMatrix;
-		renderData.resolution = std::make_pair(window->getWidth(), window->getHeight());
-		renderData.shadows = _effects.shadowQuality != ShadowQuality::OFF;
-		renderData.time = (float)Engine::getTime();
-		renderData.cameraPosition = _camera->getPosition();
-		renderData.viewDirection = _camera->getForwardDirection();
-		renderData.fov = window->getFieldOfView();
-		renderData.nearPlane = Window::NEAR_PLANE;
-		renderData.farPlane = Window::FAR_PLANE;
-		renderData.frame = frame;
-		renderData.bake = false;
+		renderData.m_frustum = _camera->getFrustum();
+		renderData.m_invJitter = glm::inverse(jitterMatrix);
+		renderData.m_prevInvJitter = prevInvJitter;
+		renderData.m_projectionMatrix = jitterMatrix * m_window->getProjectionMatrix();
+		renderData.m_invProjectionMatrix = glm::inverse(renderData.m_projectionMatrix);
+		renderData.m_viewMatrix = _camera->getViewMatrix();
+		renderData.m_invViewMatrix = glm::inverse(renderData.m_viewMatrix);
+		renderData.m_viewProjectionMatrix = renderData.m_projectionMatrix * renderData.m_viewMatrix;
+		renderData.m_invViewProjectionMatrix = glm::inverse(renderData.m_viewProjectionMatrix);
+		renderData.m_prevViewProjectionMatrix = prevViewProjectionMatrix;
+		renderData.m_resolution = std::make_pair(m_window->getWidth(), m_window->getHeight());
+		renderData.m_shadows = _effects.m_shadowQuality != ShadowQuality::OFF;
+		renderData.m_time = (float)Engine::getTime();
+		renderData.m_cameraPosition = _camera->getPosition();
+		renderData.m_viewDirection = _camera->getForwardDirection();
+		renderData.m_fov = m_window->getFieldOfView();
+		renderData.m_nearPlane = Window::NEAR_PLANE;
+		renderData.m_farPlane = Window::FAR_PLANE;
+		renderData.m_frame = m_frame;
+		renderData.m_bake = false;
 
-		invViewMat = renderData.invViewMatrix;
+		invViewMat = renderData.m_invViewMatrix;
 
-		prevViewProjectionMatrix = renderData.viewProjectionMatrix;
-		prevInvJitter = renderData.invJitter;
+		prevViewProjectionMatrix = renderData.m_viewProjectionMatrix;
+		prevInvJitter = renderData.m_invJitter;
 	}
 	
 
-	renderer.render(renderData, _scene, _level, _effects, false, debugDraw);
+	m_renderer.render(renderData, _scene, _level, _effects, false, debugDraw);
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, debugFbo);
 	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, postProcessRenderer.getFinishedTexture(), 0);
@@ -159,28 +159,28 @@ void GraphicsFramework::bake(const Scene &_scene, const std::shared_ptr<Level> &
 {
 	RenderData renderData = {};
 
-	renderData.projectionMatrix = glm::perspective(glm::radians(90.0f), 1.0f, Window::NEAR_PLANE, Window::FAR_PLANE);
-	renderData.invProjectionMatrix = glm::inverse(renderData.projectionMatrix);
-	renderData.resolution = std::make_pair(ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
-	renderData.shadows = true;
-	renderData.time = (float)Engine::getTime();
-	renderData.frame = 1;
-	renderData.fov = 90.0f;
-	renderData.bake = true;
+	renderData.m_projectionMatrix = glm::perspective(glm::radians(90.0f), 1.0f, Window::NEAR_PLANE, Window::FAR_PLANE);
+	renderData.m_invProjectionMatrix = glm::inverse(renderData.m_projectionMatrix);
+	renderData.m_resolution = std::make_pair(ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
+	renderData.m_shadows = true;
+	renderData.m_time = (float)Engine::getTime();
+	renderData.m_frame = 1;
+	renderData.m_fov = 90.0f;
+	renderData.m_bake = true;
 
 	Effects effects = {};
-	effects.ambientOcclusion = AmbientOcclusion::HBAO;
-	effects.shadowQuality = ShadowQuality::NORMAL;
-	effects.diffuseAmbientSource = DiffuseAmbientSource::IRRADIANCE_VOLUMES;
+	effects.m_ambientOcclusion = AmbientOcclusion::HBAO;
+	effects.m_shadowQuality = ShadowQuality::NORMAL;
+	effects.m_diffuseAmbientSource = DiffuseAmbientSource::IRRADIANCE_VOLUMES;
 
-	renderer.resize(ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
+	m_renderer.resize(ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
 
 	for (unsigned int bounce = 0; bounce < _bounces; ++bounce)
 	{
 		if (_reflections)
 		{
 			// bake reflections
-			for (std::shared_ptr<EnvironmentProbe> environmentProbe : _level->environment.environmentProbes)
+			for (std::shared_ptr<EnvironmentProbe> environmentProbe : _level->m_environment.m_environmentProbes)
 			{
 				glm::vec3 position = environmentProbe->getPosition();
 				glm::mat4 viewMatrices[] =
@@ -194,30 +194,30 @@ void GraphicsFramework::bake(const Scene &_scene, const std::shared_ptr<Level> &
 				};
 
 
-				renderData.cameraPosition = position;
+				renderData.m_cameraPosition = position;
 
 				for (unsigned int i = 0; i < 6; ++i)
 				{
-					renderData.viewMatrix = viewMatrices[i];
-					renderData.invViewMatrix = glm::inverse(renderData.viewMatrix);
-					renderData.viewProjectionMatrix = renderData.projectionMatrix * renderData.viewMatrix;
-					renderData.prevViewProjectionMatrix = renderData.viewProjectionMatrix;
-					renderData.invViewProjectionMatrix = glm::inverse(renderData.viewProjectionMatrix);
-					renderData.viewDirection = -glm::transpose(renderData.viewMatrix)[2];
-					renderData.frustum.update(renderData.viewProjectionMatrix);
+					renderData.m_viewMatrix = viewMatrices[i];
+					renderData.m_invViewMatrix = glm::inverse(renderData.m_viewMatrix);
+					renderData.m_viewProjectionMatrix = renderData.m_projectionMatrix * renderData.m_viewMatrix;
+					renderData.m_prevViewProjectionMatrix = renderData.m_viewProjectionMatrix;
+					renderData.m_invViewProjectionMatrix = glm::inverse(renderData.m_viewProjectionMatrix);
+					renderData.m_viewDirection = -glm::transpose(renderData.m_viewMatrix)[2];
+					renderData.m_frustum.update(renderData.m_viewProjectionMatrix);
 
-					renderer.render(renderData, _scene, _level, effects, true);
-					environmentRenderer.updateCubeSide(i, renderer.getColorTexture());
+					m_renderer.render(renderData, _scene, _level, effects, true);
+					m_environmentRenderer.updateCubeSide(i, m_renderer.getColorTexture());
 				}
-				environmentRenderer.generateMipmaps();
-				environmentRenderer.calculateReflectance(environmentProbe);
+				m_environmentRenderer.generateMipmaps();
+				m_environmentRenderer.calculateReflectance(environmentProbe);
 				//environmentRenderer.calculateIrradiance(environmentProbe);
 			}
 		}
 		
 
 		// bake irradiance volume
-		std::shared_ptr<IrradianceVolume> volume = _level->environment.irradianceVolume;
+		std::shared_ptr<IrradianceVolume> volume = _level->m_environment.m_irradianceVolume;
 		if (_irradianceVolume && volume)
 		{
 			glm::ivec3 dims = volume->getDimensions();
@@ -241,21 +241,21 @@ void GraphicsFramework::bake(const Scene &_scene, const std::shared_ptr<Level> &
 							glm::lookAt(position, position + glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 						};
 
-						renderData.cameraPosition = position;
+						renderData.m_cameraPosition = position;
 						for (unsigned int i = 0; i < 6; ++i)
 						{
-							renderData.viewMatrix = viewMatrices[i];
-							renderData.invViewMatrix = glm::inverse(renderData.viewMatrix);
-							renderData.viewProjectionMatrix = renderData.projectionMatrix * renderData.viewMatrix;
-							renderData.prevViewProjectionMatrix = renderData.viewProjectionMatrix;
-							renderData.invViewProjectionMatrix = glm::inverse(renderData.viewProjectionMatrix);
-							renderData.viewDirection = -glm::transpose(renderData.viewMatrix)[2];
-							renderData.frustum.update(renderData.viewProjectionMatrix);
+							renderData.m_viewMatrix = viewMatrices[i];
+							renderData.m_invViewMatrix = glm::inverse(renderData.m_viewMatrix);
+							renderData.m_viewProjectionMatrix = renderData.m_projectionMatrix * renderData.m_viewMatrix;
+							renderData.m_prevViewProjectionMatrix = renderData.m_viewProjectionMatrix;
+							renderData.m_invViewProjectionMatrix = glm::inverse(renderData.m_viewProjectionMatrix);
+							renderData.m_viewDirection = -glm::transpose(renderData.m_viewMatrix)[2];
+							renderData.m_frustum.update(renderData.m_viewProjectionMatrix);
 
-							renderer.render(renderData, _scene, _level, effects, true);
-							environmentRenderer.updateCubeSide(i, renderer.getColorTexture());
+							m_renderer.render(renderData, _scene, _level, effects, true);
+							m_environmentRenderer.updateCubeSide(i, m_renderer.getColorTexture());
 						}
-						environmentRenderer.calculateIrradiance(volume, glm::ivec3(x, y, z));
+						m_environmentRenderer.calculateIrradiance(volume, glm::ivec3(x, y, z));
 					}
 				}
 			}
@@ -263,12 +263,12 @@ void GraphicsFramework::bake(const Scene &_scene, const std::shared_ptr<Level> &
 		}
 	}
 
-	renderer.resize(window->getWidth(), window->getHeight());
+	m_renderer.resize(m_window->getWidth(), m_window->getHeight());
 }
 
 std::shared_ptr<Texture> GraphicsFramework::render(const AtmosphereParams &_params)
 {
-	return environmentRenderer.calculateAtmosphere(_params);
+	return m_environmentRenderer.calculateAtmosphere(_params);
 }
 
 void save2DTextureToFile(GLuint _texture, unsigned int _width, unsigned int _height)
@@ -294,63 +294,63 @@ void GraphicsFramework::blitToScreen()
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glDrawBuffer(GL_BACK);
 
-	blitShader->bind();
-	blitShader->setUniform(uScreenTextureBlit, 0);
+	m_blitShader->bind();
+	m_blitShader->setUniform(m_uScreenTexture, 0);
 
 	GLuint texture = 0;
 
 	switch (displayMode)
 	{
 	case GBufferDisplayMode::SHADED:
-		texture = renderer.getFinishedTexture();
-		blitShader->setUniform(uScaleBlit, 1.0f);
-		blitShader->setUniform(uRedToWhiteBlit, false);
-		blitShader->setUniform(uNormalModeBlit, false);
-		blitShader->setUniform(uPowerBlit, false);
+		texture = m_renderer.getFinishedTexture();
+		m_blitShader->setUniform(m_uScale, 1.0f);
+		m_blitShader->setUniform(m_uRedToWhite, false);
+		m_blitShader->setUniform(m_uNormalMode, false);
+		m_blitShader->setUniform(m_uPower, false);
 		break;
 	case GBufferDisplayMode::ALBEDO:
-		texture = renderer.getAlbedoTexture();
-		blitShader->setUniform(uScaleBlit, 1.0f);
-		blitShader->setUniform(uRedToWhiteBlit, false);
-		blitShader->setUniform(uNormalModeBlit, false);
-		blitShader->setUniform(uPowerBlit, false);
+		texture = m_renderer.getAlbedoTexture();
+		m_blitShader->setUniform(m_uScale, 1.0f);
+		m_blitShader->setUniform(m_uRedToWhite, false);
+		m_blitShader->setUniform(m_uNormalMode, false);
+		m_blitShader->setUniform(m_uPower, false);
 		break;
 	case GBufferDisplayMode::NORMAL:
-		texture = renderer.getNormalTexture();
-		blitShader->setUniform(uScaleBlit, 1.0f);
-		blitShader->setUniform(uRedToWhiteBlit, false);
-		blitShader->setUniform(uNormalModeBlit, true);
-		blitShader->setUniform(uInvViewMatrixBlit, invViewMat);
-		blitShader->setUniform(uPowerBlit, false);
+		texture = m_renderer.getNormalTexture();
+		m_blitShader->setUniform(m_uScale, 1.0f);
+		m_blitShader->setUniform(m_uRedToWhite, false);
+		m_blitShader->setUniform(m_uNormalMode, true);
+		m_blitShader->setUniform(m_uInvViewMatrix, invViewMat);
+		m_blitShader->setUniform(m_uPower, false);
 		break;
 	case GBufferDisplayMode::MATERIAL:
-		texture = renderer.getMaterialTexture();
-		blitShader->setUniform(uScaleBlit, 1.0f);
-		blitShader->setUniform(uRedToWhiteBlit, false);
-		blitShader->setUniform(uNormalModeBlit, false);
-		blitShader->setUniform(uPowerBlit, false);
+		texture = m_renderer.getMaterialTexture();
+		m_blitShader->setUniform(m_uScale, 1.0f);
+		m_blitShader->setUniform(m_uRedToWhite, false);
+		m_blitShader->setUniform(m_uNormalMode, false);
+		m_blitShader->setUniform(m_uPower, false);
 		break;
 	case GBufferDisplayMode::DEPTH:
-		texture = renderer.getDepthStencilTexture();
-		blitShader->setUniform(uScaleBlit, 1.0f);
-		blitShader->setUniform(uRedToWhiteBlit, true);
-		blitShader->setUniform(uNormalModeBlit, false);
-		blitShader->setUniform(uPowerBlit, true);
-		blitShader->setUniform(uPowerValueBlit, 30.0f);
+		texture = m_renderer.getDepthStencilTexture();
+		m_blitShader->setUniform(m_uScale, 1.0f);
+		m_blitShader->setUniform(m_uRedToWhite, true);
+		m_blitShader->setUniform(m_uNormalMode, false);
+		m_blitShader->setUniform(m_uPower, true);
+		m_blitShader->setUniform(m_uPowerValue, 30.0f);
 		break;
 	case GBufferDisplayMode::VELOCITY:
-		texture = renderer.getVelocityTexture();
-		blitShader->setUniform(uScaleBlit, 10.0f);
-		blitShader->setUniform(uRedToWhiteBlit, false);
-		blitShader->setUniform(uNormalModeBlit, false);
-		blitShader->setUniform(uPowerBlit, false);
+		texture = m_renderer.getVelocityTexture();
+		m_blitShader->setUniform(m_uScale, 10.0f);
+		m_blitShader->setUniform(m_uRedToWhite, false);
+		m_blitShader->setUniform(m_uNormalMode, false);
+		m_blitShader->setUniform(m_uPower, false);
 		break;
 	case GBufferDisplayMode::AMBIENT_OCCLUSION:
-		texture = renderer.getAmbientOcclusionTexture();
-		blitShader->setUniform(uScaleBlit, 1.0f);
-		blitShader->setUniform(uRedToWhiteBlit, true);
-		blitShader->setUniform(uNormalModeBlit, false);
-		blitShader->setUniform(uPowerBlit, false);
+		texture = m_renderer.getAmbientOcclusionTexture();
+		m_blitShader->setUniform(m_uScale, 1.0f);
+		m_blitShader->setUniform(m_uRedToWhite, true);
+		m_blitShader->setUniform(m_uNormalMode, false);
+		m_blitShader->setUniform(m_uPower, false);
 		break;
 	default:
 		break;
@@ -362,8 +362,8 @@ void GraphicsFramework::blitToScreen()
 
 
 	// draw to back buffer
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
-	fullscreenTriangle->getSubMesh()->render();
+	m_fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	m_fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	static double lastPressed = Engine::getTime();
@@ -371,16 +371,16 @@ void GraphicsFramework::blitToScreen()
 	if (UserInput::getInstance().isKeyPressed(InputKey::F11) && Engine::getTime() - lastPressed > 0.5)
 	{
 		lastPressed = Engine::getTime();
-		save2DTextureToFile(renderer.getFinishedTexture(), window->getWidth(), window->getHeight());
+		save2DTextureToFile(m_renderer.getFinishedTexture(), m_window->getWidth(), m_window->getHeight());
 	}
 }
 
 GLuint GraphicsFramework::getFinishedFrameTexture()
 {
-	return renderer.getFinishedTexture();
+	return m_renderer.getFinishedTexture();
 }
 
 void GraphicsFramework::onResize(unsigned int _width, unsigned int _height)
 {
-	renderer.resize(_width, _height);
+	m_renderer.resize(_width, _height);
 }

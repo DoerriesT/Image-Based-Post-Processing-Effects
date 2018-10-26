@@ -16,11 +16,11 @@ public:
 	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> directionalLightShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_directionalLightShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	UniformDirectionalLight uDirectionalLightD = UniformDirectionalLight("uDirectionalLight");
-	Uniform<glm::mat4> uInverseViewD = Uniform<glm::mat4>("uInverseView");
-	Uniform<glm::mat4> uInverseProjectionD = Uniform<glm::mat4>("uInverseProjection");
-	Uniform<GLboolean> uShadowsEnabledD = Uniform<GLboolean>("uShadowsEnabled");
+	UniformDirectionalLight m_uDirectionalLight = UniformDirectionalLight("uDirectionalLight");
+	Uniform<glm::mat4> m_uInverseView = Uniform<glm::mat4>("uInverseView");
+	Uniform<glm::mat4> m_uInverseProjection = Uniform<glm::mat4>("uInverseProjection");
+	Uniform<GLboolean> m_uShadowsEnabled = Uniform<GLboolean>("uShadowsEnabled");
 };

@@ -14,10 +14,10 @@ public:
 	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> lightProbeShader;
-	std::shared_ptr<Mesh> sphereMesh;
+	std::shared_ptr<ShaderProgram> m_lightProbeShader;
+	std::shared_ptr<Mesh> m_sphereMesh;
 
-	Uniform<glm::mat4> uModelViewProjectionMatrix = Uniform<glm::mat4>("uModelViewProjectionMatrix");
-	Uniform<GLboolean> uSH = Uniform<GLboolean>("uSH");
-	Uniform<GLint> uIndex = Uniform<GLint>("uIndex");
+	Uniform<glm::mat4> m_uModelViewProjectionMatrix = Uniform<glm::mat4>("uModelViewProjectionMatrix");
+	Uniform<GLboolean> m_uSH = Uniform<GLboolean>("uSH");
+	Uniform<GLint> m_uIndex = Uniform<GLint>("uIndex");
 };

@@ -12,34 +12,34 @@ SoundFramework::SoundFramework()
 
 void SoundFramework::addSoundSource(const Entity *_entity, const glm::vec3 *_position, const float *_volume, const float *_soundTypeVolume, bool _looping, bool _relative)
 {
-	if (soundSourceMap.find(_entity) != soundSourceMap.end())
+	if (m_soundSourceMap.find(_entity) != m_soundSourceMap.end())
 	{
-		ContainerUtility::remove(soundSourceMap, _entity);
+		ContainerUtility::remove(m_soundSourceMap, _entity);
 	}
-	soundSourceMap.emplace(_entity, SoundSource::createSoundSource(_position, _volume, _soundTypeVolume, _looping, _relative));
+	m_soundSourceMap.emplace(_entity, SoundSource::createSoundSource(_position, _volume, _soundTypeVolume, _looping, _relative));
 }
 
 SoundFramework::~SoundFramework()
 {
-	if (context)
+	if (m_context)
 	{
-		alcDestroyContext(context);
+		alcDestroyContext(m_context);
 	}
-	if (device)
+	if (m_device)
 	{
-		alcCloseDevice(device);
+		alcCloseDevice(m_device);
 	}
 }
 
 void SoundFramework::init()
 {
-	device = alcOpenDevice(nullptr);
-	if (!device)
+	m_device = alcOpenDevice(nullptr);
+	if (!m_device)
 	{
 		std::cout << "Failed to open the default OpenAL device." << std::endl;
 	}
-	context = alcCreateContext(device, nullptr);
-	alcMakeContextCurrent(context);
+	m_context = alcCreateContext(m_device, nullptr);
+	alcMakeContextCurrent(m_context);
 
 	alGetError(); // clear error code
 
@@ -54,17 +54,17 @@ void SoundFramework::addSound(const Entity *_entity, const std::string &_file, c
 	{
 	case SoundType::MUSIC:
 	{
-		addSoundSource(_entity, _position, _volume, &musicVolume, _looping, _relative);
+		addSoundSource(_entity, _position, _volume, &m_musicVolume, _looping, _relative);
 		break;
 	}
 	case SoundType::EFFECT:
 	{
-		addSoundSource(_entity, _position, _volume, &effectVolume, _looping, _relative);
+		addSoundSource(_entity, _position, _volume, &m_effectVolume, _looping, _relative);
 		break;
 	}
 	case SoundType::UI:
 	{
-		addSoundSource(_entity, _position, _volume, &uiVolume, _looping, _relative);
+		addSoundSource(_entity, _position, _volume, &m_uiVolume, _looping, _relative);
 		break;
 	}
 	default:
@@ -73,13 +73,13 @@ void SoundFramework::addSound(const Entity *_entity, const std::string &_file, c
 	}
 	}
 
-	std::shared_ptr<SoundSource> soundSource = soundSourceMap[_entity];
+	std::shared_ptr<SoundSource> soundSource = m_soundSourceMap[_entity];
 	soundSource->setBuffer(SoundBuffer::createSoundBuffer(_file, _loadInstantly));
 
-	entitySoundTypeMap.emplace(_entity, _soundType);
+	m_entitySoundTypeMap.emplace(_entity, _soundType);
 	if (_paused)
 	{
-		pausedEntities.emplace(_entity);
+		m_pausedEntities.emplace(_entity);
 		soundSource->pause();
 	}
 	else
@@ -90,24 +90,24 @@ void SoundFramework::addSound(const Entity *_entity, const std::string &_file, c
 
 void SoundFramework::removeSound(const Entity *_entity)
 {
-	assert(soundSourceMap.find(_entity) != soundSourceMap.end());
-	std::shared_ptr<SoundSource> soundSource = soundSourceMap[_entity];
+	assert(m_soundSourceMap.find(_entity) != m_soundSourceMap.end());
+	std::shared_ptr<SoundSource> soundSource = m_soundSourceMap[_entity];
 	soundSource->stop();
 	soundSource.reset();
-	entitySoundTypeMap.erase(_entity);
-	soundSourceMap.erase(_entity);
+	m_entitySoundTypeMap.erase(_entity);
+	m_soundSourceMap.erase(_entity);
 }
 
 std::vector<const Entity*> SoundFramework::update(const std::shared_ptr<Camera> &_camera)
 {
-	soundListener.setOrientation(_camera->getForwardDirection(), _camera->getUpDirection());
-	soundListener.setPosition(_camera->getPosition());
+	m_soundListener.setOrientation(_camera->getForwardDirection(), _camera->getUpDirection());
+	m_soundListener.setPosition(_camera->getPosition());
 	
 	std::vector<const Entity *> readyToRemove;
-	for(auto iter = soundSourceMap.begin(); iter != soundSourceMap.end(); ++iter)
+	for(auto iter = m_soundSourceMap.begin(); iter != m_soundSourceMap.end(); ++iter)
 	{
 		std::shared_ptr<SoundSource> soundSource = iter->second;
-		if (!soundSource->isPlaying() && !soundSource->isWaiting() && pausedEntities.find(iter->first) == pausedEntities.end())
+		if (!soundSource->isPlaying() && !soundSource->isWaiting() && m_pausedEntities.find(iter->first) == m_pausedEntities.end())
 		{
 			readyToRemove.push_back(iter->first);
 			continue;
@@ -116,8 +116,8 @@ std::vector<const Entity*> SoundFramework::update(const std::shared_ptr<Camera> 
 	}
 	for (const Entity *entity : readyToRemove)
 	{
-		soundSourceMap.erase(entity);
-		entitySoundTypeMap.erase(entity);
+		m_soundSourceMap.erase(entity);
+		m_entitySoundTypeMap.erase(entity);
 	}
 
 #ifdef _DEBUG
@@ -130,16 +130,16 @@ std::vector<const Entity*> SoundFramework::update(const std::shared_ptr<Camera> 
 
 void SoundFramework::setPaused(const Entity *_entity, bool _paused)
 {
-	assert(soundSourceMap.find(_entity) != soundSourceMap.end());
-	std::shared_ptr<SoundSource> soundSource = soundSourceMap[_entity];
+	assert(m_soundSourceMap.find(_entity) != m_soundSourceMap.end());
+	std::shared_ptr<SoundSource> soundSource = m_soundSourceMap[_entity];
 	if (_paused && soundSource->isPlaying())
 	{
-		pausedEntities.emplace(_entity);
+		m_pausedEntities.emplace(_entity);
 		soundSource->pause();
 	}
 	else if (!_paused && !soundSource->isPlaying())
 	{
-		pausedEntities.erase(_entity);
+		m_pausedEntities.erase(_entity);
 		soundSource->play();
 	}
 }
@@ -150,17 +150,17 @@ void SoundFramework::setVolume(const SoundType &_soundType, float _volume)
 	{
 	case SoundType::MUSIC:
 	{
-		musicVolume = _volume;
+		m_musicVolume = _volume;
 		break;
 	}
 	case SoundType::EFFECT:
 	{
-		effectVolume = _volume;
+		m_effectVolume = _volume;
 		break;
 	}
 	case SoundType::UI:
 	{
-		uiVolume = _volume;
+		m_uiVolume = _volume;
 		break;
 	}
 	default:
@@ -172,7 +172,7 @@ void SoundFramework::setVolume(const SoundType &_soundType, float _volume)
 
 void SoundFramework::setMasterVolume(float _volume)
 {
-	soundListener.setGain(_volume);
+	m_soundListener.setGain(_volume);
 }
 
 void SoundFramework::setAttenuationModel(int _model)

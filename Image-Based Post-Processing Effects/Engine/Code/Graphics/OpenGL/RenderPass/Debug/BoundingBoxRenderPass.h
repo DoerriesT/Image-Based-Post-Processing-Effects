@@ -16,10 +16,10 @@ public:
 	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Scene &_scene, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> boundingBoxShader;
+	std::shared_ptr<ShaderProgram> m_boundingBoxShader;
 	std::shared_ptr<Mesh> boxMesh;
 
-	Uniform<glm::mat4> uModelViewProjectionMatrix = Uniform<glm::mat4>("uModelViewProjectionMatrix");
-	Uniform<glm::vec3> uColor = Uniform<glm::vec3>("uColor");
+	Uniform<glm::mat4> m_uModelViewProjectionMatrix = Uniform<glm::mat4>("uModelViewProjectionMatrix");
+	Uniform<glm::vec3> m_uColor = Uniform<glm::vec3>("uColor");
 
 };

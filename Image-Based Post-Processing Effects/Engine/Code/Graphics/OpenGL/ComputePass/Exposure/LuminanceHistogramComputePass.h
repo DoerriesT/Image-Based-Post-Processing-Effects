@@ -10,10 +10,10 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> histogramShader;
+	std::shared_ptr<ShaderProgram> m_histogramShader;
 
-	Uniform<glm::vec2> uParamsLH = Uniform<glm::vec2>("uParams"); // multiply / add
+	Uniform<glm::vec2> m_uParams = Uniform<glm::vec2>("uParams"); // multiply / add
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int m_width;
+	unsigned int m_height;
 };

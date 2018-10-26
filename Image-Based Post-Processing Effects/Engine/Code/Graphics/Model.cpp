@@ -36,14 +36,14 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 	size_t materialCount = static_cast<size_t>(std::stoi(str.substr(MATERIAL_COUNT_STRING.size())));
 
 	// reserve space
-	submeshMaterialPairs.reserve(materialCount);
+	m_submeshMaterialPairs.reserve(materialCount);
 
 	// mesh file
 	std::getline(matFile, str);
 	assert(!str.empty());
 	std::string meshFilepath = str.substr(MESH_FILE_STRING.size());
 
-	mesh = Mesh::createMesh("Resources/Models/" + meshFilepath, materialCount, _instantLoading);
+	m_mesh = Mesh::createMesh("Resources/Models/" + meshFilepath, materialCount, _instantLoading);
 
 	// load materials
 	for (size_t i = 0; i < materialCount; ++i)
@@ -56,7 +56,7 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 		assert(!str.empty());
 		std::string name = str.substr(NAME_STRING.size());
 
-		nameToIndexMap[name] = i;
+		m_nameToIndexMap[name] = i;
 
 		// albedo
 		std::getline(matFile, str);
@@ -156,38 +156,38 @@ Model::Model(const std::string &_filepath, bool _instantLoading)
 			material.setDisplacementMap(Texture::createTexture(displacementPath, _instantLoading));
 		}
 
-		submeshMaterialPairs.push_back({ mesh->getSubMesh(i), material });
+		m_submeshMaterialPairs.push_back({ m_mesh->getSubMesh(i), material });
 		if (material.getAlbedo().a != 1.0 && !material.getAlbedoMap())
 		{
-			transparentSubmeshes.push_back(mesh->getSubMesh(i));
+			m_transparentSubmeshes.push_back(m_mesh->getSubMesh(i));
 		}
 	}
 }
 
 std::pair<std::shared_ptr<SubMesh>, Material> &Model::operator[](std::size_t _index)
 {
-	assert(_index < submeshMaterialPairs.size());
-	return submeshMaterialPairs[_index];
+	assert(_index < m_submeshMaterialPairs.size());
+	return m_submeshMaterialPairs[_index];
 }
 
 std::pair<std::shared_ptr<SubMesh>, Material> &Model::operator[](const std::string &_name)
 {
-	assert(ContainerUtility::contains(nameToIndexMap, _name));
-	assert(nameToIndexMap[_name] < submeshMaterialPairs.size());
-	return submeshMaterialPairs[nameToIndexMap[_name]];
+	assert(ContainerUtility::contains(m_nameToIndexMap, _name));
+	assert(m_nameToIndexMap[_name] < m_submeshMaterialPairs.size());
+	return m_submeshMaterialPairs[m_nameToIndexMap[_name]];
 }
 
 std::size_t Model::size() const
 {
-	return submeshMaterialPairs.size();
+	return m_submeshMaterialPairs.size();
 }
 
 bool Model::isValid() const
 {
-	return mesh->isValid();
+	return m_mesh->isValid();
 }
 
 const std::vector<std::shared_ptr<SubMesh>>& Model::getTransparentSubmeshes()
 {
-	return transparentSubmeshes;
+	return m_transparentSubmeshes;
 }

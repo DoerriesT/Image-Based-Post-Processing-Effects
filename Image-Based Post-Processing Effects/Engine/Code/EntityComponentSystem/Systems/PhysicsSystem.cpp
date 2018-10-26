@@ -8,7 +8,7 @@ class MotionState : public btMotionState
 {
 public:
 	explicit MotionState(TransformationComponent *_tc)
-		:tc(_tc)
+		:m_tc(_tc)
 	{
 
 	}
@@ -16,56 +16,56 @@ public:
 	void setWorldTransform(const btTransform &_worldTrans) override
 	{
 		const btVector3 &origin = _worldTrans.getOrigin();
-		tc->position.x = origin.getX();
-		tc->position.y = origin.getY();
-		tc->position.z = origin.getZ();
+		m_tc->m_position.x = origin.getX();
+		m_tc->m_position.y = origin.getY();
+		m_tc->m_position.z = origin.getZ();
 
 		btQuaternion rotation = _worldTrans.getRotation();
-		tc->rotation.x = rotation.getX();
-		tc->rotation.y = rotation.getY();
-		tc->rotation.z = rotation.getZ();
-		tc->rotation.w = rotation.getW();
+		m_tc->m_rotation.x = rotation.getX();
+		m_tc->m_rotation.y = rotation.getY();
+		m_tc->m_rotation.z = rotation.getZ();
+		m_tc->m_rotation.w = rotation.getW();
 	}
 
 	void getWorldTransform(btTransform &_worldTrans) const override
 	{
 		btVector3 &origin = _worldTrans.getOrigin();
-		origin.setX(tc->position.x);
-		origin.setY(tc->position.y);
-		origin.setZ(tc->position.z);
+		origin.setX(m_tc->m_position.x);
+		origin.setY(m_tc->m_position.y);
+		origin.setZ(m_tc->m_position.z);
 
-		btQuaternion rotation(tc->rotation.x, tc->rotation.y, tc->rotation.z, tc->rotation.w);
+		btQuaternion rotation(m_tc->m_rotation.x, m_tc->m_rotation.y, m_tc->m_rotation.z, m_tc->m_rotation.w);
 
 		_worldTrans.setRotation(rotation);
 	}
 
 private:
-	TransformationComponent *tc;
+	TransformationComponent *m_tc;
 
 };
 
 PhysicsSystem::PhysicsSystem()
-	:entityManager(EntityManager::getInstance())
+	:m_entityManager(EntityManager::getInstance())
 {
-	validBitMaps.push_back(Component<PhysicsComponent>::getTypeId() | Component<TransformationComponent>::getTypeId() | Component<ModelComponent>::getTypeId());
+	m_validBitMaps.push_back(Component<PhysicsComponent>::getTypeId() | Component<TransformationComponent>::getTypeId() | Component<ModelComponent>::getTypeId());
 }
 
 void PhysicsSystem::init()
 {
-	entityManager.addOnComponentAddedListener(this);
-	entityManager.addOnComponentRemovedListener(this);
-	entityManager.addOnEntityDestructionListener(this);
+	m_entityManager.addOnComponentAddedListener(this);
+	m_entityManager.addOnComponentRemovedListener(this);
+	m_entityManager.addOnEntityDestructionListener(this);
 
-	broadphase = new btDbvtBroadphase();
+	m_broadphase = new btDbvtBroadphase();
 
-	collisionConfiguration = new btDefaultCollisionConfiguration();
-	dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
-	solver = new btSequentialImpulseConstraintSolver;
+	m_solver = new btSequentialImpulseConstraintSolver;
 
-	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 
-	dynamicsWorld->setGravity(btVector3(0, -9.8, 0));
+	m_dynamicsWorld->setGravity(btVector3(0, -9.8, 0));
 }
 
 void PhysicsSystem::input(double _currentTime, double _timeDelta)
@@ -75,35 +75,35 @@ void PhysicsSystem::input(double _currentTime, double _timeDelta)
 void PhysicsSystem::update(double _currentTime, double _timeDelta)
 {
 
-	for (const Entity *entity : entitiesToRemove)
+	for (const Entity *entity : m_entitiesToRemove)
 	{
-		ContainerUtility::remove(managedEntities, entity);
+		ContainerUtility::remove(m_managedEntities, entity);
 	}
-	entitiesToRemove.clear();
+	m_entitiesToRemove.clear();
 
-	for (const Entity *entity : entitiesToAdd)
+	for (const Entity *entity : m_entitiesToAdd)
 	{
-		managedEntities.push_back(entity);
+		m_managedEntities.push_back(entity);
 
-		PhysicsComponent *pc = entityManager.getComponent<PhysicsComponent>(entity);
-		ModelComponent *mc = entityManager.getComponent<ModelComponent>(entity);
-		TransformationComponent *tc = entityManager.getComponent<TransformationComponent>(entity);
+		PhysicsComponent *pc = m_entityManager.getComponent<PhysicsComponent>(entity);
+		ModelComponent *mc = m_entityManager.getComponent<ModelComponent>(entity);
+		TransformationComponent *tc = m_entityManager.getComponent<TransformationComponent>(entity);
 
-		pc->motionState = new MotionState(tc);
+		pc->m_motionState = new MotionState(tc);
 
-		if (pc->dynamic)
+		if (pc->m_dynamic)
 		{
-			if (pc->sphere)
+			if (pc->m_sphere)
 			{
-				pc->collisionShape = new btSphereShape(tc->scale.x);
+				pc->m_collisionShape = new btSphereShape(tc->m_scale.x);
 			}
 			else
 			{
 				btConvexHullShape *hull = new btConvexHullShape();
 
-				for (std::size_t i = 0; i < mc->model.size(); ++i)
+				for (std::size_t i = 0; i < mc->m_model.size(); ++i)
 				{
-					const std::vector<glm::vec3> &vertices = mc->model[i].first->getVertices();
+					const std::vector<glm::vec3> &vertices = mc->m_model[i].first->getVertices();
 
 					for (std::size_t j = 0; j < vertices.size(); ++j)
 					{
@@ -112,7 +112,7 @@ void PhysicsSystem::update(double _currentTime, double _timeDelta)
 					}
 				}
 				hull->recalcLocalAabb();
-				pc->collisionShape = hull;
+				pc->m_collisionShape = hull;
 			}
 
 		}
@@ -120,10 +120,10 @@ void PhysicsSystem::update(double _currentTime, double _timeDelta)
 		{
 			btTriangleIndexVertexArray *triArr = new btTriangleIndexVertexArray();
 
-			for (std::size_t i = 0; i < mc->model.size(); ++i)
+			for (std::size_t i = 0; i < mc->m_model.size(); ++i)
 			{
-				const std::vector<glm::vec3> &vertices = mc->model[i].first->getVertices();
-				const std::vector<std::uint32_t> &indices = mc->model[i].first->getIndices();
+				const std::vector<glm::vec3> &vertices = mc->m_model[i].first->getVertices();
+				const std::vector<std::uint32_t> &indices = mc->m_model[i].first->getIndices();
 
 				btIndexedMesh indexedMesh;
 				indexedMesh.m_numTriangles = static_cast<int>(indices.size()) / 3;
@@ -138,28 +138,28 @@ void PhysicsSystem::update(double _currentTime, double _timeDelta)
 
 
 			btBvhTriangleMeshShape *triShape = new btBvhTriangleMeshShape(triArr, false);
-			pc->collisionShape = new btScaledBvhTriangleMeshShape(triShape, btVector3(tc->scale.x, tc->scale.y, tc->scale.z));
+			pc->m_collisionShape = new btScaledBvhTriangleMeshShape(triShape, btVector3(tc->m_scale.x, tc->m_scale.y, tc->m_scale.z));
 		}
 
 
-		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(pc->dynamic ? pc->mass : 0.0f, pc->motionState, pc->collisionShape);
+		btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo(pc->m_dynamic ? pc->m_mass : 0.0f, pc->m_motionState, pc->m_collisionShape);
 		btRigidBody *rigidBody = new btRigidBody(rigidBodyInfo);
-		rigidBody->setRestitution(pc->restitution);
+		rigidBody->setRestitution(pc->m_restitution);
 		rigidBody->setFriction(0.1f);
 
-		if (pc->kinematic)
+		if (pc->m_kinematic)
 		{
 			rigidBody->setCollisionFlags(rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
 			rigidBody->setActivationState(DISABLE_DEACTIVATION);
 		}
 
-		pc->rigidBody = rigidBody;
+		pc->m_rigidBody = rigidBody;
 
-		dynamicsWorld->addRigidBody(rigidBody);
+		m_dynamicsWorld->addRigidBody(rigidBody);
 	}
-	entitiesToAdd.clear();
+	m_entitiesToAdd.clear();
 
-	dynamicsWorld->stepSimulation(_timeDelta);
+	m_dynamicsWorld->stepSimulation(_timeDelta);
 }
 
 void PhysicsSystem::render()
@@ -168,34 +168,34 @@ void PhysicsSystem::render()
 
 void PhysicsSystem::onComponentAdded(const Entity *_entity, BaseComponent *_addedComponent)
 {
-	if (validate(entityManager.getComponentBitField(_entity)) && !ContainerUtility::contains(entitiesToAdd, _entity))
+	if (validate(m_entityManager.getComponentBitField(_entity)) && !ContainerUtility::contains(m_entitiesToAdd, _entity))
 	{
-		if (!ContainerUtility::contains(managedEntities, _entity) || ContainerUtility::contains(entitiesToRemove, _entity))
+		if (!ContainerUtility::contains(m_managedEntities, _entity) || ContainerUtility::contains(m_entitiesToRemove, _entity))
 		{
-			entitiesToAdd.push_back(_entity);
+			m_entitiesToAdd.push_back(_entity);
 		}
 	}
 }
 
 void PhysicsSystem::onComponentRemoved(const Entity *_entity, BaseComponent *_removedComponent)
 {
-	if (!validate(entityManager.getComponentBitField(_entity)) && ContainerUtility::contains(managedEntities, _entity))
+	if (!validate(m_entityManager.getComponentBitField(_entity)) && ContainerUtility::contains(m_managedEntities, _entity))
 	{
-		entitiesToRemove.push_back(_entity);
+		m_entitiesToRemove.push_back(_entity);
 	}
 }
 
 void PhysicsSystem::onDestruction(const Entity *_entity)
 {
-	if (ContainerUtility::contains(managedEntities, _entity))
+	if (ContainerUtility::contains(m_managedEntities, _entity))
 	{
-		entitiesToRemove.push_back(_entity);
+		m_entitiesToRemove.push_back(_entity);
 	}
 }
 
 bool PhysicsSystem::validate(std::uint64_t _bitMap)
 {
-	for (std::uint64_t configuration : validBitMaps)
+	for (std::uint64_t configuration : m_validBitMaps)
 	{
 		if ((configuration & _bitMap) == configuration)
 		{

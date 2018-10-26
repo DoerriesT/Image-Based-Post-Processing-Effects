@@ -160,7 +160,7 @@ namespace App
 
 		level = loadSponzaLevel();
 		SystemManager::getInstance().setLevel(level);
-		cameraController.setCamera(level->cameras[level->activeCameraIndex]);
+		cameraController.setCamera(level->m_cameras[level->m_activeCameraIndex]);
 		cameraController.setSmoothFactor(0.85f);
 
 		TwInit(TW_OPENGL_CORE, NULL); // for core profile
@@ -320,7 +320,7 @@ namespace App
 			TwAddVarRW(settingsTweakBar, "Show Light Probes", TW_TYPE_BOOLCPP, &renderLightProbes, nullptr);
 			TwAddVarRW(settingsTweakBar, "Irradiance Source", TW_TYPE_INT32, &irradianceSource, "min=0 max=2");
 			TwAddVarRW(settingsTweakBar, "Occlusion Amplifier", TW_TYPE_FLOAT, &occAmp, "min=0.0 max=100.0 step=0.1");
-			TwAddVarCB(settingsTweakBar, "Light Dir", TW_TYPE_FLOAT, SETTER_FUNC_PTR(lightDir), GETTER_FUNC_PTR(lightDir), &level->lights.directionalLights[0], "min=-1.0 max=1.0 step=0.01");
+			TwAddVarCB(settingsTweakBar, "Light Dir", TW_TYPE_FLOAT, SETTER_FUNC_PTR(lightDir), GETTER_FUNC_PTR(lightDir), &level->m_lights.m_directionalLights[0], "min=-1.0 max=1.0 step=0.01");
 
 			{
 				TwEnumVal displayOptions[] = {

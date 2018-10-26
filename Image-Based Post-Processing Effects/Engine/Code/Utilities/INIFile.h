@@ -26,8 +26,8 @@ public:
 	
 
 private:
-	std::string filename;
-	std::map<std::string, std::map<std::string, std::string>> dataMap;
+	std::string m_filename;
+	std::map<std::string, std::map<std::string, std::string>> m_dataMap;
 
 	void parse(const char *_parseText);
 	void put(const char *_section, const char *_key, const char *_value);

@@ -2,8 +2,8 @@
 #include ".\..\..\Utilities\Utility.h"
 #include "SoundBuffer.h"
 
-const glm::vec3 SoundSource::defaultPosition;
-const float SoundSource::defaultVolume = 1.0f;
+const glm::vec3 SoundSource::m_defaultPosition;
+const float SoundSource::m_defaultVolume = 1.0f;
 
 std::shared_ptr<SoundSource> SoundSource::createSoundSource(const glm::vec3 *_position, const float *_volume, const float *_soundTypeVolume, bool _looping, bool _relative)
 {
@@ -13,89 +13,89 @@ std::shared_ptr<SoundSource> SoundSource::createSoundSource(const glm::vec3 *_po
 SoundSource::~SoundSource()
 {
 	stop();
-	alDeleteSources(1, &sourceId);
+	alDeleteSources(1, &m_sourceId);
 }
 
 void SoundSource::play()
 {
-	alSourcePlay(sourceId);
+	alSourcePlay(m_sourceId);
 }
 
 void SoundSource::pause()
 {
-	alSourcePause(sourceId);
+	alSourcePause(m_sourceId);
 }
 
 void SoundSource::stop()
 {
-	alSourceStop(sourceId);
+	alSourceStop(m_sourceId);
 }
 
 void SoundSource::setBuffer(const std::shared_ptr<SoundBuffer> &_buffer)
 {
 	stop();
-	soundBuffer = _buffer;
-	if (soundBuffer && soundBuffer->isValid())
+	m_soundBuffer = _buffer;
+	if (m_soundBuffer && m_soundBuffer->isValid())
 	{
-		alSourcei(sourceId, AL_BUFFER, soundBuffer->getBufferId());
-		isBufferSet = true;
+		alSourcei(m_sourceId, AL_BUFFER, m_soundBuffer->getBufferId());
+		m_isBufferSet = true;
 	}
 	else
 	{
-		isBufferSet = false;
+		m_isBufferSet = false;
 	}
 }
 
 void SoundSource::setSpeed(const glm::vec3 &_speed)
 {
-	alSource3f(sourceId, AL_VELOCITY, _speed.x, _speed.y, _speed.z);
+	alSource3f(m_sourceId, AL_VELOCITY, _speed.x, _speed.y, _speed.z);
 }
 
 void SoundSource::setProperty(int _parameter, const ALfloat &_value)
 {
-	alSourcef(sourceId, _parameter, _value);
+	alSourcef(m_sourceId, _parameter, _value);
 }
 
 void SoundSource::update()
 {
-	if (!isBufferSet && soundBuffer && soundBuffer->isValid())
+	if (!m_isBufferSet && m_soundBuffer && m_soundBuffer->isValid())
 	{
-		alSourcei(sourceId, AL_BUFFER, soundBuffer->getBufferId());
-		isBufferSet = true;
+		alSourcei(m_sourceId, AL_BUFFER, m_soundBuffer->getBufferId());
+		m_isBufferSet = true;
 	}
-	alSource3f(sourceId, AL_POSITION, position->x, position->y, position->z);
-	alSourcef(sourceId, AL_GAIN, (soundTypeVolume ? *soundTypeVolume : defaultVolume) * (volume ? *volume : defaultVolume));;
+	alSource3f(m_sourceId, AL_POSITION, m_position->x, m_position->y, m_position->z);
+	alSourcef(m_sourceId, AL_GAIN, (m_soundTypeVolume ? *m_soundTypeVolume : m_defaultVolume) * (m_volume ? *m_volume : m_defaultVolume));;
 }
 
 bool SoundSource::isPlaying()
 {
 	ALint value;
-	alGetSourcei(sourceId, AL_SOURCE_STATE, &value); 
+	alGetSourcei(m_sourceId, AL_SOURCE_STATE, &value); 
 	return value == AL_PLAYING;
 }
 
 bool SoundSource::isWaiting()
 {
-	return !isBufferSet;
+	return !m_isBufferSet;
 }
 
 SoundSource::SoundSource(const glm::vec3 *_position, const float *_volume, const float *_soundTypeVolume, bool _looping, bool _relative)
-	:position(_position), volume(_volume), soundTypeVolume(_soundTypeVolume), soundBuffer(nullptr), isBufferSet(false)
+	:m_position(_position), m_volume(_volume), m_soundTypeVolume(_soundTypeVolume), m_soundBuffer(nullptr), m_isBufferSet(false)
 {
-	alGenSources(1, &sourceId);
+	alGenSources(1, &m_sourceId);
 
-	if (!position)
+	if (!m_position)
 	{
-		position = &defaultPosition;
+		m_position = &m_defaultPosition;
 	}
 
 	if (_looping)
 	{
-		alSourcei(sourceId, AL_LOOPING, AL_TRUE);
+		alSourcei(m_sourceId, AL_LOOPING, AL_TRUE);
 	}
 	if (_relative)
 	{
-		alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_TRUE);
+		alSourcei(m_sourceId, AL_SOURCE_RELATIVE, AL_TRUE);
 	}
 	update();
 }

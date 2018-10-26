@@ -15,23 +15,23 @@ public:
 	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, GLuint _displacementTexture, GLuint _normalTexture, TileRing **_tileRings, bool _wireframe, RenderPass ** _previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> oceanTesselationShader;
-	std::shared_ptr<Texture> perlinNoiseTexture;
+	std::shared_ptr<ShaderProgram> m_oceanTesselationShader;
+	std::shared_ptr<Texture> m_perlinNoiseTexture;
 
-	Uniform<glm::mat4> uViewProjectionWT = Uniform<glm::mat4>("uViewProjection");
-	Uniform<glm::mat4> uProjectionWT = Uniform<glm::mat4>("uProjection");
-	Uniform<glm::mat4> uViewWT = Uniform<glm::mat4>("uView");
-	Uniform<glm::vec3> uCamPosWT = Uniform<glm::vec3>("uCamPos");
-	Uniform<glm::vec2> uTexCoordShiftWT = Uniform<glm::vec2>("uTexCoordShift");
-	Uniform<bool> uUseEnvironmentWT = Uniform<bool>("uUseEnvironment");
-	Uniform<float> uWaterLevelWT = Uniform<float>("uVerticalDisplacement");
-	Uniform<glm::vec3> uLightDirWT = Uniform<glm::vec3>("uLightDir");
-	Uniform<glm::vec3> uLightColorWT = Uniform<glm::vec3>("uLightColor");
-	Uniform<GLfloat> uTileSizeWT = Uniform<GLfloat>("uTileSize");
-	Uniform<glm::vec3> uViewDirWT = Uniform<glm::vec3>("uViewDir");
-	Uniform<glm::vec2> uScreenSizeWT = Uniform<glm::vec2>("uScreenSize");
-	Uniform<GLint> uTesselatedTriWidthWT = Uniform<GLint>("uTesselatedTriWidth");
-	Uniform<GLfloat> uTexCoordScaleWT = Uniform<GLfloat>("uTexCoordScale");
-	Uniform<GLfloat> uDisplacementScaleWT = Uniform<GLfloat>("uDisplacementScale");
-	Uniform<glm::vec2> uPerlinMovement = Uniform<glm::vec2>("uPerlinMovement");
+	Uniform<glm::mat4> m_uViewProjection = Uniform<glm::mat4>("uViewProjection");
+	Uniform<glm::mat4> m_uProjection = Uniform<glm::mat4>("uProjection");
+	Uniform<glm::mat4> m_uView = Uniform<glm::mat4>("uView");
+	Uniform<glm::vec3> m_uCamPos = Uniform<glm::vec3>("uCamPos");
+	Uniform<glm::vec2> m_uTexCoordShift = Uniform<glm::vec2>("uTexCoordShift");
+	Uniform<bool> m_uUseEnvironment = Uniform<bool>("uUseEnvironment");
+	Uniform<float> m_uWaterLevel = Uniform<float>("uVerticalDisplacement");
+	Uniform<glm::vec3> m_uLightDir = Uniform<glm::vec3>("uLightDir");
+	Uniform<glm::vec3> m_uLightColor = Uniform<glm::vec3>("uLightColor");
+	Uniform<GLfloat> m_uTileSize = Uniform<GLfloat>("uTileSize");
+	Uniform<glm::vec3> m_uViewDir = Uniform<glm::vec3>("uViewDir");
+	Uniform<glm::vec2> m_uScreenSize = Uniform<glm::vec2>("uScreenSize");
+	Uniform<GLint> m_uTesselatedTriWidth = Uniform<GLint>("uTesselatedTriWidth");
+	Uniform<GLfloat> m_uTexCoordScale = Uniform<GLfloat>("uTexCoordScale");
+	Uniform<GLfloat> m_uDisplacementScale = Uniform<GLfloat>("uDisplacementScale");
+	Uniform<glm::vec2> m_uPerlinMovement = Uniform<glm::vec2>("uPerlinMovement");
 };

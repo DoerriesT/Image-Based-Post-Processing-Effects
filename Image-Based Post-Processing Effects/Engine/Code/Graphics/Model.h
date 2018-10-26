@@ -19,8 +19,8 @@ public:
 	const std::vector<std::shared_ptr<SubMesh>> &getTransparentSubmeshes();
 
 private:
-	std::shared_ptr<Mesh> mesh;
-	std::vector<std::pair<std::shared_ptr<SubMesh>, Material>> submeshMaterialPairs;
-	std::vector<std::shared_ptr<SubMesh>> transparentSubmeshes;
-	std::map<std::string, std::size_t> nameToIndexMap;
+	std::shared_ptr<Mesh> m_mesh;
+	std::vector<std::pair<std::shared_ptr<SubMesh>, Material>> m_submeshMaterialPairs;
+	std::vector<std::shared_ptr<SubMesh>> m_transparentSubmeshes;
+	std::map<std::string, std::size_t> m_nameToIndexMap;
 };

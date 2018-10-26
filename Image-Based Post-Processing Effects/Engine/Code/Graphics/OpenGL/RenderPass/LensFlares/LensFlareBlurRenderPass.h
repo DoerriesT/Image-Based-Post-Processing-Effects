@@ -12,9 +12,9 @@ public:
 	void resize(unsigned int _width, unsigned int _height) override;
 
 private:
-	std::shared_ptr<ShaderProgram> lensFlareBlurShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_lensFlareBlurShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<GLboolean> uDirectionLFB = Uniform<GLboolean>("uDirection");
+	Uniform<GLboolean> m_uDirection = Uniform<GLboolean>("uDirection");
 
 };

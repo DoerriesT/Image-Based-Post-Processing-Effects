@@ -14,9 +14,9 @@ public:
 	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Scene &_scene, bool _cascadeSkipOptimization, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> shadowShader;
+	std::shared_ptr<ShaderProgram> m_shadowShader;
 
-	Uniform<glm::mat4> uModelViewProjectionMatrix = Uniform<glm::mat4>("uModelViewProjectionMatrix");
+	Uniform<glm::mat4> m_uModelViewProjectionMatrix = Uniform<glm::mat4>("uModelViewProjectionMatrix");
 
 	void renderShadows(const glm::mat4 &_viewProjectionMatrix, const Scene &_scene);
 	glm::mat4 calculateLightViewProjection(const RenderData &_renderData, const glm::vec3 &_lightDir, float _nearPlane, float _farPlane, unsigned int _shadowMapSize);

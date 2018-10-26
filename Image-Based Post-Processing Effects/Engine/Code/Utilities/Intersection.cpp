@@ -89,7 +89,7 @@ const Entity *getSelectedEntity(const std::vector<const Entity*> &_entities, con
 				continue;
 			assert(boundingBoxComponent && transformationComponent);
 
-			if (intersectRayObb(_cameraPosition, _mouseDirection, boundingBoxComponent->maxCorner, transformationComponent->position, boundingBoxComponent->rotation*transformationComponent->rotation, nearFar) && nearFar.x < closestDistance)
+			if (intersectRayObb(_cameraPosition, _mouseDirection, boundingBoxComponent->m_maxCorner, transformationComponent->m_position, boundingBoxComponent->m_rotation*transformationComponent->m_rotation, nearFar) && nearFar.x < closestDistance)
 			{
 				closestDistance = nearFar.x;
 				closestEntity = entity;
@@ -104,7 +104,7 @@ const Entity *getSelectedEntity(const std::vector<const Entity*> &_entities, con
 			TransformationComponent *transformationComponent = entityManager.getComponent<TransformationComponent>(entity);
 			assert(boundingBoxComponent && transformationComponent);
 
-			if (intersectRayAabb(_cameraPosition, _mouseDirection, boundingBoxComponent->maxCorner, nearFar, transformationComponent->position) && nearFar.x < closestDistance)
+			if (intersectRayAabb(_cameraPosition, _mouseDirection, boundingBoxComponent->m_maxCorner, nearFar, transformationComponent->m_position) && nearFar.x < closestDistance)
 			{
 				closestDistance = nearFar.x;
 				closestEntity = entity;

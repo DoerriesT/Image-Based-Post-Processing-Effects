@@ -9,84 +9,71 @@
 #include "Graphics\EnvironmentProbe.h"
 #include "Graphics\Lights.h"
 
-struct SceneGraphNode
+struct OceanParams
 {
-	const Entity *entity;
-	std::vector<SceneGraphNode *> children;
-};
-
-struct Water
-{
-	bool enabled;
-	float level;
-	unsigned int simulationResolution;
-	unsigned int worldSize;
-	float waveAmplitude;
-	float waveSuppressionExponent;
-	float waveChoppiness;
-	float windSpeed;
-	float timeScale;
-	float normalStrength;
-	glm::vec2 normalizedWindDirection;
+	bool m_enabled;
+	float m_level;
+	unsigned int m_simulationResolution;
+	unsigned int m_worldSize;
+	float m_waveAmplitude;
+	float m_waveSuppressionExponent;
+	float m_waveChoppiness;
+	float m_windSpeed;
+	float m_timeScale;
+	float m_normalStrength;
+	glm::vec2 m_normalizedWindDirection;
 };
 
 struct Sun
 {
-	glm::vec3 direction;
+	glm::vec3 m_direction;
 };
 
 struct AtmosphereParams
 {
-	glm::vec3 lightDir;
-	float surfaceHeight;
-	float rayleighBrightness;
-	float mieBrightness;
-	float spotBrightness;
-	float scatterStrength;
-	float rayleighStrength;
-	float mieStrength;
-	float rayleighCollectionPower;
-	float mieCollectionPower;
-	float mieDistribution;
-	glm::vec3 intensity;
-	int stepCount;
+	glm::vec3 m_lightDir;
+	float m_surfaceHeight;
+	float m_rayleighBrightness;
+	float m_mieBrightness;
+	float m_spotBrightness;
+	float m_scatterStrength;
+	float m_rayleighStrength;
+	float m_mieStrength;
+	float m_rayleighCollectionPower;
+	float m_mieCollectionPower;
+	float m_mieDistribution;
+	glm::vec3 m_intensity;
+	int m_stepCount;
 };
 
 struct Environment
 {
-	const Entity *skyboxEntity;
-	std::shared_ptr<const Texture> environmentMap;
-	std::vector<std::shared_ptr<EnvironmentProbe>> environmentProbes;
-	std::shared_ptr<IrradianceVolume> irradianceVolume;
-	bool useAtmosphere;
-	bool isAtmosphereValid;
-	AtmosphereParams atmosphereParams;
+	const Entity *m_skyboxEntity;
+	std::shared_ptr<const Texture> m_environmentMap;
+	std::vector<std::shared_ptr<EnvironmentProbe>> m_environmentProbes;
+	std::shared_ptr<IrradianceVolume> m_irradianceVolume;
+	bool m_useAtmosphere;
+	bool m_isAtmosphereValid;
+	AtmosphereParams m_atmosphereParams;
 };
 
 struct Level
 {
-	bool valid = false;
-	bool loaded = false;
-	size_t id;
-	std::string name;
-	std::string filepath;
-	Lights lights;
-	Sun sun;
-	Water water;
-	float exposure;
-	Environment environment;
-	std::size_t activeCameraIndex;
-	std::vector<std::shared_ptr<Camera>> cameras;
-	std::map<std::string, const Entity *> entityMap;
+	bool m_valid = false;
+	bool m_loaded = false;
+	size_t m_id;
+	std::string m_name;
+	std::string m_filepath;
+	Lights m_lights;
+	Sun m_sun;
+	OceanParams m_oceanParams;
+	float m_exposure;
+	Environment m_environment;
+	std::size_t m_activeCameraIndex;
+	std::vector<std::shared_ptr<Camera>> m_cameras;
+	std::map<std::string, const Entity *> m_entityMap;
 
-	std::vector<CameraPath> cameraPaths;
-
-	/*std::vector<std::shared_ptr<BaseComponent *>> parseComponents(const JSON::Array &_array);
-	glm::vec3 parseVec3(const JSON::Array &_array);
-	glm::vec4 parseVec4(const JSON::Array &_array);
-	glm::quat parseQuat(const JSON::Array &_array);
-	PathSegment parsePathSegment(const JSON::Object &_array);
-	double (*(parseEasingFunction(const JSON::Object &_object)))(double, const double &);*/
+	std::vector<CameraPath> m_cameraPaths;
 };
 
 void unloadLevel(Level &_level);

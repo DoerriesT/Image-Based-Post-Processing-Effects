@@ -2,7 +2,7 @@
 #include "EntityManager.h"
 
 Entity::Entity(const Id &_id, const Id &_version)
-	: id(_id), version(_version)
+	: m_id(_id), m_version(_version)
 {
 }
 
@@ -15,23 +15,23 @@ EntityManager &EntityManager::getInstance()
 const Entity *EntityManager::createEntity()
 {
 	std::uint64_t id;
-	if (freeIds.empty())
+	if (m_freeIds.empty())
 	{
-		id = nextFreeId++;
+		id = m_nextFreeId++;
 	}
 	else
 	{
-		id = freeIds.back();
-		freeIds.pop_back();
+		id = m_freeIds.back();
+		m_freeIds.pop_back();
 	}
-	Entity *entity = new Entity(id, entityIdVersionMap[id]);
-	entityIdToComponentBitFieldMap[id] = 0;
-	entityIdToComponentMap[id].clear();
-	entityIdToFamilyBitFieldMap[id] = 0;
-	entityIdToFamilyMap[id].clear();
+	Entity *entity = new Entity(id, m_entityIdVersionMap[id]);
+	m_entityIdToComponentBitFieldMap[id] = 0;
+	m_entityIdToComponentMap[id].clear();
+	m_entityIdToFamilyBitFieldMap[id] = 0;
+	m_entityIdToFamilyMap[id].clear();
 
 	//invoke listeners
-	for (IOnEntityCreatedListener *listener : onEntityCreatedListeners)
+	for (IOnEntityCreatedListener *listener : m_onEntityCreatedListeners)
 	{
 		listener->onEntityCreated(entity);
 	}
@@ -44,25 +44,25 @@ void EntityManager::removeComponentFamily(const Entity *_entity, std::uint64_t _
 {
 	assert(validateEntity(_entity));
 
-	const Entity::Id &id = _entity->id;
+	const Entity::Id &id = _entity->m_id;
 
 	// only do something if a component of this family is actually attached to the entity
-	if (entityIdToFamilyBitFieldMap[id] & _familyId)
+	if (m_entityIdToFamilyBitFieldMap[id] & _familyId)
 	{
 		// fetch the component pointer
-		BaseComponent *component = entityIdToFamilyMap[id][_familyId];
+		BaseComponent *component = m_entityIdToFamilyMap[id][_familyId];
 		assert(component);
 
 		std::uint64_t typeId = component->getTypeIdOfDerived();
 
 		// remove type and family bits from their map
-		entityIdToComponentBitFieldMap[id] ^= typeId;
-		entityIdToFamilyBitFieldMap[id] ^= _familyId;
+		m_entityIdToComponentBitFieldMap[id] ^= typeId;
+		m_entityIdToFamilyBitFieldMap[id] ^= _familyId;
 
 		// invoke listeners
 		if (_notify)
 		{
-			for (IOnComponentRemovedListener *listener : onComponentRemovedListeners)
+			for (IOnComponentRemovedListener *listener : m_onComponentRemovedListeners)
 			{
 				listener->onComponentRemoved(_entity, component);
 			}
@@ -70,8 +70,8 @@ void EntityManager::removeComponentFamily(const Entity *_entity, std::uint64_t _
 
 		// delete pointer and remove component from maps
 		delete component;
-		ContainerUtility::remove(entityIdToComponentMap[id], typeId);
-		ContainerUtility::remove(entityIdToFamilyMap[id], _familyId);
+		ContainerUtility::remove(m_entityIdToComponentMap[id], typeId);
+		ContainerUtility::remove(m_entityIdToFamilyMap[id], _familyId);
 	}
 }
 
@@ -80,10 +80,10 @@ void EntityManager::destroyEntity(const Entity *_entity)
 {
 	assert(validateEntity(_entity));
 
-	const Entity::Id &id = _entity->id;
+	const Entity::Id &id = _entity->m_id;
 
 	//invoke listeners
-	for (IOnEntityDestructionListener *listener : onEntityDestructionListeners)
+	for (IOnEntityDestructionListener *listener : m_onEntityDestructionListeners)
 	{
 		listener->onDestruction(_entity);
 	}
@@ -94,13 +94,13 @@ void EntityManager::destroyEntity(const Entity *_entity)
 	}
 
 	// bitmaps should already be zero
-	assert(entityIdToComponentBitFieldMap[id] == 0 && entityIdToFamilyBitFieldMap[id] == 0);
+	assert(m_entityIdToComponentBitFieldMap[id] == 0 && m_entityIdToFamilyBitFieldMap[id] == 0);
 	// reset bitmaps
 	// entityIdToComponentBitFieldMap[id] = 0;
 	// entityIdToFamilyBitFieldMap[id] = 0;
 	// increase version
-	++entityIdVersionMap[id];
-	freeIds.push_back(id);
+	++m_entityIdVersionMap[id];
+	m_freeIds.push_back(id);
 
 	delete _entity;
 }
@@ -108,75 +108,75 @@ void EntityManager::destroyEntity(const Entity *_entity)
 std::uint64_t EntityManager::getComponentBitField(const Entity *_entity)
 {
 	assert(validateEntity(_entity));
-	return entityIdToComponentBitFieldMap[_entity->id];
+	return m_entityIdToComponentBitFieldMap[_entity->m_id];
 }
 
 std::unordered_map<std::uint64_t, BaseComponent *> EntityManager::getComponentMap(const Entity *_entity)
 {
 	assert(validateEntity(_entity));
-	return entityIdToComponentMap[_entity->id];
+	return m_entityIdToComponentMap[_entity->m_id];
 }
 
 void EntityManager::addOnEntityCreatedListener(IOnEntityCreatedListener *_listener)
 {
 	assert(_listener);
-	onEntityCreatedListeners.push_back(_listener);
+	m_onEntityCreatedListeners.push_back(_listener);
 }
 
 void EntityManager::addOnEntityDestructionListener(IOnEntityDestructionListener *_listener)
 {
 	assert(_listener);
-	onEntityDestructionListeners.push_back(_listener);
+	m_onEntityDestructionListeners.push_back(_listener);
 }
 
 void EntityManager::addOnComponentAddedListener(IOnComponentAddedListener *_listener)
 {
 	assert(_listener);
-	onComponentAddedListeners.push_back(_listener);
+	m_onComponentAddedListeners.push_back(_listener);
 }
 
 void EntityManager::addOnComponentRemovedListener(IOnComponentRemovedListener *_listener)
 {
 	assert(_listener);
-	onComponentRemovedListeners.push_back(_listener);
+	m_onComponentRemovedListeners.push_back(_listener);
 }
 
 void EntityManager::removeOnEntityCreatedListener(IOnEntityCreatedListener *_listener)
 {
 	assert(_listener);
-	ContainerUtility::remove(onEntityCreatedListeners, _listener);
+	ContainerUtility::remove(m_onEntityCreatedListeners, _listener);
 }
 
 void EntityManager::removeOnEntityDestructionListener(IOnEntityDestructionListener *_listener)
 {
 	assert(_listener);
-	ContainerUtility::remove(onEntityDestructionListeners, _listener);
+	ContainerUtility::remove(m_onEntityDestructionListeners, _listener);
 }
 
 void EntityManager::removeOnComponentAddedListener(IOnComponentAddedListener *_listener)
 {
 	assert(_listener);
-	ContainerUtility::remove(onComponentAddedListeners, _listener);
+	ContainerUtility::remove(m_onComponentAddedListeners, _listener);
 }
 
 void EntityManager::removeOnComponentRemovedListener(IOnComponentRemovedListener *_listener)
 {
 	assert(_listener);
-	ContainerUtility::remove(onComponentRemovedListeners, _listener);
+	ContainerUtility::remove(m_onComponentRemovedListeners, _listener);
 }
 
 bool EntityManager::validateEntity(const Entity *_entity)
 {
 	assert(_entity);
 
-	const Entity::Id &id = _entity->id;
-	const Entity::Version &version = _entity->version;
+	const Entity::Id &id = _entity->m_id;
+	const Entity::Version &version = _entity->m_version;
 
 	//check if given id is still a valid id and present in all maps
-	return ContainerUtility::contains(entityIdVersionMap, id) &&
-		entityIdVersionMap[id] == version &&
-		ContainerUtility::contains(entityIdToComponentBitFieldMap, id) &&
-		ContainerUtility::contains(entityIdToFamilyBitFieldMap, id) &&
-		ContainerUtility::contains(entityIdToComponentMap, id) &&
-		ContainerUtility::contains(entityIdToFamilyMap, id);
+	return ContainerUtility::contains(m_entityIdVersionMap, id) &&
+		m_entityIdVersionMap[id] == version &&
+		ContainerUtility::contains(m_entityIdToComponentBitFieldMap, id) &&
+		ContainerUtility::contains(m_entityIdToFamilyBitFieldMap, id) &&
+		ContainerUtility::contains(m_entityIdToComponentMap, id) &&
+		ContainerUtility::contains(m_entityIdToFamilyMap, id);
 }

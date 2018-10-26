@@ -4,16 +4,16 @@
 #include ".\..\EntityManager.h"
 
 MovementSystem::MovementSystem()
-	:entityManager(EntityManager::getInstance())
+	:m_entityManager(EntityManager::getInstance())
 {
-	validBitMaps.push_back(Component<MovementComponent>::getTypeId());
+	m_validBitMaps.push_back(Component<MovementComponent>::getTypeId());
 }
 
 void MovementSystem::init()
 {
-	entityManager.addOnComponentAddedListener(this);
-	entityManager.addOnComponentRemovedListener(this);
-	entityManager.addOnEntityDestructionListener(this);
+	m_entityManager.addOnComponentAddedListener(this);
+	m_entityManager.addOnComponentRemovedListener(this);
+	m_entityManager.addOnEntityDestructionListener(this);
 }
 
 void MovementSystem::input(double _currentTime, double _timeDelta)
@@ -22,39 +22,39 @@ void MovementSystem::input(double _currentTime, double _timeDelta)
 
 void MovementSystem::update(double _currentTime, double _timeDelta)
 {
-	for (const Entity *entity : entitiesToRemove)
+	for (const Entity *entity : m_entitiesToRemove)
 	{
-		ContainerUtility::remove(managedEntities, entity);
+		ContainerUtility::remove(m_managedEntities, entity);
 	}
-	entitiesToRemove.clear();
+	m_entitiesToRemove.clear();
 
-	for (const Entity *entity : entitiesToAdd)
+	for (const Entity *entity : m_entitiesToAdd)
 	{
-		managedEntities.push_back(entity);
+		m_managedEntities.push_back(entity);
 	}
-	entitiesToAdd.clear();
+	m_entitiesToAdd.clear();
 
-	for (const Entity *entity : managedEntities)
+	for (const Entity *entity : m_managedEntities)
 	{
-		MovementComponent *mc = entityManager.getComponent<MovementComponent>(entity);
+		MovementComponent *mc = m_entityManager.getComponent<MovementComponent>(entity);
 		assert(mc);
 
-		if (_currentTime >= mc->startTime)
+		if (_currentTime >= mc->m_startTime)
 		{
-			TransformationComponent *tc = entityManager.getComponent<TransformationComponent>(entity);
+			TransformationComponent *tc = m_entityManager.getComponent<TransformationComponent>(entity);
 			assert(tc);
-			float factor = static_cast<float>(mc->easingFunction(_currentTime - mc->startTime, mc->totalDuration));
+			float factor = static_cast<float>(mc->m_easingFunction(_currentTime - mc->m_startTime, mc->m_totalDuration));
 			if (factor >= 1.0f)
 			{
-				tc->position = mc->endPosition;
-				std::function<void()> onCompleted = mc->onCompleted;
-				entityManager.removeComponent<MovementComponent>(entity);
+				tc->m_position = mc->m_endPosition;
+				std::function<void()> onCompleted = mc->m_onCompleted;
+				m_entityManager.removeComponent<MovementComponent>(entity);
 				onCompleted();
 			}
 			else
 			{
 				//float elevation = factor > 0.5f ? (1.0f - factor) * mc.getElevation() : factor * mc.getElevation();
-				tc->position = mc->startPosition + factor * mc->path;
+				tc->m_position = mc->m_startPosition + factor * mc->m_path;
 			}
 		}
 	}
@@ -66,34 +66,34 @@ void MovementSystem::render()
 
 void MovementSystem::onComponentAdded(const Entity *_entity, BaseComponent *_addedComponent)
 {
-	if (validate(entityManager.getComponentBitField(_entity)) && !ContainerUtility::contains(entitiesToAdd, _entity))
+	if (validate(m_entityManager.getComponentBitField(_entity)) && !ContainerUtility::contains(m_entitiesToAdd, _entity))
 	{
-		if (!ContainerUtility::contains(managedEntities, _entity) || ContainerUtility::contains(entitiesToRemove, _entity))
+		if (!ContainerUtility::contains(m_managedEntities, _entity) || ContainerUtility::contains(m_entitiesToRemove, _entity))
 		{
-			entitiesToAdd.push_back(_entity);
+			m_entitiesToAdd.push_back(_entity);
 		}
 	}
 }
 
 void MovementSystem::onComponentRemoved(const Entity *_entity, BaseComponent *_removedComponent)
 {
-	if (!validate(entityManager.getComponentBitField(_entity)) && ContainerUtility::contains(managedEntities, _entity))
+	if (!validate(m_entityManager.getComponentBitField(_entity)) && ContainerUtility::contains(m_managedEntities, _entity))
 	{
-		entitiesToRemove.push_back(_entity);
+		m_entitiesToRemove.push_back(_entity);
 	}
 }
 
 void MovementSystem::onDestruction(const Entity *_entity)
 {
-	if (ContainerUtility::contains(managedEntities, _entity))
+	if (ContainerUtility::contains(m_managedEntities, _entity))
 	{
-		entitiesToRemove.push_back(_entity);
+		m_entitiesToRemove.push_back(_entity);
 	}
 }
 
 bool MovementSystem::validate(std::uint64_t _bitMap)
 {
-	for (std::uint64_t configuration : validBitMaps)
+	for (std::uint64_t configuration : m_validBitMaps)
 	{
 		if ((configuration & _bitMap) == configuration)
 		{

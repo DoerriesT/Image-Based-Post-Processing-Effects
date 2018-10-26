@@ -55,18 +55,18 @@ public:
 	std::pair<unsigned int, unsigned int> getNativeResolution();
 
 private:
-	std::string title;
-	std::vector<IWindowResizeListener*> resizeListeners;
-	std::vector<IInputListener*> inputListeners;
-	std::pair<unsigned int, unsigned int> *currentResolution;
-	std::pair<unsigned int, unsigned int> nativeResolution;
-	std::pair<unsigned int, unsigned int> selectedResolution;
-	size_t selectedResolutionIndex;
-	bool vsync;
-	GLFWwindow *window = nullptr;
-	std::vector<std::pair<unsigned int, unsigned int>> supportedResolutions;
-	WindowMode windowMode;
-	std::vector<Gamepad> gamepads;
+	std::string m_title;
+	std::vector<IWindowResizeListener*> m_resizeListeners;
+	std::vector<IInputListener*> m_inputListeners;
+	std::pair<unsigned int, unsigned int> *m_currentResolution;
+	std::pair<unsigned int, unsigned int> m_nativeResolution;
+	std::pair<unsigned int, unsigned int> m_selectedResolution;
+	size_t m_selectedResolutionIndex;
+	bool m_vsync;
+	GLFWwindow *m_window = nullptr;
+	std::vector<std::pair<unsigned int, unsigned int>> m_supportedResolutions;
+	WindowMode m_windowMode;
+	std::vector<Gamepad> m_gamepads;
 
 	explicit WindowFramework(const std::string &_title, unsigned int _width, unsigned int _height, bool _vsync, const WindowMode &_windowMode = WindowMode::WINDOWED);
 	void updateSelectedResolutionIndex();

@@ -8,34 +8,34 @@
 
 StencilRenderPass::StencilRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_NONE };
-	state.blendState.enabled = false;
-	state.blendState.sFactor = GL_ONE;
-	state.blendState.dFactor = GL_ONE;
-	state.cullFaceState.enabled = false;
-	state.cullFaceState.face = GL_FRONT;
-	state.depthState.enabled = true;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = true;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = GL_DECR_WRAP;
-	state.stencilState.backOpZfail = GL_INCR_WRAP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_NONE };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_blendState.m_sFactor = GL_ONE;
+	m_state.m_blendState.m_dFactor = GL_ONE;
+	m_state.m_cullFaceState.m_enabled = false;
+	m_state.m_cullFaceState.m_face = GL_FRONT;
+	m_state.m_depthState.m_enabled = true;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_FALSE;
+	m_state.m_stencilState.m_enabled = true;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = GL_DECR_WRAP;
+	m_state.m_stencilState.m_backOpZfail = GL_INCR_WRAP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	stencilPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/lightProxy.vert", "Resources/Shaders/Lighting/stencil.frag");
+	m_stencilPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/Lighting/lightProxy.vert", "Resources/Shaders/Lighting/stencil.frag");
 
-	uModelViewProjection.create(stencilPassShader);
+	m_uModelViewProjection.create(m_stencilPassShader);
 
-	pointLightMesh = Mesh::createMesh("Resources/Models/pointlight.mesh", 1, true);
-	spotLightMesh = Mesh::createMesh("Resources/Models/spotlight.mesh", 1, true);
-	boxMesh = Mesh::createMesh("Resources/Models/cube.mesh", 1, true);
+	m_pointLightMesh = Mesh::createMesh("Resources/Models/pointlight.mesh", 1, true);
+	m_spotLightMesh = Mesh::createMesh("Resources/Models/spotlight.mesh", 1, true);
+	m_boxMesh = Mesh::createMesh("Resources/Models/cube.mesh", 1, true);
 }
 
 void StencilRenderPass::render(const RenderData & _renderData, const std::shared_ptr<Level>& _level, RenderPass ** _previousRenderPass)
@@ -43,80 +43,80 @@ void StencilRenderPass::render(const RenderData & _renderData, const std::shared
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
-	stencilPassShader->bind();
+	m_stencilPassShader->bind();
 
 	// point lights
-	if (!_level->lights.pointLights.empty())
+	if (!_level->m_lights.m_pointLights.empty())
 	{
-		pointLightMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
-		for (std::shared_ptr<PointLight> pointLight : _level->lights.pointLights)
+		m_pointLightMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
+		for (std::shared_ptr<PointLight> pointLight : _level->m_lights.m_pointLights)
 		{
-			if (_renderData.bake && pointLight->getMobility() != Mobility::STATIC)
+			if (_renderData.m_bake && pointLight->getMobility() != Mobility::STATIC)
 			{
 				continue;
 			}
 
-			if (!_renderData.frustum.testSphere(pointLight->getBoundingSphere()))
+			if (!_renderData.m_frustum.testSphere(pointLight->getBoundingSphere()))
 			{
 				continue;
 			}
 
-			pointLight->updateViewValues(_renderData.viewMatrix);
+			pointLight->updateViewValues(_renderData.m_viewMatrix);
 
-			uModelViewProjection.set(_renderData.viewProjectionMatrix * glm::translate(pointLight->getPosition()) * glm::scale(glm::vec3(pointLight->getRadius() + 0.1f)));
-			pointLightMesh->getSubMesh()->render();
+			m_uModelViewProjection.set(_renderData.m_viewProjectionMatrix * glm::translate(pointLight->getPosition()) * glm::scale(glm::vec3(pointLight->getRadius() + 0.1f)));
+			m_pointLightMesh->getSubMesh()->render();
 		}
 	}
 	
 	// spot lights
-	if (!_level->lights.spotLights.empty())
+	if (!_level->m_lights.m_spotLights.empty())
 	{
-		spotLightMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
-		for (std::shared_ptr<SpotLight> spotLight : _level->lights.spotLights)
+		m_spotLightMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
+		for (std::shared_ptr<SpotLight> spotLight : _level->m_lights.m_spotLights)
 		{
-			if (_renderData.bake && spotLight->getMobility() != Mobility::STATIC)
+			if (_renderData.m_bake && spotLight->getMobility() != Mobility::STATIC)
 			{
 				continue;
 			}
 
-			if (!_renderData.frustum.testSphere(spotLight->getBoundingSphere()))
+			if (!_renderData.m_frustum.testSphere(spotLight->getBoundingSphere()))
 			{
 				continue;
 			}
 
-			spotLight->updateViewValues(_renderData.viewMatrix);
+			spotLight->updateViewValues(_renderData.m_viewMatrix);
 
 			// scale a bit larger to correct for proxy geometry not being exactly round
 			float scale = (glm::tan(spotLight->getOuterAngle() * 0.5f) + 0.1f) * spotLight->getRadius();
 
 			const glm::vec3 defaultDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 
-			uModelViewProjection.set(_renderData.viewProjectionMatrix
+			m_uModelViewProjection.set(_renderData.m_viewProjectionMatrix
 				* glm::translate(spotLight->getPosition())
 				* glm::mat4_cast(glm::rotation(defaultDirection, spotLight->getDirection()))
 				* glm::scale(glm::vec3(scale, spotLight->getRadius(), scale)));
-			spotLightMesh->getSubMesh()->render();
+			m_spotLightMesh->getSubMesh()->render();
 		}
 	}
 
 	// environment probes
-	if (!_level->environment.environmentProbes.empty())
+	if (!_level->m_environment.m_environmentProbes.empty())
 	{
-		boxMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
-		for (auto probe : _level->environment.environmentProbes)
+		m_boxMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
+		for (auto probe : _level->m_environment.m_environmentProbes)
 		{
 			AxisAlignedBoundingBox aabb = probe->getAxisAlignedBoundingBox();
-			glm::vec3 boundingBoxCenter = (aabb.max + aabb.min) * 0.5f;
-			glm::vec3 correctedMax = aabb.max - boundingBoxCenter;
-			glm::vec3 correctedMin = aabb.min - boundingBoxCenter;
+			glm::vec3 boundingBoxCenter = (aabb.m_max + aabb.m_min) * 0.5f;
+			glm::vec3 correctedMax = aabb.m_max - boundingBoxCenter;
+			glm::vec3 correctedMin = aabb.m_min - boundingBoxCenter;
 			glm::vec3 boxScale = correctedMax / 0.5f;
 
 			glm::mat4 modelMatrix = glm::translate(boundingBoxCenter)
 				* glm::scale(glm::vec3(boxScale));
 
 
-			uModelViewProjection.set(_renderData.viewProjectionMatrix * modelMatrix);
-			boxMesh->getSubMesh()->render();
+			m_uModelViewProjection.set(_renderData.m_viewProjectionMatrix * modelMatrix);
+			m_boxMesh->getSubMesh()->render();
 		}
 	}
 	

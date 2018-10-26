@@ -9,63 +9,63 @@
 
 const std::uint32_t MAGIC_NUMBER = 0xFFABCDFF;
 
-std::map<std::string, std::weak_ptr<Mesh>> Mesh::meshMap;
+std::map<std::string, std::weak_ptr<Mesh>> Mesh::m_meshMap;
 
 std::shared_ptr<Mesh> Mesh::createMesh(const std::string &_filepath, std::size_t _reserveCount, bool _instantLoading)
 {
-	if (ContainerUtility::contains(meshMap, _filepath))
+	if (ContainerUtility::contains(m_meshMap, _filepath))
 	{
-		return std::shared_ptr<Mesh>(meshMap[_filepath]);
+		return std::shared_ptr<Mesh>(m_meshMap[_filepath]);
 	}
 	else
 	{
 		std::shared_ptr<Mesh> mesh = std::shared_ptr<Mesh>(new Mesh(_filepath, _reserveCount, _instantLoading));
-		meshMap[_filepath] = mesh;
+		m_meshMap[_filepath] = mesh;
 		return mesh;
 	}
 }
 
 Mesh::~Mesh()
 {
-	if (dataJob)
+	if (m_dataJob)
 	{
-		dataJob->kill();
+		m_dataJob->kill();
 	}
-	ContainerUtility::remove(meshMap, filepath);
+	ContainerUtility::remove(m_meshMap, m_filepath);
 }
 
 std::shared_ptr<SubMesh> Mesh::getSubMesh(std::size_t _index) const
 {
-	assert(_index < subMeshes.size());
-	return subMeshes[_index];
+	assert(_index < m_subMeshes.size());
+	return m_subMeshes[_index];
 }
 
 const std::vector<std::shared_ptr<SubMesh>> Mesh::getSubMeshes() const
 {
-	return subMeshes;
+	return m_subMeshes;
 }
 
 std::size_t Mesh::size() const
 {
-	return subMeshes.size();
+	return m_subMeshes.size();
 }
 
 bool Mesh::isValid() const
 {
-	return valid;
+	return m_valid;
 }
 
 AxisAlignedBoundingBox Mesh::getAABB() const
 {
-	return aabb;
+	return m_aabb;
 }
 
 Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instantLoading)
-	:filepath(_filepath), valid(false)
+	:m_filepath(_filepath), m_valid(false)
 {
 	for (size_t i = 0; i < _reserveCount; ++i)
 	{
-		subMeshes.push_back(SubMesh::createSubMesh());
+		m_subMeshes.push_back(SubMesh::createSubMesh());
 	}
 
 	auto dataPreparation = [=](JobManager::SharedJob job)
@@ -90,7 +90,7 @@ Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instan
 
 		// read subMesh count and reserve space
 		std::size_t numSubMeshes = static_cast<size_t>(*(std::uint32_t *)&rawData[currentOffset]);
-		subMeshes.reserve(numSubMeshes);
+		m_subMeshes.reserve(numSubMeshes);
 
 		// skip past sub mesh count
 		currentOffset += sizeof(std::uint32_t);
@@ -124,19 +124,19 @@ Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instan
 			if (_reserveCount)
 			{
 				assert(_reserveCount == numSubMeshes);
-				subMeshes[i]->setData(static_cast<uint32_t>(vertexBufferSize), vertexBuffer, static_cast<uint32_t>(indexBufferSize), indexBuffer, meshAabb);
+				m_subMeshes[i]->setData(static_cast<uint32_t>(vertexBufferSize), vertexBuffer, static_cast<uint32_t>(indexBufferSize), indexBuffer, meshAabb);
 			}
 			else
 			{
-				subMeshes.push_back(SubMesh::createSubMesh(static_cast<uint32_t>(vertexBufferSize), vertexBuffer, static_cast<uint32_t>(indexBufferSize), indexBuffer, meshAabb));
+				m_subMeshes.push_back(SubMesh::createSubMesh(static_cast<uint32_t>(vertexBufferSize), vertexBuffer, static_cast<uint32_t>(indexBufferSize), indexBuffer, meshAabb));
 			}
 		}
 
-		aabb = *(AxisAlignedBoundingBox *)&rawData[currentOffset];
+		m_aabb = *(AxisAlignedBoundingBox *)&rawData[currentOffset];
 
 		// set flag that mesh can be used
-		valid = true;
-		dataJob.reset();
+		m_valid = true;
+		m_dataJob.reset();
 
 		job->markDone(true);
 	};
@@ -154,7 +154,7 @@ Mesh::Mesh(const std::string &_filepath, std::size_t _reserveCount, bool _instan
 	}
 	else
 	{
-		dataJob = JobManager::getInstance().queue(dataPreparation, dataInitialization, dataCleanup);
+		m_dataJob = JobManager::getInstance().queue(dataPreparation, dataInitialization, dataCleanup);
 	}
 }
 
@@ -169,44 +169,44 @@ std::shared_ptr<SubMesh> SubMesh::createSubMesh(std::uint32_t _vertexBufferSize,
 }
 
 SubMesh::SubMesh()
-	:valid(false), dataIsSet(false)
+	:m_valid(false), m_dataIsSet(false)
 {
 }
 
 SubMesh::SubMesh(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize, char *_indices, const AxisAlignedBoundingBox &_aabb)
-	: valid(false), dataIsSet(false)
+	: m_valid(false), m_dataIsSet(false)
 {
 	setData(_vertexBufferSize, _vertices, _indexBufferSize, _indices, _aabb);
 }
 
 void SubMesh::setData(std::uint32_t _vertexBufferSize, char *_vertices, std::uint32_t _indexBufferSize, char *_indices, const AxisAlignedBoundingBox &_aabb)
 {
-	assert(!dataIsSet);
-	dataIsSet = true;
-	indexCount = static_cast<size_t>(_indexBufferSize) / sizeof(std::uint32_t);
-	aabb = _aabb;
+	assert(!m_dataIsSet);
+	m_dataIsSet = true;
+	m_indexCount = static_cast<size_t>(_indexBufferSize) / sizeof(std::uint32_t);
+	m_aabb = _aabb;
 
 	// create vertex data for physics
 	{
 		for (std::size_t i = 0; i < static_cast<size_t>(_vertexBufferSize)/sizeof(Vertex); ++i)
 		{
-			vertices.push_back(((Vertex *)_vertices)[i].position);
+			m_vertices.push_back(((Vertex *)_vertices)[i].m_position);
 		}
 
-		for (std::size_t i = 0; i <indexCount; ++i)
+		for (std::size_t i = 0; i <m_indexCount; ++i)
 		{
-			indices.push_back(((std::uint32_t *)_indices)[i]);
+			m_indices.push_back(((std::uint32_t *)_indices)[i]);
 		}
 	}
 
 	// create buffers/arrays
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glGenVertexArrays(1, &m_VAO);
+	glGenBuffers(1, &m_VBO);
+	glGenBuffers(1, &m_EBO);
+	glBindVertexArray(m_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	glBufferData(GL_ARRAY_BUFFER, static_cast<size_t>(_vertexBufferSize), _vertices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<size_t>(_indexBufferSize), _indices, GL_STATIC_DRAW);
 
 	// vertex positions
@@ -215,21 +215,21 @@ void SubMesh::setData(std::uint32_t _vertexBufferSize, char *_vertices, std::uin
 
 	// vertex texture coord
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_texCoord));
 
 	// vertex normals
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_normal));
 
 	glBindVertexArray(0);
 
 	// create buffers/arrays
-	glGenVertexArrays(1, &positionVAO);
-	glGenBuffers(1, &positionVBO);
-	glBindVertexArray(positionVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glGenVertexArrays(1, &m_positionVAO);
+	glGenBuffers(1, &m_positionVBO);
+	glBindVertexArray(m_positionVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_positionVBO);
+	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(glm::vec3), m_vertices.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 
 	// vertex positions
 	glEnableVertexAttribArray(0);
@@ -237,40 +237,40 @@ void SubMesh::setData(std::uint32_t _vertexBufferSize, char *_vertices, std::uin
 
 	glBindVertexArray(0);
 
-	valid = true;
+	m_valid = true;
 }
 
 SubMesh::~SubMesh()
 {
-	glBindVertexArray(VAO);
+	glBindVertexArray(m_VAO);
 	glDisableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glDeleteBuffers(1, &EBO);
-	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &m_EBO);
+	glDeleteBuffers(1, &m_VBO);
 
 	glBindVertexArray(0);
-	glDeleteVertexArrays(1, &VAO);
+	glDeleteVertexArrays(1, &m_VAO);
 
-	glBindVertexArray(positionVAO);
+	glBindVertexArray(m_positionVAO);
 	glDisableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glDeleteBuffers(1, &positionVBO);
+	glDeleteBuffers(1, &m_positionVBO);
 
 	glBindVertexArray(0);
-	glDeleteVertexArrays(1, &positionVAO);
+	glDeleteVertexArrays(1, &m_positionVAO);
 }
 
 bool SubMesh::isValid() const
 {
-	return valid;
+	return m_valid;
 }
 
 void SubMesh::enableVertexAttribArrays() const
 {
-	assert(VAO);
-	glBindVertexArray(VAO);
+	assert(m_VAO);
+	glBindVertexArray(m_VAO);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
@@ -278,8 +278,8 @@ void SubMesh::enableVertexAttribArrays() const
 
 void SubMesh::enableVertexAttribArraysPositionOnly() const
 {
-	assert(positionVAO);
-	glBindVertexArray(positionVAO);
+	assert(m_positionVAO);
+	glBindVertexArray(m_positionVAO);
 	glEnableVertexAttribArray(0);
 }
 
@@ -288,8 +288,8 @@ void SubMesh::render() const
 #ifdef _DEBUG
 	GLUtility::glErrorCheck("BEFORE");
 #endif // DEBUG	
-	assert(indexCount);
-	glDrawElements(GL_TRIANGLES, (GLsizei)indexCount, GL_UNSIGNED_INT, NULL);
+	assert(m_indexCount);
+	glDrawElements(GL_TRIANGLES, (GLsizei)m_indexCount, GL_UNSIGNED_INT, NULL);
 
 #ifdef _DEBUG
 	GLUtility::glErrorCheck("AFTER");
@@ -298,20 +298,20 @@ void SubMesh::render() const
 
 AxisAlignedBoundingBox SubMesh::getAABB() const
 {
-	return aabb;
+	return m_aabb;
 }
 
 const std::vector<glm::vec3>& SubMesh::getVertices() const
 {
-	return vertices;
+	return m_vertices;
 }
 
 const std::vector<std::uint32_t>& SubMesh::getIndices() const
 {
-	return indices;
+	return m_indices;
 }
 
 std::size_t SubMesh::getIndexCount() const
 {
-	return indexCount;
+	return m_indexCount;
 }

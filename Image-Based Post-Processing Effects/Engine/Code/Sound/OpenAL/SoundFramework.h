@@ -32,15 +32,15 @@ public:
 
 
 private:
-	ALCdevice *device;
-	ALCcontext *context;
-	SoundListener soundListener;
-	std::map<const Entity *, std::shared_ptr<SoundSource>> soundSourceMap;
-	std::map<const Entity *, SoundType> entitySoundTypeMap;
-	std::set<const Entity *> pausedEntities;
-	float musicVolume = 1.0f;
-	float effectVolume = 1.0f;
-	float uiVolume = 1.0f;
+	ALCdevice *m_device;
+	ALCcontext *m_context;
+	SoundListener m_soundListener;
+	std::map<const Entity *, std::shared_ptr<SoundSource>> m_soundSourceMap;
+	std::map<const Entity *, SoundType> m_entitySoundTypeMap;
+	std::set<const Entity *> m_pausedEntities;
+	float m_musicVolume = 1.0f;
+	float m_effectVolume = 1.0f;
+	float m_uiVolume = 1.0f;
 
 	void addSoundSource(const Entity *_entity, const glm::vec3 *_position, const float *_volume, const float *_soundTypeVolume, bool _looping, bool _relative);
 };

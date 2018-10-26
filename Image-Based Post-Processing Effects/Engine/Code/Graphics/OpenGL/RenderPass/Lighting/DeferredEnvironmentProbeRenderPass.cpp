@@ -12,57 +12,57 @@ static const char *SSAO_ENABLED = "SSAO_ENABLED";
 
 DeferredEnvironmentProbeRenderPass::DeferredEnvironmentProbeRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT4 };
-	state.blendState.enabled = true;
-	state.blendState.sFactor = GL_ONE;
-	state.blendState.dFactor = GL_ONE;
-	state.cullFaceState.enabled = true;
-	state.cullFaceState.face = GL_FRONT;
-	state.depthState.enabled = false;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = true;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_NOTEQUAL;
-	state.stencilState.frontRef = state.stencilState.backRef = 0;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT4 };
+	m_state.m_blendState.m_enabled = true;
+	m_state.m_blendState.m_sFactor = GL_ONE;
+	m_state.m_blendState.m_dFactor = GL_ONE;
+	m_state.m_cullFaceState.m_enabled = true;
+	m_state.m_cullFaceState.m_face = GL_FRONT;
+	m_state.m_depthState.m_enabled = false;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_FALSE;
+	m_state.m_stencilState.m_enabled = true;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_NOTEQUAL;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 0;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	deferredEnvironmentProbePassShader = ShaderProgram::createShaderProgram(
+	m_deferredEnvironmentProbePassShader = ShaderProgram::createShaderProgram(
 		{
 		{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, 0 },
 		},
 		"Resources/Shaders/Lighting/deferredEnvironmentProbe.vert", 
 		"Resources/Shaders/Lighting/deferredEnvironmentProbe.frag");
 
-	uModelViewProjection.create(deferredEnvironmentProbePassShader);
-	uInverseView.create(deferredEnvironmentProbePassShader);
-	uInverseProjection.create(deferredEnvironmentProbePassShader);
-	uBoxMin.create(deferredEnvironmentProbePassShader);
-	uBoxMax.create(deferredEnvironmentProbePassShader);
-	uProbePosition.create(deferredEnvironmentProbePassShader);
+	m_uModelViewProjection.create(m_deferredEnvironmentProbePassShader);
+	m_uInverseView.create(m_deferredEnvironmentProbePassShader);
+	m_uInverseProjection.create(m_deferredEnvironmentProbePassShader);
+	m_uBoxMin.create(m_deferredEnvironmentProbePassShader);
+	m_uBoxMax.create(m_deferredEnvironmentProbePassShader);
+	m_uProbePosition.create(m_deferredEnvironmentProbePassShader);
 
-	boxMesh = Mesh::createMesh("Resources/Models/cube.mesh", 1, true);
+	m_boxMesh = Mesh::createMesh("Resources/Models/cube.mesh", 1, true);
 }
 
 void DeferredEnvironmentProbeRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _ssaoTexture, GLuint _brdfLUT, RenderPass **_previousRenderPass)
 {
-	if (_level->environment.environmentProbes.empty())
+	if (_level->m_environment.m_environmentProbes.empty())
 	{
 		return;
 	}
 
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
+	m_drawBuffers[0] = _renderData.m_frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
 	// shader permutations
 	{
-		const auto curDefines = deferredEnvironmentProbePassShader->getDefines();
+		const auto curDefines = m_deferredEnvironmentProbePassShader->getDefines();
 
 		bool ssaoEnabled = false;
 
@@ -77,19 +77,19 @@ void DeferredEnvironmentProbeRenderPass::render(const RenderData &_renderData, c
 			}
 		}
 
-		if (ssaoEnabled != (_effects.ambientOcclusion != AmbientOcclusion::OFF))
+		if (ssaoEnabled != (_effects.m_ambientOcclusion != AmbientOcclusion::OFF))
 		{
-			deferredEnvironmentProbePassShader->setDefines(
+			m_deferredEnvironmentProbePassShader->setDefines(
 				{
-				{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, (_effects.ambientOcclusion != AmbientOcclusion::OFF) },
+				{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, (_effects.m_ambientOcclusion != AmbientOcclusion::OFF) },
 				}
 			);
-			uModelViewProjection.create(deferredEnvironmentProbePassShader);
-			uInverseView.create(deferredEnvironmentProbePassShader);
-			uInverseProjection.create(deferredEnvironmentProbePassShader);
-			uBoxMin.create(deferredEnvironmentProbePassShader);
-			uBoxMax.create(deferredEnvironmentProbePassShader);
-			uProbePosition.create(deferredEnvironmentProbePassShader);
+			m_uModelViewProjection.create(m_deferredEnvironmentProbePassShader);
+			m_uInverseView.create(m_deferredEnvironmentProbePassShader);
+			m_uInverseProjection.create(m_deferredEnvironmentProbePassShader);
+			m_uBoxMin.create(m_deferredEnvironmentProbePassShader);
+			m_uBoxMax.create(m_deferredEnvironmentProbePassShader);
+			m_uProbePosition.create(m_deferredEnvironmentProbePassShader);
 		}
 	}
 
@@ -98,32 +98,32 @@ void DeferredEnvironmentProbeRenderPass::render(const RenderData &_renderData, c
 	glActiveTexture(GL_TEXTURE9);
 	glBindTexture(GL_TEXTURE_2D, _brdfLUT);
 
-	boxMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
+	m_boxMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
 
-	deferredEnvironmentProbePassShader->bind();
+	m_deferredEnvironmentProbePassShader->bind();
 
-	uInverseView.set(_renderData.invViewMatrix);
-	uInverseProjection.set(_renderData.invProjectionMatrix);
+	m_uInverseView.set(_renderData.m_invViewMatrix);
+	m_uInverseProjection.set(_renderData.m_invProjectionMatrix);
 
-	for (auto probe : _level->environment.environmentProbes)
+	for (auto probe : _level->m_environment.m_environmentProbes)
 	{
 		glActiveTexture(GL_TEXTURE10);
 		glBindTexture(GL_TEXTURE_2D, probe->getReflectionTexture()->getId());
 
 		AxisAlignedBoundingBox aabb = probe->getAxisAlignedBoundingBox();
-		glm::vec3 boundingBoxCenter = (aabb.max + aabb.min) * 0.5f;
-		glm::vec3 correctedMax = aabb.max - boundingBoxCenter;
-		glm::vec3 correctedMin = aabb.min - boundingBoxCenter;
+		glm::vec3 boundingBoxCenter = (aabb.m_max + aabb.m_min) * 0.5f;
+		glm::vec3 correctedMax = aabb.m_max - boundingBoxCenter;
+		glm::vec3 correctedMin = aabb.m_min - boundingBoxCenter;
 		glm::vec3 boxScale = correctedMax / 0.5f;
 
 		glm::mat4 modelMatrix = glm::translate(boundingBoxCenter)
 			* glm::scale(glm::vec3(boxScale));
 
-		uBoxMin.set(aabb.min);
-		uBoxMax.set(aabb.max);
-		uProbePosition.set(probe->getPosition());
-		uModelViewProjection.set(_renderData.viewProjectionMatrix * modelMatrix);
+		m_uBoxMin.set(aabb.m_min);
+		m_uBoxMax.set(aabb.m_max);
+		m_uProbePosition.set(probe->getPosition());
+		m_uModelViewProjection.set(_renderData.m_viewProjectionMatrix * modelMatrix);
 
-		boxMesh->getSubMesh()->render();
+		m_boxMesh->getSubMesh()->render();
 	}
 }

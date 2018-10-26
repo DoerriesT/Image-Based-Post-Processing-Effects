@@ -14,52 +14,52 @@
 
 LightProbeRenderPass::LightProbeRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT4 };
-	state.blendState.enabled = false;
-	state.blendState.sFactor = GL_SRC_ALPHA;
-	state.blendState.dFactor = GL_ONE_MINUS_SRC_ALPHA;
-	state.cullFaceState.enabled = true;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = true;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_TRUE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT4 };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_blendState.m_sFactor = GL_SRC_ALPHA;
+	m_state.m_blendState.m_dFactor = GL_ONE_MINUS_SRC_ALPHA;
+	m_state.m_cullFaceState.m_enabled = true;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = true;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_TRUE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	lightProbeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Geometry/lightProbe.vert", "Resources/Shaders/Geometry/lightProbe.frag");
+	m_lightProbeShader = ShaderProgram::createShaderProgram("Resources/Shaders/Geometry/lightProbe.vert", "Resources/Shaders/Geometry/lightProbe.frag");
 
-	uModelViewProjectionMatrix.create(lightProbeShader);
-	uSH.create(lightProbeShader);
-	uIndex.create(lightProbeShader);
+	m_uModelViewProjectionMatrix.create(m_lightProbeShader);
+	m_uSH.create(m_lightProbeShader);
+	m_uIndex.create(m_lightProbeShader);
 
-	sphereMesh = Mesh::createMesh("Resources/Models/sphere.mesh", 1, true);
+	m_sphereMesh = Mesh::createMesh("Resources/Models/sphere.mesh", 1, true);
 }
 
 extern bool renderLightProbes;
 
 void LightProbeRenderPass::render(const RenderData & _renderData, const std::shared_ptr<Level>& _level, RenderPass ** _previousRenderPass)
 {
-	if (!_level->environment.irradianceVolume || !renderLightProbes)
+	if (!_level->m_environment.m_irradianceVolume || !renderLightProbes)
 	{
 		return;
 	}
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
+	m_drawBuffers[0] = _renderData.m_frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
-	lightProbeShader->bind();
+	m_lightProbeShader->bind();
 
-	sphereMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
+	m_sphereMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
 
-	std::shared_ptr<IrradianceVolume> volume = _level->environment.irradianceVolume;
+	std::shared_ptr<IrradianceVolume> volume = _level->m_environment.m_irradianceVolume;
 	glm::ivec3 dims = volume->getDimensions();
 	glm::vec3 origin = volume->getOrigin();
 	float spacing = volume->getSpacing();
@@ -74,13 +74,13 @@ void LightProbeRenderPass::render(const RenderData & _renderData, const std::sha
 			for (int x = 0; x < dims.x; ++x)
 			{
 				glm::vec3 position = origin + glm::vec3(x, y, z) * spacing;
-				uModelViewProjectionMatrix.set(_renderData.viewProjectionMatrix * glm::translate(position) * glm::scale(glm::vec3(0.2f)));
+				m_uModelViewProjectionMatrix.set(_renderData.m_viewProjectionMatrix * glm::translate(position) * glm::scale(glm::vec3(0.2f)));
 				int index = z * (dims.x * dims.y) + y * dims.x + x;
-				uIndex.set(index);
+				m_uIndex.set(index);
 
 				auto data = volume->getProbeData({x, y, z});
 
-				sphereMesh->getSubMesh()->render();
+				m_sphereMesh->getSubMesh()->render();
 			}
 		}
 	}

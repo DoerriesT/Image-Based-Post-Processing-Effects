@@ -5,16 +5,16 @@
 #include <glm\gtx\spline.hpp>
 
 MovementPathSystem::MovementPathSystem()
-	:entityManager(EntityManager::getInstance())
+	:m_entityManager(EntityManager::getInstance())
 {
-	validBitMaps.push_back(Component<MovementPathComponent>::getTypeId());
+	m_validBitMaps.push_back(Component<MovementPathComponent>::getTypeId());
 }
 
 void MovementPathSystem::init()
 {
-	entityManager.addOnComponentAddedListener(this);
-	entityManager.addOnComponentRemovedListener(this);
-	entityManager.addOnEntityDestructionListener(this);
+	m_entityManager.addOnComponentAddedListener(this);
+	m_entityManager.addOnComponentRemovedListener(this);
+	m_entityManager.addOnEntityDestructionListener(this);
 }
 
 void MovementPathSystem::input(double _currentTime, double _timeDelta)
@@ -23,63 +23,63 @@ void MovementPathSystem::input(double _currentTime, double _timeDelta)
 
 void MovementPathSystem::update(double _currentTime, double _timeDelta)
 {
-	for (const Entity *entity : entitiesToRemove)
+	for (const Entity *entity : m_entitiesToRemove)
 	{
-		ContainerUtility::remove(managedEntities, entity);
+		ContainerUtility::remove(m_managedEntities, entity);
 	}
-	entitiesToRemove.clear();
+	m_entitiesToRemove.clear();
 
-	for (const Entity *entity : entitiesToAdd)
+	for (const Entity *entity : m_entitiesToAdd)
 	{
-		managedEntities.push_back(entity);
+		m_managedEntities.push_back(entity);
 	}
-	entitiesToAdd.clear();
+	m_entitiesToAdd.clear();
 
-	for (const Entity *entity : managedEntities)
+	for (const Entity *entity : m_managedEntities)
 	{
-		MovementPathComponent *mpc = entityManager.getComponent<MovementPathComponent>(entity);
+		MovementPathComponent *mpc = m_entityManager.getComponent<MovementPathComponent>(entity);
 		assert(mpc);
 
-		if (_currentTime >= mpc->startTime)
+		if (_currentTime >= mpc->m_startTime)
 		{
-			TransformationComponent *tc = entityManager.getComponent<TransformationComponent>(entity);
-			PathSegment *segment = &mpc->pathSegments[mpc->currentSegmentIndex];
+			TransformationComponent *tc = m_entityManager.getComponent<TransformationComponent>(entity);
+			PathSegment *segment = &mpc->m_pathSegments[mpc->m_currentSegmentIndex];
 			assert(tc && segment);
 			
-			float factor = static_cast<float>(segment->easingFunction(_currentTime - mpc->currentStartTime, segment->totalDuration));
+			float factor = static_cast<float>(segment->m_easingFunction(_currentTime - mpc->m_currentStartTime, segment->m_totalDuration));
 			if (factor >= 1.0f)
 			{
 				// set position to segment end position
-				tc->position = segment->endPosition;
+				tc->m_position = segment->m_endPosition;
 				// update start time for next segment
-				mpc->currentStartTime += segment->totalDuration;
+				mpc->m_currentStartTime += segment->m_totalDuration;
 				// increment segment index
-				++mpc->currentSegmentIndex;
+				++mpc->m_currentSegmentIndex;
 
 				// if we reached the last segment either wrap around or remove the component
-				size_t totalSegments = mpc->pathSegments.size();
-				if (mpc->currentSegmentIndex >= totalSegments)
+				size_t totalSegments = mpc->m_pathSegments.size();
+				if (mpc->m_currentSegmentIndex >= totalSegments)
 				{
-					if (mpc->repeat)
+					if (mpc->m_repeat)
 					{
-						mpc->currentSegmentIndex %= totalSegments;
-						segment->onCompleted();
+						mpc->m_currentSegmentIndex %= totalSegments;
+						segment->m_onCompleted();
 					}
 					else
 					{
-						std::function<void()> onCompleted = segment->onCompleted;
-						entityManager.removeComponent<MovementPathComponent>(entity);
+						std::function<void()> onCompleted = segment->m_onCompleted;
+						m_entityManager.removeComponent<MovementPathComponent>(entity);
 						onCompleted();
 					}
 				}
 				else
 				{
-					segment->onCompleted();
+					segment->m_onCompleted();
 				}
 			}
 			else
 			{
-				tc->position = glm::hermite(segment->startPosition, segment->startTangent, segment->endPosition, segment->endTangent, factor);
+				tc->m_position = glm::hermite(segment->m_startPosition, segment->m_startTangent, segment->m_endPosition, segment->m_endTangent, factor);
 			}
 		}
 	}
@@ -91,34 +91,34 @@ void MovementPathSystem::render()
 
 void MovementPathSystem::onComponentAdded(const Entity *_entity, BaseComponent *_addedComponent)
 {
-	if (validate(entityManager.getComponentBitField(_entity)) && !ContainerUtility::contains(entitiesToAdd, _entity))
+	if (validate(m_entityManager.getComponentBitField(_entity)) && !ContainerUtility::contains(m_entitiesToAdd, _entity))
 	{
-		if (!ContainerUtility::contains(managedEntities, _entity) || ContainerUtility::contains(entitiesToRemove, _entity))
+		if (!ContainerUtility::contains(m_managedEntities, _entity) || ContainerUtility::contains(m_entitiesToRemove, _entity))
 		{
-			entitiesToAdd.push_back(_entity);
+			m_entitiesToAdd.push_back(_entity);
 		}
 	}
 }
 
 void MovementPathSystem::onComponentRemoved(const Entity *_entity, BaseComponent *_removedComponent)
 {
-	if (!validate(entityManager.getComponentBitField(_entity)) && ContainerUtility::contains(managedEntities, _entity))
+	if (!validate(m_entityManager.getComponentBitField(_entity)) && ContainerUtility::contains(m_managedEntities, _entity))
 	{
-		entitiesToRemove.push_back(_entity);
+		m_entitiesToRemove.push_back(_entity);
 	}
 }
 
 void MovementPathSystem::onDestruction(const Entity *_entity)
 {
-	if (ContainerUtility::contains(managedEntities, _entity))
+	if (ContainerUtility::contains(m_managedEntities, _entity))
 	{
-		entitiesToRemove.push_back(_entity);
+		m_entitiesToRemove.push_back(_entity);
 	}
 }
 
 bool MovementPathSystem::validate(std::uint64_t _bitMap)
 {
-	for (std::uint64_t configuration : validBitMaps)
+	for (std::uint64_t configuration : m_validBitMaps)
 	{
 		if ((configuration & _bitMap) == configuration)
 		{

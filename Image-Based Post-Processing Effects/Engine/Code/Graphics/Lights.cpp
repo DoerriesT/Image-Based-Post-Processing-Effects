@@ -7,16 +7,16 @@
 const unsigned int DirectionalLight::DEFAULT_SHADOW_MAP_RESOLUTION = 2048;
 
 DirectionalLight::DirectionalLight(Mobility _mobility, const glm::vec3 &_color, const glm::vec3 &_direction, bool _renderShadows, unsigned int _shadowMapResolution)
-	:mobility(_mobility), color(_color), direction(glm::normalize(_direction)), renderShadows(false), shadowMapResolution(_shadowMapResolution)
+	:m_mobility(_mobility), m_color(_color), m_direction(glm::normalize(_direction)), m_renderShadows(false), m_shadowMapResolution(_shadowMapResolution)
 {
 	setRenderShadows(_renderShadows);
 }
 
 void DirectionalLight::createShadowMap()
 {
-	glGenTextures(1, &shadowMap);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, shadowMap);
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_DEPTH_COMPONENT32F, shadowMapResolution, shadowMapResolution, SHADOW_CASCADES);
+	glGenTextures(1, &m_shadowMap);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_shadowMap);
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_DEPTH_COMPONENT32F, m_shadowMapResolution, m_shadowMapResolution, SHADOW_CASCADES);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -37,44 +37,44 @@ std::shared_ptr<DirectionalLight> DirectionalLight::createDirectionalLight(Mobil
 
 DirectionalLight::~DirectionalLight()
 {
-	if (renderShadows)
+	if (m_renderShadows)
 	{
-		glDeleteTextures(1, &shadowMap);
+		glDeleteTextures(1, &m_shadowMap);
 	}
 }
 
 void DirectionalLight::setRenderShadows(bool _renderShadows)
 {
-	if (renderShadows != _renderShadows)
+	if (m_renderShadows != _renderShadows)
 	{
-		renderShadows = _renderShadows;
+		m_renderShadows = _renderShadows;
 
-		if (renderShadows)
+		if (m_renderShadows)
 		{
 			createShadowMap();
 		}
 		else
 		{
-			glDeleteTextures(1, &shadowMap);
+			glDeleteTextures(1, &m_shadowMap);
 		}
 	}
 }
 
 void DirectionalLight::setColor(const glm::vec3 &_color)
 {
-	color = _color;
+	m_color = _color;
 }
 
 void DirectionalLight::setDirection(const glm::vec3 &_direction)
 {
-	direction = glm::normalize(_direction);
+	m_direction = glm::normalize(_direction);
 }
 
 void DirectionalLight::setViewProjectionMatrices(glm::mat4 *_viewProjectionMatrices)
 {
 	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 	{
-		viewProjectionMatrices[i] = _viewProjectionMatrices[i];
+		m_viewProjectionMatrices[i] = _viewProjectionMatrices[i];
 	}
 }
 
@@ -82,68 +82,68 @@ void DirectionalLight::setSplits(float *_splits)
 {
 	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 	{
-		splits[i] = _splits[i];
+		m_splits[i] = _splits[i];
 	}
 }
 
 void DirectionalLight::setShadowMapResolution(unsigned int _resolution)
 {
-	shadowMapResolution = _resolution;
-	if (renderShadows)
+	m_shadowMapResolution = _resolution;
+	if (m_renderShadows)
 	{
-		glDeleteTextures(1, &shadowMap);
+		glDeleteTextures(1, &m_shadowMap);
 		createShadowMap();
 	}
 }
 
 void DirectionalLight::updateViewValues(const glm::mat4 &_viewMatrix)
 {
-	viewDirection = glm::vec3(_viewMatrix * glm::vec4(direction, 0.0));
+	m_viewDirection = glm::vec3(_viewMatrix * glm::vec4(m_direction, 0.0));
 }
 
 bool DirectionalLight::isRenderShadows() const
 {
-	return renderShadows;
+	return m_renderShadows;
 }
 
 Mobility DirectionalLight::getMobility() const
 {
-	return mobility;
+	return m_mobility;
 }
 
 glm::vec3 DirectionalLight::getColor() const
 {
-	return color;
+	return m_color;
 }
 
 glm::vec3 DirectionalLight::getDirection() const
 {
-	return direction;
+	return m_direction;
 }
 
 glm::vec3 DirectionalLight::getViewDirection() const
 {
-	return viewDirection;
+	return m_viewDirection;
 }
 
 const glm::mat4 *DirectionalLight::getViewProjectionMatrices() const
 {
-	return viewProjectionMatrices;
+	return m_viewProjectionMatrices;
 }
 
 const float *DirectionalLight::getSplits() const
 {
-	return splits;
+	return m_splits;
 }
 
 unsigned int DirectionalLight::getShadowMap() const
 {
-	return shadowMap;
+	return m_shadowMap;
 }
 
 unsigned int DirectionalLight::getShadowMapResolution() const
 {
-	return shadowMapResolution;
+	return m_shadowMapResolution;
 }
 
 
@@ -156,13 +156,13 @@ PointLight::PointLight(Mobility _mobility,
 	float _radius, 
 	bool _renderShadows, 
 	unsigned int _shadowMapResolution)
-	:mobility(_mobility),
-	luminousPower(_luminousPower),
-	color(_color), 
-	position(_position), 
-	radius(_radius), 
-	renderShadows(false), 
-	shadowMapResolution(_shadowMapResolution)
+	:m_mobility(_mobility),
+	m_luminousPower(_luminousPower),
+	m_color(_color), 
+	m_position(_position), 
+	m_radius(_radius), 
+	m_renderShadows(false), 
+	m_shadowMapResolution(_shadowMapResolution)
 {
 	assert(_radius > 0.0);
 
@@ -174,23 +174,23 @@ void PointLight::updateViewProjectionMatrices()
 {
 	const float aspectRatio = 1.0f;
 	const float nearPlane = 0.1f;
-	glm::mat4 projection = glm::perspective(glm::radians(90.0f), aspectRatio, nearPlane, radius);
+	glm::mat4 projection = glm::perspective(glm::radians(90.0f), aspectRatio, nearPlane, m_radius);
 
-	viewProjectionMatrices[0] = projection * glm::lookAt(position, position + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
-	viewProjectionMatrices[1] = projection * glm::lookAt(position, position + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
-	viewProjectionMatrices[2] = projection * glm::lookAt(position, position + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
-	viewProjectionMatrices[3] = projection * glm::lookAt(position, position + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0));
-	viewProjectionMatrices[4] = projection * glm::lookAt(position, position + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0));
-	viewProjectionMatrices[5] = projection * glm::lookAt(position, position + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0));
+	m_viewProjectionMatrices[0] = projection * glm::lookAt(m_position, m_position + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
+	m_viewProjectionMatrices[1] = projection * glm::lookAt(m_position, m_position + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
+	m_viewProjectionMatrices[2] = projection * glm::lookAt(m_position, m_position + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
+	m_viewProjectionMatrices[3] = projection * glm::lookAt(m_position, m_position + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0));
+	m_viewProjectionMatrices[4] = projection * glm::lookAt(m_position, m_position + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0));
+	m_viewProjectionMatrices[5] = projection * glm::lookAt(m_position, m_position + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0));
 }
 
 void PointLight::createShadowMap()
 {
-	glGenTextures(1, &shadowMap);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMap);
+	glGenTextures(1, &m_shadowMap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_shadowMap);
 	for (int i = 0; i < 6; ++i)
 	{
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT32F, shadowMapResolution, shadowMapResolution, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT32F, m_shadowMapResolution, m_shadowMapResolution, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	}
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -219,132 +219,132 @@ std::shared_ptr<PointLight> PointLight::createPointLight(
 
 PointLight::~PointLight()
 {
-	if (renderShadows)
+	if (m_renderShadows)
 	{
-		glDeleteTextures(1, &shadowMap);
+		glDeleteTextures(1, &m_shadowMap);
 	}
 }
 
 void PointLight::setRenderShadows(bool _renderShadows)
 {
-	if (renderShadows != _renderShadows)
+	if (m_renderShadows != _renderShadows)
 	{
-		renderShadows = _renderShadows;
+		m_renderShadows = _renderShadows;
 
-		if (renderShadows)
+		if (m_renderShadows)
 		{
 			createShadowMap();
 		}
 		else
 		{
-			glDeleteTextures(1, &shadowMap);
+			glDeleteTextures(1, &m_shadowMap);
 		}
 	}
 }
 
 void PointLight::setColor(const glm::vec3 &_color)
 {
-	color = _color;
+	m_color = _color;
 }
 
 void PointLight::setPosition(const glm::vec3 &_position)
 {
-	position = _position;
+	m_position = _position;
 	updateViewProjectionMatrices();
 }
 
 void PointLight::setLuminousPower(float _luminousPower)
 {
-	luminousPower = _luminousPower;
+	m_luminousPower = _luminousPower;
 }
 
 void PointLight::setRadius(float _radius)
 {
 	assert(_radius > 0.0);
 
-	radius = _radius;
+	m_radius = _radius;
 	updateViewProjectionMatrices();
 }
 
 void PointLight::setShadowMapResolution(unsigned int _resolution)
 {
-	shadowMapResolution = _resolution;
-	if (renderShadows)
+	m_shadowMapResolution = _resolution;
+	if (m_renderShadows)
 	{
-		glDeleteTextures(1, &shadowMap);
+		glDeleteTextures(1, &m_shadowMap);
 		createShadowMap();
 	}
 }
 
 void PointLight::updateViewValues(const glm::mat4 &_viewMatrix)
 {
-	glm::vec4 tmp = _viewMatrix * glm::vec4(position, 1.0);
-	viewPosition = glm::vec3(tmp / tmp.w);
+	glm::vec4 tmp = _viewMatrix * glm::vec4(m_position, 1.0);
+	m_viewPosition = glm::vec3(tmp / tmp.w);
 }
 
 bool PointLight::isRenderShadows() const
 {
-	return renderShadows;
+	return m_renderShadows;
 }
 
 Mobility PointLight::getMobility() const
 {
-	return mobility;
+	return m_mobility;
 }
 
 glm::vec3 PointLight::getColor() const
 {
-	return color;
+	return m_color;
 }
 
 glm::vec3 PointLight::getPosition() const
 {
-	return position;
+	return m_position;
 }
 
 glm::vec3 PointLight::getViewPosition() const
 {
-	return viewPosition;
+	return m_viewPosition;
 }
 
 glm::vec4 PointLight::getBoundingSphere() const
 {
-	return glm::vec4(position, radius);
+	return glm::vec4(m_position, m_radius);
 }
 
 float PointLight::getLuminousPower() const
 {
-	return luminousPower;
+	return m_luminousPower;
 }
 
 float PointLight::getLuminousIntensity() const
 {
-	return luminousPower * (1.0f / (4.0f * glm::pi<float>()));
+	return m_luminousPower * (1.0f / (4.0f * glm::pi<float>()));
 }
 
 float PointLight::getRadius() const
 {
-	return radius;
+	return m_radius;
 }
 
 float PointLight::getInvSqrRadius() const
 {
-	return 1.0f / (radius * radius);
+	return 1.0f / (m_radius * m_radius);
 }
 
 const glm::mat4 *PointLight::getViewProjectionMatrices() const
 {
-	return viewProjectionMatrices;
+	return m_viewProjectionMatrices;
 }
 
 unsigned int PointLight::getShadowMap() const
 {
-	return shadowMap;
+	return m_shadowMap;
 }
 
 unsigned int PointLight::getShadowMapResolution() const
 {
-	return shadowMapResolution;
+	return m_shadowMapResolution;
 }
 
 
@@ -362,26 +362,26 @@ SpotLight::SpotLight(Mobility _mobility,
 	unsigned int _shadowMapResolution, 
 	bool _projector, 
 	const std::shared_ptr<Texture> &_projectionTexture)
-	:mobility(_mobility),
-	luminousPower(_luminousPower),
-	color(_color), 
-	position(_position), 
-	direction(glm::normalize(_direction)), 
-	outerAngle(glm::radians(_outerAngle)), 
-	innerAngle(glm::radians(_innerAngle)),
-	angleScale(1.0f / glm::max(0.001f, glm::cos(innerAngle * 0.5f) - glm::cos(outerAngle * 0.5f))),
-	angleOffset(-glm::cos(outerAngle * 0.5f) * angleScale), // Careful; make sure initialization order is kept
-	radius(_radius),
-	renderShadows(false),
-	projector(_projector),
-	shadowMapResolution(_shadowMapResolution),
-	projectionTexture(_projectionTexture)
+	:m_mobility(_mobility),
+	m_luminousPower(_luminousPower),
+	m_color(_color), 
+	m_position(_position), 
+	m_direction(glm::normalize(_direction)), 
+	m_outerAngle(glm::radians(_outerAngle)), 
+	m_innerAngle(glm::radians(_innerAngle)),
+	m_angleScale(1.0f / glm::max(0.001f, glm::cos(m_innerAngle * 0.5f) - glm::cos(m_outerAngle * 0.5f))),
+	m_angleOffset(-glm::cos(m_outerAngle * 0.5f) * m_angleScale), // Careful; make sure initialization order is kept
+	m_radius(_radius),
+	m_renderShadows(false),
+	m_projector(_projector),
+	m_shadowMapResolution(_shadowMapResolution),
+	m_projectionTexture(_projectionTexture)
 {
 	assert(_radius > 0.0);
-	assert(innerAngle <= outerAngle);
-	assert(innerAngle >= 0.0f);
-	assert(outerAngle > 0.0f);
-	assert(outerAngle <= glm::radians(90.0f));
+	assert(m_innerAngle <= m_outerAngle);
+	assert(m_innerAngle >= 0.0f);
+	assert(m_outerAngle > 0.0f);
+	assert(m_outerAngle <= glm::radians(90.0f));
 
 	setRenderShadows(_renderShadows);
 	updateViewProjectionMatrix();
@@ -395,30 +395,30 @@ void SpotLight::updateViewProjectionMatrix()
 
 	glm::vec3 upDir(0.0f, 1.0f, 0.0f);
 	// choose different up vector if light direction would be linearly dependent otherwise
-	if (abs(direction.x) < 0.001f && abs(direction.z) < 0.001f)
+	if (abs(m_direction.x) < 0.001f && abs(m_direction.z) < 0.001f)
 	{
 		upDir = glm::vec3(1.0f, 0.0f, 0.0f);
 	}
-	viewProjectionMatrix  = glm::perspective(outerAngle, ASPECT_RATIO, NEAR_PLANE, radius) * glm::lookAt(position, position + direction, upDir);
+	m_viewProjectionMatrix  = glm::perspective(m_outerAngle, ASPECT_RATIO, NEAR_PLANE, m_radius) * glm::lookAt(m_position, m_position + m_direction, upDir);
 }
 
 void SpotLight::updateBoundingSphere()
 {
-	if (outerAngle > glm::pi<float>() * 0.25f)
+	if (m_outerAngle > glm::pi<float>() * 0.25f)
 	{
-		boundingSphere = glm::vec4(position + glm::cos(outerAngle) * radius * direction, glm::sin(outerAngle) * radius);
+		m_boundingSphere = glm::vec4(m_position + glm::cos(m_outerAngle) * m_radius * m_direction, glm::sin(m_outerAngle) * m_radius);
 	}
 	else
 	{
-		boundingSphere = glm::vec4(position + radius / (2.0f * glm::cos(outerAngle)) * direction, radius / (2.0f * glm::cos(outerAngle)));
+		m_boundingSphere = glm::vec4(m_position + m_radius / (2.0f * glm::cos(m_outerAngle)) * m_direction, m_radius / (2.0f * glm::cos(m_outerAngle)));
 	}
 }
 
 void SpotLight::createShadowMap()
 {
-	glGenTextures(1, &shadowMap);
-	glBindTexture(GL_TEXTURE_2D, shadowMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, shadowMapResolution, shadowMapResolution, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glGenTextures(1, &m_shadowMap);
+	glBindTexture(GL_TEXTURE_2D, m_shadowMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, m_shadowMapResolution, m_shadowMapResolution, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -450,77 +450,77 @@ std::shared_ptr<SpotLight> SpotLight::createSpotLight(
 
 SpotLight::~SpotLight()
 {
-	if (renderShadows)
+	if (m_renderShadows)
 	{
-		glDeleteTextures(1, &shadowMap);
+		glDeleteTextures(1, &m_shadowMap);
 	}
 }
 
 void SpotLight::setRenderShadows(bool _renderShadows)
 {
-	if (renderShadows != _renderShadows)
+	if (m_renderShadows != _renderShadows)
 	{
-		renderShadows = _renderShadows;
+		m_renderShadows = _renderShadows;
 
-		if (renderShadows)
+		if (m_renderShadows)
 		{
 			createShadowMap();
 		}
 		else
 		{
-			glDeleteTextures(1, &shadowMap);
+			glDeleteTextures(1, &m_shadowMap);
 		}
 	}
 }
 
 void SpotLight::setProjector(bool _projector)
 {
-	projector = _projector;
+	m_projector = _projector;
 }
 
 void SpotLight::setColor(const glm::vec3 &_color)
 {
-	color = _color;
+	m_color = _color;
 }
 
 void SpotLight::setPosition(const glm::vec3 &_position)
 {
-	position = _position;
+	m_position = _position;
 	updateViewProjectionMatrix();
 	updateBoundingSphere();
 }
 
 void SpotLight::setDirection(const glm::vec3 &_direction)
 {
-	direction = glm::normalize(_direction);
+	m_direction = glm::normalize(_direction);
 	updateViewProjectionMatrix();
 	updateBoundingSphere();
 }
 
 void SpotLight::setLuminousPower(float _luminousPower)
 {
-	luminousPower = _luminousPower;
+	m_luminousPower = _luminousPower;
 }
 
 void SpotLight::setInnerAngle(float _angle)
 {
-	assert(innerAngle <= outerAngle);
-	assert(innerAngle >= 0.0f);
+	assert(m_innerAngle <= m_outerAngle);
+	assert(m_innerAngle >= 0.0f);
 
-	innerAngle = glm::radians(_angle);
-	angleScale = 1.0f / glm::max(0.001f, glm::cos(innerAngle * 0.5f) - glm::cos(outerAngle * 0.5f));
-	angleOffset = -glm::cos(outerAngle * 0.5f) * angleScale;
+	m_innerAngle = glm::radians(_angle);
+	m_angleScale = 1.0f / glm::max(0.001f, glm::cos(m_innerAngle * 0.5f) - glm::cos(m_outerAngle * 0.5f));
+	m_angleOffset = -glm::cos(m_outerAngle * 0.5f) * m_angleScale;
 }
 
 void SpotLight::setOuterAngle(float _angle)
 {
-	assert(innerAngle <= outerAngle);
-	assert(outerAngle > 0.0f);
-	assert(outerAngle <= glm::radians(90.0f));
+	assert(m_innerAngle <= m_outerAngle);
+	assert(m_outerAngle > 0.0f);
+	assert(m_outerAngle <= glm::radians(90.0f));
 
-	outerAngle = glm::radians(_angle);
-	angleScale = 1.0f / glm::max(0.001f, glm::cos(innerAngle * 0.5f) - glm::cos(outerAngle * 0.5f));
-	angleOffset = -glm::cos(outerAngle * 0.5f) * angleScale;
+	m_outerAngle = glm::radians(_angle);
+	m_angleScale = 1.0f / glm::max(0.001f, glm::cos(m_innerAngle * 0.5f) - glm::cos(m_outerAngle * 0.5f));
+	m_angleOffset = -glm::cos(m_outerAngle * 0.5f) * m_angleScale;
 	updateViewProjectionMatrix();
 	updateBoundingSphere();
 }
@@ -529,134 +529,134 @@ void SpotLight::setRadius(float _radius)
 {
 	assert(_radius > 0.0);
 
-	radius = _radius;
+	m_radius = _radius;
 	updateViewProjectionMatrix();
 	updateBoundingSphere();
 }
 
 void SpotLight::setShadowMapResolution(unsigned int _resolution)
 {
-	shadowMapResolution = _resolution;
-	if (renderShadows)
+	m_shadowMapResolution = _resolution;
+	if (m_renderShadows)
 	{
-		glDeleteTextures(1, &shadowMap);
+		glDeleteTextures(1, &m_shadowMap);
 		createShadowMap();
 	}
 }
 
 void SpotLight::setProjectionTexture(const std::shared_ptr<Texture> &_projectionTexture)
 {
-	projectionTexture = _projectionTexture;
+	m_projectionTexture = _projectionTexture;
 }
 
 void SpotLight::updateViewValues(const glm::mat4 &_viewMatrix)
 {
-	glm::vec4 tmp = _viewMatrix * glm::vec4(position, 1.0);
-	viewPosition = glm::vec3(tmp / tmp.w);
-	viewDirection = glm::vec3(_viewMatrix * glm::vec4(direction, 0.0));
+	glm::vec4 tmp = _viewMatrix * glm::vec4(m_position, 1.0);
+	m_viewPosition = glm::vec3(tmp / tmp.w);
+	m_viewDirection = glm::vec3(_viewMatrix * glm::vec4(m_direction, 0.0));
 }
 
 bool SpotLight::isRenderShadows() const
 {
-	return renderShadows;
+	return m_renderShadows;
 }
 
 bool SpotLight::isProjector() const
 {
-	return projector;
+	return m_projector;
 }
 
 Mobility SpotLight::getMobility() const
 {
-	return mobility;
+	return m_mobility;
 }
 
 glm::vec3 SpotLight::getColor() const
 {
-	return color;
+	return m_color;
 }
 
 glm::vec3 SpotLight::getPosition() const
 {
-	return position;
+	return m_position;
 }
 
 glm::vec3 SpotLight::getDirection() const
 {
-	return direction;
+	return m_direction;
 }
 
 glm::vec3 SpotLight::getViewPosition() const
 {
-	return viewPosition;
+	return m_viewPosition;
 }
 
 glm::vec3 SpotLight::getViewDirection() const
 {
-	return viewDirection;
+	return m_viewDirection;
 }
 
 glm::vec4 SpotLight::getBoundingSphere() const
 {
-	return boundingSphere;
+	return m_boundingSphere;
 }
 
 float SpotLight::getLuminousPower() const
 {
-	return luminousPower;
+	return m_luminousPower;
 }
 
 float SpotLight::getLuminousIntensity() const
 {
-	return luminousPower * (1.0f / glm::pi<float>());
+	return m_luminousPower * (1.0f / glm::pi<float>());
 }
 
 float SpotLight::getInnerAngle() const
 {
-	return innerAngle;
+	return m_innerAngle;
 }
 
 float SpotLight::getOuterAngle() const
 {
-	return outerAngle;
+	return m_outerAngle;
 }
 
 float SpotLight::getAngleScale() const
 {
-	return angleScale;
+	return m_angleScale;
 }
 
 float SpotLight::getAngleOffset() const
 {
-	return angleOffset;
+	return m_angleOffset;
 }
 
 float SpotLight::getRadius() const
 {
-	return radius;
+	return m_radius;
 }
 
 float SpotLight::getInvSqrRadius() const
 {
-	return 1.0f / (radius * radius);
+	return 1.0f / (m_radius * m_radius);
 }
 
 glm::mat4 SpotLight::getViewProjectionMatrix() const
 {
-	return viewProjectionMatrix;
+	return m_viewProjectionMatrix;
 }
 
 unsigned int SpotLight::getShadowMap() const
 {
-	return shadowMap;
+	return m_shadowMap;
 }
 
 unsigned int SpotLight::getShadowMapResolution() const
 {
-	return shadowMapResolution;
+	return m_shadowMapResolution;
 }
 
 std::shared_ptr<Texture> SpotLight::getProjectionTexture() const
 {
-	return projectionTexture;
+	return m_projectionTexture;
 }

@@ -2,32 +2,32 @@
 
 VelocityTileMaxRenderPass::VelocityTileMaxRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT0 };
-	state.blendState.enabled = false;
-	state.blendState.sFactor = GL_ONE;
-	state.blendState.dFactor = GL_ONE;
-	state.cullFaceState.enabled = false;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = false;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT0 };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_blendState.m_sFactor = GL_ONE;
+	m_state.m_blendState.m_dFactor = GL_ONE;
+	m_state.m_cullFaceState.m_enabled = false;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = false;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_FALSE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	tileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/MotionBlur/velocityTileMax.frag");
+	m_tileMaxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/MotionBlur/velocityTileMax.frag");
 
-	uDirectionVTM.create(tileMaxShader);
-	uTileSizeVTM.create(tileMaxShader);
+	m_uDirection.create(m_tileMaxShader);
+	m_uTileSize.create(m_tileMaxShader);
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 void VelocityTileMaxRenderPass::render(GLuint _inputVelocityTexture, GLuint _intermediaryTexture, GLuint _velocityTileMaxTexture, unsigned int _tileSize, RenderPass ** _previousRenderPass)
@@ -35,42 +35,42 @@ void VelocityTileMaxRenderPass::render(GLuint _inputVelocityTexture, GLuint _int
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	m_fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
-	tileMaxShader->bind();
+	m_tileMaxShader->bind();
 
-	uTileSizeVTM.set(_tileSize);
+	m_uTileSize.set(_tileSize);
 
 	glActiveTexture(GL_TEXTURE0);
 
 	// fullscreen to first step
 	{
-		glViewport(0, 0, width / _tileSize, height);
+		glViewport(0, 0, m_width / _tileSize, m_height);
 		glBindTexture(GL_TEXTURE_2D, _inputVelocityTexture);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _intermediaryTexture, 0);
 
-		uDirectionVTM.set(false);
+		m_uDirection.set(false);
 
-		fullscreenTriangle->getSubMesh()->render();
+		m_fullscreenTriangle->getSubMesh()->render();
 	}
 
 	// first to second step
 	{
-		glViewport(0, 0, width / _tileSize, height / _tileSize);
+		glViewport(0, 0, m_width / _tileSize, m_height / _tileSize);
 		glBindTexture(GL_TEXTURE_2D, _intermediaryTexture);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _velocityTileMaxTexture, 0);
 
-		uDirectionVTM.set(true);
+		m_uDirection.set(true);
 
-		fullscreenTriangle->getSubMesh()->render();
+		m_fullscreenTriangle->getSubMesh()->render();
 	}
 
-	glViewport(0, 0, state.viewportState.width, state.viewportState.height);
+	glViewport(0, 0, m_state.m_viewportState.m_width, m_state.m_viewportState.m_height);
 }
 
 void VelocityTileMaxRenderPass::resize(unsigned int _width, unsigned int _height)
 {
 	RenderPass::resize(_width, _height);
-	width = _width;
-	height = _height;
+	m_width = _width;
+	m_height = _height;
 }

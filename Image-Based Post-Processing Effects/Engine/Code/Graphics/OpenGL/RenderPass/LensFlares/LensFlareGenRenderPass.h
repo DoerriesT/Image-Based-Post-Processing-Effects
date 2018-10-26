@@ -14,14 +14,14 @@ public:
 	void resize(unsigned int _width, unsigned int _height) override;
 
 private:
-	std::shared_ptr<ShaderProgram> lensFlareGenShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_lensFlareGenShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<GLint> uGhostsLFG = Uniform<GLint>("uGhosts");
-	Uniform<GLfloat> uGhostDispersalLFG = Uniform<GLfloat>("uGhostDispersal");
-	Uniform<GLfloat> uHaloRadiusLFG = Uniform<GLfloat>("uHaloRadius");
-	Uniform<GLfloat> uDistortionLFG = Uniform<GLfloat>("uDistortion");
-	Uniform<glm::vec4> uScaleLFG = Uniform<glm::vec4>("uScale");
-	Uniform<glm::vec4> uBiasLFG = Uniform<glm::vec4>("uBias");
+	Uniform<GLint> m_uGhosts = Uniform<GLint>("uGhosts");
+	Uniform<GLfloat> m_uGhostDispersal = Uniform<GLfloat>("uGhostDispersal");
+	Uniform<GLfloat> m_uHaloRadius = Uniform<GLfloat>("uHaloRadius");
+	Uniform<GLfloat> m_uDistortion = Uniform<GLfloat>("uDistortion");
+	Uniform<glm::vec4> m_uScale = Uniform<glm::vec4>("uScale");
+	Uniform<glm::vec4> m_uBias = Uniform<glm::vec4>("uBias");
 
 };

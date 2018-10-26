@@ -11,5 +11,5 @@ public:
 	bool testSphere(const glm::vec4 &_sphere) const;
 
 private:
-	glm::vec4 planes[6];
+	glm::vec4 m_planes[6];
 };

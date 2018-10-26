@@ -31,7 +31,7 @@ public:
 	virtual std::uint64_t getFamilyIdOfDerived() = 0;
 
 protected:
-	static std::uint64_t typeCount;
+	static std::uint64_t m_typeCount;
 };
 
 // all components should be derived from this class to be able to determine their type
@@ -52,7 +52,7 @@ template<typename Type>
 inline std::uint64_t Component<Type>::getTypeId()
 {
 	static const std::uint64_t ONE = 1ui64;
-	static const std::uint64_t type = ONE << typeCount++;
+	static const std::uint64_t type = ONE << m_typeCount++;
 	return type;
 }
 
@@ -86,9 +86,9 @@ const std::uint64_t MAX_FAMILY_ID = PHYSICS_FAMILY;
 struct BoundingBoxComponent : public Component<BoundingBoxComponent>
 {
 	explicit BoundingBoxComponent(const glm::vec3 &_maxCorner, const glm::quat &_rotation = glm::quat())
-		:maxCorner(_maxCorner), rotation(_rotation) { };
-	glm::vec3 maxCorner;
-	glm::quat rotation;
+		:m_maxCorner(_maxCorner), m_rotation(_rotation) { };
+	glm::vec3 m_maxCorner;
+	glm::quat m_rotation;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -96,9 +96,9 @@ struct BoundingBoxComponent : public Component<BoundingBoxComponent>
 struct CleanupComponent : public Component<CleanupComponent>
 {
 	explicit CleanupComponent(double _cleanupTime, std::function<void()> _onCleanup)
-		:cleanupTime(_cleanupTime), onCleanup(_onCleanup) {	};
-	double cleanupTime;
-	std::function<void()> onCleanup;
+		:m_cleanupTime(_cleanupTime), m_onCleanup(_onCleanup) {	};
+	double m_cleanupTime;
+	std::function<void()> m_onCleanup;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -106,9 +106,9 @@ struct CleanupComponent : public Component<CleanupComponent>
 struct CustomTransparencyShaderComponent : public Component<CustomTransparencyShaderComponent>
 {
 	explicit CustomTransparencyShaderComponent(const std::shared_ptr<ShaderProgram> &_transparencyShader, std::function<void(const RenderData &, const std::shared_ptr<Level> &, const std::unique_ptr<EntityRenderData> &)> _renderTransparency)
-		: transparencyShader(_transparencyShader), renderTransparency(_renderTransparency) { };
-	std::shared_ptr<ShaderProgram> transparencyShader;
-	std::function<void(const RenderData &, const std::shared_ptr<Level> &, const std::unique_ptr<EntityRenderData> &)> renderTransparency;
+		: m_transparencyShader(_transparencyShader), m_renderTransparency(_renderTransparency) { };
+	std::shared_ptr<ShaderProgram> m_transparencyShader;
+	std::function<void(const RenderData &, const std::shared_ptr<Level> &, const std::unique_ptr<EntityRenderData> &)> m_renderTransparency;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -116,9 +116,9 @@ struct CustomTransparencyShaderComponent : public Component<CustomTransparencySh
 struct CustomOpaqueShaderComponent : public Component<CustomOpaqueShaderComponent>
 {
 	explicit CustomOpaqueShaderComponent(const std::shared_ptr<ShaderProgram> &_opaqueShader, std::function<void(const RenderData &, const std::shared_ptr<Level> &, const std::unique_ptr<EntityRenderData> &)> _renderOpaque)
-		: opaqueShader(_opaqueShader), renderOpaque(_renderOpaque) { };
-	std::shared_ptr<ShaderProgram> opaqueShader;
-	std::function<void(const RenderData &, const std::shared_ptr<Level> &, const std::unique_ptr<EntityRenderData> &)> renderOpaque;
+		: m_opaqueShader(_opaqueShader), m_renderOpaque(_renderOpaque) { };
+	std::shared_ptr<ShaderProgram> m_opaqueShader;
+	std::function<void(const RenderData &, const std::shared_ptr<Level> &, const std::unique_ptr<EntityRenderData> &)> m_renderOpaque;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -126,9 +126,9 @@ struct CustomOpaqueShaderComponent : public Component<CustomOpaqueShaderComponen
 struct GrabbedComponent : public Component<GrabbedComponent>
 {
 	explicit GrabbedComponent(const glm::vec3 &_planeOrigin, const glm::vec3 &_planeNormal)
-		:planeOrigin(_planeOrigin), planeNormal(_planeNormal) { };
-	glm::vec3 planeOrigin;
-	glm::vec3 planeNormal;
+		:m_planeOrigin(_planeOrigin), m_planeNormal(_planeNormal) { };
+	glm::vec3 m_planeOrigin;
+	glm::vec3 m_planeNormal;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -136,8 +136,8 @@ struct GrabbedComponent : public Component<GrabbedComponent>
 struct ModelComponent : public Component<ModelComponent>
 {
 	explicit ModelComponent(const Model &_model)
-		:model(_model) { };
-	Model model;
+		:m_model(_model) { };
+	Model m_model;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -145,28 +145,28 @@ struct ModelComponent : public Component<ModelComponent>
 struct PathSegment
 {
 	explicit PathSegment(const glm::vec3 &_startPosition, const glm::vec3 &_endPosition, const glm::vec3 &_startTangent, const glm::vec3 &_endTangent, double _totalDuration, double(*_easingFunction)(double, double), std::function<void()> _onCompleted = []() {})
-		: startPosition(_startPosition), endPosition(_endPosition), startTangent(_startTangent), endTangent(_endTangent), totalDuration(_totalDuration), easingFunction(_easingFunction), onCompleted(_onCompleted) { };
-	glm::vec3 startPosition;
-	glm::vec3 endPosition;
-	glm::vec3 startTangent;
-	glm::vec3 endTangent;
-	double totalDuration;
-	double(*easingFunction)(double, double);
-	std::function<void()> onCompleted;
+		: m_startPosition(_startPosition), m_endPosition(_endPosition), m_startTangent(_startTangent), m_endTangent(_endTangent), m_totalDuration(_totalDuration), m_easingFunction(_easingFunction), m_onCompleted(_onCompleted) { };
+	glm::vec3 m_startPosition;
+	glm::vec3 m_endPosition;
+	glm::vec3 m_startTangent;
+	glm::vec3 m_endTangent;
+	double m_totalDuration;
+	double(*m_easingFunction)(double, double);
+	std::function<void()> m_onCompleted;
 };
 
 struct MovementPathComponent : public Component<MovementPathComponent>
 {
 	explicit MovementPathComponent(const std::vector<PathSegment> &_pathSegments, double _startTime, bool _repeat)
-		:pathSegments(_pathSegments), startTime(_startTime), repeat(_repeat), currentStartTime(_startTime), currentSegmentIndex(0)
+		:m_pathSegments(_pathSegments), m_startTime(_startTime), m_repeat(_repeat), m_currentStartTime(_startTime), m_currentSegmentIndex(0)
 	{
 		assert(!_pathSegments.empty());
 	};
-	std::vector<PathSegment> pathSegments;
-	double startTime;
-	bool repeat;
-	double currentStartTime;
-	size_t currentSegmentIndex;
+	std::vector<PathSegment> m_pathSegments;
+	double m_startTime;
+	bool m_repeat;
+	double m_currentStartTime;
+	size_t m_currentSegmentIndex;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -174,14 +174,14 @@ struct MovementPathComponent : public Component<MovementPathComponent>
 struct MovementComponent : public Component<MovementComponent>
 {
 	explicit MovementComponent(const glm::vec3 &_startPosition, const glm::vec3 &_endPosition, double _startTime, double _totalDuration, double(*_easingFunction)(double, double), std::function<void()> _onCompleted = []() {})
-		:startPosition(_startPosition), endPosition(_endPosition), path(_endPosition - _startPosition), startTime(_startTime), totalDuration(_totalDuration), easingFunction(_easingFunction), onCompleted(_onCompleted) { };
-	glm::vec3 startPosition;
-	glm::vec3 endPosition;
-	glm::vec3 path;
-	double startTime;
-	double totalDuration;
-	double(*easingFunction)(double, double);
-	std::function<void()> onCompleted;
+		:m_startPosition(_startPosition), m_endPosition(_endPosition), m_path(_endPosition - _startPosition), m_startTime(_startTime), m_totalDuration(_totalDuration), m_easingFunction(_easingFunction), m_onCompleted(_onCompleted) { };
+	glm::vec3 m_startPosition;
+	glm::vec3 m_endPosition;
+	glm::vec3 m_path;
+	double m_startTime;
+	double m_totalDuration;
+	double(*m_easingFunction)(double, double);
+	std::function<void()> m_onCompleted;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -189,9 +189,9 @@ struct MovementComponent : public Component<MovementComponent>
 struct OutlineComponent : public Component<OutlineComponent>
 {
 	explicit OutlineComponent(float _scaleMultiplier, const glm::vec4 &_outlineColor)
-		:scaleMultiplier(_scaleMultiplier), outlineColor(_outlineColor) { };
-	float scaleMultiplier;
-	glm::vec4 outlineColor;
+		:m_scaleMultiplier(_scaleMultiplier), m_outlineColor(_outlineColor) { };
+	float m_scaleMultiplier;
+	glm::vec4 m_outlineColor;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -199,8 +199,8 @@ struct OutlineComponent : public Component<OutlineComponent>
 struct PerpetualRotationComponent : public Component<PerpetualRotationComponent>
 {
 	explicit PerpetualRotationComponent(const glm::vec3 &_rotationIncrement)
-		:rotationIncrement(_rotationIncrement) { };
-	glm::vec3 rotationIncrement;
+		:m_rotationIncrement(_rotationIncrement) { };
+	glm::vec3 m_rotationIncrement;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -208,23 +208,23 @@ struct PerpetualRotationComponent : public Component<PerpetualRotationComponent>
 struct PhysicsComponent : public Component<PhysicsComponent>
 {
 	explicit PhysicsComponent(float _mass, float _restitution, bool _dynamic, bool _kinematic = false, bool _sphere = false)
-		:mass(_mass),
-		restitution(_restitution), 
-		dynamic(_dynamic), 
-		kinematic(_kinematic), 
-		sphere(_sphere),
-		motionState(),
-		collisionShape(),
-		rigidBody()
+		:m_mass(_mass),
+		m_restitution(_restitution), 
+		m_dynamic(_dynamic), 
+		m_kinematic(_kinematic), 
+		m_sphere(_sphere),
+		m_motionState(),
+		m_collisionShape(),
+		m_rigidBody()
 	{ };
-	float mass;
-	float restitution;
-	bool dynamic;
-	bool kinematic;
-	bool sphere;
-	btMotionState *motionState;
-	btCollisionShape *collisionShape;
-	btRigidBody *rigidBody;
+	float m_mass;
+	float m_restitution;
+	bool m_dynamic;
+	bool m_kinematic;
+	bool m_sphere;
+	btMotionState *m_motionState;
+	btCollisionShape *m_collisionShape;
+	btRigidBody *m_rigidBody;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -237,13 +237,13 @@ struct RenderableComponent : public Component<RenderableComponent>
 struct RotationComponent : public Component<RotationComponent>
 {
 	explicit RotationComponent(const glm::quat &_startRotation, const glm::quat &_endRotation, double _startTime, double _totalDuration, double(*_easingFunction)(double, double), std::function<void()> _onCompleted = []() {})
-		: startRotation(_startRotation), endRotation(_endRotation), startTime(_startTime), totalDuration(_totalDuration), easingFunction(_easingFunction), onCompleted(_onCompleted) { };
-	glm::quat startRotation;
-	glm::quat endRotation;
-	double startTime;
-	double totalDuration;
-	double(*easingFunction)(double, double);
-	std::function<void()> onCompleted;
+		: m_startRotation(_startRotation), m_endRotation(_endRotation), m_startTime(_startTime), m_totalDuration(_totalDuration), m_easingFunction(_easingFunction), m_onCompleted(_onCompleted) { };
+	glm::quat m_startRotation;
+	glm::quat m_endRotation;
+	double m_startTime;
+	double m_totalDuration;
+	double(*m_easingFunction)(double, double);
+	std::function<void()> m_onCompleted;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -256,13 +256,13 @@ enum class SoundType
 struct SoundComponent : public Component<SoundComponent>
 {
 	explicit SoundComponent(const std::string &_soundFile, const SoundType &_soundType, float _volume = 1.0f, bool _looping = false, bool _paused = true, bool _loadInstantly = false)
-		: soundFile(_soundFile), soundType(_soundType), volume(_volume), looping(_looping), paused(_paused), loadInstantly(_loadInstantly) { };
-	std::string soundFile;
-	SoundType soundType;
-	float volume;
-	bool looping;
-	bool paused;
-	bool loadInstantly;
+		: m_soundFile(_soundFile), m_soundType(_soundType), m_volume(_volume), m_looping(_looping), m_paused(_paused), m_loadInstantly(_loadInstantly) { };
+	std::string m_soundFile;
+	SoundType m_soundType;
+	float m_volume;
+	bool m_looping;
+	bool m_paused;
+	bool m_loadInstantly;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -270,10 +270,10 @@ struct SoundComponent : public Component<SoundComponent>
 struct TextureAtlasIndexComponent : public Component<TextureAtlasIndexComponent>
 {
 	explicit TextureAtlasIndexComponent(unsigned int _rows, unsigned int _columns, const std::map<std::shared_ptr<SubMesh>, unsigned int> &_meshToIndexMap)
-		:rows(_rows), columns(_columns), meshToIndexMap(_meshToIndexMap) { };
-	unsigned int rows;
-	unsigned int columns;
-	std::map<std::shared_ptr<SubMesh>, unsigned int> meshToIndexMap;
+		:m_rows(_rows), m_columns(_columns), m_meshToIndexMap(_meshToIndexMap) { };
+	unsigned int m_rows;
+	unsigned int m_columns;
+	std::map<std::shared_ptr<SubMesh>, unsigned int> m_meshToIndexMap;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -286,14 +286,14 @@ enum class Mobility
 struct TransformationComponent : public Component<TransformationComponent>
 {
 	explicit TransformationComponent(Mobility _mobility, const glm::vec3 &_position = glm::vec3(), const glm::quat &_rotation = glm::quat(), const glm::vec3 &_scale = glm::vec3(1.0f))
-		:mobility(_mobility), position(_position), rotation(_rotation), scale(_scale) { };
-	Mobility mobility;
-	glm::vec3 position;
-	glm::quat rotation;
-	glm::vec3 scale;
-	glm::mat4 transformation;
-	glm::mat4 prevTransformation;
-	glm::vec2 vel;
+		:m_mobility(_mobility), m_position(_position), m_rotation(_rotation), m_scale(_scale) { };
+	Mobility m_mobility;
+	glm::vec3 m_position;
+	glm::quat m_rotation;
+	glm::vec3 m_scale;
+	glm::mat4 m_transformation;
+	glm::mat4 m_prevTransformation;
+	glm::vec2 m_vel;
 
 	static const std::uint64_t FAMILY_ID;
 };
@@ -301,7 +301,7 @@ struct TransformationComponent : public Component<TransformationComponent>
 struct TransparencyComponent : public Component<TransparencyComponent>
 {
 	explicit TransparencyComponent(const std::vector<std::shared_ptr<SubMesh>> &_transparentSubMeshes)
-		:transparentSubMeshes(_transparentSubMeshes) { };
-	std::vector<std::shared_ptr<SubMesh>> transparentSubMeshes;
+		:m_transparentSubMeshes(_transparentSubMeshes) { };
+	std::vector<std::shared_ptr<SubMesh>> m_transparentSubMeshes;
 	static const std::uint64_t FAMILY_ID;
 };

@@ -2,15 +2,15 @@
 #include "Graphics\OpenGL\GLUtility.h"
 
 AnamorphicUpsampleComputePass::AnamorphicUpsampleComputePass(unsigned int _width, unsigned int _height)
-	:width(_width),
-	height(_height)
+	:m_width(_width),
+	m_height(_height)
 {
-	upsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/LensFlares/anamorphicUpsample.comp");
+	m_upsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/LensFlares/anamorphicUpsample.comp");
 }
 
 void AnamorphicUpsampleComputePass::execute(const Effects &_effects, GLuint _prefilterTexture, GLuint *_anamorphicTextureChain, size_t _chainSize, size_t _lastUsedTexture, unsigned int _lastWidth)
 {
-	upsampleShader->bind();
+	m_upsampleShader->bind();
 
 	for (int i = static_cast<int>(_lastUsedTexture) - 1; i >= 0; --i)
 	{
@@ -22,7 +22,7 @@ void AnamorphicUpsampleComputePass::execute(const Effects &_effects, GLuint _pre
 		glBindTexture(GL_TEXTURE_2D, _anamorphicTextureChain[static_cast<size_t>(i) + 1]);
 
 		glBindImageTexture(0, _anamorphicTextureChain[static_cast<size_t>(i)], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
-		GLUtility::glDispatchComputeHelper(_lastWidth, height / 2, 1, 8, 8, 1);
+		GLUtility::glDispatchComputeHelper(_lastWidth, m_height / 2, 1, 8, 8, 1);
 		glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 	}
 
@@ -32,12 +32,12 @@ void AnamorphicUpsampleComputePass::execute(const Effects &_effects, GLuint _pre
 	glBindTexture(GL_TEXTURE_2D, _anamorphicTextureChain[0]);
 
 	glBindImageTexture(0, _prefilterTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
-	GLUtility::glDispatchComputeHelper(width, height / 2, 1, 8, 8, 1);
+	GLUtility::glDispatchComputeHelper(m_width, m_height / 2, 1, 8, 8, 1);
 	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
 void AnamorphicUpsampleComputePass::resize(unsigned int _width, unsigned int _height)
 {
-	width = _width;
-	height = _height;
+	m_width = _width;
+	m_height = _height;
 }

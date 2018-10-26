@@ -14,14 +14,14 @@ class Material;
 
 struct EntityRenderData
 {
-	const Entity *entity;
-	std::shared_ptr<SubMesh> mesh;
-	Material *material;
-	TransformationComponent *transformationComponent;
-	ModelComponent *modelComponent;
-	OutlineComponent *outlineComponent;
-	TransparencyComponent *transparencyComponent;
-	TextureAtlasIndexComponent *textureAtlasIndexComponent;
-	CustomOpaqueShaderComponent *customOpaqueShaderComponent;
-	CustomTransparencyShaderComponent *customTransparencyShaderComponent;
+	const Entity *m_entity;
+	std::shared_ptr<SubMesh> m_mesh;
+	Material *m_material;
+	TransformationComponent *m_transformationComponent;
+	ModelComponent *m_modelComponent;
+	OutlineComponent *m_outlineComponent;
+	TransparencyComponent *m_transparencyComponent;
+	TextureAtlasIndexComponent *m_textureAtlasIndexComponent;
+	CustomOpaqueShaderComponent *m_customOpaqueShaderComponent;
+	CustomTransparencyShaderComponent *m_customTransparencyShaderComponent;
 };

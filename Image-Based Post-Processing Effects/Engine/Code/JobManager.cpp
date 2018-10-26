@@ -8,18 +8,18 @@ typedef std::unique_lock<std::recursive_mutex> unique_lock;
 typedef std::unique_lock<std::recursive_mutex> lock_guard;
 
 JobManager::JobManager()
-	: thread(nullptr), interrupted(false)
+	: m_thread(nullptr), m_interrupted(false)
 {
 	useMultithreadingSetting = SettingsManager::getInstance().getBoolSetting("misc", "use_multithreading", true);
 	useMultithreadingSetting->addListener([&](bool value)
 	{
-		lock_guard lock(mutex);
-		useMutlithreading = value;
+		lock_guard lock(m_mutex);
+		m_useMutlithreading = value;
 	});
 
-	useMutlithreading = useMultithreadingSetting->get();
+	m_useMutlithreading = useMultithreadingSetting->get();
 
-	if (useMutlithreading)
+	if (m_useMutlithreading)
 	{
 		startThread();
 	}
@@ -27,24 +27,24 @@ JobManager::JobManager()
 
 JobManager::~JobManager()
 {
-	for (SharedJob job : jobs)
+	for (SharedJob job : m_jobs)
 	{
 		job->kill();
 	}
 
-	if (thread)
+	if (m_thread)
 	{
 		interrupt();
-		hasWork.notify_one();
-		thread->join();
-		delete thread;
+		m_hasWork.notify_one();
+		m_thread->join();
+		delete m_thread;
 	}
 }
 
 JobManager::SharedJob JobManager::nextJob()
 {
-	lock_guard lock(mutex);
-	for (SharedJob job : jobs)
+	lock_guard lock(m_mutex);
+	for (SharedJob job : m_jobs)
 	{
 		if (!job->isStarted() || job->isDone() || job->isKilled())
 		{
@@ -62,14 +62,14 @@ JobManager& JobManager::getInstance()
 
 JobManager::SharedJob JobManager::queue(JobManager::Work work, JobManager::Work laterWork, JobManager::Work cleanWork)
 {
-	if (useMutlithreading)
+	if (m_useMutlithreading)
 	{
-		lock_guard lock(mutex);
+		lock_guard lock(m_mutex);
 		auto job = SharedJob(new Job(work, laterWork, cleanWork));
-		jobs.push_back(job);
+		m_jobs.push_back(job);
 		notifyListenersWithQueued(job);
 
-		hasWork.notify_one();
+		m_hasWork.notify_one();
 		return job;
 	}
 	else
@@ -116,32 +116,32 @@ void JobManager::removeJob(SharedJob job)
 		catch (...) {}
 	}
 
-	lock_guard lock(mutex);
-	ContainerUtility::remove(jobs, job);
+	lock_guard lock(m_mutex);
+	ContainerUtility::remove(m_jobs, job);
 }
 
 void JobManager::startThread()
 {
-	lock_guard lock(mutex);
-	if (!thread)
+	lock_guard lock(m_mutex);
+	if (!m_thread)
 	{
-		thread = new std::thread([this]()
+		m_thread = new std::thread([this]()
 		{
 			while (!isInterrupted())
 			{
 				SharedJob next;
 				{
-					unique_lock lock(mutex);
+					unique_lock lock(m_mutex);
 
 					while (!(next = nextJob()) && !isInterrupted())
 					{
-						if (jobs.empty())
+						if (m_jobs.empty())
 						{
-							hasWork.wait(lock);
+							m_hasWork.wait(lock);
 						}
 						else
 						{
-							hasWork.wait_for(lock, std::chrono::seconds(4));
+							m_hasWork.wait_for(lock, std::chrono::seconds(4));
 						}
 					}
 					if (isInterrupted())
@@ -166,18 +166,18 @@ void JobManager::startThread()
 
 bool JobManager::usesMultithreading()
 {
-	lock_guard lock(mutex);
-	return useMutlithreading;
+	lock_guard lock(m_mutex);
+	return m_useMutlithreading;
 }
 
 void JobManager::notifyListenersWithQueued(SharedJob job)
 {
 	Engine::runLater([this, job]()
 	{
-		lock_guard lock(mutex);
-		const size_t jobCount = jobs.size();
+		lock_guard lock(m_mutex);
+		const size_t jobCount = m_jobs.size();
 
-		for (auto listener : listeners)
+		for (auto listener : m_listeners)
 		{
 			listener->jobManagagerJobQueued(job, jobCount);
 		}
@@ -188,10 +188,10 @@ void JobManager::notifyListenersWithFinished(SharedJob job)
 {
 	Engine::runLater([this, job]()
 	{
-		lock_guard lock(mutex);
-		const size_t jobCount = jobs.size();
+		lock_guard lock(m_mutex);
+		const size_t jobCount = m_jobs.size();
 
-		auto listeners = this->listeners;
+		auto listeners = this->m_listeners;
 		for (auto listener : listeners)
 		{
 			listener->jobManagagerJobFinished(job, jobCount);
@@ -201,35 +201,35 @@ void JobManager::notifyListenersWithFinished(SharedJob job)
 
 void JobManager::addListener(IJobManagerJobListener *listener)
 {
-	lock_guard lock(mutex);
-	if (!ContainerUtility::contains(listeners, listener))
+	lock_guard lock(m_mutex);
+	if (!ContainerUtility::contains(m_listeners, listener))
 	{
-		listeners.push_back(listener);
+		m_listeners.push_back(listener);
 	}
 }
 
 void JobManager::removeListener(IJobManagerJobListener *listener)
 {
-	lock_guard lock(mutex);
-	ContainerUtility::remove(listeners, listener);
+	lock_guard lock(m_mutex);
+	ContainerUtility::remove(m_listeners, listener);
 }
 
 void JobManager::check()
 {
-	hasWork.notify_one();
+	m_hasWork.notify_one();
 }
 
 void JobManager::interrupt()
 {
-	lock_guard lock(mutex);
-	interrupted = true;
-	hasWork.notify_all();
+	lock_guard lock(m_mutex);
+	m_interrupted = true;
+	m_hasWork.notify_all();
 }
 
 bool JobManager::isInterrupted()
 {
-	lock_guard lock(mutex);
-	return interrupted;
+	lock_guard lock(m_mutex);
+	return m_interrupted;
 }
 
 void JobManager::runJob(SharedJob job)

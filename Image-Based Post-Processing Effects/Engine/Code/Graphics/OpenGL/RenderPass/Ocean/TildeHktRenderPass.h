@@ -4,20 +4,20 @@
 #include "Graphics\OpenGL\Uniform.h"
 #include "Graphics\Mesh.h"
 
-struct Water;
+struct OceanParams;
 
 class TildeHktRenderPass : public RenderPass
 {
 public:
 	explicit TildeHktRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height);
-	void render(const Water &_water, GLuint _tildeH0kTexture, GLuint _tildeH0minusKTexture, RenderPass **_previousRenderPass = nullptr);
+	void render(const OceanParams &_water, GLuint _tildeH0kTexture, GLuint _tildeH0minusKTexture, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> tildeHktShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_tildeHktShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<GLint> uSimulationResolutionHT = Uniform<GLint>("uN");
-	Uniform<GLint> uWorldSizeHT = Uniform<GLint>("uL");
-	Uniform<GLfloat> uTimeHT = Uniform<GLfloat>("uTime");
+	Uniform<GLint> m_uSimulationResolution = Uniform<GLint>("uN");
+	Uniform<GLint> m_uWorldSize = Uniform<GLint>("uL");
+	Uniform<GLfloat> m_uTime = Uniform<GLfloat>("uTime");
 
 };

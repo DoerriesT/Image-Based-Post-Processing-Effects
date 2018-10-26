@@ -33,16 +33,16 @@ public:
 	void setExposureMultiplier(float _multiplier);
 
 private:
-	EntityManager &entityManager;
-	std::shared_ptr<Window> window;
-	GraphicsFramework *graphicsFramework;
-	Scene scene;
-	Effects effects;
-	float exposureMultiplier;
-	std::vector<const Entity *> managedEntities;
-	std::vector<std::uint64_t> validBitMaps;
-	bool bakedReflections;
-	bool bakedIrradianceVolume;
+	EntityManager &m_entityManager;
+	std::shared_ptr<Window> m_window;
+	GraphicsFramework *m_graphicsFramework;
+	Scene m_scene;
+	Effects m_effects;
+	float m_exposureMultiplier;
+	std::vector<const Entity *> m_managedEntities;
+	std::vector<std::uint64_t> m_validBitMaps;
+	bool m_bakedReflections;
+	bool m_bakedIrradianceVolume;
 	
 	// settings
 	std::shared_ptr<Setting<int>> shadowQuality;

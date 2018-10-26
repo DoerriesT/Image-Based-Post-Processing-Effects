@@ -2,50 +2,50 @@
 
 LensFlareBlurRenderPass::LensFlareBlurRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT2 };
-	state.blendState.enabled = false;
-	state.blendState.sFactor = GL_ONE;
-	state.blendState.dFactor = GL_ONE;
-	state.cullFaceState.enabled = false;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = false;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT2 };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_blendState.m_sFactor = GL_ONE;
+	m_state.m_blendState.m_dFactor = GL_ONE;
+	m_state.m_cullFaceState.m_enabled = false;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = false;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_FALSE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	lensFlareBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/LensFlares/lensFlareBlur.frag");
+	m_lensFlareBlurShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/LensFlares/lensFlareBlur.frag");
 
-	uDirectionLFB.create(lensFlareBlurShader);
+	m_uDirection.create(m_lensFlareBlurShader);
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 void LensFlareBlurRenderPass::render(GLuint _inputTexture, GLuint _pingPongTexture, RenderPass **_previousRenderPass)
 {
-	drawBuffers[0] = GL_COLOR_ATTACHMENT2;
+	m_drawBuffers[0] = GL_COLOR_ATTACHMENT2;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	m_fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	// first pass
 	{
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, _inputTexture);
 
-		lensFlareBlurShader->bind();
-		uDirectionLFB.set(true);
+		m_lensFlareBlurShader->bind();
+		m_uDirection.set(true);
 
-		fullscreenTriangle->getSubMesh()->render();
+		m_fullscreenTriangle->getSubMesh()->render();
 	}
 	
 	// second pass
@@ -54,16 +54,16 @@ void LensFlareBlurRenderPass::render(GLuint _inputTexture, GLuint _pingPongTextu
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, _pingPongTexture);
 
-		uDirectionLFB.set(false);
+		m_uDirection.set(false);
 
-		fullscreenTriangle->getSubMesh()->render();
+		m_fullscreenTriangle->getSubMesh()->render();
 	}
 	
 
-	drawBuffers[0] = GL_COLOR_ATTACHMENT0;
+	m_drawBuffers[0] = GL_COLOR_ATTACHMENT0;
 }
 
 void LensFlareBlurRenderPass::resize(unsigned int _width, unsigned int _height)
 {
-	state.viewportState = { 0, 0, static_cast<GLint>(_width / 2), static_cast<GLint>(_height / 2) };
+	m_state.m_viewportState = { 0, 0, static_cast<GLint>(_width / 2), static_cast<GLint>(_height / 2) };
 }

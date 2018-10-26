@@ -7,61 +7,61 @@
 #include "Camera.h"
 
 CameraPath::CameraPath(const std::vector<CameraPathSegment> &_pathSegments)
-	:pathSegments(_pathSegments),
-	started(false),
-	repeat(false),
-	currentStartTime(),
-	currentSegmentIndex()
+	:m_pathSegments(_pathSegments),
+	m_started(false),
+	m_repeat(false),
+	m_currentStartTime(),
+	m_currentSegmentIndex()
 {
 }
 
 void CameraPath::start(std::shared_ptr<Camera> _camera, bool _repeat)
 {
-	camera = _camera;
-	repeat = _repeat;
-	started = true;
-	currentStartTime = Engine::getTime();
-	currentSegmentIndex = 0;
+	m_camera = _camera;
+	m_repeat = _repeat;
+	m_started = true;
+	m_currentStartTime = Engine::getTime();
+	m_currentSegmentIndex = 0;
 }
 
 void CameraPath::stop()
 {
-	started = false;
+	m_started = false;
 }
 
 bool CameraPath::update(double _currentTime, double _timeDelta)
 {
-	if (!started)
+	if (!m_started)
 	{
 		return false;
 	}
 	
-	assert(camera);
+	assert(m_camera);
 
-	CameraPathSegment &segment = pathSegments[currentSegmentIndex];
-	float factor = static_cast<float>(segment.easingFunction(_currentTime - currentStartTime, segment.totalDuration));
+	CameraPathSegment &segment = m_pathSegments[m_currentSegmentIndex];
+	float factor = static_cast<float>(segment.m_easingFunction(_currentTime - m_currentStartTime, segment.m_totalDuration));
 	if (factor >= 1.0f)
 	{
 		// set position to segment end position
-		camera->setPosition(segment.cameraEndPosition);
-		camera->lookAt(segment.targetEndPosition);
+		m_camera->setPosition(segment.m_cameraEndPosition);
+		m_camera->lookAt(segment.m_targetEndPosition);
 		// update start time for next segment
-		currentStartTime += segment.totalDuration;
+		m_currentStartTime += segment.m_totalDuration;
 		// increment segment index
-		++currentSegmentIndex;
+		++m_currentSegmentIndex;
 
 		// if we reached the last segment either wrap around or halt the movement
-		size_t totalSegments = pathSegments.size();
-		if (currentSegmentIndex >= totalSegments)
+		size_t totalSegments = m_pathSegments.size();
+		if (m_currentSegmentIndex >= totalSegments)
 		{
-			if (repeat)
+			if (m_repeat)
 			{
-				currentSegmentIndex %= totalSegments;
+				m_currentSegmentIndex %= totalSegments;
 				return true;
 			}
 			else
 			{
-				started = false;
+				m_started = false;
 				return false;
 			}
 		}
@@ -69,32 +69,32 @@ bool CameraPath::update(double _currentTime, double _timeDelta)
 	}
 	else
 	{
-		float elapsedTime = float(_currentTime - currentStartTime);
+		float elapsedTime = float(_currentTime - m_currentStartTime);
 		float fadeFactor = 1.0;
-		if (segment.fadeIn && elapsedTime <= segment.fadeTime)
+		if (segment.m_fadeIn && elapsedTime <= segment.m_fadeTime)
 		{
-			fadeFactor = glm::smoothstep(0.0f, 1.0f, elapsedTime / (float)segment.fadeTime);
+			fadeFactor = glm::smoothstep(0.0f, 1.0f, elapsedTime / (float)segment.m_fadeTime);
 		}
-		if (segment.fadeOut && elapsedTime >= segment.totalDuration - segment.fadeTime)
+		if (segment.m_fadeOut && elapsedTime >= segment.m_totalDuration - segment.m_fadeTime)
 		{
-			fadeFactor = glm::smoothstep(1.0f, 0.0f, (elapsedTime - float(segment.totalDuration - segment.fadeTime)) / (float)segment.fadeTime);
+			fadeFactor = glm::smoothstep(1.0f, 0.0f, (elapsedTime - float(segment.m_totalDuration - segment.m_fadeTime)) / (float)segment.m_fadeTime);
 		}
 
 		static RenderSystem *rs = SystemManager::getInstance().getSystem<RenderSystem>();
 		rs->setExposureMultiplier(fadeFactor);
 
-		camera->setPosition(glm::hermite(segment.cameraStartPosition, segment.cameraStartTangent, segment.cameraEndPosition, segment.cameraEndTangent, factor));
-		camera->lookAt(glm::hermite(segment.targetStartPosition, segment.targetStartTangent, segment.targetEndPosition, segment.targetEndTangent, factor));
+		m_camera->setPosition(glm::hermite(segment.m_cameraStartPosition, segment.m_cameraStartTangent, segment.m_cameraEndPosition, segment.m_cameraEndTangent, factor));
+		m_camera->lookAt(glm::hermite(segment.m_targetStartPosition, segment.m_targetStartTangent, segment.m_targetEndPosition, segment.m_targetEndTangent, factor));
 		return true;
 	}
 }
 
 std::vector<CameraPathSegment>& CameraPath::getPathSegments()
 {
-	return pathSegments;
+	return m_pathSegments;
 }
 
 bool CameraPath::isRepeating()
 {
-	return repeat;
+	return m_repeat;
 }

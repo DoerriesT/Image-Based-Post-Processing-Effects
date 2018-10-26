@@ -11,6 +11,6 @@ public:
 	void render(GLuint _velocityTileMaxTexture, GLuint _velocityNeighborTileMaxTexture, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> neighborTileMaxShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_neighborTileMaxShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 };

@@ -26,16 +26,16 @@ public:
 	void reset();
 
 private:
-	glm::vec3 position;
-	glm::quat rotation;
-	Frustum frustum;
+	glm::vec3 m_position;
+	glm::quat m_rotation;
+	Frustum m_frustum;
 
-	glm::vec3 startPosition;
-	glm::quat startRotation;
+	glm::vec3 m_startPosition;
+	glm::quat m_startRotation;
 
-	glm::mat4 viewMatrix;
-	float zoom = 1.0f;
-	bool needToUpdateViewMatrix = true;
+	glm::mat4 m_viewMatrix;
+	float m_zoom = 1.0f;
+	bool m_needToUpdateViewMatrix = true;
 
 	void updateViewMatrix();
 };

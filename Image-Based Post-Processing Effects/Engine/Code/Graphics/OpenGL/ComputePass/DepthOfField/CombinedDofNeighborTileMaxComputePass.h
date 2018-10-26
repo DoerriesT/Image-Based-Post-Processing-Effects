@@ -10,8 +10,8 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> neighborTileMaxShader;
+	std::shared_ptr<ShaderProgram> m_neighborTileMaxShader;
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int m_width;
+	unsigned int m_height;
 };

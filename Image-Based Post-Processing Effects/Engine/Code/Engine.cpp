@@ -17,22 +17,22 @@
 #include "EntityComponentSystem\SystemManager.h"
 #include "Input\UserInput.h"
 
-Engine* Engine::instance = nullptr;
+Engine* Engine::s_instance = nullptr;
 
 Engine::Engine(const std::string &_title, IGameLogic & _gameLogic)
-	: window(Window::createWindow(_title)), 
-	gameLogic(_gameLogic), 
-	userInput(UserInput::getInstance()),
-	title(_title), 
-	systemManager(SystemManager::getInstance()),
-	lastFrame(),
-	time(),
-	timeDelta(),
-	lastFpsMeasure(),
-	fps()
+	: m_window(Window::createWindow(_title)), 
+	m_gameLogic(_gameLogic), 
+	m_userInput(UserInput::getInstance()),
+	m_title(_title), 
+	m_systemManager(SystemManager::getInstance()),
+	m_lastFrame(),
+	m_time(),
+	m_timeDelta(),
+	m_lastFpsMeasure(),
+	m_fps()
 {
-	assert(!instance);
-	instance = this;
+	assert(!s_instance);
+	s_instance = this;
 }
 
 Engine::~Engine()
@@ -41,63 +41,63 @@ Engine::~Engine()
 
 void Engine::start()
 {
-	showFps = SettingsManager::getInstance().getBoolSetting("misc", "show_fps", true);
-	window->init();
-	window->addInputListener(&userInput);
-	systemManager.addSystem<MovementSystem>();
-	systemManager.addSystem<MovementPathSystem>();
-	systemManager.addSystem<RotationSystem>();
-	systemManager.addSystem<PerpetualRotationSystem>();
-	systemManager.addSystem<RenderSystem>(window);
-	systemManager.addSystem<PhysicsSystem>();
-	systemManager.addSystem<GrabbingSystem>(window);
-	systemManager.addSystem<SoundSystem>();
-	systemManager.init();
-	gameLogic.init();
+	m_showFps = SettingsManager::getInstance().getBoolSetting("misc", "show_fps", true);
+	m_window->init();
+	m_window->addInputListener(&m_userInput);
+	m_systemManager.addSystem<MovementSystem>();
+	m_systemManager.addSystem<MovementPathSystem>();
+	m_systemManager.addSystem<RotationSystem>();
+	m_systemManager.addSystem<PerpetualRotationSystem>();
+	m_systemManager.addSystem<RenderSystem>(m_window);
+	m_systemManager.addSystem<PhysicsSystem>();
+	m_systemManager.addSystem<GrabbingSystem>(m_window);
+	m_systemManager.addSystem<SoundSystem>();
+	m_systemManager.init();
+	m_gameLogic.init();
 
 	gameLoop();
 }
 
 void Engine::shutdown()
 {
-	shouldShutdown = true;
+	m_shouldShutdown = true;
 }
 
 double Engine::getTime()
 {
-	return instance->time;
+	return s_instance->m_time;
 }
 
 double Engine::getTimeDelta()
 {
-	return instance->timeDelta;
+	return s_instance->m_timeDelta;
 }
 
 double Engine::getFps()
 {
-	return 1.0 / instance->timeDelta;
+	return 1.0 / s_instance->m_timeDelta;
 }
 
 Engine *Engine::getInstance()
 {
-	return instance;
+	return s_instance;
 }
 
 Window *Engine::getWindow()
 {
-	return window.get();
+	return m_window.get();
 }
 
 void Engine::runLater(std::function<void()> function)
 {
-	std::lock_guard<std::mutex> lock(instance->mutex);
-	instance->functionQueue.push_back(function);
+	std::lock_guard<std::mutex> lock(s_instance->m_mutex);
+	s_instance->m_functionQueue.push_back(function);
 }
 
 bool Engine::isFunctionQueueEmpty()
 {
-	std::lock_guard<std::mutex> lock(instance->mutex);
-	return instance->functionQueue.empty();
+	std::lock_guard<std::mutex> lock(s_instance->m_mutex);
+	return s_instance->m_functionQueue.empty();
 }
 
 int Engine::getMaxAnisotropicFiltering()
@@ -116,56 +116,56 @@ int Engine::getMaxAnisotropicFiltering()
 
 void Engine::gameLoop()
 {
-	lastFpsMeasure = time = lastFrame = glfwGetTime();
-	while (!shouldShutdown && !window->shouldClose())
+	m_lastFpsMeasure = m_time = m_lastFrame = glfwGetTime();
+	while (!m_shouldShutdown && !m_window->shouldClose())
 	{
-		time = glfwGetTime();
-		timeDelta = time - lastFrame;
+		m_time = glfwGetTime();
+		m_timeDelta = m_time - m_lastFrame;
 
-		input(time, timeDelta);
-		update(time, timeDelta);
+		input(m_time, m_timeDelta);
+		update(m_time, m_timeDelta);
 		render();
 
-		lastFrame = time;
+		m_lastFrame = m_time;
 	}
-	window->destroy();
+	m_window->destroy();
 }
 
 void Engine::input(double _currentTime, double _timeDelta)
 {
-	userInput.input();
-	systemManager.input(_currentTime, _timeDelta);
-	gameLogic.input(_currentTime, _timeDelta);
+	m_userInput.input();
+	m_systemManager.input(_currentTime, _timeDelta);
+	m_gameLogic.input(_currentTime, _timeDelta);
 }
 
 void Engine::update(double _currentTime, double _timeDelta)
 {
-	systemManager.update(_currentTime, _timeDelta);
-	gameLogic.update(_currentTime, _timeDelta);
+	m_systemManager.update(_currentTime, _timeDelta);
+	m_gameLogic.update(_currentTime, _timeDelta);
 
-	std::lock_guard<std::mutex> lock(mutex);
-	if (!functionQueue.empty())
+	std::lock_guard<std::mutex> lock(m_mutex);
+	if (!m_functionQueue.empty())
 	{
-		for (auto function : functionQueue)
+		for (auto function : m_functionQueue)
 		{
 			function();
 		}
-		functionQueue.clear();
+		m_functionQueue.clear();
 	}
 }
 
 void Engine::render()
 {
-	double difference = time - lastFpsMeasure;
-	if (difference > 1.0 && showFps->get())
+	double difference = m_time - m_lastFpsMeasure;
+	if (difference > 1.0 && m_showFps->get())
 	{
-		fps /= difference;
-		window->setTitle(title + " - " + std::to_string(fps) + " FPS " + std::to_string(1.0 / fps*1000.0) + " ms");
-		lastFpsMeasure = time;
-		fps = 0;
+		m_fps /= difference;
+		m_window->setTitle(m_title + " - " + std::to_string(m_fps) + " FPS " + std::to_string(1.0 / m_fps*1000.0) + " ms");
+		m_lastFpsMeasure = m_time;
+		m_fps = 0;
 	}
-	++fps;
-	systemManager.render();
-	gameLogic.render();
-	window->update();
+	++m_fps;
+	m_systemManager.render();
+	m_gameLogic.render();
+	m_window->update();
 }

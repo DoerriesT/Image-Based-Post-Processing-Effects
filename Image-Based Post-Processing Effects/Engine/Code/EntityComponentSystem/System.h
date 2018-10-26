@@ -12,7 +12,7 @@ public:
 	virtual std::uint64_t getTypeIdOfDerived() = 0;
 
 protected:
-	static std::uint64_t typeCount;
+	static std::uint64_t m_typeCount;
 };
 
 template<typename Type>
@@ -29,6 +29,6 @@ template<typename Type>
 inline std::uint64_t System<Type>::getTypeId()
 {
 	static const std::uint64_t ONE = 1;
-	static const std::uint64_t type = ONE << typeCount++;
+	static const std::uint64_t type = ONE << m_typeCount++;
 	return type;
 }

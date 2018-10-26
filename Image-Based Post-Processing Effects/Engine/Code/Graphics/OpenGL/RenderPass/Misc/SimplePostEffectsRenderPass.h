@@ -13,14 +13,14 @@ public:
 	void render(const Effects &_effects, GLuint _inputTexture, GLenum _drawBuffer, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> simplePostEffectsShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_simplePostEffectsShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<GLfloat> uTimeS = Uniform<GLfloat>("uTime");
-	Uniform<GLfloat> uFilmGrainStrengthS = Uniform<GLfloat>("uFilmGrainStrength");
-	Uniform<GLboolean> uVignetteS = Uniform<GLboolean>("uVignette");
-	Uniform<GLboolean> uFilmGrainS = Uniform<GLboolean>("uFilmGrain");
-	Uniform<GLboolean> uChromaticAberrationS = Uniform<GLboolean>("uChromaticAberration");
-	Uniform<GLfloat> uChromAbOffsetMultiplierS = Uniform<GLfloat>("uChromAbOffsetMultiplier");
+	Uniform<GLfloat> m_uTime = Uniform<GLfloat>("uTime");
+	Uniform<GLfloat> m_uFilmGrainStrength = Uniform<GLfloat>("uFilmGrainStrength");
+	Uniform<GLboolean> m_uVignette = Uniform<GLboolean>("uVignette");
+	Uniform<GLboolean> m_uFilmGrain = Uniform<GLboolean>("uFilmGrain");
+	Uniform<GLboolean> m_uChromaticAberration = Uniform<GLboolean>("uChromaticAberration");
+	Uniform<GLfloat> m_uChromAbOffsetMultiplier = Uniform<GLfloat>("uChromAbOffsetMultiplier");
 
 };

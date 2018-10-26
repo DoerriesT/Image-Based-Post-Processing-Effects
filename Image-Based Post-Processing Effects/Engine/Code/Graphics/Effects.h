@@ -3,87 +3,87 @@
 
 struct FXAA
 {
-	bool enabled;
-	float subPixelAA;
-	float edgeThreshold;
-	float edgeThresholdMin;
+	bool m_enabled;
+	float m_subPixelAA;
+	float m_edgeThreshold;
+	float m_edgeThresholdMin;
 };
 
 struct SMAA
 {
-	bool enabled;
-	bool temporalAntiAliasing;
+	bool m_enabled;
+	bool m_temporalAntiAliasing;
 };
 
 struct LensFlares
 {
-	bool enabled;
-	unsigned int flareCount;
-	float flareSpacing;
-	float haloWidth;
-	float chromaticDistortion;
+	bool m_enabled;
+	unsigned int m_flareCount;
+	float m_flareSpacing;
+	float m_haloWidth;
+	float m_chromaticDistortion;
 };
 
 struct AnamorphicFlares
 {
-	bool enabled;
-	glm::vec3 color;
+	bool m_enabled;
+	glm::vec3 m_color;
 };
 
 struct Bloom
 {
-	bool enabled;
-	float strength;
+	bool m_enabled;
+	float m_strength;
 	
 };
 
 struct LensDirt
 {
-	bool enabled;
-	float strength;
+	bool m_enabled;
+	float m_strength;
 };
 
 struct ChromaticAberration
 {
-	bool enabled;
-	float offsetMultiplier;
+	bool m_enabled;
+	float m_offsetMultiplier;
 };
 
 struct Vignette
 {
-	bool enabled;
+	bool m_enabled;
 };
 
 struct FilmGrain
 {
-	bool enabled;
-	float strength;
+	bool m_enabled;
+	float m_strength;
 };
 
 struct SSAO
 {
-	unsigned int kernelSize;
-	float radius;
-	float bias;
-	float strength;
+	unsigned int m_kernelSize;
+	float m_radius;
+	float m_bias;
+	float m_strength;
 };
 
 struct HBAO
 {
-	unsigned int directions;
-	unsigned int steps;
-	float strength;
-	float radius;
-	float maxRadiusPixels;
-	float angleBias;
+	unsigned int m_directions;
+	unsigned int m_steps;
+	float m_strength;
+	float m_radius;
+	float m_maxRadiusPixels;
+	float m_angleBias;
 };
 
 struct GTAO
 {
-	unsigned int steps;
-	float strength;
-	float radius;
-	float maxRadiusPixels;
+	unsigned int m_steps;
+	float m_strength;
+	float m_radius;
+	float m_maxRadiusPixels;
 };
 
 enum class AmbientOcclusion
@@ -93,7 +93,7 @@ enum class AmbientOcclusion
 
 struct ScreenSpaceReflections
 {
-	bool enabled;
+	bool m_enabled;
 };
 
 enum class ShadowQuality
@@ -118,26 +118,26 @@ enum class DiffuseAmbientSource
 
 struct Effects
 {
-	AmbientOcclusion ambientOcclusion;
-	SSAO ssao;
-	HBAO hbao;
-	GTAO gtao;
-	Bloom bloom;
-	LensDirt lensDirt;
-	Vignette vignette;
-	FilmGrain filmGrain;
-	ChromaticAberration chromaticAberration;
-	FXAA fxaa;
-	SMAA smaa;
-	DepthOfField depthOfField;
-	LensFlares lensFlares;
-	AnamorphicFlares anamorphicFlares;
-	ShadowQuality shadowQuality;
-	ScreenSpaceReflections screenSpaceReflections;
-	MotionBlur motionBlur;
-	float exposure;
-	DiffuseAmbientSource diffuseAmbientSource;
-	bool godrays;
+	AmbientOcclusion m_ambientOcclusion;
+	SSAO m_ssao;
+	HBAO m_hbao;
+	GTAO m_gtao;
+	Bloom m_bloom;
+	LensDirt m_lensDirt;
+	Vignette m_vignette;
+	FilmGrain m_filmGrain;
+	ChromaticAberration m_chromaticAberration;
+	FXAA m_fxaa;
+	SMAA m_smaa;
+	DepthOfField m_depthOfField;
+	LensFlares m_lensFlares;
+	AnamorphicFlares m_anamorphicFlares;
+	ShadowQuality m_shadowQuality;
+	ScreenSpaceReflections m_screenSpaceReflections;
+	MotionBlur m_motionBlur;
+	float m_exposure;
+	DiffuseAmbientSource m_diffuseAmbientSource;
+	bool m_godrays;
 };
 
 enum class GBufferDisplayMode

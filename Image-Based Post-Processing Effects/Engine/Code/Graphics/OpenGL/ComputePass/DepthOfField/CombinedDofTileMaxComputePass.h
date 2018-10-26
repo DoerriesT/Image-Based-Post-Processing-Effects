@@ -10,13 +10,13 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> tileMaxShader;
+	std::shared_ptr<ShaderProgram> m_tileMaxShader;
 
-	Uniform<GLfloat> uFocalLength = Uniform<GLfloat>("uFocalLength");
-	Uniform<GLfloat> uApertureSize = Uniform<GLfloat>("uApertureSize");
-	Uniform<glm::vec2> uNearFar = Uniform<glm::vec2>("uNearFar");
-	Uniform<GLboolean> uDirection = Uniform<GLboolean>("uDirection");
+	Uniform<GLfloat> m_uFocalLength = Uniform<GLfloat>("uFocalLength");
+	Uniform<GLfloat> m_uApertureSize = Uniform<GLfloat>("uApertureSize");
+	Uniform<glm::vec2> m_uNearFar = Uniform<glm::vec2>("uNearFar");
+	Uniform<GLboolean> m_uDirection = Uniform<GLboolean>("uDirection");
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int m_width;
+	unsigned int m_height;
 };

@@ -26,18 +26,18 @@ public:
 	void onDestruction(const Entity *_entity) override;
 
 private:
-	EntityManager &entityManager;
-	std::vector<const Entity *> managedEntities;
-	std::vector<const Entity *> entitiesToRemove;
-	std::vector<const Entity *> entitiesToAdd;
-	std::vector<std::uint64_t> validBitMaps;
+	EntityManager &m_entityManager;
+	std::vector<const Entity *> m_managedEntities;
+	std::vector<const Entity *> m_entitiesToRemove;
+	std::vector<const Entity *> m_entitiesToAdd;
+	std::vector<std::uint64_t> m_validBitMaps;
 
 	// TODO: do proper cleanup of these
-	btDiscreteDynamicsWorld *dynamicsWorld;
-	btBroadphaseInterface *broadphase;
-	btDefaultCollisionConfiguration *collisionConfiguration;
-	btCollisionDispatcher *dispatcher;
-	btSequentialImpulseConstraintSolver *solver;
+	btDiscreteDynamicsWorld *m_dynamicsWorld;
+	btBroadphaseInterface *m_broadphase;
+	btDefaultCollisionConfiguration *m_collisionConfiguration;
+	btCollisionDispatcher *m_dispatcher;
+	btSequentialImpulseConstraintSolver *m_solver;
 
 	bool validate(std::uint64_t _bitMap);
 };

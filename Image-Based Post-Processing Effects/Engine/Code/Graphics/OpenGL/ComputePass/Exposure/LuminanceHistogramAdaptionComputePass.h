@@ -12,12 +12,12 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> adaptionShader;
+	std::shared_ptr<ShaderProgram> m_adaptionShader;
 
-	Uniform<GLfloat> uTimeDeltaLHA = Uniform<GLfloat>("uTimeDelta");
-	Uniform<GLfloat> uTauLHA = Uniform<GLfloat>("uTau");
-	Uniform<glm::vec2> uParamsLHA = Uniform<glm::vec2>("uParams"); // multiply / add
+	Uniform<GLfloat> m_uTimeDelta = Uniform<GLfloat>("uTimeDelta");
+	Uniform<GLfloat> m_uTau = Uniform<GLfloat>("uTau");
+	Uniform<glm::vec2> m_uParams = Uniform<glm::vec2>("uParams"); // multiply / add
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int m_width;
+	unsigned int m_height;
 };

@@ -3,16 +3,16 @@
 #include ".\..\EntityManager.h"
 
 PerpetualRotationSystem::PerpetualRotationSystem()
-	:entityManager(EntityManager::getInstance())
+	:m_entityManager(EntityManager::getInstance())
 {
-	validBitMaps.push_back(Component<PerpetualRotationComponent>::getTypeId());
+	m_validBitMaps.push_back(Component<PerpetualRotationComponent>::getTypeId());
 }
 
 void PerpetualRotationSystem::init()
 {
-	entityManager.addOnComponentAddedListener(this);
-	entityManager.addOnComponentRemovedListener(this);
-	entityManager.addOnEntityDestructionListener(this);
+	m_entityManager.addOnComponentAddedListener(this);
+	m_entityManager.addOnComponentRemovedListener(this);
+	m_entityManager.addOnEntityDestructionListener(this);
 }
 
 void PerpetualRotationSystem::input(double _currentTime, double _timeDelta)
@@ -21,24 +21,24 @@ void PerpetualRotationSystem::input(double _currentTime, double _timeDelta)
 
 void PerpetualRotationSystem::update(double _currentTime, double _timeDelta)
 {
-	for (const Entity *entity : entitiesToRemove)
+	for (const Entity *entity : m_entitiesToRemove)
 	{
-		ContainerUtility::remove(managedEntities, entity);
+		ContainerUtility::remove(m_managedEntities, entity);
 	}
-	entitiesToRemove.clear();
+	m_entitiesToRemove.clear();
 
-	for (const Entity *entity : entitiesToAdd)
+	for (const Entity *entity : m_entitiesToAdd)
 	{
-		managedEntities.push_back(entity);
+		m_managedEntities.push_back(entity);
 	}
-	entitiesToAdd.clear();
+	m_entitiesToAdd.clear();
 
-	for (const Entity *entity : managedEntities)
+	for (const Entity *entity : m_managedEntities)
 	{
-		PerpetualRotationComponent *prc = entityManager.getComponent<PerpetualRotationComponent>(entity);
-		TransformationComponent *tc = entityManager.getComponent<TransformationComponent>(entity);
+		PerpetualRotationComponent *prc = m_entityManager.getComponent<PerpetualRotationComponent>(entity);
+		TransformationComponent *tc = m_entityManager.getComponent<TransformationComponent>(entity);
 		assert(prc && tc);
-		tc->rotation *= glm::quat(prc->rotationIncrement * (float)_timeDelta);// glm::pow(prc->rotationIncrement, (float)_timeDelta);
+		tc->m_rotation *= glm::quat(prc->m_rotationIncrement * (float)_timeDelta);// glm::pow(prc->rotationIncrement, (float)_timeDelta);
 	}
 }
 
@@ -48,34 +48,34 @@ void PerpetualRotationSystem::render()
 
 void PerpetualRotationSystem::onComponentAdded(const Entity *_entity, BaseComponent *_addedComponent)
 {
-	if (validate(entityManager.getComponentBitField(_entity)) && !ContainerUtility::contains(entitiesToAdd, _entity))
+	if (validate(m_entityManager.getComponentBitField(_entity)) && !ContainerUtility::contains(m_entitiesToAdd, _entity))
 	{
-		if (!ContainerUtility::contains(managedEntities, _entity) || ContainerUtility::contains(entitiesToRemove, _entity))
+		if (!ContainerUtility::contains(m_managedEntities, _entity) || ContainerUtility::contains(m_entitiesToRemove, _entity))
 		{
-			entitiesToAdd.push_back(_entity);
+			m_entitiesToAdd.push_back(_entity);
 		}
 	}
 }
 
 void PerpetualRotationSystem::onComponentRemoved(const Entity *_entity, BaseComponent *_removedComponent)
 {
-	if (!validate(entityManager.getComponentBitField(_entity)) && ContainerUtility::contains(managedEntities, _entity))
+	if (!validate(m_entityManager.getComponentBitField(_entity)) && ContainerUtility::contains(m_managedEntities, _entity))
 	{
-		entitiesToRemove.push_back(_entity);
+		m_entitiesToRemove.push_back(_entity);
 	}
 }
 
 void PerpetualRotationSystem::onDestruction(const Entity *_entity)
 {
-	if (ContainerUtility::contains(managedEntities, _entity))
+	if (ContainerUtility::contains(m_managedEntities, _entity))
 	{
-		entitiesToRemove.push_back(_entity);
+		m_entitiesToRemove.push_back(_entity);
 	}
 }
 
 bool PerpetualRotationSystem::validate(std::uint64_t _bitMap)
 {
-	for (std::uint64_t configuration : validBitMaps)
+	for (std::uint64_t configuration : m_validBitMaps)
 	{
 		if ((configuration & _bitMap) == configuration)
 		{

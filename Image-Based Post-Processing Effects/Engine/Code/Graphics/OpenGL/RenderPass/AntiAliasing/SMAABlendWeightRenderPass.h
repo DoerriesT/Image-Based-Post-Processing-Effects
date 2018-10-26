@@ -13,11 +13,11 @@ public:
 	void render(const Effects &_effects, GLuint _edgesTexture, bool _temporal, bool _currentSample, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> blendWeightShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_blendWeightShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<glm::vec4> uResolutionSMAAB = Uniform<glm::vec4>("uResolution");
-	Uniform<GLboolean> uTemporalSampleSMAAB = Uniform<GLboolean>("uTemporalSample");
-	Uniform<GLboolean> uTemporalAASMAAB = Uniform<GLboolean>("uTemporalAA");
+	Uniform<glm::vec4> m_uResolution = Uniform<glm::vec4>("uResolution");
+	Uniform<GLboolean> m_uTemporalSample = Uniform<GLboolean>("uTemporalSample");
+	Uniform<GLboolean> m_uTemporalAA = Uniform<GLboolean>("uTemporalAA");
 
 };

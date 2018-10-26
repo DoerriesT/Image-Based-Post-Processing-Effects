@@ -12,7 +12,7 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> upsampleShader;
-	unsigned int width;
-	unsigned int height;
+	std::shared_ptr<ShaderProgram> m_upsampleShader;
+	unsigned int m_width;
+	unsigned int m_height;
 };

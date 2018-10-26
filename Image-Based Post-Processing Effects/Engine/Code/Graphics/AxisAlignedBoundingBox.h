@@ -3,6 +3,6 @@
 
 struct AxisAlignedBoundingBox
 {
-	glm::vec3 min;
-	glm::vec3 max;
+	glm::vec3 m_min;
+	glm::vec3 m_max;
 };

@@ -8,79 +8,79 @@
 
 const std::vector<std::unique_ptr<EntityRenderData>> &Scene::getData() const
 {
-	return meshEntityData;
+	return m_meshEntityData;
 }
 
 void Scene::add(const Entity *_entity)
 {
-	assert(std::find_if(meshEntityData.begin(), meshEntityData.end(), [&](const std::unique_ptr<EntityRenderData> &_item) { return _item->entity == _entity; }) == meshEntityData.end());
+	assert(std::find_if(m_meshEntityData.begin(), m_meshEntityData.end(), [&](const std::unique_ptr<EntityRenderData> &_item) { return _item->m_entity == _entity; }) == m_meshEntityData.end());
 
 	EntityManager &entityManager = EntityManager::getInstance();
 
 	ModelComponent *mc = entityManager.getComponent<ModelComponent>(_entity);
 
-	for (std::size_t i = 0; i < mc->model.size(); ++i)
+	for (std::size_t i = 0; i < mc->m_model.size(); ++i)
 	{
 		std::unique_ptr<EntityRenderData> renderData = std::make_unique<EntityRenderData>();
-		renderData->entity = _entity;
-		renderData->mesh = mc->model[i].first;
-		renderData->material = &mc->model[i].second;
-		renderData->transformationComponent = entityManager.getComponent<TransformationComponent>(_entity);
-		renderData->modelComponent = mc;
-		renderData->outlineComponent = entityManager.getComponent<OutlineComponent>(_entity);
-		renderData->transparencyComponent = entityManager.getComponent<TransparencyComponent>(_entity);
-		renderData->textureAtlasIndexComponent = entityManager.getComponent<TextureAtlasIndexComponent>(_entity);
-		renderData->customOpaqueShaderComponent = entityManager.getComponent<CustomOpaqueShaderComponent>(_entity);
-		renderData->customTransparencyShaderComponent = entityManager.getComponent<CustomTransparencyShaderComponent>(_entity);
+		renderData->m_entity = _entity;
+		renderData->m_mesh = mc->m_model[i].first;
+		renderData->m_material = &mc->m_model[i].second;
+		renderData->m_transformationComponent = entityManager.getComponent<TransformationComponent>(_entity);
+		renderData->m_modelComponent = mc;
+		renderData->m_outlineComponent = entityManager.getComponent<OutlineComponent>(_entity);
+		renderData->m_transparencyComponent = entityManager.getComponent<TransparencyComponent>(_entity);
+		renderData->m_textureAtlasIndexComponent = entityManager.getComponent<TextureAtlasIndexComponent>(_entity);
+		renderData->m_customOpaqueShaderComponent = entityManager.getComponent<CustomOpaqueShaderComponent>(_entity);
+		renderData->m_customTransparencyShaderComponent = entityManager.getComponent<CustomTransparencyShaderComponent>(_entity);
 
-		if (renderData->transparencyComponent)
+		if (renderData->m_transparencyComponent)
 		{
-			++transparencyCount;
+			++m_transparencyCount;
 		}
-		if (renderData->outlineComponent)
+		if (renderData->m_outlineComponent)
 		{
-			++outlineCount;
+			++m_outlineCount;
 		}
-		if (renderData->customOpaqueShaderComponent)
+		if (renderData->m_customOpaqueShaderComponent)
 		{
-			++customOpaqueCount;
+			++m_customOpaqueCount;
 		}
-		if (renderData->customTransparencyShaderComponent)
+		if (renderData->m_customTransparencyShaderComponent)
 		{
-			++customTransparencyCount;
+			++m_customTransparencyCount;
 		}
 
-		meshEntityData.push_back(std::move(renderData));
+		m_meshEntityData.push_back(std::move(renderData));
 	}
 }
 
 void Scene::remove(const Entity *_entity)
 {
-	auto start = std::remove_if(meshEntityData.begin(), meshEntityData.end(), [&](const std::unique_ptr<EntityRenderData> &_item) 
+	auto start = std::remove_if(m_meshEntityData.begin(), m_meshEntityData.end(), [&](const std::unique_ptr<EntityRenderData> &_item) 
 	{ 
-		bool result = _item->entity == _entity;
+		bool result = _item->m_entity == _entity;
 		if (result)
 		{
-			if (_item->transparencyComponent)
+			if (_item->m_transparencyComponent)
 			{
-				--transparencyCount;
+				--m_transparencyCount;
 			}
-			if (_item->outlineComponent)
+			if (_item->m_outlineComponent)
 			{
-				--outlineCount;
+				--m_outlineCount;
 			}
-			if (_item->customOpaqueShaderComponent)
+			if (_item->m_customOpaqueShaderComponent)
 			{
-				--customOpaqueCount;
+				--m_customOpaqueCount;
 			}
-			if (_item->customTransparencyShaderComponent)
+			if (_item->m_customTransparencyShaderComponent)
 			{
-				--customTransparencyCount;
+				--m_customTransparencyCount;
 			}
 		}
 		return result;
 	});
-	meshEntityData.erase(start, meshEntityData.end());
+	m_meshEntityData.erase(start, m_meshEntityData.end());
 }
 
 void Scene::update(const Entity *_entity)
@@ -91,25 +91,25 @@ void Scene::update(const Entity *_entity)
 
 void Scene::sort()
 {
-	std::sort(meshEntityData.begin(), meshEntityData.end(), [](const std::unique_ptr<EntityRenderData> &_lhv, const std::unique_ptr<EntityRenderData> &_rhv) { return _lhv->mesh < _rhv->mesh; });
+	std::sort(m_meshEntityData.begin(), m_meshEntityData.end(), [](const std::unique_ptr<EntityRenderData> &_lhv, const std::unique_ptr<EntityRenderData> &_rhv) { return _lhv->m_mesh < _rhv->m_mesh; });
 }
 
 size_t Scene::getOutlineCount() const
 {
-	return outlineCount;
+	return m_outlineCount;
 }
 
 size_t Scene::getTransparencyCount() const
 {
-	return transparencyCount;
+	return m_transparencyCount;
 }
 
 size_t Scene::getCustomOpaqueCount() const
 {
-	return customOpaqueCount;
+	return m_customOpaqueCount;
 }
 
 size_t Scene::getCustomTransparencyCount() const
 {
-	return customTransparencyCount;
+	return m_customTransparencyCount;
 }

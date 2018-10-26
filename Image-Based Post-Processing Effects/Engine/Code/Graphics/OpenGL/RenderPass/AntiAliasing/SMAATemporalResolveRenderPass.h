@@ -13,9 +13,9 @@ public:
 	void render(const Effects &_effects, GLuint *_temporalTextures, GLuint _velocityTexture, bool _currentTexture, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> temporalResolveShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_temporalResolveShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<glm::vec4> uResolutionSMAAR = Uniform<glm::vec4>("uResolution");
+	Uniform<glm::vec4> m_uResolution = Uniform<glm::vec4>("uResolution");
 
 };

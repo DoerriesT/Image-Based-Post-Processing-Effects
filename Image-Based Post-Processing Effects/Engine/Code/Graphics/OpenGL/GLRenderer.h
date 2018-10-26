@@ -9,7 +9,7 @@ struct Level;
 class ShaderProgram;
 struct RenderData;
 struct AxisAlignedBoundingBox;
-struct Water;
+struct OceanParams;
 class ShadowRenderPass;
 class GBufferRenderPass;
 class GBufferCustomRenderPass;

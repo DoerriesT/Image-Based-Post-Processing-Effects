@@ -16,28 +16,28 @@ ShaderProgram::ShaderProgram(
 	const char *_tesselationControlShaderPath,
 	const char *_tesselationEvaluationShaderPath,
 	const char *_geometryShaderPath)
-	:defines(_defines),
-	vertexShaderPath(_vertexShaderPath),
-	fragmentShaderPath(_fragmentShaderPath)
+	:m_defines(_defines),
+	m_vertexShaderPath(_vertexShaderPath),
+	m_fragmentShaderPath(_fragmentShaderPath)
 {
 	if (_tesselationControlShaderPath)
 	{
-		tesselationControlShaderPath = _tesselationControlShaderPath;
+		m_tesselationControlShaderPath = _tesselationControlShaderPath;
 	}
 	if (_tesselationEvaluationShaderPath)
 	{
-		tesselationEvaluationShaderPath = _tesselationEvaluationShaderPath;
+		m_tesselationEvaluationShaderPath = _tesselationEvaluationShaderPath;
 	}
 	if (_geometryShaderPath)
 	{
-		geometryShaderPath = _geometryShaderPath;
+		m_geometryShaderPath = _geometryShaderPath;
 	}
 	create();
 }
 
 ShaderProgram::ShaderProgram(const std::vector<std::tuple<ShaderType, std::string, int>> &_defines, const char *_computeShaderPath)
-	:defines(_defines),
-	computeShaderPath(_computeShaderPath)
+	:m_defines(_defines),
+	m_computeShaderPath(_computeShaderPath)
 {
 	create();
 }
@@ -47,7 +47,7 @@ GLuint ShaderProgram::createShader(GLenum _type, const char *_shaderPath)
 	GLuint shader = glCreateShader(_type);
 
 	std::string shaderCodeStr = Utility::readTextFile(_shaderPath).data();
-	if (!defines.empty())
+	if (!m_defines.empty())
 	{
 		// determine this shaders type
 		ShaderType type = ShaderType::FRAGMENT;
@@ -78,7 +78,7 @@ GLuint ShaderProgram::createShader(GLenum _type, const char *_shaderPath)
 		// create a list of all defines for this type
 		std::vector<std::pair<std::string, int>> localDefines;
 
-		for (const auto &define : defines)
+		for (const auto &define : m_defines)
 		{
 			if (std::get<0>(define) == type)
 			{
@@ -113,11 +113,11 @@ GLuint ShaderProgram::createShader(GLenum _type, const char *_shaderPath)
 void ShaderProgram::statusCheck(GLenum _type)
 {
 	GLint success;
-	glGetProgramiv(programId, _type, &success);
+	glGetProgramiv(m_programId, _type, &success);
 	if (!success)
 	{
 		GLchar infoLog[512];
-		glGetProgramInfoLog(programId, sizeof(infoLog), NULL, infoLog);
+		glGetProgramInfoLog(m_programId, sizeof(infoLog), NULL, infoLog);
 		if (_type == GL_LINK_STATUS)
 		{
 			std::cout << "WARNING::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
@@ -135,92 +135,92 @@ void ShaderProgram::statusCheck(GLenum _type)
 
 void ShaderProgram::create()
 {
-	if (!computeShaderPath.empty())
+	if (!m_computeShaderPath.empty())
 	{
-		GLuint computeShader = createShader(GL_COMPUTE_SHADER, computeShaderPath.c_str());
+		GLuint computeShader = createShader(GL_COMPUTE_SHADER, m_computeShaderPath.c_str());
 
 		// shader Program
-		programId = glCreateProgram();
-		glAttachShader(programId, computeShader);
+		m_programId = glCreateProgram();
+		glAttachShader(m_programId, computeShader);
 
-		glLinkProgram(programId);
+		glLinkProgram(m_programId);
 		statusCheck(GL_LINK_STATUS);
 
 		// delete the shaders as they're linked into our program now and no longer necessery
-		glDetachShader(programId, computeShader);
+		glDetachShader(m_programId, computeShader);
 		glDeleteShader(computeShader);
 
 		// validate program
-		glValidateProgram(programId);
+		glValidateProgram(m_programId);
 		statusCheck(GL_VALIDATE_STATUS);
 	}
 	else
 	{
-		GLuint vertexShader = createShader(GL_VERTEX_SHADER, vertexShaderPath.c_str());
-		GLuint fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentShaderPath.c_str());
+		GLuint vertexShader = createShader(GL_VERTEX_SHADER, m_vertexShaderPath.c_str());
+		GLuint fragmentShader = createShader(GL_FRAGMENT_SHADER, m_fragmentShaderPath.c_str());
 		GLuint tessControlShader = 0;
 		GLuint tessEvalShader = 0;
 		GLuint geometryShader = 0;
 
 		// make sure we dont try to create a program with only control shader
-		assert(!tesselationEvaluationShaderPath.empty() ? true : tesselationControlShaderPath.empty());
+		assert(!m_tesselationEvaluationShaderPath.empty() ? true : m_tesselationControlShaderPath.empty());
 
-		if (!tesselationControlShaderPath.empty())
+		if (!m_tesselationControlShaderPath.empty())
 		{
-			tessControlShader = createShader(GL_TESS_CONTROL_SHADER, tesselationControlShaderPath.c_str());
+			tessControlShader = createShader(GL_TESS_CONTROL_SHADER, m_tesselationControlShaderPath.c_str());
 		}
-		if (!tesselationEvaluationShaderPath.empty())
+		if (!m_tesselationEvaluationShaderPath.empty())
 		{
-			tessEvalShader = createShader(GL_TESS_EVALUATION_SHADER, tesselationEvaluationShaderPath.c_str());
+			tessEvalShader = createShader(GL_TESS_EVALUATION_SHADER, m_tesselationEvaluationShaderPath.c_str());
 		}
-		if (!geometryShaderPath.empty())
+		if (!m_geometryShaderPath.empty())
 		{
-			geometryShader = createShader(GL_GEOMETRY_SHADER, geometryShaderPath.c_str());
+			geometryShader = createShader(GL_GEOMETRY_SHADER, m_geometryShaderPath.c_str());
 		}
 
 		// shader Program
-		programId = glCreateProgram();
-		glAttachShader(programId, vertexShader);
-		glAttachShader(programId, fragmentShader);
-		if (!tesselationControlShaderPath.empty())
+		m_programId = glCreateProgram();
+		glAttachShader(m_programId, vertexShader);
+		glAttachShader(m_programId, fragmentShader);
+		if (!m_tesselationControlShaderPath.empty())
 		{
-			glAttachShader(programId, tessControlShader);
+			glAttachShader(m_programId, tessControlShader);
 		}
-		if (!tesselationEvaluationShaderPath.empty())
+		if (!m_tesselationEvaluationShaderPath.empty())
 		{
-			glAttachShader(programId, tessEvalShader);
+			glAttachShader(m_programId, tessEvalShader);
 		}
-		if (!geometryShaderPath.empty())
+		if (!m_geometryShaderPath.empty())
 		{
-			glAttachShader(programId, geometryShader);
+			glAttachShader(m_programId, geometryShader);
 		}
 
-		glLinkProgram(programId);
+		glLinkProgram(m_programId);
 		statusCheck(GL_LINK_STATUS);
 
 		// delete the shaders as they're linked into our program now and no longer necessery
-		glDetachShader(programId, vertexShader);
-		glDetachShader(programId, fragmentShader);
-		if (!tesselationControlShaderPath.empty())
+		glDetachShader(m_programId, vertexShader);
+		glDetachShader(m_programId, fragmentShader);
+		if (!m_tesselationControlShaderPath.empty())
 		{
-			glDetachShader(programId, tessControlShader);
+			glDetachShader(m_programId, tessControlShader);
 			glDeleteShader(tessControlShader);
 		}
-		if (!tesselationEvaluationShaderPath.empty())
+		if (!m_tesselationEvaluationShaderPath.empty())
 		{
-			glDetachShader(programId, tessEvalShader);
+			glDetachShader(m_programId, tessEvalShader);
 			glDeleteShader(tessEvalShader);
 		}
-		if (!geometryShaderPath.empty())
+		if (!m_geometryShaderPath.empty())
 		{
-			glDetachShader(programId, geometryShader);
+			glDetachShader(m_programId, geometryShader);
 			glDeleteShader(geometryShader);
 		}
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
 
 		// validate program
-		glValidateProgram(programId);
+		glValidateProgram(m_programId);
 		statusCheck(GL_VALIDATE_STATUS);
 	}
 }
@@ -258,27 +258,27 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createShaderProgram(const std::vec
 
 ShaderProgram::~ShaderProgram()
 {
-	glDeleteProgram(programId);
+	glDeleteProgram(m_programId);
 }
 
 void ShaderProgram::bind()
 {
-	glUseProgram(programId);
+	glUseProgram(m_programId);
 }
 
 GLuint ShaderProgram::getId() const
 {
-	return programId;
+	return m_programId;
 }
 
 std::vector<std::tuple<ShaderProgram::ShaderType, std::string, int>> ShaderProgram::getDefines() const
 {
-	return defines;
+	return m_defines;
 }
 
 const GLint ShaderProgram::createUniform(const std::string &_name) const
 {
-	return glGetUniformLocation(programId, _name.c_str());
+	return glGetUniformLocation(m_programId, _name.c_str());
 }
 
 void ShaderProgram::setUniform(const GLint &_location, const GLboolean &_value) const
@@ -333,8 +333,8 @@ void ShaderProgram::setUniform(const GLint &_location, const glm::vec4 &_value) 
 
 void ShaderProgram::setDefines(const std::vector<std::tuple<ShaderType, std::string, int>> &_defines)
 {
-	defines = _defines;
+	m_defines = _defines;
 	glUseProgram(0);
-	glDeleteProgram(programId);
+	glDeleteProgram(m_programId);
 	create();
 }

@@ -4,25 +4,25 @@
 #include <glm/trigonometric.hpp>
 
 SeperateDofFillComputePass::SeperateDofFillComputePass(unsigned int _width, unsigned int _height)
-	:fillSamplesSet(false),
-	width(_width),
-	height(_height)
+	:m_fillSamplesSet(false),
+	m_width(_width),
+	m_height(_height)
 {
-	fillShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedFill.comp");
+	m_fillShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedFill.comp");
 
 	for (int i = 0; i < 3 * 3; ++i)
 	{
-		uSampleCoordsSDOFF.push_back(fillShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
+		m_uSampleCoords.push_back(m_fillShader->createUniform(std::string("uSampleCoords") + "[" + std::to_string(i) + "]"));
 	}
 }
 
 void SeperateDofFillComputePass::execute(GLuint * _dofTextures)
 {
-	fillShader->bind();
+	m_fillShader->bind();
 
-	if (!fillSamplesSet)
+	if (!m_fillSamplesSet)
 	{
-		fillSamplesSet = true;
+		m_fillSamplesSet = true;
 
 		glm::vec2 fillSamples[3 * 3];
 
@@ -41,18 +41,18 @@ void SeperateDofFillComputePass::execute(GLuint * _dofTextures)
 
 		for (int i = 0; i < 3 * 3; ++i)
 		{
-			fillShader->setUniform(uSampleCoordsSDOFF[i], fillSamples[i]);
+			m_fillShader->setUniform(m_uSampleCoords[i], fillSamples[i]);
 		}
 	}
 
 	glBindImageTexture(0, _dofTextures[0], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 	glBindImageTexture(1, _dofTextures[1], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
-	GLUtility::glDispatchComputeHelper(width / 2, height / 2, 1, 8, 8, 1);
+	GLUtility::glDispatchComputeHelper(m_width / 2, m_height / 2, 1, 8, 8, 1);
 	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
 void SeperateDofFillComputePass::resize(unsigned int _width, unsigned int _height)
 {
-	width = _width;
-	height = _height;
+	m_width = _width;
+	m_height = _height;
 }

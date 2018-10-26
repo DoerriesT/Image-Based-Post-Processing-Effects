@@ -16,9 +16,9 @@ public:
 	void render(const RenderData &_renderData, const Effects &_effects, GLuint _velocityTexture, GLuint *_ssaoTextures, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> gtaoDenoiseShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_gtaoDenoiseShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<GLfloat> uFrameTime = Uniform<GLfloat>("uFrameTime");
+	Uniform<GLfloat> m_uFrameTime = Uniform<GLfloat>("uFrameTime");
 
 };

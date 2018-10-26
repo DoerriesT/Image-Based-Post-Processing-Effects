@@ -51,15 +51,15 @@ public:
 	void bindTextures() const;
 
 private:
-	glm::vec4 albedo;
-	float metallic;
-	float roughness;
-	glm::vec3 emissive;
-	std::shared_ptr<Texture> albedoMap;
-	std::shared_ptr<Texture> normalMap;
-	std::shared_ptr<Texture> metallicMap;
-	std::shared_ptr<Texture> roughnessMap;
-	std::shared_ptr<Texture> aoMap;
-	std::shared_ptr<Texture> emissiveMap;
-	std::shared_ptr<Texture> displacementMap;
+	glm::vec4 m_albedo;
+	float m_metallic;
+	float m_roughness;
+	glm::vec3 m_emissive;
+	std::shared_ptr<Texture> m_albedoMap;
+	std::shared_ptr<Texture> m_normalMap;
+	std::shared_ptr<Texture> m_metallicMap;
+	std::shared_ptr<Texture> m_roughnessMap;
+	std::shared_ptr<Texture> m_aoMap;
+	std::shared_ptr<Texture> m_emissiveMap;
+	std::shared_ptr<Texture> m_displacementMap;
 };

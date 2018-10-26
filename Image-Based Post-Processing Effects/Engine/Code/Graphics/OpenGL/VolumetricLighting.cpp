@@ -96,7 +96,7 @@ void VolumetricLighting::render(GLuint _depthTexture, const RenderData &_renderD
 
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, _level->lights.directionalLights[0]->getShadowMap());
+	glBindTexture(GL_TEXTURE_2D, _level->m_lights.m_directionalLights[0]->getShadowMap());
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, phaseLUT);
@@ -125,16 +125,16 @@ void VolumetricLighting::render(GLuint _depthTexture, const RenderData &_renderD
 
 		lightVolumeShader->bind();
 		uDisplacementTextureLV.set(0);
-		uInvLightViewProjectionLV.set(glm::inverse(_level->lights.directionalLights[0]->getViewProjectionMatrices()[0]));
-		uViewProjectionLV.set(_renderData.viewProjectionMatrix);
+		uInvLightViewProjectionLV.set(glm::inverse(_level->m_lights.m_directionalLights[0]->getViewProjectionMatrices()[0]));
+		uViewProjectionLV.set(_renderData.m_viewProjectionMatrix);
 
 		uPhaseLUTLV.set(1);
-		uCamPosLV.set(_renderData.cameraPosition);
-		uLightIntensitysLV.set(_level->lights.directionalLights[0]->getColor() * 2500.0f);
+		uCamPosLV.set(_renderData.m_cameraPosition);
+		uLightIntensitysLV.set(_level->m_lights.m_directionalLights[0]->getColor() * 2500.0f);
 		uSigmaExtinctionLV.set(vSigmaExtinction);
 		uScatterPowerLV.set(vScatterPower);
-		uLightDirLV.set(_level->lights.directionalLights[0]->getDirection());
-		uInvViewProjectionLV.set(_renderData.invViewProjectionMatrix);
+		uLightDirLV.set(_level->m_lights.m_directionalLights[0]->getDirection());
+		uInvViewProjectionLV.set(_renderData.m_invViewProjectionMatrix);
 		uDepthTextureLV.set(2);
 		uPassModeLV.set(0);
 		uZFarLV.set(3000.0f);
@@ -150,16 +150,16 @@ void VolumetricLighting::render(GLuint _depthTexture, const RenderData &_renderD
 		lightVolumeBaseShader->bind();
 
 		uDisplacementTextureLVB.set(0);
-		uInvLightViewProjectionLVB.set(glm::inverse(_level->lights.directionalLights[0]->getViewProjectionMatrices()[0]));
-		uViewProjectionLVB.set(_renderData.viewProjectionMatrix);
+		uInvLightViewProjectionLVB.set(glm::inverse(_level->m_lights.m_directionalLights[0]->getViewProjectionMatrices()[0]));
+		uViewProjectionLVB.set(_renderData.m_viewProjectionMatrix);
 
 		uPhaseLUTLVB.set(1);
-		uCamPosLVB.set(_renderData.cameraPosition);
-		uLightIntensitysLVB.set(_level->lights.directionalLights[0]->getColor() * 2500.0f);
+		uCamPosLVB.set(_renderData.m_cameraPosition);
+		uLightIntensitysLVB.set(_level->m_lights.m_directionalLights[0]->getColor() * 2500.0f);
 		uSigmaExtinctionLVB.set(vSigmaExtinction);
 		uScatterPowerLVB.set(vScatterPower);
-		uLightDirLVB.set(_level->lights.directionalLights[0]->getDirection());
-		uInvViewProjectionLVB.set(_renderData.invViewProjectionMatrix);
+		uLightDirLVB.set(_level->m_lights.m_directionalLights[0]->getDirection());
+		uInvViewProjectionLVB.set(_renderData.m_invViewProjectionMatrix);
 		uDepthTextureLVB.set(2);
 		uPassModeLVB.set(0);
 		uZFarLVB.set(3000.0f);

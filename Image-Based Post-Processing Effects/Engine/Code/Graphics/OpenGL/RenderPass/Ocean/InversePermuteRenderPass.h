@@ -4,19 +4,19 @@
 #include "Graphics\OpenGL\Uniform.h"
 #include "Graphics\Mesh.h"
 
-struct Water;
+struct OceanParams;
 
 class InversePermuteRenderPass : public RenderPass
 {
 public:
 	explicit InversePermuteRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height);
-	void render(const Water &_water, GLuint *_inputTextures, GLuint _displacementTexture, RenderPass **_previousRenderPass = nullptr);
+	void render(const OceanParams &_water, GLuint *_inputTextures, GLuint _displacementTexture, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> inversePermuteShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_inversePermuteShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<GLint> uSimulationResolutionIP = Uniform<GLint>("uN");
-	Uniform<GLfloat> uChoppinessIP = Uniform<GLfloat>("uChoppiness");
+	Uniform<GLint> m_uSimulationResolution = Uniform<GLint>("uN");
+	Uniform<GLfloat> m_uChoppiness = Uniform<GLfloat>("uChoppiness");
 
 };

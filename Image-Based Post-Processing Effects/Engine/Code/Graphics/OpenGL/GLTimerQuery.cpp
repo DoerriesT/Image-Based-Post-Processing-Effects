@@ -2,17 +2,17 @@
 #include <cstdint>
 
 GLTimerQuery::GLTimerQuery(double &_result)
-	:result(_result)
+	:m_result(_result)
 {
-	glGenQueries(1, &id);
-	glBeginQuery(GL_TIME_ELAPSED, id);
+	glGenQueries(1, &m_id);
+	glBeginQuery(GL_TIME_ELAPSED, m_id);
 }
 
 GLTimerQuery::~GLTimerQuery()
 {
 	uint64_t nanoseconds = 0;
 	glEndQuery(GL_TIME_ELAPSED);
-	glGetQueryObjectui64v(id, GL_QUERY_RESULT, &nanoseconds);
-	glDeleteQueries(1, &id);
-	result = nanoseconds / 1000000.0;
+	glGetQueryObjectui64v(m_id, GL_QUERY_RESULT, &nanoseconds);
+	glDeleteQueries(1, &m_id);
+	m_result = nanoseconds / 1000000.0;
 }

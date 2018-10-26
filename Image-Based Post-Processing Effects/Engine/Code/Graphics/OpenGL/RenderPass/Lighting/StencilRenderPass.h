@@ -16,10 +16,10 @@ public:
 	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> stencilPassShader;
-	std::shared_ptr<Mesh> pointLightMesh;
-	std::shared_ptr<Mesh> spotLightMesh;
-	std::shared_ptr<Mesh> boxMesh;
+	std::shared_ptr<ShaderProgram> m_stencilPassShader;
+	std::shared_ptr<Mesh> m_pointLightMesh;
+	std::shared_ptr<Mesh> m_spotLightMesh;
+	std::shared_ptr<Mesh> m_boxMesh;
 
-	Uniform<glm::mat4> uModelViewProjection = Uniform<glm::mat4>("uModelViewProjection");
+	Uniform<glm::mat4> m_uModelViewProjection = Uniform<glm::mat4>("uModelViewProjection");
 };

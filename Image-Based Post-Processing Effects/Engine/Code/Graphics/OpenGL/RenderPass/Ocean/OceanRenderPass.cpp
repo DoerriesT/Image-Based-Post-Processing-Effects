@@ -5,63 +5,63 @@
 
 OceanRenderPass::OceanRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT4 };
-	state.blendState.enabled = false;
-	state.blendState.sFactor = GL_SRC_ALPHA;
-	state.blendState.dFactor = GL_ONE_MINUS_SRC_ALPHA;
-	state.cullFaceState.enabled = false;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = true;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_TRUE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT4 };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_blendState.m_sFactor = GL_SRC_ALPHA;
+	m_state.m_blendState.m_dFactor = GL_ONE_MINUS_SRC_ALPHA;
+	m_state.m_cullFaceState.m_enabled = false;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = true;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_TRUE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	oceanShader = ShaderProgram::createShaderProgram("Resources/Shaders/Ocean/water.vert", "Resources/Shaders/Ocean/Water.frag");
+	m_oceanShader = ShaderProgram::createShaderProgram("Resources/Shaders/Ocean/water.vert", "Resources/Shaders/Ocean/Water.frag");
 
-	uProjectionW.create(oceanShader);
-	uViewW.create(oceanShader);
-	uCamPosW.create(oceanShader);
-	uTexCoordShiftW.create(oceanShader);
-	uUseEnvironmentW.create(oceanShader);
-	uWaterLevelW.create(oceanShader);
-	uLightDirW.create(oceanShader);
-	uLightColorW.create(oceanShader);
+	m_uProjection.create(m_oceanShader);
+	m_uView.create(m_oceanShader);
+	m_uCamPos.create(m_oceanShader);
+	m_uTexCoordShift.create(m_oceanShader);
+	m_uUseEnvironment.create(m_oceanShader);
+	m_uWaterLevel.create(m_oceanShader);
+	m_uLightDir.create(m_oceanShader);
+	m_uLightColor.create(m_oceanShader);
 }
 
 void OceanRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, GLuint _displacementTexture, GLuint _normalTexture, GLuint _gridVAO, GLsizei _gridSize, bool _wireframe, RenderPass ** _previousRenderPass)
 {
-	resize(_renderData.resolution.first, _renderData.resolution.second);
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
+	resize(_renderData.m_resolution.first, _renderData.m_resolution.second);
+	m_drawBuffers[0] = _renderData.m_frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
-	oceanShader->bind();
+	m_oceanShader->bind();
 
-	uProjectionW.set(_renderData.projectionMatrix);
-	uViewW.set(_renderData.viewMatrix);
-	uCamPosW.set(_renderData.cameraPosition);
-	uTexCoordShiftW.set(glm::vec2(-1.5, 0.75) * _renderData.time * 0.25f);
-	uUseEnvironmentW.set(_level->environment.environmentProbes[0]->isValid());
-	uWaterLevelW.set(_level->water.level);
+	m_uProjection.set(_renderData.m_projectionMatrix);
+	m_uView.set(_renderData.m_viewMatrix);
+	m_uCamPos.set(_renderData.m_cameraPosition);
+	m_uTexCoordShift.set(glm::vec2(-1.5, 0.75) * _renderData.m_time * 0.25f);
+	m_uUseEnvironment.set(_level->m_environment.m_environmentProbes[0]->isValid());
+	m_uWaterLevel.set(_level->m_oceanParams.m_level);
 
-	if (_level->lights.directionalLights.empty())
+	if (_level->m_lights.m_directionalLights.empty())
 	{
-		uLightDirW.set(glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
-		uLightColorW.set(glm::vec3(1.5f, 0.575f, 0.5f));
+		m_uLightDir.set(glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
+		m_uLightColor.set(glm::vec3(1.5f, 0.575f, 0.5f));
 	}
 	else
 	{
-		uLightDirW.set(_level->lights.directionalLights[0]->getDirection());
-		uLightColorW.set(_level->lights.directionalLights[0]->getColor());
+		m_uLightDir.set(_level->m_lights.m_directionalLights[0]->getDirection());
+		m_uLightColor.set(_level->m_lights.m_directionalLights[0]->getColor());
 	}
 
 	glActiveTexture(GL_TEXTURE0);
@@ -69,7 +69,7 @@ void OceanRenderPass::render(const RenderData &_renderData, const std::shared_pt
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, _displacementTexture);
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->environment.environmentMap->getId());
+	glBindTexture(GL_TEXTURE_CUBE_MAP, _level->m_environment.m_environmentMap->getId());
 
 	glBindVertexArray(_gridVAO);
 	glEnableVertexAttribArray(0);

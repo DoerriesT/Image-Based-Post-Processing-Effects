@@ -10,10 +10,10 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> tileMaxShader;
+	std::shared_ptr<ShaderProgram> m_tileMaxShader;
 
-	Uniform<GLint> uLevel = Uniform<GLint>("uLevel");
+	Uniform<GLint> m_uLevel = Uniform<GLint>("uLevel");
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int m_width;
+	unsigned int m_height;
 };

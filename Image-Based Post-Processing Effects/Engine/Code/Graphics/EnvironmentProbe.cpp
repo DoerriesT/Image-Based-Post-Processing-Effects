@@ -14,32 +14,32 @@ std::shared_ptr<EnvironmentProbe> EnvironmentProbe::createEnvironmentProbe(const
 
 std::shared_ptr<Texture> EnvironmentProbe::getReflectionTexture() const
 {
-	return reflectionTexture;
+	return m_reflectionTexture;
 }
 
 glm::vec3 EnvironmentProbe::getPosition() const
 {
-	return position;
+	return m_position;
 }
 
 AxisAlignedBoundingBox EnvironmentProbe::getAxisAlignedBoundingBox() const
 {
-	return aabb;
+	return m_aabb;
 }
 
 std::string EnvironmentProbe::getFilePath() const
 {
-	return filePath;
+	return m_filePath;
 }
 
 bool EnvironmentProbe::isValid() const
 {
-	return valid;
+	return m_valid;
 }
 
 void EnvironmentProbe::setValid(bool _valid)
 {
-	valid = _valid;
+	m_valid = _valid;
 }
 
 void EnvironmentProbe::saveToFile()
@@ -49,7 +49,7 @@ void EnvironmentProbe::saveToFile()
 	gli::texture2d texture = gli::texture2d(gli::format::FORMAT_RG11B10_UFLOAT_PACK32, gli::extent2d(REFLECTION_TEXTURE_RESOLUTION, REFLECTION_TEXTURE_RESOLUTION), 5);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, reflectionTexture->getId());
+	glBindTexture(GL_TEXTURE_2D, m_reflectionTexture->getId());
 
 	for (size_t level = 0; level < 5; ++level)
 	{
@@ -66,21 +66,21 @@ void EnvironmentProbe::saveToFile()
 		}
 	}
 
-	gli::save_dds(texture, filePath);
+	gli::save_dds(texture, m_filePath);
 
 }
 
 EnvironmentProbe::EnvironmentProbe(const glm::vec3 &_position, const AxisAlignedBoundingBox &_aabb, const std::string &_filePath, bool _loadFromFile)
-	:position(_position),
-	aabb(_aabb),
-	filePath(_filePath),
-	valid(true)
+	:m_position(_position),
+	m_aabb(_aabb),
+	m_filePath(_filePath),
+	m_valid(true)
 {
 	if (_loadFromFile)
 	{
-		reflectionTexture = Texture::createTexture(_filePath, true);
+		m_reflectionTexture = Texture::createTexture(_filePath, true);
 
-		glBindTexture(GL_TEXTURE_2D, reflectionTexture->getId());
+		glBindTexture(GL_TEXTURE_2D, m_reflectionTexture->getId());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -103,7 +103,7 @@ EnvironmentProbe::EnvironmentProbe(const glm::vec3 &_position, const AxisAligned
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		reflectionTexture = Texture::createTexture(reflectionId, GL_TEXTURE_2D);
+		m_reflectionTexture = Texture::createTexture(reflectionId, GL_TEXTURE_2D);
 
 		//GLuint irradianceId;
 		//glGenTextures(1, &irradianceId);
@@ -130,30 +130,30 @@ std::shared_ptr<IrradianceVolume> IrradianceVolume::createIrradianceVolume(const
 }
 
 IrradianceVolume::IrradianceVolume(const glm::vec3 &_origin, const glm::ivec3 &_dimensions, float _spacing)
-	:origin(_origin),
-	dimensions(_dimensions),
-	spacing(_spacing),
-	data(dimensions.x * dimensions.y * dimensions.z)
+	:m_origin(_origin),
+	m_dimensions(_dimensions),
+	m_spacing(_spacing),
+	m_data(m_dimensions.x * m_dimensions.y * m_dimensions.z)
 {
 	GLuint texId;
 	glGenTextures(1, &texId);
 	glBindTexture(GL_TEXTURE_2D, texId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 9, dimensions.x * dimensions.y * dimensions.z, 0, GL_RGB, GL_FLOAT, data.data());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 9, m_dimensions.x * m_dimensions.y * m_dimensions.z, 0, GL_RGB, GL_FLOAT, m_data.data());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	probeTexture = Texture::createTexture(texId, GL_TEXTURE_2D);
+	m_probeTexture = Texture::createTexture(texId, GL_TEXTURE_2D);
 }
 
 IrradianceVolume::IrradianceVolume(const glm::vec3 & _origin, const glm::ivec3 & _dimensions, float _spacing, const std::shared_ptr<Texture>& _probeTexture)
-	:origin(_origin),
-	dimensions(_dimensions),
-	spacing(_spacing),
-	data(dimensions.x * dimensions.y * dimensions.z),
-	probeTexture(_probeTexture)
+	:m_origin(_origin),
+	m_dimensions(_dimensions),
+	m_spacing(_spacing),
+	m_data(m_dimensions.x * m_dimensions.y * m_dimensions.z),
+	m_probeTexture(_probeTexture)
 {
-	glBindTexture(GL_TEXTURE_2D, probeTexture->getId());
+	glBindTexture(GL_TEXTURE_2D, m_probeTexture->getId());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -162,54 +162,54 @@ IrradianceVolume::IrradianceVolume(const glm::vec3 & _origin, const glm::ivec3 &
 
 glm::vec3 IrradianceVolume::getOrigin() const
 {
-	return origin;
+	return m_origin;
 }
 
 glm::ivec3 IrradianceVolume::getDimensions() const
 {
-	return dimensions;
+	return m_dimensions;
 }
 
 float IrradianceVolume::getSpacing() const
 {
-	return spacing;
+	return m_spacing;
 }
 
 std::shared_ptr<Texture> IrradianceVolume::getProbeTexture() const
 {
-	return probeTexture;
+	return m_probeTexture;
 }
 
 IrradianceVolume::ProbeData IrradianceVolume::getProbeData(const glm::ivec3 &_index)
 {
-	size_t probeOffset = static_cast<size_t>(_index.z * (dimensions.x * dimensions.y) + _index.y * dimensions.x + _index.x);
-	return data[probeOffset];
+	size_t probeOffset = static_cast<size_t>(_index.z * (m_dimensions.x * m_dimensions.y) + _index.y * m_dimensions.x + _index.x);
+	return m_data[probeOffset];
 }
 
 void IrradianceVolume::updateProbeData(const glm::ivec3 &_index, const ProbeData &_probeData)
 {
-	size_t probeOffset = static_cast<size_t>(_index.z * (dimensions.x * dimensions.y) + _index.y * dimensions.x + _index.x);
-	data[probeOffset] = _probeData;
+	size_t probeOffset = static_cast<size_t>(_index.z * (m_dimensions.x * m_dimensions.y) + _index.y * m_dimensions.x + _index.x);
+	m_data[probeOffset] = _probeData;
 }
 
 void IrradianceVolume::flushToGpu()
 {
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, probeTexture->getId());
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 9, dimensions.x * dimensions.y * dimensions.z, 0, GL_RGB, GL_FLOAT, data.data());
+	glBindTexture(GL_TEXTURE_2D, m_probeTexture->getId());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 9, m_dimensions.x * m_dimensions.y * m_dimensions.z, 0, GL_RGB, GL_FLOAT, m_data.data());
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void IrradianceVolume::saveToFile(const std::string &_filepath)
 {
 	const size_t width = 9;
-	const size_t height = static_cast<size_t>(dimensions.x * dimensions.y * dimensions.z);
+	const size_t height = static_cast<size_t>(m_dimensions.x * m_dimensions.y * m_dimensions.z);
 	std::unique_ptr<glm::vec3[]> buffer = std::make_unique<glm::vec3[]>(width * height);
 
 	gli::texture2d texture = gli::texture2d(gli::format::FORMAT_RGB32_SFLOAT_PACK32, gli::extent2d(width, height), 1);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, probeTexture->getId());
+	glBindTexture(GL_TEXTURE_2D, m_probeTexture->getId());
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, buffer.get());
 
 	for (size_t y = 0; y < height; ++y)

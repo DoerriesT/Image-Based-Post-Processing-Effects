@@ -12,39 +12,39 @@
 
 ForwardRenderPass::ForwardRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT3 };
-	state.blendState.enabled = true;
-	state.blendState.sFactor = GL_SRC_ALPHA;
-	state.blendState.dFactor = GL_ONE_MINUS_SRC_ALPHA;
-	state.cullFaceState.enabled = true;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = true;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_TRUE;
-	state.stencilState.enabled = true;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT3 };
+	m_state.m_blendState.m_enabled = true;
+	m_state.m_blendState.m_sFactor = GL_SRC_ALPHA;
+	m_state.m_blendState.m_dFactor = GL_ONE_MINUS_SRC_ALPHA;
+	m_state.m_cullFaceState.m_enabled = true;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = true;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_TRUE;
+	m_state.m_stencilState.m_enabled = true;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	transparencyShader = ShaderProgram::createShaderProgram("Resources/Shaders/Geometry/forward.vert", "Resources/Shaders/Geometry/forward.frag");
+	m_forwardShader = ShaderProgram::createShaderProgram("Resources/Shaders/Geometry/forward.vert", "Resources/Shaders/Geometry/forward.frag");
 
-	uViewMatrixT.create(transparencyShader);
-	uPrevTransformT.create(transparencyShader);
-	uModelViewProjectionMatrixT.create(transparencyShader);
-	uModelMatrixT.create(transparencyShader);
-	uAtlasDataT.create(transparencyShader);
-	uMaterialT.create(transparencyShader);
-	uDirectionalLightT.create(transparencyShader);
-	uRenderDirectionalLightT.create(transparencyShader);
-	uCamPosT.create(transparencyShader);
-	uShadowsEnabledT.create(transparencyShader);
-	uCurrTransformT.create(transparencyShader);
+	m_uViewMatrix.create(m_forwardShader);
+	m_uPrevTransform.create(m_forwardShader);
+	m_uModelViewProjectionMatrix.create(m_forwardShader);
+	m_uModelMatrix.create(m_forwardShader);
+	m_uAtlasData.create(m_forwardShader);
+	m_uMaterial.create(m_forwardShader);
+	m_uDirectionalLight.create(m_forwardShader);
+	m_uRenderDirectionalLight.create(m_forwardShader);
+	m_uCamPos.create(m_forwardShader);
+	m_uShadowsEnabled.create(m_forwardShader);
+	m_uCurrTransform.create(m_forwardShader);
 }
 
 void ForwardRenderPass::render(const RenderData & _renderData, const std::shared_ptr<Level>& _level, const Scene & _scene, RenderPass **_previousRenderPass)
@@ -54,29 +54,29 @@ void ForwardRenderPass::render(const RenderData & _renderData, const std::shared
 		return;
 	}
 
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
+	m_drawBuffers[0] = _renderData.m_frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
-	transparencyShader->bind();
+	m_forwardShader->bind();
 
-	if (!_level->lights.directionalLights.empty())
+	if (!_level->m_lights.m_directionalLights.empty())
 	{
-		if (_level->lights.directionalLights[0]->isRenderShadows())
+		if (_level->m_lights.m_directionalLights[0]->isRenderShadows())
 		{
 			glActiveTexture(GL_TEXTURE15);
-			glBindTexture(GL_TEXTURE_2D_ARRAY, _level->lights.directionalLights[0]->getShadowMap());
+			glBindTexture(GL_TEXTURE_2D_ARRAY, _level->m_lights.m_directionalLights[0]->getShadowMap());
 		}
-		uRenderDirectionalLightT.set(true);
-		uDirectionalLightT.set(_level->lights.directionalLights[0]);
+		m_uRenderDirectionalLight.set(true);
+		m_uDirectionalLight.set(_level->m_lights.m_directionalLights[0]);
 	}
 	else
 	{
-		uRenderDirectionalLightT.set(false);
+		m_uRenderDirectionalLight.set(false);
 	}
-	uShadowsEnabledT.set(_renderData.shadows);
-	uCamPosT.set(_renderData.cameraPosition);
-	uViewMatrixT.set(_renderData.viewMatrix);
+	m_uShadowsEnabled.set(_renderData.m_shadows);
+	m_uCamPos.set(_renderData.m_cameraPosition);
+	m_uViewMatrix.set(_renderData.m_viewMatrix);
 
 	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
 
@@ -88,29 +88,29 @@ void ForwardRenderPass::render(const RenderData & _renderData, const std::shared
 		const std::unique_ptr<EntityRenderData> &entityRenderData = data[i];
 
 		// continue if this is a bake and the entity is not static
-		if (entityRenderData->transformationComponent && entityRenderData->transformationComponent->mobility != Mobility::STATIC && _renderData.bake)
+		if (entityRenderData->m_transformationComponent && entityRenderData->m_transformationComponent->m_mobility != Mobility::STATIC && _renderData.m_bake)
 		{
 			continue;
 		}
 
 		// skip this iteration if its supposed to be rendered with another method or does not have sufficient components
-		if (entityRenderData->customOpaqueShaderComponent ||
-			entityRenderData->customTransparencyShaderComponent ||
-			!entityRenderData->transparencyComponent ||
-			!entityRenderData->modelComponent ||
-			!entityRenderData->transformationComponent)
+		if (entityRenderData->m_customOpaqueShaderComponent ||
+			entityRenderData->m_customTransparencyShaderComponent ||
+			!entityRenderData->m_transparencyComponent ||
+			!entityRenderData->m_modelComponent ||
+			!entityRenderData->m_transformationComponent)
 		{
 			continue;
 		}
 
-		if (currentMesh != entityRenderData->mesh)
+		if (currentMesh != entityRenderData->m_mesh)
 		{
-			currentMesh = entityRenderData->mesh;
+			currentMesh = entityRenderData->m_mesh;
 			enabledMesh = false;
 		}
 
 		// skip this mesh if its not transparent
-		if (entityRenderData->transparencyComponent && !ContainerUtility::contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
+		if (entityRenderData->m_transparencyComponent && !ContainerUtility::contains(entityRenderData->m_transparencyComponent->m_transparentSubMeshes, currentMesh))
 		{
 			continue;
 		}
@@ -128,33 +128,33 @@ void ForwardRenderPass::render(const RenderData & _renderData, const std::shared
 		}
 
 		// we're good to go: render this mesh-entity instance
-		uMaterialT.set(entityRenderData->material);
-		entityRenderData->material->bindTextures();
+		m_uMaterial.set(entityRenderData->m_material);
+		entityRenderData->m_material->bindTextures();
 
 		int rows = 1;
 		int columns = 1;
 		glm::vec2 textureOffset;
-		TextureAtlasIndexComponent *textureAtlasComponent = entityRenderData->textureAtlasIndexComponent;
-		if (textureAtlasComponent && ContainerUtility::contains(textureAtlasComponent->meshToIndexMap, currentMesh))
+		TextureAtlasIndexComponent *textureAtlasComponent = entityRenderData->m_textureAtlasIndexComponent;
+		if (textureAtlasComponent && ContainerUtility::contains(textureAtlasComponent->m_meshToIndexMap, currentMesh))
 		{
-			rows = textureAtlasComponent->rows;
-			columns = textureAtlasComponent->columns;
-			int texPos = textureAtlasComponent->meshToIndexMap[currentMesh];
+			rows = textureAtlasComponent->m_rows;
+			columns = textureAtlasComponent->m_columns;
+			int texPos = textureAtlasComponent->m_meshToIndexMap[currentMesh];
 			int col = texPos % columns;
 			int row = texPos / columns;
 			textureOffset = glm::vec2((float)col / columns, (float)row / rows);
 		}
 
-		glm::mat4 transformation = _renderData.viewProjectionMatrix * entityRenderData->transformationComponent->transformation;
-		glm::mat4 prevTransformation = _renderData.prevViewProjectionMatrix * entityRenderData->transformationComponent->prevTransformation;
+		glm::mat4 transformation = _renderData.m_viewProjectionMatrix * entityRenderData->m_transformationComponent->m_transformation;
+		glm::mat4 prevTransformation = _renderData.m_prevViewProjectionMatrix * entityRenderData->m_transformationComponent->m_prevTransformation;
 
-		uAtlasDataT.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
-		uModelMatrixT.set(entityRenderData->transformationComponent->transformation);
-		uModelViewProjectionMatrixT.set(transformation);
-		uPrevTransformT.set(_renderData.prevInvJitter * prevTransformation);
-		uCurrTransformT.set(_renderData.invJitter * transformation);
+		m_uAtlasData.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
+		m_uModelMatrix.set(entityRenderData->m_transformationComponent->m_transformation);
+		m_uModelViewProjectionMatrix.set(transformation);
+		m_uPrevTransform.set(_renderData.m_prevInvJitter * prevTransformation);
+		m_uCurrTransform.set(_renderData.m_invJitter * transformation);
 
-		if (entityRenderData->outlineComponent)
+		if (entityRenderData->m_outlineComponent)
 		{
 			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 			glStencilMask(0xFF);
@@ -162,12 +162,12 @@ void ForwardRenderPass::render(const RenderData & _renderData, const std::shared
 
 		currentMesh->render();
 
-		if (entityRenderData->outlineComponent)
+		if (entityRenderData->m_outlineComponent)
 		{
-			glStencilMaskSeparate(GL_FRONT, state.stencilState.frontMask);
-			glStencilMaskSeparate(GL_BACK, state.stencilState.backMask);
-			glStencilOpSeparate(GL_FRONT, state.stencilState.frontOpFail, state.stencilState.frontOpZfail, state.stencilState.frontOpZpass);
-			glStencilOpSeparate(GL_FRONT, state.stencilState.backOpFail, state.stencilState.backOpZfail, state.stencilState.backOpZpass);
+			glStencilMaskSeparate(GL_FRONT, m_state.m_stencilState.m_frontMask);
+			glStencilMaskSeparate(GL_BACK, m_state.m_stencilState.m_backMask);
+			glStencilOpSeparate(GL_FRONT, m_state.m_stencilState.m_frontOpFail, m_state.m_stencilState.m_frontOpZfail, m_state.m_stencilState.m_frontOpZpass);
+			glStencilOpSeparate(GL_FRONT, m_state.m_stencilState.m_backOpFail, m_state.m_stencilState.m_backOpZfail, m_state.m_stencilState.m_backOpZpass);
 		}
 	}
 }

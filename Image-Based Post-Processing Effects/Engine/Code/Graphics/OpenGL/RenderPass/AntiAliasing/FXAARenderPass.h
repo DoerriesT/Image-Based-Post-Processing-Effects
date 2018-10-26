@@ -13,12 +13,12 @@ public:
 	void render(const Effects &_effects, GLuint _inputTexture, GLenum _drawBuffer, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> fxaaShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_fxaaShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<glm::vec2> uInverseResolutionF = Uniform<glm::vec2>("uInverseResolution");
-	Uniform<GLfloat> uSubPixelAAF = Uniform<GLfloat>("uSubPixelAA");
-	Uniform<GLfloat> uEdgeThresholdF = Uniform<GLfloat>("uEdgeThreshold");
-	Uniform<GLfloat> uEdgeThresholdMinF = Uniform<GLfloat>("uEdgeThresholdMin");
+	Uniform<glm::vec2> m_uInverseResolution = Uniform<glm::vec2>("uInverseResolution");
+	Uniform<GLfloat> m_uSubPixelAA = Uniform<GLfloat>("uSubPixelAA");
+	Uniform<GLfloat> m_uEdgeThreshold = Uniform<GLfloat>("uEdgeThreshold");
+	Uniform<GLfloat> m_uEdgeThresholdMin = Uniform<GLfloat>("uEdgeThresholdMin");
 
 };

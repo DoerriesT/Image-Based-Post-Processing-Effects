@@ -404,35 +404,35 @@
 
 void unloadLevel(Level &_level)
 {
-	if (!_level.valid)
+	if (!_level.m_valid)
 	{
 		return;
 	}
 
 	EntityManager &entityManager = EntityManager::getInstance();
-	for (auto &v : _level.entityMap)
+	for (auto &v : _level.m_entityMap)
 	{
 		const Entity *entity = v.second;
 		entityManager.destroyEntity(entity);
 	}
-	if (_level.environment.skyboxEntity)
+	if (_level.m_environment.m_skyboxEntity)
 	{
-		entityManager.destroyEntity(_level.environment.skyboxEntity);
+		entityManager.destroyEntity(_level.m_environment.m_skyboxEntity);
 	}
-	_level.environment.environmentMap.reset();
-	_level.environment.environmentProbes.clear();
-	for (auto &v : _level.lights.directionalLights)
-	{
-		v.reset();
-	}
-	for (auto &v : _level.lights.pointLights)
+	_level.m_environment.m_environmentMap.reset();
+	_level.m_environment.m_environmentProbes.clear();
+	for (auto &v : _level.m_lights.m_directionalLights)
 	{
 		v.reset();
 	}
-	for (auto &v : _level.lights.spotLights)
+	for (auto &v : _level.m_lights.m_pointLights)
+	{
+		v.reset();
+	}
+	for (auto &v : _level.m_lights.m_spotLights)
 	{
 		v.reset();
 	}
 
-	_level.valid = false;
+	_level.m_valid = false;
 }

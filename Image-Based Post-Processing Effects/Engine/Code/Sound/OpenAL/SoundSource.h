@@ -27,14 +27,14 @@ public:
 	bool isWaiting();
 
 private:
-	static const glm::vec3 defaultPosition;
-	const glm::vec3 *position;
-	ALuint sourceId;
-	std::shared_ptr<SoundBuffer> soundBuffer;
-	const float *soundTypeVolume;
-	static const float defaultVolume;
-	const float *volume;
-	bool isBufferSet;
+	static const glm::vec3 m_defaultPosition;
+	const glm::vec3 *m_position;
+	ALuint m_sourceId;
+	std::shared_ptr<SoundBuffer> m_soundBuffer;
+	const float *m_soundTypeVolume;
+	static const float m_defaultVolume;
+	const float *m_volume;
+	bool m_isBufferSet;
 
 	explicit SoundSource(const glm::vec3 *_position = nullptr, const float *_volume = nullptr, const float *_soundTypeVolume = nullptr, bool _looping = false, bool _relative = false);
 };

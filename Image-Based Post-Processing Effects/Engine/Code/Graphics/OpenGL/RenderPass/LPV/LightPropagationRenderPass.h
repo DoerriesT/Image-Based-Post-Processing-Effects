@@ -13,11 +13,11 @@ public:
 	void render(const Volume &_lightPropagationVolume, GLuint _geometryTexture, GLuint *_redTexture, GLuint *_greenTexture, GLuint *_blueTexture, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> lightPropagationShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_lightPropagationShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<glm::vec3> uGridSize = Uniform<glm::vec3>("uGridSize");
-	Uniform<GLboolean> uFirstIteration = Uniform<GLboolean>("uFirstIteration");
-	Uniform<GLfloat> uOcclusionAmplifier = Uniform<GLfloat>("uOcclusionAmplifier");
+	Uniform<glm::vec3> m_uGridSize = Uniform<glm::vec3>("uGridSize");
+	Uniform<GLboolean> m_uFirstIteration = Uniform<GLboolean>("uFirstIteration");
+	Uniform<GLfloat> m_uOcclusionAmplifier = Uniform<GLfloat>("uOcclusionAmplifier");
 
 };

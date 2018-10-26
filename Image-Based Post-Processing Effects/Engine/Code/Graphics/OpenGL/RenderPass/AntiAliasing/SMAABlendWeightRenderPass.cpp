@@ -3,33 +3,33 @@
 
 SMAABlendWeightRenderPass::SMAABlendWeightRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT1 };
-	state.blendState.enabled = false;
-	state.blendState.sFactor = GL_ONE;
-	state.blendState.dFactor = GL_ONE;
-	state.cullFaceState.enabled = false;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = false;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT1 };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_blendState.m_sFactor = GL_ONE;
+	m_state.m_blendState.m_dFactor = GL_ONE;
+	m_state.m_cullFaceState.m_enabled = false;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = false;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_FALSE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	blendWeightShader = ShaderProgram::createShaderProgram("Resources/Shaders/AntiAliasing/smaaBlendingWeightCalculation.vert", "Resources/Shaders/AntiAliasing/smaaBlendingWeightCalculation.frag");
+	m_blendWeightShader = ShaderProgram::createShaderProgram("Resources/Shaders/AntiAliasing/smaaBlendingWeightCalculation.vert", "Resources/Shaders/AntiAliasing/smaaBlendingWeightCalculation.frag");
 
-	uResolutionSMAAB.create(blendWeightShader);
-	uTemporalSampleSMAAB.create(blendWeightShader);
-	uTemporalAASMAAB.create(blendWeightShader);
+	m_uResolution.create(m_blendWeightShader);
+	m_uTemporalSample.create(m_blendWeightShader);
+	m_uTemporalAA.create(m_blendWeightShader);
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 void SMAABlendWeightRenderPass::render(const Effects & _effects, GLuint _edgesTexture, bool _temporal, bool _currentSample, RenderPass ** _previousRenderPass)
@@ -40,7 +40,7 @@ void SMAABlendWeightRenderPass::render(const Effects & _effects, GLuint _edgesTe
 	static std::shared_ptr<Texture> smaaAreaLut = Texture::createTexture("Resources/Textures/AreaTexDX10.dds", true);
 	static std::shared_ptr<Texture> smaaSearchLut = Texture::createTexture("Resources/Textures/SearchTex.dds", true);
 
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	m_fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -51,11 +51,11 @@ void SMAABlendWeightRenderPass::render(const Effects & _effects, GLuint _edgesTe
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, smaaSearchLut->getId());
 
-	blendWeightShader->bind();
+	m_blendWeightShader->bind();
 
-	uResolutionSMAAB.set(glm::vec4(1.0f / state.viewportState.width, 1.0f / state.viewportState.height, state.viewportState.width, state.viewportState.height));
-	uTemporalSampleSMAAB.set(_currentSample);
-	uTemporalAASMAAB.set(_temporal);
+	m_uResolution.set(glm::vec4(1.0f / m_state.m_viewportState.m_width, 1.0f / m_state.m_viewportState.m_height, m_state.m_viewportState.m_width, m_state.m_viewportState.m_height));
+	m_uTemporalSample.set(_currentSample);
+	m_uTemporalAA.set(_temporal);
 
-	fullscreenTriangle->getSubMesh()->render();
+	m_fullscreenTriangle->getSubMesh()->render();
 }

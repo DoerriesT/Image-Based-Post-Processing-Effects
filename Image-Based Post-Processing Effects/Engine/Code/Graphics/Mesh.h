@@ -12,9 +12,9 @@ class SubMesh;
 
 struct Vertex
 {
-	glm::vec3 position;
-	glm::vec2 texCoord;
-	glm::vec3 normal;
+	glm::vec3 m_position;
+	glm::vec2 m_texCoord;
+	glm::vec3 m_normal;
 };
 
 class Mesh
@@ -34,12 +34,12 @@ public:
 	AxisAlignedBoundingBox getAABB() const;
 
 private:
-	static std::map<std::string, std::weak_ptr<Mesh>> meshMap;
-	std::string filepath;
-	bool valid;
-	JobManager::SharedJob dataJob;
-	std::vector<std::shared_ptr<SubMesh>> subMeshes;
-	AxisAlignedBoundingBox aabb;
+	static std::map<std::string, std::weak_ptr<Mesh>> m_meshMap;
+	std::string m_filepath;
+	bool m_valid;
+	JobManager::SharedJob m_dataJob;
+	std::vector<std::shared_ptr<SubMesh>> m_subMeshes;
+	AxisAlignedBoundingBox m_aabb;
 
 	explicit Mesh(const std::string &_filepath, std::size_t _reserveCount = 0, bool _instantLoading = false);
 };
@@ -66,17 +66,17 @@ public:
 	std::size_t getIndexCount() const;
 
 private:
-	GLuint VAO;
-	GLuint VBO;
-	GLuint EBO;
-	GLuint positionVAO;
-	GLuint positionVBO;
-	std::size_t indexCount;
-	bool valid;
-	bool dataIsSet;
-	AxisAlignedBoundingBox aabb;
-	std::vector<glm::vec3> vertices;
-	std::vector<std::uint32_t> indices;
+	GLuint m_VAO;
+	GLuint m_VBO;
+	GLuint m_EBO;
+	GLuint m_positionVAO;
+	GLuint m_positionVBO;
+	std::size_t m_indexCount;
+	bool m_valid;
+	bool m_dataIsSet;
+	AxisAlignedBoundingBox m_aabb;
+	std::vector<glm::vec3> m_vertices;
+	std::vector<std::uint32_t> m_indices;
 
 
 	explicit SubMesh();

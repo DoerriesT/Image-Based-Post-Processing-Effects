@@ -13,11 +13,11 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> velocityCorrectionShader;
+	std::shared_ptr<ShaderProgram> m_velocityCorrectionShader;
 
-	Uniform<glm::mat4> uReprojectionVC = Uniform<glm::mat4>("uReprojection");
-	Uniform<GLfloat> uScaleVC = Uniform<GLfloat>("uScale");
+	Uniform<glm::mat4> m_uReprojection = Uniform<glm::mat4>("uReprojection");
+	Uniform<GLfloat> m_uScale = Uniform<GLfloat>("uScale");
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int m_width;
+	unsigned int m_height;
 };

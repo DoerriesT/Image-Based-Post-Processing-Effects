@@ -52,14 +52,14 @@ public:
 	void setDefines(const std::vector<std::tuple<ShaderType, std::string, int>> &_defines);
 
 private:
-	GLuint programId;
-	std::string vertexShaderPath;
-	std::string fragmentShaderPath;
-	std::string tesselationControlShaderPath;
-	std::string tesselationEvaluationShaderPath;
-	std::string geometryShaderPath;
-	std::string computeShaderPath;
-	std::vector<std::tuple<ShaderType, std::string, int>> defines;
+	GLuint m_programId;
+	std::string m_vertexShaderPath;
+	std::string m_fragmentShaderPath;
+	std::string m_tesselationControlShaderPath;
+	std::string m_tesselationEvaluationShaderPath;
+	std::string m_geometryShaderPath;
+	std::string m_computeShaderPath;
+	std::vector<std::tuple<ShaderType, std::string, int>> m_defines;
 
 	explicit ShaderProgram(
 		const std::vector<std::tuple<ShaderType, std::string, int>> &_defines, 

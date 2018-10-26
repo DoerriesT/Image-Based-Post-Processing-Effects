@@ -2,137 +2,137 @@
 #include "Graphics\Texture.h"
 
 UniformPointLight::UniformPointLight(const std::string &_name)
-	:color(_name + ".color"),
-	viewPosition(_name + ".position"),
-	radius(_name + ".radius"),
-	invSqrAttRadius(_name + ".invSqrAttRadius"),
-	renderShadows(_name + ".renderShadows"),
-	name(_name),
-	firstTime(true)
+	:m_color(_name + ".color"),
+	m_viewPosition(_name + ".position"),
+	m_radius(_name + ".radius"),
+	m_invSqrAttRadius(_name + ".invSqrAttRadius"),
+	m_renderShadows(_name + ".renderShadows"),
+	m_name(_name),
+	m_firstTime(true)
 {
 }
 
 void UniformPointLight::create(const std::shared_ptr<ShaderProgram> &_shaderProgram)
 {
-	shaderProgram = _shaderProgram;
-	color.create(shaderProgram);
-	viewPosition.create(shaderProgram);
-	radius.create(shaderProgram);
-	invSqrAttRadius.create(shaderProgram);
-	renderShadows.create(shaderProgram);
+	m_shaderProgram = _shaderProgram;
+	m_color.create(m_shaderProgram);
+	m_viewPosition.create(m_shaderProgram);
+	m_radius.create(m_shaderProgram);
+	m_invSqrAttRadius.create(m_shaderProgram);
+	m_renderShadows.create(m_shaderProgram);
 }
 
 void UniformPointLight::set(const std::shared_ptr<PointLight> &_value)
 {
-	color.set(_value->getColor() * _value->getLuminousIntensity());
-	viewPosition.set(_value->getViewPosition());
-	radius.set(_value->getRadius());
-	invSqrAttRadius.set(_value->getInvSqrRadius());
-	renderShadows.set(_value->isRenderShadows());
+	m_color.set(_value->getColor() * _value->getLuminousIntensity());
+	m_viewPosition.set(_value->getViewPosition());
+	m_radius.set(_value->getRadius());
+	m_invSqrAttRadius.set(_value->getInvSqrRadius());
+	m_renderShadows.set(_value->isRenderShadows());
 }
 
 bool UniformPointLight::isValid()
 {
-	return color.isValid() &&
-		viewPosition.isValid() &&
-		radius.isValid() &&
-		invSqrAttRadius.isValid() &&
-		renderShadows.isValid();
+	return m_color.isValid() &&
+		m_viewPosition.isValid() &&
+		m_radius.isValid() &&
+		m_invSqrAttRadius.isValid() &&
+		m_renderShadows.isValid();
 }
 
 UniformSpotLight::UniformSpotLight(const std::string &_name)
-	:color(_name + ".color"),
-	viewPosition(_name + ".position"),
-	viewDirection(_name + ".direction"),
-	angleScale(_name + ".angleScale"),
-	angleOffset(_name + ".angleOffset"),
-	invSqrAttRadius(_name + ".invSqrAttRadius"),
-	renderShadows(_name + ".renderShadows"),
-	projector(_name + ".projector"),
-	viewProjection(_name + ".viewProjectionMatrix"),
-	name(_name),
-	firstTime(true)
+	:m_color(_name + ".color"),
+	m_viewPosition(_name + ".position"),
+	m_viewDirection(_name + ".direction"),
+	m_angleScale(_name + ".angleScale"),
+	m_angleOffset(_name + ".angleOffset"),
+	m_invSqrAttRadius(_name + ".invSqrAttRadius"),
+	m_renderShadows(_name + ".renderShadows"),
+	m_projector(_name + ".projector"),
+	m_viewProjection(_name + ".viewProjectionMatrix"),
+	m_name(_name),
+	m_firstTime(true)
 {
 }
 
 void UniformSpotLight::create(const std::shared_ptr<ShaderProgram> &_shaderProgram)
 {
-	shaderProgram = _shaderProgram;
-	color.create(shaderProgram);
-	viewPosition.create(shaderProgram);
-	viewDirection.create(shaderProgram);
-	angleScale.create(shaderProgram);
-	angleOffset.create(shaderProgram);
-	invSqrAttRadius.create(shaderProgram);
-	renderShadows.create(shaderProgram);
-	projector.create(shaderProgram);
-	viewProjection.create(shaderProgram);
+	m_shaderProgram = _shaderProgram;
+	m_color.create(m_shaderProgram);
+	m_viewPosition.create(m_shaderProgram);
+	m_viewDirection.create(m_shaderProgram);
+	m_angleScale.create(m_shaderProgram);
+	m_angleOffset.create(m_shaderProgram);
+	m_invSqrAttRadius.create(m_shaderProgram);
+	m_renderShadows.create(m_shaderProgram);
+	m_projector.create(m_shaderProgram);
+	m_viewProjection.create(m_shaderProgram);
 }
 
 void UniformSpotLight::set(const std::shared_ptr<SpotLight> &_value)
 {
-	color.set(_value->getColor() * _value->getLuminousIntensity());
-	viewPosition.set(_value->getViewPosition());
-	viewDirection.set(_value->getViewDirection());
-	angleScale.set(_value->getAngleScale());
-	angleOffset.set(_value->getAngleOffset());
-	invSqrAttRadius.set(_value->getInvSqrRadius());
-	renderShadows.set(_value->isRenderShadows());
-	projector.set(_value->isProjector());
-	viewProjection.set(_value->getViewProjectionMatrix());
+	m_color.set(_value->getColor() * _value->getLuminousIntensity());
+	m_viewPosition.set(_value->getViewPosition());
+	m_viewDirection.set(_value->getViewDirection());
+	m_angleScale.set(_value->getAngleScale());
+	m_angleOffset.set(_value->getAngleOffset());
+	m_invSqrAttRadius.set(_value->getInvSqrRadius());
+	m_renderShadows.set(_value->isRenderShadows());
+	m_projector.set(_value->isProjector());
+	m_viewProjection.set(_value->getViewProjectionMatrix());
 }
 
 bool UniformSpotLight::isValid()
 {
-	return viewPosition.isValid() &&
-		viewDirection.isValid() &&
-		angleScale.isValid() &&
-		angleOffset.isValid() &&
-		invSqrAttRadius.isValid() &&
-		renderShadows.isValid() &&
-		viewProjection.isValid();
+	return m_viewPosition.isValid() &&
+		m_viewDirection.isValid() &&
+		m_angleScale.isValid() &&
+		m_angleOffset.isValid() &&
+		m_invSqrAttRadius.isValid() &&
+		m_renderShadows.isValid() &&
+		m_viewProjection.isValid();
 }
 
 UniformDirectionalLight::UniformDirectionalLight(const std::string &_name)
-	:color(_name + ".color"),
-	viewDirection(_name + ".direction"),
-	renderShadows(_name + ".renderShadows"),
-	name(_name),
-	firstTime(true)
+	:m_color(_name + ".color"),
+	m_viewDirection(_name + ".direction"),
+	m_renderShadows(_name + ".renderShadows"),
+	m_name(_name),
+	m_firstTime(true)
 {
 	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 	{
-		viewProjection[i] = Uniform<glm::mat4>(_name + ".viewProjectionMatrices[" + std::to_string(i) + "]");
-		splits[i] = Uniform<GLfloat>(_name + ".splits[" + std::to_string(i) + "]");
+		m_viewProjection[i] = Uniform<glm::mat4>(_name + ".viewProjectionMatrices[" + std::to_string(i) + "]");
+		m_splits[i] = Uniform<GLfloat>(_name + ".splits[" + std::to_string(i) + "]");
 	}
 }
 
 void UniformDirectionalLight::create(const std::shared_ptr<ShaderProgram> &_shaderProgram)
 {
-	shaderProgram = _shaderProgram;
-	color.create(shaderProgram);
-	viewDirection.create(shaderProgram);
-	renderShadows.create(shaderProgram);
+	m_shaderProgram = _shaderProgram;
+	m_color.create(m_shaderProgram);
+	m_viewDirection.create(m_shaderProgram);
+	m_renderShadows.create(m_shaderProgram);
 	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 	{
-		viewProjection[i].create(shaderProgram);
-		splits[i].create(shaderProgram);
+		m_viewProjection[i].create(m_shaderProgram);
+		m_splits[i].create(m_shaderProgram);
 	}
 }
 
 void UniformDirectionalLight::set(const std::shared_ptr<DirectionalLight> &_value)
 {
-	color.set(_value->getColor());
-	viewDirection.set(_value->getViewDirection());
-	renderShadows.set(_value->isRenderShadows());
+	m_color.set(_value->getColor());
+	m_viewDirection.set(_value->getViewDirection());
+	m_renderShadows.set(_value->isRenderShadows());
 
 	const glm::mat4 *viewProjections = _value->getViewProjectionMatrices();
 	const float *cascadeSplits = _value->getSplits();
 
 	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 	{
-		viewProjection[i].set(viewProjections[i]);
-		splits[i].set(cascadeSplits[i]);
+		m_viewProjection[i].set(viewProjections[i]);
+		m_splits[i].set(cascadeSplits[i]);
 	}
 }
 
@@ -142,55 +142,55 @@ bool UniformDirectionalLight::isValid()
 
 	for (unsigned int i = 0; i < SHADOW_CASCADES; ++i)
 	{
-		validArrays &= viewProjection[i].isValid();
-		validArrays &= splits[i].isValid();
+		validArrays &= m_viewProjection[i].isValid();
+		validArrays &= m_splits[i].isValid();
 	}
 
-	return validArrays && color.isValid() && viewDirection.isValid() && renderShadows.isValid();
+	return validArrays && m_color.isValid() && m_viewDirection.isValid() && m_renderShadows.isValid();
 }
 
 UniformMaterial::UniformMaterial(const std::string &_name)
-	:albedo(_name + ".albedo"),
-	metallic(_name + ".metallic"),
-	roughness(_name + ".roughness"),
-	emissive(_name + ".emissive"),
-	mapBitField(_name + ".mapBitField"),
-	displacement(_name + ".displacement"),
-	name(_name),
-	firstTime(true)
+	:m_albedo(_name + ".albedo"),
+	m_metallic(_name + ".metallic"),
+	m_roughness(_name + ".roughness"),
+	m_emissive(_name + ".emissive"),
+	m_mapBitField(_name + ".mapBitField"),
+	m_displacement(_name + ".displacement"),
+	m_name(_name),
+	m_firstTime(true)
 {
 }
 
 void UniformMaterial::create(const std::shared_ptr<ShaderProgram> &_shaderProgram)
 {
-	shaderProgram = _shaderProgram;
-	albedo.create(shaderProgram);
-	metallic.create(shaderProgram);
-	roughness.create(shaderProgram);
-	emissive.create(shaderProgram);
-	mapBitField.create(shaderProgram);
-	displacement.create(shaderProgram);
+	m_shaderProgram = _shaderProgram;
+	m_albedo.create(m_shaderProgram);
+	m_metallic.create(m_shaderProgram);
+	m_roughness.create(m_shaderProgram);
+	m_emissive.create(m_shaderProgram);
+	m_mapBitField.create(m_shaderProgram);
+	m_displacement.create(m_shaderProgram);
 }
 
 bool disp = true;
 
 void UniformMaterial::set(const Material *_value)
 {
-	albedo.set(_value->getAlbedo());
-	metallic.set(_value->getMetallic());
-	roughness.set(_value->getRoughness());
-	emissive.set(_value->getEmissive());
-	mapBitField.set(_value->getMapBitField());
+	m_albedo.set(_value->getAlbedo());
+	m_metallic.set(_value->getMetallic());
+	m_roughness.set(_value->getRoughness());
+	m_emissive.set(_value->getEmissive());
+	m_mapBitField.set(_value->getMapBitField());
 	std::shared_ptr<Texture> displacementMap = _value->getDisplacementMap();
-	displacement.set(displacementMap && displacementMap->isValid() && disp);
+	m_displacement.set(displacementMap && displacementMap->isValid() && disp);
 }
 
 bool UniformMaterial::isValid()
 {
-	return albedo.isValid() &&
-		metallic.isValid() &&
-		roughness.isValid() &&
-		emissive.isValid() &&
-		mapBitField.isValid() &&
-		displacement.isValid();
+	return m_albedo.isValid() &&
+		m_metallic.isValid() &&
+		m_roughness.isValid() &&
+		m_emissive.isValid() &&
+		m_mapBitField.isValid() &&
+		m_displacement.isValid();
 }

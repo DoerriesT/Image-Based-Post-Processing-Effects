@@ -2,26 +2,26 @@
 #include "Graphics\OpenGL\GLUtility.h"
 
 BloomUpsampleComputePass::BloomUpsampleComputePass(unsigned int _width, unsigned int _height)
-	:width(_width),
-	height(_height)
+	:m_width(_width),
+	m_height(_height)
 {
-	upsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Bloom/upsample.comp");
+	m_upsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/Bloom/upsample.comp");
 
-	uAddPrevious.create(upsampleShader);
-	uRadius.create(upsampleShader);
-	uLevel.create(upsampleShader);
+	m_uAddPrevious.create(m_upsampleShader);
+	m_uRadius.create(m_upsampleShader);
+	m_uLevel.create(m_upsampleShader);
 }
 
 void BloomUpsampleComputePass::execute(GLuint _sourceTexture, GLuint _destinationTexture)
 {
-	upsampleShader->bind();
+	m_upsampleShader->bind();
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _sourceTexture);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, _destinationTexture);
 
-	uAddPrevious.set(false);
+	m_uAddPrevious.set(false);
 
 	float radiusMult[] =
 	{
@@ -32,15 +32,15 @@ void BloomUpsampleComputePass::execute(GLuint _sourceTexture, GLuint _destinatio
 	{
 		if (i == 1)
 		{
-			uAddPrevious.set(true);
+			m_uAddPrevious.set(true);
 		}
 
 		float resolutionFactor = (float)std::pow(0.5f, 6 - i);
-		unsigned int w = (unsigned int)(width * resolutionFactor);
-		unsigned int h = (unsigned int)(height * resolutionFactor);
+		unsigned int w = (unsigned int)(m_width * resolutionFactor);
+		unsigned int h = (unsigned int)(m_height * resolutionFactor);
 
-		uLevel.set(5 - i);
-		uRadius.set(radiusMult[i]);
+		m_uLevel.set(5 - i);
+		m_uRadius.set(radiusMult[i]);
 
 		glBindImageTexture(0, _destinationTexture, 5 - i, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
 		GLUtility::glDispatchComputeHelper(w, h, 1, 8, 8, 1);
@@ -50,6 +50,6 @@ void BloomUpsampleComputePass::execute(GLuint _sourceTexture, GLuint _destinatio
 
 void BloomUpsampleComputePass::resize(unsigned int _width, unsigned int _height)
 {
-	width = _width;
-	height = _height;
+	m_width = _width;
+	m_height = _height;
 }

@@ -12,27 +12,27 @@ static const char *ANAMORPHIC_FLARES_ENABLED = "ANAMORPHIC_FLARES_ENABLED";
 
 ToneMapRenderPass::ToneMapRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT0 };
-	state.blendState.enabled = false;
-	state.blendState.sFactor = GL_ONE;
-	state.blendState.dFactor = GL_ONE;
-	state.cullFaceState.enabled = false;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = false;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_FALSE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT0 };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_blendState.m_sFactor = GL_ONE;
+	m_state.m_blendState.m_dFactor = GL_ONE;
+	m_state.m_cullFaceState.m_enabled = false;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = false;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_FALSE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	toneMapShader = ShaderProgram::createShaderProgram(
+	m_toneMapShader = ShaderProgram::createShaderProgram(
 		{
 		{ ShaderProgram::ShaderType::FRAGMENT, BLOOM_ENABLED, 0 },
 		{ ShaderProgram::ShaderType::FRAGMENT, FLARES_ENABLED, 0 },
@@ -44,13 +44,13 @@ ToneMapRenderPass::ToneMapRenderPass(GLuint _fbo, unsigned int _width, unsigned 
 		"Resources/Shaders/Shared/fullscreenTriangle.vert",
 		"Resources/Shaders/Misc/hdr.frag");
 
-	uStarburstOffsetH.create(toneMapShader);
-	uBloomStrengthH.create(toneMapShader);
-	uLensDirtStrengthH.create(toneMapShader);
-	uExposureH.create(toneMapShader);
-	uAnamorphicFlareColorH.create(toneMapShader);
+	m_uStarburstOffset.create(m_toneMapShader);
+	m_uBloomStrength.create(m_toneMapShader);
+	m_uLensDirtStrength.create(m_toneMapShader);
+	m_uExposure.create(m_toneMapShader);
+	m_uAnamorphicFlareColor.create(m_toneMapShader);
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 void ToneMapRenderPass::render(const Effects &_effects, float _starburstOffset, RenderPass ** _previousRenderPass)
@@ -61,11 +61,11 @@ void ToneMapRenderPass::render(const Effects &_effects, float _starburstOffset, 
 	static std::shared_ptr<Texture> lensDirtTexture = Texture::createTexture("Resources/Textures/lensdirt.dds", true);
 	static std::shared_ptr<Texture> lensStarTexture = Texture::createTexture("Resources/Textures/starburst.dds", true);
 
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	m_fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	// shader permutations
 	{
-		const auto curDefines = toneMapShader->getDefines();
+		const auto curDefines = m_toneMapShader->getDefines();
 	
 		bool bloomEnabled = false;
 		bool flaresEnabled = false;
@@ -110,40 +110,40 @@ void ToneMapRenderPass::render(const Effects &_effects, float _starburstOffset, 
 			}
 		}
 	
-		if (bloomEnabled != _effects.bloom.enabled
-			|| flaresEnabled != _effects.lensFlares.enabled
-			|| dirtEnabled != _effects.lensDirt.enabled
-			|| godRaysEnabled != _effects.godrays
+		if (bloomEnabled != _effects.m_bloom.m_enabled
+			|| flaresEnabled != _effects.m_lensFlares.m_enabled
+			|| dirtEnabled != _effects.m_lensDirt.m_enabled
+			|| godRaysEnabled != _effects.m_godrays
 			|| autoExposureEnabled != true
-			|| anamorphicsFlaresEnabled != _effects.anamorphicFlares.enabled
-			|| motionBlur != int(_effects.motionBlur))
+			|| anamorphicsFlaresEnabled != _effects.m_anamorphicFlares.m_enabled
+			|| motionBlur != int(_effects.m_motionBlur))
 		{
-			toneMapShader->setDefines(
+			m_toneMapShader->setDefines(
 				{
-				{ ShaderProgram::ShaderType::FRAGMENT, BLOOM_ENABLED, _effects.bloom.enabled },
-				{ ShaderProgram::ShaderType::FRAGMENT, FLARES_ENABLED, _effects.lensFlares.enabled },
-				{ ShaderProgram::ShaderType::FRAGMENT, ANAMORPHIC_FLARES_ENABLED, _effects.anamorphicFlares.enabled },
-				{ ShaderProgram::ShaderType::FRAGMENT, DIRT_ENABLED, _effects.lensDirt.enabled },
-				{ ShaderProgram::ShaderType::FRAGMENT, GOD_RAYS_ENABLED, _effects.godrays },
+				{ ShaderProgram::ShaderType::FRAGMENT, BLOOM_ENABLED, _effects.m_bloom.m_enabled },
+				{ ShaderProgram::ShaderType::FRAGMENT, FLARES_ENABLED, _effects.m_lensFlares.m_enabled },
+				{ ShaderProgram::ShaderType::FRAGMENT, ANAMORPHIC_FLARES_ENABLED, _effects.m_anamorphicFlares.m_enabled },
+				{ ShaderProgram::ShaderType::FRAGMENT, DIRT_ENABLED, _effects.m_lensDirt.m_enabled },
+				{ ShaderProgram::ShaderType::FRAGMENT, GOD_RAYS_ENABLED, _effects.m_godrays },
 				{ ShaderProgram::ShaderType::FRAGMENT, AUTO_EXPOSURE_ENABLED, 1 },
-				{ ShaderProgram::ShaderType::FRAGMENT, MOTION_BLUR, int(_effects.motionBlur) },
+				{ ShaderProgram::ShaderType::FRAGMENT, MOTION_BLUR, int(_effects.m_motionBlur) },
 				}
 			);
-			uStarburstOffsetH.create(toneMapShader);
-			uBloomStrengthH.create(toneMapShader);
-			uLensDirtStrengthH.create(toneMapShader);
-			uExposureH.create(toneMapShader);
-			uAnamorphicFlareColorH.create(toneMapShader);
+			m_uStarburstOffset.create(m_toneMapShader);
+			m_uBloomStrength.create(m_toneMapShader);
+			m_uLensDirtStrength.create(m_toneMapShader);
+			m_uExposure.create(m_toneMapShader);
+			m_uAnamorphicFlareColor.create(m_toneMapShader);
 		}
 	}
 
-	toneMapShader->bind();
+	m_toneMapShader->bind();
 
-	uStarburstOffsetH.set(_starburstOffset);
-	uBloomStrengthH.set(_effects.bloom.strength);
-	uExposureH.set(_effects.exposure);
-	uLensDirtStrengthH.set(_effects.lensDirt.strength);
-	uAnamorphicFlareColorH.set(_effects.anamorphicFlares.color);
+	m_uStarburstOffset.set(_starburstOffset);
+	m_uBloomStrength.set(_effects.m_bloom.m_strength);
+	m_uExposure.set(_effects.m_exposure);
+	m_uLensDirtStrength.set(_effects.m_lensDirt.m_strength);
+	m_uAnamorphicFlareColor.set(_effects.m_anamorphicFlares.m_color);
 
 
 	glActiveTexture(GL_TEXTURE4);
@@ -151,5 +151,5 @@ void ToneMapRenderPass::render(const Effects &_effects, float _starburstOffset, 
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, lensStarTexture->getId());
 
-	fullscreenTriangle->getSubMesh()->render();
+	m_fullscreenTriangle->getSubMesh()->render();
 }

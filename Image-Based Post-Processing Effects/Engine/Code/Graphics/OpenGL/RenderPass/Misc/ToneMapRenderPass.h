@@ -13,13 +13,13 @@ public:
 	void render(const Effects &_effects, float _starburstOffset, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> toneMapShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_toneMapShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<GLfloat> uStarburstOffsetH = Uniform<GLfloat>("uStarburstOffset");
-	Uniform<GLfloat> uBloomStrengthH = Uniform<GLfloat>("uBloomStrength");
-	Uniform<GLfloat> uLensDirtStrengthH = Uniform<GLfloat>("uLensDirtStrength");
-	Uniform<GLfloat> uExposureH = Uniform<GLfloat>("uExposure");
-	Uniform<glm::vec3> uAnamorphicFlareColorH = Uniform<glm::vec3>("uAnamorphicFlareColor");
+	Uniform<GLfloat> m_uStarburstOffset = Uniform<GLfloat>("uStarburstOffset");
+	Uniform<GLfloat> m_uBloomStrength = Uniform<GLfloat>("uBloomStrength");
+	Uniform<GLfloat> m_uLensDirtStrength = Uniform<GLfloat>("uLensDirtStrength");
+	Uniform<GLfloat> m_uExposure = Uniform<GLfloat>("uExposure");
+	Uniform<glm::vec3> m_uAnamorphicFlareColor = Uniform<glm::vec3>("uAnamorphicFlareColor");
 
 };

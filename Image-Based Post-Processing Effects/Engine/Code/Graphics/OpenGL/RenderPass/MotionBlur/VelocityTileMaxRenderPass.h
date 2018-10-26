@@ -12,12 +12,12 @@ public:
 	void resize(unsigned int _width, unsigned int _height) override;
 
 private:
-	std::shared_ptr<ShaderProgram> tileMaxShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_tileMaxShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	Uniform<GLboolean> uDirectionVTM = Uniform<GLboolean>("uDirection");
-	Uniform<GLint> uTileSizeVTM = Uniform<GLint>("uTileSize");
+	Uniform<GLboolean> m_uDirection = Uniform<GLboolean>("uDirection");
+	Uniform<GLint> m_uTileSize = Uniform<GLint>("uTileSize");
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int m_width;
+	unsigned int m_height;
 };

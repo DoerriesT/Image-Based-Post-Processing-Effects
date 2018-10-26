@@ -43,15 +43,15 @@ public:
 	void onResize(unsigned int width, unsigned int height) override;
 
 private:
-	std::shared_ptr<Setting<bool>> vsync;
-	std::shared_ptr<Setting<int>> windowWidth;
-	std::shared_ptr<Setting<int>> windowHeight;
-	std::shared_ptr<Setting<int>> windowMode;
+	std::shared_ptr<Setting<bool>> m_vsync;
+	std::shared_ptr<Setting<int>> m_windowWidth;
+	std::shared_ptr<Setting<int>> m_windowHeight;
+	std::shared_ptr<Setting<int>> m_windowMode;
 
-	std::shared_ptr<WindowFramework> windowFramework;
-	std::vector<IWindowResizeListener *> resizeListeners;
-	glm::mat4 projectionMatrix;
-	float fieldOfView;
+	std::shared_ptr<WindowFramework> m_windowFramework;
+	std::vector<IWindowResizeListener *> m_resizeListeners;
+	glm::mat4 m_projectionMatrix;
+	float m_fieldOfView;
 
 	explicit Window(const std::string &_title);
 };

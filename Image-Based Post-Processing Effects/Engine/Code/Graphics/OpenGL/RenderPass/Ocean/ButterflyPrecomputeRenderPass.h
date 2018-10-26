@@ -4,19 +4,19 @@
 #include "Graphics\OpenGL\Uniform.h"
 #include "Graphics\Mesh.h"
 
-struct Water;
+struct OceanParams;
 
 class ButterflyPrecomputeRenderPass : public RenderPass
 {
 public:
 	explicit ButterflyPrecomputeRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height);
-	void render(const Water &_water, RenderPass **_previousRenderPass = nullptr);
+	void render(const OceanParams &_water, RenderPass **_previousRenderPass = nullptr);
 
 private:
-	std::shared_ptr<ShaderProgram> butterflyPrecomputeShader;
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<ShaderProgram> m_butterflyPrecomputeShader;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
-	std::vector<GLint> uJBP;
-	Uniform<GLint> uSimulationResolutionBP = Uniform<GLint>("uN");
+	std::vector<GLint> m_uJ;
+	Uniform<GLint> m_uSimulationResolution = Uniform<GLint>("uN");
 
 };

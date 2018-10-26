@@ -12,11 +12,11 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> luminanceAdaptionShader;
+	std::shared_ptr<ShaderProgram> m_luminanceAdaptionShader;
 
-	Uniform<GLfloat> uTimeDeltaLA = Uniform<GLfloat>("uTimeDelta");
-	Uniform<GLfloat> uTauLA = Uniform<GLfloat>("uTau");
+	Uniform<GLfloat> m_uTimeDelta = Uniform<GLfloat>("uTimeDelta");
+	Uniform<GLfloat> m_uTau = Uniform<GLfloat>("uTau");
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int m_width;
+	unsigned int m_height;
 };

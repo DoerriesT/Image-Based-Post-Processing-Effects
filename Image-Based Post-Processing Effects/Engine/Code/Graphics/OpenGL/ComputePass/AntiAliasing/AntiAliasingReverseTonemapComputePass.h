@@ -13,8 +13,8 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> reverseTonemapShader;
+	std::shared_ptr<ShaderProgram> m_reverseTonemapShader;
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int m_width;
+	unsigned int m_height;
 };

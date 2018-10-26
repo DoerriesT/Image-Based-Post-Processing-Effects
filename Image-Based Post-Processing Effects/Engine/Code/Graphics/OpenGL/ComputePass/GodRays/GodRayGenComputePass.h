@@ -12,10 +12,10 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> godRayGenShader;
+	std::shared_ptr<ShaderProgram> m_godRayGenShader;
 
-	Uniform<glm::vec2> uSunPosGR = Uniform<glm::vec2>("uSunPos");
+	Uniform<glm::vec2> m_uSunPos = Uniform<glm::vec2>("uSunPos");
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int m_width;
+	unsigned int m_height;
 };

@@ -41,7 +41,7 @@ void transformStringToLowerCase(std::string &_str)
 
 void INIFile::parse(const char *_parseText)
 {
-	dataMap.clear();
+	m_dataMap.clear();
 
 	char cc; //currently char read
 	size_t parsePos = 0;
@@ -152,14 +152,14 @@ void INIFile::parse(const char *_parseText)
 
 
 INIFile::INIFile(const std::string &_filename)
-	:filename(_filename)
+	:m_filename(_filename)
 {
 	load();
 }
 
 void INIFile::load()
 {
-	parse(Utility::readTextFile(filename, true).data());
+	parse(Utility::readTextFile(m_filename, true).data());
 
 #ifdef _DEBUG
 	printf("-- INIFile loaded Data: --\n");
@@ -171,7 +171,7 @@ void INIFile::load()
 void INIFile::save() const
 {
 	//TODO: improve save, don't delete comments and keep loading order
-	std::ofstream file(filename);
+	std::ofstream file(m_filename);
 	if (file.is_open())
 	{
 		file << *this;
@@ -179,13 +179,13 @@ void INIFile::save() const
 	}
 	else
 	{
-		std::cout << "ERROR: Couldn't open \"" << filename << "\" file." << std::endl;
+		std::cout << "ERROR: Couldn't open \"" << m_filename << "\" file." << std::endl;
 	}
 }
 
 void INIFile::print(std::ostream &_out) const
 {
-	for (auto const &ent1 : dataMap)
+	for (auto const &ent1 : m_dataMap)
 	{
 		_out << '[' << ent1.first << ']' << std::endl;
 		for (auto const &ent2 : ent1.second)
@@ -213,7 +213,7 @@ void INIFile::put(const std::string &_section, const std::string &_key, const st
 	transformStringToLowerCase(key);
 	transformStringToLowerCase(section);
 
-	dataMap[section][key] = _value;
+	m_dataMap[section][key] = _value;
 }
 
 void INIFile::setString(const std::string &_section, const std::string &_key, const std::string &_value)
@@ -228,9 +228,9 @@ bool INIFile::getStringChecked(const std::string &_section, const std::string &_
 	transformStringToLowerCase(key);
 	transformStringToLowerCase(section);
 
-	if (dataMap.find(section) != dataMap.end())
+	if (m_dataMap.find(section) != m_dataMap.end())
 	{
-		auto dataSection = dataMap[section];
+		auto dataSection = m_dataMap[section];
 		if (dataSection.find(key) != dataSection.end())
 		{
 			_result = dataSection[key];

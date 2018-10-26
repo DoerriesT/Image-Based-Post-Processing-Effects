@@ -4,56 +4,56 @@
 
 struct DepthState
 {
-	bool enabled;
-	GLenum mask;
-	GLenum func;
+	bool m_enabled;
+	GLenum m_mask;
+	GLenum m_func;
 };
 
 struct StencilState
 {
-	bool enabled;
-	GLenum frontFunc;
-	GLint frontRef;
-	GLint frontMask;
-	GLenum backFunc;
-	GLint backRef;
-	GLint backMask;
-	GLenum frontOpFail;
-	GLenum frontOpZfail;
-	GLenum frontOpZpass;
-	GLenum backOpFail;
-	GLenum backOpZfail;
-	GLenum backOpZpass;
+	bool m_enabled;
+	GLenum m_frontFunc;
+	GLint m_frontRef;
+	GLint m_frontMask;
+	GLenum m_backFunc;
+	GLint m_backRef;
+	GLint m_backMask;
+	GLenum m_frontOpFail;
+	GLenum m_frontOpZfail;
+	GLenum m_frontOpZpass;
+	GLenum m_backOpFail;
+	GLenum m_backOpZfail;
+	GLenum m_backOpZpass;
 };
 
 struct CullFaceState
 {
-	bool enabled;
-	GLenum face;
+	bool m_enabled;
+	GLenum m_face;
 };
 
 struct BlendState
 {
-	bool enabled;
-	GLenum sFactor;
-	GLenum dFactor;
+	bool m_enabled;
+	GLenum m_sFactor;
+	GLenum m_dFactor;
 };
 
 struct ViewportState
 {
-	GLint x;
-	GLint y;
-	GLsizei width;
-	GLsizei height;
+	GLint m_x;
+	GLint m_y;
+	GLsizei m_width;
+	GLsizei m_height;
 };
 
 struct State
 {
-	DepthState depthState;
-	StencilState stencilState;
-	CullFaceState cullFaceState;
-	BlendState blendState;
-	ViewportState viewportState;
+	DepthState m_depthState;
+	StencilState m_stencilState;
+	CullFaceState m_cullFaceState;
+	BlendState m_blendState;
+	ViewportState m_viewportState;
 };
 
 
@@ -65,8 +65,8 @@ public:
 	virtual void resize(unsigned int _width, unsigned int _height);
 
 protected:
-	GLuint fbo;
-	std::vector<GLenum> drawBuffers;
-	State state;
+	GLuint m_fbo;
+	std::vector<GLenum> m_drawBuffers;
+	State m_state;
 
 };

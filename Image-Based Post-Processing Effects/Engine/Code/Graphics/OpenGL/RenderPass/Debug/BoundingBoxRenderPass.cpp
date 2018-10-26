@@ -12,30 +12,30 @@
 
 BoundingBoxRenderPass::BoundingBoxRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT0 };
-	state.blendState.enabled = false;
-	state.blendState.sFactor = GL_SRC_ALPHA;
-	state.blendState.dFactor = GL_ONE_MINUS_SRC_ALPHA;
-	state.cullFaceState.enabled = false;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = true;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_TRUE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT0 };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_blendState.m_sFactor = GL_SRC_ALPHA;
+	m_state.m_blendState.m_dFactor = GL_ONE_MINUS_SRC_ALPHA;
+	m_state.m_cullFaceState.m_enabled = false;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = true;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_TRUE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	boundingBoxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Debug/boundingBox.vert", "Resources/Shaders/Debug/boundingBox.frag");
+	m_boundingBoxShader = ShaderProgram::createShaderProgram("Resources/Shaders/Debug/boundingBox.vert", "Resources/Shaders/Debug/boundingBox.frag");
 
-	uModelViewProjectionMatrix.create(boundingBoxShader);
-	uColor.create(boundingBoxShader);
+	m_uModelViewProjectionMatrix.create(m_boundingBoxShader);
+	m_uColor.create(m_boundingBoxShader);
 
 	boxMesh = Mesh::createMesh("Resources/Models/cube.mesh", 1, true);
 }
@@ -45,11 +45,11 @@ void BoundingBoxRenderPass::render(const RenderData & _renderData, const std::sh
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
-	boundingBoxShader->bind();
+	m_boundingBoxShader->bind();
 
 	boxMesh->getSubMesh()->enableVertexAttribArraysPositionOnly();
 
-	uColor.set(glm::vec3(1.0f, 0.0f, 0.0f));
+	m_uColor.set(glm::vec3(1.0f, 0.0f, 0.0f));
 
 	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
 
@@ -88,19 +88,19 @@ void BoundingBoxRenderPass::render(const RenderData & _renderData, const std::sh
 	//	boxMesh->getSubMesh()->render();
 	//}
 
-	for (const auto &probe : _level->environment.environmentProbes)
+	for (const auto &probe : _level->m_environment.m_environmentProbes)
 	{
 		AxisAlignedBoundingBox aabb = probe->getAxisAlignedBoundingBox();
-		glm::vec3 boundingBoxCenter = (aabb.max + aabb.min) * 0.5f;
-		glm::vec3 correctedMax = aabb.max - boundingBoxCenter;
-		glm::vec3 correctedMin = aabb.min - boundingBoxCenter;
+		glm::vec3 boundingBoxCenter = (aabb.m_max + aabb.m_min) * 0.5f;
+		glm::vec3 correctedMax = aabb.m_max - boundingBoxCenter;
+		glm::vec3 correctedMin = aabb.m_min - boundingBoxCenter;
 		glm::vec3 boxScale = correctedMax / 0.5f;
 
 		glm::mat4 modelMatrix = glm::translate(boundingBoxCenter)
 			* glm::scale(glm::vec3(boxScale));
 
 
-		uModelViewProjectionMatrix.set(_renderData.viewProjectionMatrix * modelMatrix);
+		m_uModelViewProjectionMatrix.set(_renderData.m_viewProjectionMatrix * modelMatrix);
 
 		boxMesh->getSubMesh()->render();
 	}

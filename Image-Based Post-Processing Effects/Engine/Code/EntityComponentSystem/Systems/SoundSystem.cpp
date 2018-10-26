@@ -7,42 +7,42 @@
 #include "Level.h"
 
 SoundSystem::SoundSystem()
-	:soundFramework(new SoundFramework()),
-	entityManager(EntityManager::getInstance())
+	:m_soundFramework(new SoundFramework()),
+	m_entityManager(EntityManager::getInstance())
 {
-	validBitMaps.push_back(Component<SoundComponent>::getTypeId());
+	m_validBitMaps.push_back(Component<SoundComponent>::getTypeId());
 }
 
 SoundSystem::~SoundSystem()
 {
-	delete soundFramework;
+	delete m_soundFramework;
 }
 
 void SoundSystem::init()
 {
-	entityManager.addOnComponentAddedListener(this);
-	entityManager.addOnEntityDestructionListener(this);
-	entityManager.addOnComponentRemovedListener(this);
+	m_entityManager.addOnComponentAddedListener(this);
+	m_entityManager.addOnEntityDestructionListener(this);
+	m_entityManager.addOnComponentRemovedListener(this);
 
-	soundFramework->init();
+	m_soundFramework->init();
 
 	SettingsManager &settingsManager = SettingsManager::getInstance();
 
-	masterVolume = settingsManager.getDoubleSetting("sound", "master_volume", 0.5);
-	masterVolume->addListener([&](double _value) { soundFramework->setMasterVolume((float)_value); });
-	soundFramework->setMasterVolume((float)masterVolume->get());
+	m_masterVolume = settingsManager.getDoubleSetting("sound", "master_volume", 0.5);
+	m_masterVolume->addListener([&](double _value) { m_soundFramework->setMasterVolume((float)_value); });
+	m_soundFramework->setMasterVolume((float)m_masterVolume->get());
 
-	musicVolume = settingsManager.getDoubleSetting("sound", "music_volume", 0.5);
-	musicVolume->addListener([&](double _value) { soundFramework->setVolume(SoundType::MUSIC, (float)_value); });
-	soundFramework->setVolume(SoundType::MUSIC, (float)musicVolume->get());
+	m_musicVolume = settingsManager.getDoubleSetting("sound", "music_volume", 0.5);
+	m_musicVolume->addListener([&](double _value) { m_soundFramework->setVolume(SoundType::MUSIC, (float)_value); });
+	m_soundFramework->setVolume(SoundType::MUSIC, (float)m_musicVolume->get());
 
-	effectVolume = settingsManager.getDoubleSetting("sound", "effect_volume", 0.5);
-	effectVolume->addListener([&](double _value) { soundFramework->setVolume(SoundType::EFFECT, (float)_value); });
-	soundFramework->setVolume(SoundType::EFFECT, (float)effectVolume->get());
+	m_effectVolume = settingsManager.getDoubleSetting("sound", "effect_volume", 0.5);
+	m_effectVolume->addListener([&](double _value) { m_soundFramework->setVolume(SoundType::EFFECT, (float)_value); });
+	m_soundFramework->setVolume(SoundType::EFFECT, (float)m_effectVolume->get());
 
-	uiVolume = settingsManager.getDoubleSetting("sound", "ui_volume", 0.5);
-	uiVolume->addListener([&](double _value) { soundFramework->setVolume(SoundType::UI, (float)_value); });
-	soundFramework->setVolume(SoundType::UI, (float)uiVolume->get());
+	m_uiVolume = settingsManager.getDoubleSetting("sound", "ui_volume", 0.5);
+	m_uiVolume->addListener([&](double _value) { m_soundFramework->setVolume(SoundType::UI, (float)_value); });
+	m_soundFramework->setVolume(SoundType::UI, (float)m_uiVolume->get());
 
 	settingsManager.saveToIni();
 }
@@ -54,23 +54,23 @@ void SoundSystem::input(double _currentTime, double _timeDelta)
 void SoundSystem::update(double _currentTime, double _timeDelta)
 {
 	std::shared_ptr<Level> level = SystemManager::getInstance().getLevel();
-	if (!level || level->cameras.empty())
+	if (!level || level->m_cameras.empty())
 	{
 		// we cant do play any (directional) sound if there is no active camera
 		return;
 	}
 
-	std::shared_ptr<Camera> camera = level->cameras[level->activeCameraIndex];
+	std::shared_ptr<Camera> camera = level->m_cameras[level->m_activeCameraIndex];
 
-	std::vector<const Entity *> entitiesToRemove = soundFramework->update(camera);
+	std::vector<const Entity *> entitiesToRemove = m_soundFramework->update(camera);
 	for (const Entity *entity : entitiesToRemove)
 	{
-		managedEntities.erase(std::remove(managedEntities.begin(), managedEntities.end(), entity), managedEntities.end());
+		m_managedEntities.erase(std::remove(m_managedEntities.begin(), m_managedEntities.end(), entity), m_managedEntities.end());
 	}
-	for (const Entity *entity : managedEntities)
+	for (const Entity *entity : m_managedEntities)
 	{
-		SoundComponent *sc = entityManager.getComponent<SoundComponent>(entity);
-		soundFramework->setPaused(entity, sc->paused);
+		SoundComponent *sc = m_entityManager.getComponent<SoundComponent>(entity);
+		m_soundFramework->setPaused(entity, sc->m_paused);
 	}
 }
 
@@ -80,37 +80,37 @@ void SoundSystem::render()
 
 void SoundSystem::onComponentAdded(const Entity *_entity, BaseComponent *_addedComponent)
 {
-	if (validate(entityManager.getComponentBitField(_entity)) && std::find(managedEntities.begin(), managedEntities.end(), _entity) == managedEntities.end())
+	if (validate(m_entityManager.getComponentBitField(_entity)) && std::find(m_managedEntities.begin(), m_managedEntities.end(), _entity) == m_managedEntities.end())
 	{
-		managedEntities.push_back(_entity);
-		SoundComponent *sc = entityManager.getComponent<SoundComponent>(_entity);
-		TransformationComponent *tc = entityManager.getComponent<TransformationComponent>(_entity);
+		m_managedEntities.push_back(_entity);
+		SoundComponent *sc = m_entityManager.getComponent<SoundComponent>(_entity);
+		TransformationComponent *tc = m_entityManager.getComponent<TransformationComponent>(_entity);
 
-		soundFramework->addSound(_entity, sc->soundFile, sc->soundType, &sc->volume, sc->looping, sc->soundType != SoundType::EFFECT, sc->paused, tc ? &tc->position : nullptr, sc->loadInstantly);
+		m_soundFramework->addSound(_entity, sc->m_soundFile, sc->m_soundType, &sc->m_volume, sc->m_looping, sc->m_soundType != SoundType::EFFECT, sc->m_paused, tc ? &tc->m_position : nullptr, sc->m_loadInstantly);
 	}
 }
 
 void SoundSystem::onComponentRemoved(const Entity *_entity, BaseComponent *_removedComponent)
 {
-	if (!validate(entityManager.getComponentBitField(_entity)) && std::find(managedEntities.begin(), managedEntities.end(), _entity) != managedEntities.end())
+	if (!validate(m_entityManager.getComponentBitField(_entity)) && std::find(m_managedEntities.begin(), m_managedEntities.end(), _entity) != m_managedEntities.end())
 	{
-		soundFramework->removeSound(_entity);
-		managedEntities.erase(std::remove(managedEntities.begin(), managedEntities.end(), _entity), managedEntities.end());
+		m_soundFramework->removeSound(_entity);
+		m_managedEntities.erase(std::remove(m_managedEntities.begin(), m_managedEntities.end(), _entity), m_managedEntities.end());
 	}
 }
 
 void SoundSystem::onDestruction(const Entity *_entity)
 {
-	if (std::find(managedEntities.begin(), managedEntities.end(), _entity) != managedEntities.end())
+	if (std::find(m_managedEntities.begin(), m_managedEntities.end(), _entity) != m_managedEntities.end())
 	{
-		soundFramework->removeSound(_entity);
-		managedEntities.erase(std::remove(managedEntities.begin(), managedEntities.end(), _entity), managedEntities.end());
+		m_soundFramework->removeSound(_entity);
+		m_managedEntities.erase(std::remove(m_managedEntities.begin(), m_managedEntities.end(), _entity), m_managedEntities.end());
 	}
 }
 
 bool SoundSystem::validate(std::uint64_t _bitMap)
 {
-	for (std::uint64_t configuration : validBitMaps)
+	for (std::uint64_t configuration : m_validBitMaps)
 	{
 		if ((configuration & _bitMap) == configuration)
 		{

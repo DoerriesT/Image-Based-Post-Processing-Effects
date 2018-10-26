@@ -14,33 +14,33 @@
 
 RSMRenderPass::RSMRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-	state.blendState.enabled = false;
-	state.cullFaceState.enabled = true;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = true;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_TRUE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_cullFaceState.m_enabled = true;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = true;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_TRUE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	rsmPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/LPV/rsm.vert", "Resources/Shaders/LPV/rsm.frag");
+	m_rsmPassShader = ShaderProgram::createShaderProgram("Resources/Shaders/LPV/rsm.vert", "Resources/Shaders/LPV/rsm.frag");
 
-	uModelMatrix.create(rsmPassShader);
-	uModelViewProjectionMatrix.create(rsmPassShader);
-	uAtlasData.create(rsmPassShader);
-	uHasTexture.create(rsmPassShader);
-	uAlbedo.create(rsmPassShader);
-	uLightColor.create(rsmPassShader);
-	uLightDir.create(rsmPassShader);
+	m_uModelMatrix.create(m_rsmPassShader);
+	m_uModelViewProjectionMatrix.create(m_rsmPassShader);
+	m_uAtlasData.create(m_rsmPassShader);
+	m_uHasTexture.create(m_rsmPassShader);
+	m_uAlbedo.create(m_rsmPassShader);
+	m_uLightColor.create(m_rsmPassShader);
+	m_uLightDir.create(m_rsmPassShader);
 }
 
 void RSMRenderPass::render(const glm::mat4 &_viewProjection, std::shared_ptr<DirectionalLight> _light, const Scene & _scene, RenderPass ** _previousRenderPass)
@@ -50,10 +50,10 @@ void RSMRenderPass::render(const glm::mat4 &_viewProjection, std::shared_ptr<Dir
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	rsmPassShader->bind();
+	m_rsmPassShader->bind();
 
-	uLightDir.set(_light->getDirection());
-	uLightColor.set(_light->getColor());
+	m_uLightDir.set(_light->getDirection());
+	m_uLightColor.set(_light->getColor());
 
 	const std::vector<std::unique_ptr<EntityRenderData>> &data = _scene.getData();
 
@@ -65,19 +65,19 @@ void RSMRenderPass::render(const glm::mat4 &_viewProjection, std::shared_ptr<Dir
 		const std::unique_ptr<EntityRenderData> &entityRenderData = data[i];
 
 		// skip this iteration if its supposed to be rendered with another method or does not have sufficient components
-		if (!entityRenderData->modelComponent || !entityRenderData->transformationComponent)
+		if (!entityRenderData->m_modelComponent || !entityRenderData->m_transformationComponent)
 		{
 			continue;
 		}
 
-		if (currentMesh != entityRenderData->mesh)
+		if (currentMesh != entityRenderData->m_mesh)
 		{
-			currentMesh = entityRenderData->mesh;
+			currentMesh = entityRenderData->m_mesh;
 			enabledMesh = false;
 		}
 
 		// skip this mesh if its transparent
-		if (entityRenderData->transparencyComponent && ContainerUtility::contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
+		if (entityRenderData->m_transparencyComponent && ContainerUtility::contains(entityRenderData->m_transparencyComponent->m_transparentSubMeshes, currentMesh))
 		{
 			continue;
 		}
@@ -88,19 +88,19 @@ void RSMRenderPass::render(const glm::mat4 &_viewProjection, std::shared_ptr<Dir
 			continue;
 		}
 
-		glm::mat4 modelMatrix = glm::translate(entityRenderData->transformationComponent->position)
-			* glm::mat4_cast(entityRenderData->transformationComponent->rotation)
-			* glm::scale(glm::vec3(entityRenderData->transformationComponent->scale));
+		glm::mat4 modelMatrix = glm::translate(entityRenderData->m_transformationComponent->m_position)
+			* glm::mat4_cast(entityRenderData->m_transformationComponent->m_rotation)
+			* glm::scale(glm::vec3(entityRenderData->m_transformationComponent->m_scale));
 
 		int rows = 1;
 		int columns = 1;
 		glm::vec2 textureOffset;
-		TextureAtlasIndexComponent *textureAtlasComponent = entityRenderData->textureAtlasIndexComponent;
-		if (textureAtlasComponent && ContainerUtility::contains(textureAtlasComponent->meshToIndexMap, currentMesh))
+		TextureAtlasIndexComponent *textureAtlasComponent = entityRenderData->m_textureAtlasIndexComponent;
+		if (textureAtlasComponent && ContainerUtility::contains(textureAtlasComponent->m_meshToIndexMap, currentMesh))
 		{
-			rows = textureAtlasComponent->rows;
-			columns = textureAtlasComponent->columns;
-			int texPos = textureAtlasComponent->meshToIndexMap[currentMesh];
+			rows = textureAtlasComponent->m_rows;
+			columns = textureAtlasComponent->m_columns;
+			int texPos = textureAtlasComponent->m_meshToIndexMap[currentMesh];
 			int col = texPos % columns;
 			int row = texPos / columns;
 			textureOffset = glm::vec2((float)col / columns, (float)row / rows);
@@ -108,9 +108,9 @@ void RSMRenderPass::render(const glm::mat4 &_viewProjection, std::shared_ptr<Dir
 
 		glm::mat4 mvpTransformation = _viewProjection * modelMatrix;
 
-		uModelMatrix.set(modelMatrix);
-		uAtlasData.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
-		uModelViewProjectionMatrix.set(mvpTransformation);
+		m_uModelMatrix.set(modelMatrix);
+		m_uAtlasData.set(glm::vec4(1.0f / columns, 1.0f / rows, textureOffset));
+		m_uModelViewProjectionMatrix.set(mvpTransformation);
 
 		if (!enabledMesh)
 		{
@@ -118,16 +118,16 @@ void RSMRenderPass::render(const glm::mat4 &_viewProjection, std::shared_ptr<Dir
 			currentMesh->enableVertexAttribArrays();
 		}
 
-		if (std::shared_ptr<Texture> albedoMap = entityRenderData->material->getAlbedoMap())
+		if (std::shared_ptr<Texture> albedoMap = entityRenderData->m_material->getAlbedoMap())
 		{
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, albedoMap->getId());
-			uHasTexture.set(true);
+			m_uHasTexture.set(true);
 		}
 		else
 		{
-			uHasTexture.set(false);
-			uAlbedo.set(entityRenderData->material->getAlbedo());
+			m_uHasTexture.set(false);
+			m_uAlbedo.set(entityRenderData->m_material->getAlbedo());
 		}
 
 		currentMesh->render();

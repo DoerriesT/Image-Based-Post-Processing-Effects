@@ -159,7 +159,7 @@ void GLRenderer::init(unsigned int width, unsigned int height)
 void GLRenderer::render(const RenderData &renderData, const Scene &scene, const std::shared_ptr<Level> &level, const Effects &effects, bool bake, bool debugDraw)
 {
 	RenderPass *previousRenderPass = nullptr;
-	m_frame = renderData.frame;
+	m_frame = renderData.m_frame;
 
 	m_shadowRenderPass->render(renderData, level, scene, true, &previousRenderPass);
 
@@ -188,7 +188,7 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_gDepthStencilTexture);
 
 	m_ssaoTexture = m_renderResources->m_ssaoTextureA;
-	switch (effects.ambientOcclusion)
+	switch (effects.m_ambientOcclusion)
 	{
 	case AmbientOcclusion::SSAO_ORIGINAL:
 	{
@@ -217,7 +217,7 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 		GLuint ssaoTextures[3] = { m_renderResources->m_ssaoTextureA, m_renderResources->m_ssaoTextureB, m_renderResources->m_ssaoTextureC };
 		m_gtaoSpatialDenoiseRenderPass->render(renderData, effects, ssaoTextures, &previousRenderPass);
 		m_gtaoTemporalDenoiseRenderPass->render(renderData, effects, m_renderResources->m_gVelocityTexture, ssaoTextures, &previousRenderPass);
-		m_ssaoTexture = renderData.frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
+		m_ssaoTexture = renderData.m_frame % 2 ? ssaoTextures[2] : ssaoTextures[0];
 		break;
 	}
 	default:
@@ -253,17 +253,17 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 	GLuint colorTexture = m_renderResources->m_gLightColorTextures[m_frame % 2];
 
 	// post-processing
-	if (effects.smaa.enabled)
+	if (effects.m_smaa.m_enabled)
 	{
 		m_currentSmaaTexture = !m_currentSmaaTexture;
 
 		m_antiAliasingTonemapComputePass->execute(colorTexture);
 
 		m_smaaEdgeDetectionRenderPass->render(effects, colorTexture, &previousRenderPass);
-		m_smaaBlendWeightRenderPass->render(effects, m_renderResources->m_fullResolutionSmaaEdgesTex, effects.smaa.temporalAntiAliasing, m_currentSmaaTexture, &previousRenderPass);
+		m_smaaBlendWeightRenderPass->render(effects, m_renderResources->m_fullResolutionSmaaEdgesTex, effects.m_smaa.m_temporalAntiAliasing, m_currentSmaaTexture, &previousRenderPass);
 		m_smaaBlendRenderPass->render(effects, colorTexture, m_renderResources->m_gVelocityTexture, m_renderResources->m_fullResolutionSmaaBlendTex, m_currentSmaaTexture, &previousRenderPass);
 
-		if (effects.smaa.temporalAntiAliasing)
+		if (effects.m_smaa.m_temporalAntiAliasing)
 		{
 			m_smaaTemporalResolveRenderPass->render(effects, m_renderResources->m_fullResolutionSmaaMLResultTex, m_renderResources->m_gVelocityTexture, m_currentSmaaTexture, &previousRenderPass);
 			colorTexture = m_renderResources->m_fullResolutionSmaaResultTex;
@@ -278,14 +278,14 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 
 	// downsample/blur -> upsample/blur/combine with previous result
 	// use end result as bloom and input for lens flares
-	if (effects.bloom.enabled || effects.lensFlares.enabled)
+	if (effects.m_bloom.m_enabled || effects.m_lensFlares.m_enabled)
 	{
 		m_bloomDownsampleComputePass->execute(colorTexture, m_renderResources->m_halfResolutionHdrTexA);
 		m_bloomUpsampleComputePass->execute(m_renderResources->m_halfResolutionHdrTexA, m_renderResources->m_halfResolutionHdrTexB);
 	}
 
 	// flares in 1/2 A
-	if (effects.lensFlares.enabled)
+	if (effects.m_lensFlares.m_enabled)
 	{
 		// texture B contains combined blurred mipmap chain
 		// generate ghosts by sampling blurred texture with threshold
@@ -294,7 +294,7 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 		m_lensFlareBlurRenderPass->render(m_renderResources->m_halfResolutionHdrTexA, m_renderResources->m_halfResolutionHdrTexC, &previousRenderPass);
 	}
 
-	if (effects.anamorphicFlares.enabled)
+	if (effects.m_anamorphicFlares.m_enabled)
 	{
 		m_anamorphicPrefilterComputePass->execute(effects, colorTexture, m_renderResources->m_anamorphicPrefilter);
 		size_t lastUsedTexture;
@@ -305,26 +305,26 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 
 	m_velocityCorrectionComputePass->execute(renderData, m_renderResources->m_gVelocityTexture, m_renderResources->m_gDepthStencilTexture);
 
-	if (effects.motionBlur != MotionBlur::OFF)
+	if (effects.m_motionBlur != MotionBlur::OFF)
 	{
 		m_velocityTileMaxRenderPass->render(m_renderResources->m_gVelocityTexture, m_renderResources->m_velocityTexTmp, m_renderResources->m_velocityMaxTex, mbTileSize, &previousRenderPass);
 		m_velocityNeighborTileMaxRenderPass->render(m_renderResources->m_velocityMaxTex, m_renderResources->m_velocityNeighborMaxTex, &previousRenderPass);
 	}
 
-	if (effects.godrays && !level->lights.directionalLights.empty())
+	if (effects.m_godrays && !level->m_lights.m_directionalLights.empty())
 	{
-		glm::vec2 sunpos = glm::vec2(renderData.viewProjectionMatrix * glm::vec4(level->lights.directionalLights[0]->getDirection(), 0.0f)) * 0.5f + 0.5f;
+		glm::vec2 sunpos = glm::vec2(renderData.m_viewProjectionMatrix * glm::vec4(level->m_lights.m_directionalLights[0]->getDirection(), 0.0f)) * 0.5f + 0.5f;
 		GLuint godRayTextures[] = { m_renderResources->m_halfResolutionGodRayTexA, m_renderResources->m_halfResolutionGodRayTexB };
 		m_godRayMaskComputePass->execute(effects, colorTexture, m_renderResources->m_gDepthStencilTexture, godRayTextures[0]);
 		m_godRayGenComputePass->execute(effects, godRayTextures, sunpos);
 	}
 
-	if (effects.depthOfField != DepthOfField::OFF)
+	if (effects.m_depthOfField != DepthOfField::OFF)
 	{
-		m_cocComputePass->execute(m_renderResources->m_gDepthStencilTexture, m_renderResources->m_fullResolutionCocTexture, glm::radians(renderData.fov), renderData.nearPlane, renderData.farPlane);
+		m_cocComputePass->execute(m_renderResources->m_gDepthStencilTexture, m_renderResources->m_fullResolutionCocTexture, glm::radians(renderData.m_fov), renderData.m_nearPlane, renderData.m_farPlane);
 	}
 
-	switch (effects.depthOfField)
+	switch (effects.m_depthOfField)
 	{
 	case DepthOfField::OFF:
 		break;
@@ -389,7 +389,7 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 	}
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, effects.depthOfField != DepthOfField::OFF ? m_renderResources->m_fullResolutionHdrTexture : colorTexture);
+	glBindTexture(GL_TEXTURE_2D, effects.m_depthOfField != DepthOfField::OFF ? m_renderResources->m_fullResolutionHdrTexture : colorTexture);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_gDepthStencilTexture);
 	glActiveTexture(GL_TEXTURE2);
@@ -407,17 +407,17 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 	glActiveTexture(GL_TEXTURE10);
 	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_anamorphicPrefilter);
 
-	m_toneMapRenderPass->render(effects, glm::dot(glm::vec3(1.0), renderData.viewDirection), &previousRenderPass);
+	m_toneMapRenderPass->render(effects, glm::dot(glm::vec3(1.0), renderData.m_viewDirection), &previousRenderPass);
 
 	m_finishedTexture = m_renderResources->m_fullResolutionTextureA;
 
-	if (effects.fxaa.enabled)
+	if (effects.m_fxaa.m_enabled)
 	{
 		m_fxaaRenderPass->render(effects, m_finishedTexture, (m_finishedTexture == m_renderResources->m_fullResolutionTextureA) ? GL_COLOR_ATTACHMENT1 : GL_COLOR_ATTACHMENT0, &previousRenderPass);
 		m_finishedTexture = (m_finishedTexture == m_renderResources->m_fullResolutionTextureA) ? m_renderResources->m_fullResolutionTextureB : m_renderResources->m_fullResolutionTextureA;
 	}
 
-	if (effects.chromaticAberration.enabled || effects.vignette.enabled || effects.filmGrain.enabled)
+	if (effects.m_chromaticAberration.m_enabled || effects.m_vignette.m_enabled || effects.m_filmGrain.m_enabled)
 	{
 		m_simplePostEffectsRenderPass->render(effects, m_finishedTexture, (m_finishedTexture == m_renderResources->m_fullResolutionTextureA) ? GL_COLOR_ATTACHMENT1 : GL_COLOR_ATTACHMENT0, &previousRenderPass);
 		m_finishedTexture = (m_finishedTexture == m_renderResources->m_fullResolutionTextureA) ? m_renderResources->m_fullResolutionTextureB : m_renderResources->m_fullResolutionTextureA;

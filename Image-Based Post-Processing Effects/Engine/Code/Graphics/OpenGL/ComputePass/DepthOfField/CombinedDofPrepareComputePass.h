@@ -10,12 +10,12 @@ public:
 	void resize(unsigned int _width, unsigned int _height);
 
 private:
-	std::shared_ptr<ShaderProgram> prepareShader;
+	std::shared_ptr<ShaderProgram> m_prepareShader;
 
-	Uniform<GLfloat> uFocalLength = Uniform<GLfloat>("uFocalLength");
-	Uniform<GLfloat> uApertureSize = Uniform<GLfloat>("uApertureSize");
-	Uniform<glm::vec2> uNearFar = Uniform<glm::vec2>("uNearFar");
+	Uniform<GLfloat> m_uFocalLength = Uniform<GLfloat>("uFocalLength");
+	Uniform<GLfloat> m_uApertureSize = Uniform<GLfloat>("uApertureSize");
+	Uniform<glm::vec2> m_uNearFar = Uniform<glm::vec2>("uNearFar");
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int m_width;
+	unsigned int m_height;
 };

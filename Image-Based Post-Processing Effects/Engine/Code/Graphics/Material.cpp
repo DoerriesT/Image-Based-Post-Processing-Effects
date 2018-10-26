@@ -10,7 +10,7 @@ const std::uint32_t Material::AO = 1 << 4;
 const std::uint32_t Material::EMISSIVE = 1 << 5;
 
 Material::Material(const glm::vec4 &_albedo, float _metallic, float _roughness, const glm::vec3 &_emissive)
-	: albedo(_albedo), metallic(_metallic), roughness(_roughness), emissive(_emissive)
+	: m_albedo(_albedo), m_metallic(_metallic), m_roughness(_roughness), m_emissive(_emissive)
 {
 }
 
@@ -21,21 +21,21 @@ Material::Material(const std::shared_ptr<Texture> &_albedoMap,
 	const std::shared_ptr<Texture> &_aoMap, 
 	const std::shared_ptr<Texture> &_emissiveMap,
 	const std::shared_ptr<Texture> &_displacementMap)
-	: albedo(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)), 
-	metallic(0.0f), 
-	roughness(0.0f), 
-	albedoMap(_albedoMap), 
-	normalMap(_normalMap), 
-	metallicMap(_metallicMap), 
-	roughnessMap(_roughnessMap), 
-	aoMap(_aoMap), 
-	emissiveMap(_emissiveMap),
-	displacementMap(_displacementMap)
+	: m_albedo(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)), 
+	m_metallic(0.0f), 
+	m_roughness(0.0f), 
+	m_albedoMap(_albedoMap), 
+	m_normalMap(_normalMap), 
+	m_metallicMap(_metallicMap), 
+	m_roughnessMap(_roughnessMap), 
+	m_aoMap(_aoMap), 
+	m_emissiveMap(_emissiveMap),
+	m_displacementMap(_displacementMap)
 {
 }
 
 Material::Material(const std::string &_basePath, std::uint32_t _flags)
-	: albedo(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)), metallic(0.0f), roughness(0.0f)
+	: m_albedo(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)), m_metallic(0.0f), m_roughness(0.0f)
 {
 	std::string albedoPath = _basePath + "_a.dds";
 	std::string normalPath = _basePath + "_n.dds";
@@ -47,89 +47,89 @@ Material::Material(const std::string &_basePath, std::uint32_t _flags)
 
 	if ((_flags & ALBEDO) == ALBEDO)
 	{
-		albedoMap = Texture::createTexture(albedoPath.c_str());
+		m_albedoMap = Texture::createTexture(albedoPath.c_str());
 	}
 	if ((_flags & NORMAL) == NORMAL)
 	{
-		normalMap = Texture::createTexture(normalPath.c_str());
+		m_normalMap = Texture::createTexture(normalPath.c_str());
 	}
 	if ((_flags & METALLIC) == METALLIC)
 	{
-		metallicMap = Texture::createTexture(metallicPath.c_str());
+		m_metallicMap = Texture::createTexture(metallicPath.c_str());
 	}
 	if ((_flags & ROUGHNESS) == ROUGHNESS)
 	{
-		roughnessMap = Texture::createTexture(roughnessPath.c_str());
+		m_roughnessMap = Texture::createTexture(roughnessPath.c_str());
 	}
 	if ((_flags & AO) == AO)
 	{
-		aoMap = Texture::createTexture(aoPath.c_str());
+		m_aoMap = Texture::createTexture(aoPath.c_str());
 	}
 	if ((_flags & EMISSIVE) == EMISSIVE)
 	{
-		emissiveMap = Texture::createTexture(emissivePath.c_str());
+		m_emissiveMap = Texture::createTexture(emissivePath.c_str());
 	}
 }
 
 const std::shared_ptr<Texture> Material::getAlbedoMap() const
 {
-	return albedoMap;
+	return m_albedoMap;
 }
 
 const std::shared_ptr<Texture> Material::getNormalMap() const
 {
-	return normalMap;
+	return m_normalMap;
 }
 
 const std::shared_ptr<Texture> Material::getMetallicMap() const
 {
-	return metallicMap;
+	return m_metallicMap;
 }
 
 const std::shared_ptr<Texture> Material::getRoughnessMap() const
 {
-	return roughnessMap;
+	return m_roughnessMap;
 }
 
 const std::shared_ptr<Texture> Material::getAoMap() const
 {
-	return aoMap;
+	return m_aoMap;
 }
 
 const std::shared_ptr<Texture> Material::getEmissiveMap() const
 {
-	return emissiveMap;
+	return m_emissiveMap;
 }
 
 const std::shared_ptr<Texture> Material::getDisplacementMap() const
 {
-	return displacementMap;
+	return m_displacementMap;
 }
 
 const std::uint32_t Material::getMapBitField() const
 {
 	std::uint32_t field = 0;
-	if (albedoMap && albedoMap->isValid())
+	if (m_albedoMap && m_albedoMap->isValid())
 	{
 		field |= ALBEDO;
 	}
-	if (normalMap && normalMap->isValid())
+	if (m_normalMap && m_normalMap->isValid())
 	{
 		field |= NORMAL;
 	}
-	if (metallicMap && metallicMap->isValid())
+	if (m_metallicMap && m_metallicMap->isValid())
 	{
 		field |= METALLIC;
 	}
-	if (roughnessMap && roughnessMap->isValid())
+	if (m_roughnessMap && m_roughnessMap->isValid())
 	{
 		field |= ROUGHNESS;
 	}
-	if (aoMap && aoMap->isValid())
+	if (m_aoMap && m_aoMap->isValid())
 	{
 		field |= AO;
 	}
-	if (emissiveMap && emissiveMap->isValid())
+	if (m_emissiveMap && m_emissiveMap->isValid())
 	{
 		field |= EMISSIVE;
 	}
@@ -138,114 +138,114 @@ const std::uint32_t Material::getMapBitField() const
 
 const glm::vec4 &Material::getAlbedo() const
 {
-	return albedo;
+	return m_albedo;
 }
 
 float Material::getMetallic() const
 {
-	return metallic;
+	return m_metallic;
 }
 
 float Material::getRoughness() const
 {
-	return roughness;
+	return m_roughness;
 }
 
 const glm::vec3 &Material::getEmissive() const
 {
-	return emissive;
+	return m_emissive;
 }
 
 void Material::setAlbedoMap(const std::shared_ptr<Texture> &_albedoMap)
 {
-	albedoMap = _albedoMap;
+	m_albedoMap = _albedoMap;
 }
 
 void Material::setNormalMap(const std::shared_ptr<Texture> &_normalMap)
 {
-	normalMap = _normalMap;
+	m_normalMap = _normalMap;
 }
 
 void Material::setMetallicMap(const std::shared_ptr<Texture> &_metallicMap)
 {
-	metallicMap = _metallicMap;
+	m_metallicMap = _metallicMap;
 }
 
 void Material::setRoughnessMap(const std::shared_ptr<Texture> &_roughnessMap)
 {
-	roughnessMap = _roughnessMap;
+	m_roughnessMap = _roughnessMap;
 }
 
 void Material::setAoMap(const std::shared_ptr<Texture> &_aoMap)
 {
-	aoMap = _aoMap;
+	m_aoMap = _aoMap;
 }
 
 void Material::setEmissiveMap(const std::shared_ptr<Texture> &_emissiveMap)
 {
-	emissiveMap = _emissiveMap;
+	m_emissiveMap = _emissiveMap;
 }
 
 void Material::setDisplacementMap(const std::shared_ptr<Texture> &_displacementMap)
 {
-	displacementMap = _displacementMap;
+	m_displacementMap = _displacementMap;
 }
 
 void Material::setAlbedo(const glm::vec4 & _albedo)
 {
-	albedo = _albedo;
+	m_albedo = _albedo;
 }
 
 void Material::setMetallic(float _metallic)
 {
-	metallic = _metallic;
+	m_metallic = _metallic;
 }
 
 void Material::setRoughness(float _roughness)
 {
-	roughness = _roughness;
+	m_roughness = _roughness;
 }
 
 void Material::setEmissive(const glm::vec3 &_emissive)
 {
-	emissive = _emissive;
+	m_emissive = _emissive;
 }
 
 void Material::bindTextures() const
 {
-	if (albedoMap && albedoMap->isValid())
+	if (m_albedoMap && m_albedoMap->isValid())
 	{
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(albedoMap->getTarget(), albedoMap->getId());
+		glBindTexture(m_albedoMap->getTarget(), m_albedoMap->getId());
 	}
-	if (normalMap && normalMap->isValid())
+	if (m_normalMap && m_normalMap->isValid())
 	{
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(normalMap->getTarget(), normalMap->getId());
+		glBindTexture(m_normalMap->getTarget(), m_normalMap->getId());
 	}
-	if (metallicMap && metallicMap->isValid())
+	if (m_metallicMap && m_metallicMap->isValid())
 	{
 		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(metallicMap->getTarget(), metallicMap->getId());
+		glBindTexture(m_metallicMap->getTarget(), m_metallicMap->getId());
 	}
-	if (roughnessMap && roughnessMap->isValid())
+	if (m_roughnessMap && m_roughnessMap->isValid())
 	{
 		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(roughnessMap->getTarget(), roughnessMap->getId());
+		glBindTexture(m_roughnessMap->getTarget(), m_roughnessMap->getId());
 	}
-	if (aoMap && aoMap->isValid())
+	if (m_aoMap && m_aoMap->isValid())
 	{
 		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(aoMap->getTarget(), aoMap->getId());
+		glBindTexture(m_aoMap->getTarget(), m_aoMap->getId());
 	}
-	if (emissiveMap && emissiveMap->isValid())
+	if (m_emissiveMap && m_emissiveMap->isValid())
 	{
 		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(emissiveMap->getTarget(), emissiveMap->getId());
+		glBindTexture(m_emissiveMap->getTarget(), m_emissiveMap->getId());
 	}
-	if (displacementMap && displacementMap->isValid())
+	if (m_displacementMap && m_displacementMap->isValid())
 	{
 		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(displacementMap->getTarget(), displacementMap->getId());
+		glBindTexture(m_displacementMap->getTarget(), m_displacementMap->getId());
 	}
 }

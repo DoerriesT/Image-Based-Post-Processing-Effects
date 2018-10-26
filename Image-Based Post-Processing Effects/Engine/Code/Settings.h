@@ -17,11 +17,11 @@ public:
 	void addListener(std::function<void(const Type &)> _listener);
 
 private:
-	Type value;
-	std::string section;
-	std::string key;
-	INIFile &iniFile;
-	std::vector<std::function<void(const Type &)>> listeners;
+	Type m_value;
+	std::string m_section;
+	std::string m_key;
+	INIFile &m_iniFile;
+	std::vector<std::function<void(const Type &)>> m_listeners;
 };
 
 class SettingsManager
@@ -40,11 +40,11 @@ public:
 	void saveToIni();
 
 private:
-	INIFile iniFile;
-	std::map<std::pair<std::string, std::string>, std::shared_ptr<Setting<bool>>> boolSettingMap;
-	std::map<std::pair<std::string, std::string>, std::shared_ptr<Setting<int>>> intSettingMap;
-	std::map<std::pair<std::string, std::string>, std::shared_ptr<Setting<double>>> doubleSettingMap;
-	std::map<std::pair<std::string, std::string>, std::shared_ptr<Setting<std::string>>> stringSettingMap;
+	INIFile m_iniFile;
+	std::map<std::pair<std::string, std::string>, std::shared_ptr<Setting<bool>>> m_boolSettingMap;
+	std::map<std::pair<std::string, std::string>, std::shared_ptr<Setting<int>>> m_intSettingMap;
+	std::map<std::pair<std::string, std::string>, std::shared_ptr<Setting<double>>> m_doubleSettingMap;
+	std::map<std::pair<std::string, std::string>, std::shared_ptr<Setting<std::string>>> m_stringSettingMap;
 
 	explicit SettingsManager(const std::string &_iniPath = "settings.ini");
 	~SettingsManager() = default;
@@ -57,29 +57,29 @@ enum class WindowMode
 
 template<typename Type>
 inline Setting<Type>::Setting(const Type &_value, const std::string &_section, const std::string &_key, INIFile &_iniFile)
-	:value(_value),
-	section(_section),
-	key(_key),
-	iniFile(_iniFile)
+	:m_value(_value),
+	m_section(_section),
+	m_key(_key),
+	m_iniFile(_iniFile)
 {
 }
 
 template<typename Type>
 inline Type Setting<Type>::get() const
 {
-	return value;
+	return m_value;
 }
 
 template<typename Type>
 inline void Setting<Type>::set(const Type &_value)
 {
-	if (_value != value)
+	if (_value != m_value)
 	{
-		value = _value;
+		m_value = _value;
 		//iniFile
-		for (auto &listener : listeners)
+		for (auto &listener : m_listeners)
 		{
-			listener(value);
+			listener(m_value);
 		}
 	}
 }
@@ -87,13 +87,13 @@ inline void Setting<Type>::set(const Type &_value)
 template<>
 inline void Setting<int>::set(const int &_value)
 {
-	if (_value != value)
+	if (_value != m_value)
 	{
-		value = _value;
-		iniFile.setInt(section, key, value);
-		for (auto &listener : listeners)
+		m_value = _value;
+		m_iniFile.setInt(m_section, m_key, m_value);
+		for (auto &listener : m_listeners)
 		{
-			listener(value);
+			listener(m_value);
 		}
 	}
 }
@@ -101,13 +101,13 @@ inline void Setting<int>::set(const int &_value)
 template<>
 inline void Setting<bool>::set(const bool &_value)
 {
-	if (_value != value)
+	if (_value != m_value)
 	{
-		value = _value;
-		iniFile.setBool(section, key, value);
-		for (auto &listener : listeners)
+		m_value = _value;
+		m_iniFile.setBool(m_section, m_key, m_value);
+		for (auto &listener : m_listeners)
 		{
-			listener(value);
+			listener(m_value);
 		}
 	}
 }
@@ -115,13 +115,13 @@ inline void Setting<bool>::set(const bool &_value)
 template<>
 inline void Setting<double>::set(const double &_value)
 {
-	if (_value != value)
+	if (_value != m_value)
 	{
-		value = _value;
-		iniFile.setDouble(section, key, value);
-		for (auto &listener : listeners)
+		m_value = _value;
+		m_iniFile.setDouble(m_section, m_key, m_value);
+		for (auto &listener : m_listeners)
 		{
-			listener(value);
+			listener(m_value);
 		}
 	}
 }
@@ -129,13 +129,13 @@ inline void Setting<double>::set(const double &_value)
 template<>
 inline void Setting<std::string>::set(const std::string &_value)
 {
-	if (_value != value)
+	if (_value != m_value)
 	{
-		value = _value;
-		iniFile.setString(section, key, value);
-		for (auto &listener : listeners)
+		m_value = _value;
+		m_iniFile.setString(m_section, m_key, m_value);
+		for (auto &listener : m_listeners)
 		{
-			listener(value);
+			listener(m_value);
 		}
 	}
 }
@@ -143,5 +143,5 @@ inline void Setting<std::string>::set(const std::string &_value)
 template<typename Type>
 inline void Setting<Type>::addListener(std::function<void(const Type &)> _listener)
 {
-	listeners.push_back(_listener);
+	m_listeners.push_back(_listener);
 }

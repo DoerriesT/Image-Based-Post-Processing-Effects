@@ -47,19 +47,19 @@ public:
 	void gamepadUpdate(const std::vector<Gamepad> *_gamepadData) override;
 
 private:
-	glm::vec2 previousMousePos;
-	glm::vec2 currentMousePos;
-	glm::vec2 mousePosDelta;
-	glm::vec2 scrollOffset;
-	bool insideWindow;
-	std::vector<IKeyListener*> keyListeners;
-	std::vector<ICharListener*> charListeners;
-	std::vector<IScrollListener*> scrollListeners;
-	std::vector<IMouseButtonListener*> mouseButtonlisteners;
-	std::set<InputKey> pressedKeys;
-	std::set<InputMouse> pressedMouseButtons;
-	std::set<InputKey> pressedChars;
-	const std::vector<Gamepad> *gamepads;
+	glm::vec2 m_previousMousePos;
+	glm::vec2 m_currentMousePos;
+	glm::vec2 m_mousePosDelta;
+	glm::vec2 m_scrollOffset;
+	bool m_insideWindow;
+	std::vector<IKeyListener*> m_keyListeners;
+	std::vector<ICharListener*> m_charListeners;
+	std::vector<IScrollListener*> m_scrollListeners;
+	std::vector<IMouseButtonListener*> m_mouseButtonlisteners;
+	std::set<InputKey> m_pressedKeys;
+	std::set<InputMouse> m_pressedMouseButtons;
+	std::set<InputKey> m_pressedChars;
+	const std::vector<Gamepad> *m_gamepads;
 
 	UserInput() = default;
 };

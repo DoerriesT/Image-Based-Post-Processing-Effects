@@ -8,14 +8,14 @@
 #include "Level.h"
 
 EnvironmentRenderer::EnvironmentRenderer()
-	:cubeFaceBuffer(std::make_unique<float[]>(ENVIRONMENT_MAP_SIZE * ENVIRONMENT_MAP_SIZE * 3))
+	:m_cubeFaceBuffer(std::make_unique<float[]>(ENVIRONMENT_MAP_SIZE * ENVIRONMENT_MAP_SIZE * 3))
 {
-	rotations[0] = glm::mat3(glm::rotate(glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0))) * glm::mat3(glm::rotate(glm::radians(180.0f), glm::vec3(0.0, 0.0, -1.0)));
-	rotations[1] = glm::mat3(glm::rotate(glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0))) * glm::mat3(glm::rotate(glm::radians(180.0f), glm::vec3(0.0, 0.0, 1.0)));
-	rotations[2] = glm::mat3(glm::rotate(glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0)));
-	rotations[3] = glm::mat3(glm::rotate(glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0)));
-	rotations[4] = glm::mat3(glm::rotate(glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0))) * glm::mat3(glm::rotate(glm::radians(180.0f), glm::vec3(0.0, 0.0, -1.0)));
-	rotations[5] = glm::mat3(glm::rotate(glm::radians(0.0f), glm::vec3(0.0, 1.0, 0.0))) * glm::mat3(glm::rotate(glm::radians(180.0f), glm::vec3(0.0, 0.0, 1.0)));
+	m_rotations[0] = glm::mat3(glm::rotate(glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0))) * glm::mat3(glm::rotate(glm::radians(180.0f), glm::vec3(0.0, 0.0, -1.0)));
+	m_rotations[1] = glm::mat3(glm::rotate(glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0))) * glm::mat3(glm::rotate(glm::radians(180.0f), glm::vec3(0.0, 0.0, 1.0)));
+	m_rotations[2] = glm::mat3(glm::rotate(glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0)));
+	m_rotations[3] = glm::mat3(glm::rotate(glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0)));
+	m_rotations[4] = glm::mat3(glm::rotate(glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0))) * glm::mat3(glm::rotate(glm::radians(180.0f), glm::vec3(0.0, 0.0, -1.0)));
+	m_rotations[5] = glm::mat3(glm::rotate(glm::radians(0.0f), glm::vec3(0.0, 1.0, 0.0))) * glm::mat3(glm::rotate(glm::radians(180.0f), glm::vec3(0.0, 0.0, 1.0)));
 }
 
 EnvironmentRenderer::~EnvironmentRenderer()
@@ -25,49 +25,49 @@ EnvironmentRenderer::~EnvironmentRenderer()
 
 void EnvironmentRenderer::init()
 {
-	atmosphereShader = ShaderProgram::createShaderProgram("Resources/Shaders/Environment/environmentProjection.vert", "Resources/Shaders/Environment/atmosphere.frag");
-	blitShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Shared/blit.frag");
-	reflectanceOctShader = ShaderProgram::createShaderProgram("Resources/Shaders/Environment/reflectance.comp");
-	irradianceOctShader = ShaderProgram::createShaderProgram("Resources/Shaders/Environment/irradiance.comp");
+	m_atmosphereShader = ShaderProgram::createShaderProgram("Resources/Shaders/Environment/environmentProjection.vert", "Resources/Shaders/Environment/atmosphere.frag");
+	m_blitShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Shared/blit.frag");
+	m_reflectanceOctShader = ShaderProgram::createShaderProgram("Resources/Shaders/Environment/reflectance.comp");
+	m_irradianceOctShader = ShaderProgram::createShaderProgram("Resources/Shaders/Environment/irradiance.comp");
 
 	// uniforms
-	uScreenTextureBlit = blitShader->createUniform("uScreenTexture");
+	m_uScreenTextureBlit = m_blitShader->createUniform("uScreenTexture");
 
-	uImageSizeIO.create(irradianceOctShader);
+	m_uImageSizeIO.create(m_irradianceOctShader);
 
-	uEnvironmentResolutionRO.create(reflectanceOctShader);
-	uRoughnessRO.create(reflectanceOctShader);
-	uImageSizeRO.create(reflectanceOctShader);
+	m_uEnvironmentResolution.create(m_reflectanceOctShader);
+	m_uRoughnessRO.create(m_reflectanceOctShader);
+	m_uImageSizeRO.create(m_reflectanceOctShader);
 
-	uRotationA.create(atmosphereShader);
-	uInverseProjectionA.create(atmosphereShader);
-	uLightDirA.create(atmosphereShader);
-	uRayleighBrightnessA.create(atmosphereShader);
-	uMieBrightnessA.create(atmosphereShader);
-	uMieDistributionA.create(atmosphereShader);
-	uSpotBrightnessA.create(atmosphereShader);
-	uSurfaceHeightA.create(atmosphereShader);
-	uStepCountA.create(atmosphereShader);
-	uIntensityA.create(atmosphereShader);
-	uScatterStrengthA.create(atmosphereShader);
-	uRayleighStrengthA.create(atmosphereShader);
-	uMieStrengthA.create(atmosphereShader);
-	uRayleighCollectionPowerA.create(atmosphereShader);
-	uMieCollectionPowerA.create(atmosphereShader);
+	m_uRotationA.create(m_atmosphereShader);
+	m_uInverseProjectionA.create(m_atmosphereShader);
+	m_uLightDirA.create(m_atmosphereShader);
+	m_uRayleighBrightnessA.create(m_atmosphereShader);
+	m_uMieBrightnessA.create(m_atmosphereShader);
+	m_uMieDistributionA.create(m_atmosphereShader);
+	m_uSpotBrightnessA.create(m_atmosphereShader);
+	m_uSurfaceHeightA.create(m_atmosphereShader);
+	m_uStepCountA.create(m_atmosphereShader);
+	m_uIntensityA.create(m_atmosphereShader);
+	m_uScatterStrengthA.create(m_atmosphereShader);
+	m_uRayleighStrengthA.create(m_atmosphereShader);
+	m_uMieStrengthA.create(m_atmosphereShader);
+	m_uRayleighCollectionPowerA.create(m_atmosphereShader);
+	m_uMieCollectionPowerA.create(m_atmosphereShader);
 
 	const glm::mat4 invProjection = glm::inverse(glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f));
-	atmosphereShader->bind();
-	uInverseProjectionA.set(invProjection);
+	m_atmosphereShader->bind();
+	m_uInverseProjectionA.set(invProjection);
 
 
 
-	glGenFramebuffers(1, &environmentFbo);
-	glGenFramebuffers(1, &convolutionFbo);
+	glGenFramebuffers(1, &m_environmentFbo);
+	glGenFramebuffers(1, &m_convolutionFbo);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, environmentFbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_environmentFbo);
 
-	glGenTextures(1, &environmentMap);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap);
+	glGenTextures(1, &m_environmentMap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_environmentMap);
 	for (int i = 0; i < 6; ++i)
 	{
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB32F, ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE, 0, GL_RGB, GL_FLOAT, nullptr);
@@ -80,53 +80,53 @@ void EnvironmentRenderer::init()
 
 	for (int i = 0; i < 6; ++i)
 	{
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, environmentMap, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_environmentMap, 0);
 	}
 
-	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
+	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
 void EnvironmentRenderer::updateCubeSide(unsigned int _side, GLuint _source)
 {
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	m_fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, environmentFbo);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_environmentFbo);
 	glViewport(0, 0, ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0 + _side);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _source);
-	blitShader->bind();
-	blitShader->setUniform(uScreenTextureBlit, 0);
+	m_blitShader->bind();
+	m_blitShader->setUniform(m_uScreenTextureBlit, 0);
 
-	fullscreenTriangle->getSubMesh()->render();
+	m_fullscreenTriangle->getSubMesh()->render();
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void EnvironmentRenderer::generateMipmaps()
 {
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_environmentMap);
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 }
 
 void EnvironmentRenderer::calculateReflectance(const std::shared_ptr<EnvironmentProbe>  &_environmentProbe)
 {
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_environmentMap);
 
 	unsigned int maxMipLevels = 5;// glm::log2(EnvironmentProbe::REFLECTION_TEXTURE_RESOLUTION);
 
-	reflectanceOctShader->bind();
-	uEnvironmentResolutionRO.set(ENVIRONMENT_MAP_SIZE);
+	m_reflectanceOctShader->bind();
+	m_uEnvironmentResolution.set(ENVIRONMENT_MAP_SIZE);
 
 	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
 	{
 		unsigned int mipRes = unsigned int(1024 * std::pow(0.5f, mip));
 
 		float roughness = (float)mip / (float)(maxMipLevels - 1);
-		uRoughnessRO.set(roughness * roughness);
-		uImageSizeRO.set(glm::vec2(static_cast<float>(mipRes)));
+		m_uRoughnessRO.set(roughness * roughness);
+		m_uImageSizeRO.set(glm::vec2(static_cast<float>(mipRes)));
 		glBindImageTexture(0, _environmentProbe->getReflectionTexture()->getId(), mip, GL_FALSE, 0, GL_WRITE_ONLY, GL_R11F_G11F_B10F);
 		glDispatchCompute(mipRes / 8, mipRes / 8, 1);
 	}
@@ -155,11 +155,11 @@ void EnvironmentRenderer::calculateIrradiance(const std::shared_ptr<IrradianceVo
 	const float invSize = 1.0f / ENVIRONMENT_MAP_SIZE;
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_environmentMap);
 
 	for (unsigned int face = 0; face < 6; ++face)
 	{
-		glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_RGB, GL_FLOAT, cubeFaceBuffer.get());
+		glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_RGB, GL_FLOAT, m_cubeFaceBuffer.get());
 
 		for (unsigned int y = 0; y < ENVIRONMENT_MAP_SIZE; ++y)
 		{
@@ -217,9 +217,9 @@ void EnvironmentRenderer::calculateIrradiance(const std::shared_ptr<IrradianceVo
 
 				glm::vec3 color =
 				{
-					cubeFaceBuffer[(y * ENVIRONMENT_MAP_SIZE + x) * 3 + 0],
-					cubeFaceBuffer[(y * ENVIRONMENT_MAP_SIZE + x) * 3 + 1],
-					cubeFaceBuffer[(y * ENVIRONMENT_MAP_SIZE + x) * 3 + 2],
+					m_cubeFaceBuffer[(y * ENVIRONMENT_MAP_SIZE + x) * 3 + 0],
+					m_cubeFaceBuffer[(y * ENVIRONMENT_MAP_SIZE + x) * 3 + 1],
+					m_cubeFaceBuffer[(y * ENVIRONMENT_MAP_SIZE + x) * 3 + 2],
 				};
 
 				const float tmp = 1.0f + u * u + v * v;
@@ -256,9 +256,9 @@ void EnvironmentRenderer::calculateIrradiance(const std::shared_ptr<IrradianceVo
 
 std::shared_ptr<Texture> EnvironmentRenderer::calculateAtmosphere(const AtmosphereParams &_atmosphereParams)
 {
-	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
+	m_fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
-	glBindFramebuffer(GL_FRAMEBUFFER, convolutionFbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_convolutionFbo);
 
 	GLuint atmosphereMap;
 
@@ -279,29 +279,29 @@ std::shared_ptr<Texture> EnvironmentRenderer::calculateAtmosphere(const Atmosphe
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, atmosphereMap, 0);
 	}
 
-	atmosphereShader->bind();
+	m_atmosphereShader->bind();
 
-	uLightDirA.set(_atmosphereParams.lightDir);
-	uRayleighBrightnessA.set(_atmosphereParams.rayleighBrightness);
-	uMieBrightnessA.set(_atmosphereParams.mieBrightness);
-	uMieDistributionA.set(_atmosphereParams.mieDistribution);
-	uSpotBrightnessA.set(_atmosphereParams.spotBrightness);
-	uSurfaceHeightA.set(_atmosphereParams.surfaceHeight);
-	uStepCountA.set(_atmosphereParams.stepCount);
-	uIntensityA.set(_atmosphereParams.intensity);
-	uScatterStrengthA.set(_atmosphereParams.scatterStrength);
-	uRayleighStrengthA.set(_atmosphereParams.rayleighStrength);
-	uMieStrengthA.set(_atmosphereParams.mieStrength);
-	uRayleighCollectionPowerA.set(_atmosphereParams.rayleighCollectionPower);
-	uMieCollectionPowerA.set(_atmosphereParams.mieCollectionPower);
+	m_uLightDirA.set(_atmosphereParams.m_lightDir);
+	m_uRayleighBrightnessA.set(_atmosphereParams.m_rayleighBrightness);
+	m_uMieBrightnessA.set(_atmosphereParams.m_mieBrightness);
+	m_uMieDistributionA.set(_atmosphereParams.m_mieDistribution);
+	m_uSpotBrightnessA.set(_atmosphereParams.m_spotBrightness);
+	m_uSurfaceHeightA.set(_atmosphereParams.m_surfaceHeight);
+	m_uStepCountA.set(_atmosphereParams.m_stepCount);
+	m_uIntensityA.set(_atmosphereParams.m_intensity);
+	m_uScatterStrengthA.set(_atmosphereParams.m_scatterStrength);
+	m_uRayleighStrengthA.set(_atmosphereParams.m_rayleighStrength);
+	m_uMieStrengthA.set(_atmosphereParams.m_mieStrength);
+	m_uRayleighCollectionPowerA.set(_atmosphereParams.m_rayleighCollectionPower);
+	m_uMieCollectionPowerA.set(_atmosphereParams.m_mieCollectionPower);
 
 	glViewport(0, 0, ATMOSPHERE_MAP_SIZE, ATMOSPHERE_MAP_SIZE);
 
 	for (unsigned int i = 0; i < 6; ++i)
 	{
-		uRotationA.set(rotations[i]);
+		m_uRotationA.set(m_rotations[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, atmosphereMap, 0);
-		fullscreenTriangle->getSubMesh()->render();
+		m_fullscreenTriangle->getSubMesh()->render();
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
 
@@ -310,5 +310,5 @@ std::shared_ptr<Texture> EnvironmentRenderer::calculateAtmosphere(const Atmosphe
 
 GLuint EnvironmentRenderer::getEnvironmentMap() const
 {
-	return environmentMap;
+	return m_environmentMap;
 }

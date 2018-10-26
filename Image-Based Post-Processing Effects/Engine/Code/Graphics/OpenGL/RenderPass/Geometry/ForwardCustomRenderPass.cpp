@@ -8,23 +8,23 @@
 
 ForwardCustomRenderPass::ForwardCustomRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT3 };
-	state.blendState.enabled = true;
-	state.blendState.sFactor = GL_SRC_ALPHA;
-	state.blendState.dFactor = GL_ONE_MINUS_SRC_ALPHA;
-	state.cullFaceState.enabled = true;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = true;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_TRUE;
-	state.stencilState.enabled = true;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT3 };
+	m_state.m_blendState.m_enabled = true;
+	m_state.m_blendState.m_sFactor = GL_SRC_ALPHA;
+	m_state.m_blendState.m_dFactor = GL_ONE_MINUS_SRC_ALPHA;
+	m_state.m_cullFaceState.m_enabled = true;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = true;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_TRUE;
+	m_state.m_stencilState.m_enabled = true;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 }
@@ -36,7 +36,7 @@ void ForwardCustomRenderPass::render(const RenderData &_renderData, const std::s
 		return;
 	}
 
-	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
+	m_drawBuffers[0] = _renderData.m_frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
@@ -50,20 +50,20 @@ void ForwardCustomRenderPass::render(const RenderData &_renderData, const std::s
 		const std::unique_ptr<EntityRenderData> &entityRenderData = data[i];
 
 		// continue if this is a bake and the entity is not static
-		if (entityRenderData->transformationComponent && entityRenderData->transformationComponent->mobility != Mobility::STATIC && _renderData.bake)
+		if (entityRenderData->m_transformationComponent && entityRenderData->m_transformationComponent->m_mobility != Mobility::STATIC && _renderData.m_bake)
 		{
 			continue;
 		}
 
 		// skip this iteration if its supposed to be rendered with another method or does not have sufficient components
-		if (!entityRenderData->customOpaqueShaderComponent && !entityRenderData->customTransparencyShaderComponent)
+		if (!entityRenderData->m_customOpaqueShaderComponent && !entityRenderData->m_customTransparencyShaderComponent)
 		{
 			continue;
 		}
 
-		if (currentMesh != entityRenderData->mesh)
+		if (currentMesh != entityRenderData->m_mesh)
 		{
-			currentMesh = entityRenderData->mesh;
+			currentMesh = entityRenderData->m_mesh;
 			enabledMesh = false;
 		}
 
@@ -80,7 +80,7 @@ void ForwardCustomRenderPass::render(const RenderData &_renderData, const std::s
 		}
 
 		// we're good to go: render this mesh-entity instance
-		entityRenderData->customTransparencyShaderComponent->transparencyShader->bind();
-		entityRenderData->customTransparencyShaderComponent->renderTransparency(_renderData, _level, entityRenderData);
+		entityRenderData->m_customTransparencyShaderComponent->m_transparencyShader->bind();
+		entityRenderData->m_customTransparencyShaderComponent->m_renderTransparency(_renderData, _level, entityRenderData);
 	}
 }

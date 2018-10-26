@@ -12,32 +12,32 @@
 
 ShadowRenderPass::ShadowRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
-	fbo = _fbo;
-	drawBuffers = { GL_NONE };
-	state.blendState.enabled = false;
-	state.cullFaceState.enabled = true;
-	state.cullFaceState.face = GL_BACK;
-	state.depthState.enabled = true;
-	state.depthState.func = GL_LEQUAL;
-	state.depthState.mask = GL_TRUE;
-	state.stencilState.enabled = false;
-	state.stencilState.frontFunc = state.stencilState.backFunc = GL_ALWAYS;
-	state.stencilState.frontRef = state.stencilState.backRef = 1;
-	state.stencilState.frontMask = state.stencilState.backMask = 0xFF;
-	state.stencilState.frontOpFail = state.stencilState.backOpFail = GL_KEEP;
-	state.stencilState.frontOpZfail = state.stencilState.backOpZfail = GL_KEEP;
-	state.stencilState.frontOpZpass = state.stencilState.backOpZpass = GL_KEEP;
+	m_fbo = _fbo;
+	m_drawBuffers = { GL_NONE };
+	m_state.m_blendState.m_enabled = false;
+	m_state.m_cullFaceState.m_enabled = true;
+	m_state.m_cullFaceState.m_face = GL_BACK;
+	m_state.m_depthState.m_enabled = true;
+	m_state.m_depthState.m_func = GL_LEQUAL;
+	m_state.m_depthState.m_mask = GL_TRUE;
+	m_state.m_stencilState.m_enabled = false;
+	m_state.m_stencilState.m_frontFunc = m_state.m_stencilState.m_backFunc = GL_ALWAYS;
+	m_state.m_stencilState.m_frontRef = m_state.m_stencilState.m_backRef = 1;
+	m_state.m_stencilState.m_frontMask = m_state.m_stencilState.m_backMask = 0xFF;
+	m_state.m_stencilState.m_frontOpFail = m_state.m_stencilState.m_backOpFail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZfail = m_state.m_stencilState.m_backOpZfail = GL_KEEP;
+	m_state.m_stencilState.m_frontOpZpass = m_state.m_stencilState.m_backOpZpass = GL_KEEP;
 
 	resize(_width, _height);
 
-	shadowShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shadow/shadow.vert", "Resources/Shaders/Shadow/shadow.frag");
+	m_shadowShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shadow/shadow.vert", "Resources/Shaders/Shadow/shadow.frag");
 
-	uModelViewProjectionMatrix.create(shadowShader);
+	m_uModelViewProjectionMatrix.create(m_shadowShader);
 }
 
 void ShadowRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Scene & _scene, bool _cascadeSkipOptimization, RenderPass ** _previousRenderPass)
 {
-	if (!_renderData.shadows)
+	if (!_renderData.m_shadows)
 	{
 		return;
 	}
@@ -46,9 +46,9 @@ void ShadowRenderPass::render(const RenderData &_renderData, const std::shared_p
 
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-	shadowShader->bind();
+	m_shadowShader->bind();
 
-	unsigned int frameCounter = _renderData.frame % SHADOW_CASCADES;
+	unsigned int frameCounter = _renderData.m_frame % SHADOW_CASCADES;
 
 	float splits[SHADOW_CASCADES];
 	float nearPlane = Window::NEAR_PLANE;
@@ -62,7 +62,7 @@ void ShadowRenderPass::render(const RenderData &_renderData, const std::shared_p
 	}
 	splits[SHADOW_CASCADES - 1] = farPlane;
 
-	for (const std::shared_ptr<DirectionalLight> &directionalLight : _level->lights.directionalLights)
+	for (const std::shared_ptr<DirectionalLight> &directionalLight : _level->m_lights.m_directionalLights)
 	{
 		if (directionalLight->isRenderShadows())
 		{
@@ -96,9 +96,9 @@ void ShadowRenderPass::render(const RenderData &_renderData, const std::shared_p
 		}
 	}
 
-	for (const std::shared_ptr<SpotLight> &spotLight : _level->lights.spotLights)
+	for (const std::shared_ptr<SpotLight> &spotLight : _level->m_lights.m_spotLights)
 	{
-		if (spotLight->isRenderShadows() && _renderData.frustum.testSphere(spotLight->getBoundingSphere()))
+		if (spotLight->isRenderShadows() && _renderData.m_frustum.testSphere(spotLight->getBoundingSphere()))
 		{
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, spotLight->getShadowMap(), 0);
 			unsigned int shadowMapResolution = spotLight->getShadowMapResolution();
@@ -112,9 +112,9 @@ void ShadowRenderPass::render(const RenderData &_renderData, const std::shared_p
 		}
 	}
 
-	for (const std::shared_ptr<PointLight> &pointLight : _level->lights.pointLights)
+	for (const std::shared_ptr<PointLight> &pointLight : _level->m_lights.m_pointLights)
 	{
-		if (pointLight->isRenderShadows() && _renderData.frustum.testSphere(pointLight->getBoundingSphere()))
+		if (pointLight->isRenderShadows() && _renderData.m_frustum.testSphere(pointLight->getBoundingSphere()))
 		{
 			unsigned int shadowMapResolution = pointLight->getShadowMapResolution();
 			glViewport(0, 0, shadowMapResolution, shadowMapResolution);
@@ -133,7 +133,7 @@ void ShadowRenderPass::render(const RenderData &_renderData, const std::shared_p
 
 	// reset these manually
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glViewport(state.viewportState.x, state.viewportState.y, state.viewportState.width, state.viewportState.height);
+	glViewport(m_state.m_viewportState.m_x, m_state.m_viewportState.m_y, m_state.m_viewportState.m_width, m_state.m_viewportState.m_height);
 }
 
 void ShadowRenderPass::renderShadows(const glm::mat4 & _viewProjectionMatrix, const Scene & _scene)
@@ -148,22 +148,22 @@ void ShadowRenderPass::renderShadows(const glm::mat4 & _viewProjectionMatrix, co
 		const std::unique_ptr<EntityRenderData> &entityRenderData = data[i];
 
 		// skip this iteration if its supposed to be rendered with another method or does not have sufficient components
-		if (!entityRenderData->modelComponent
-			|| !entityRenderData->transformationComponent
-			|| entityRenderData->customTransparencyShaderComponent
-			|| entityRenderData->customOpaqueShaderComponent)
+		if (!entityRenderData->m_modelComponent
+			|| !entityRenderData->m_transformationComponent
+			|| entityRenderData->m_customTransparencyShaderComponent
+			|| entityRenderData->m_customOpaqueShaderComponent)
 		{
 			continue;
 		}
 
-		if (currentMesh != entityRenderData->mesh)
+		if (currentMesh != entityRenderData->m_mesh)
 		{
-			currentMesh = entityRenderData->mesh;
+			currentMesh = entityRenderData->m_mesh;
 			enabledMesh = false;
 		}
 
 		// skip this mesh if its transparent
-		if (entityRenderData->transparencyComponent && ContainerUtility::contains(entityRenderData->transparencyComponent->transparentSubMeshes, currentMesh))
+		if (entityRenderData->m_transparencyComponent && ContainerUtility::contains(entityRenderData->m_transparencyComponent->m_transparentSubMeshes, currentMesh))
 		{
 			continue;
 		}
@@ -176,7 +176,7 @@ void ShadowRenderPass::renderShadows(const glm::mat4 & _viewProjectionMatrix, co
 
 		// we're good to go: render this mesh-entity instance
 
-		uModelViewProjectionMatrix.set(_viewProjectionMatrix * entityRenderData->transformationComponent->transformation);
+		m_uModelViewProjectionMatrix.set(_viewProjectionMatrix * entityRenderData->m_transformationComponent->m_transformation);
 
 		if (!enabledMesh)
 		{
@@ -190,7 +190,7 @@ void ShadowRenderPass::renderShadows(const glm::mat4 & _viewProjectionMatrix, co
 
 glm::mat4 ShadowRenderPass::calculateLightViewProjection(const RenderData & _renderData, const glm::vec3 & _lightDir, float _nearPlane, float _farPlane, unsigned int _shadowMapSize)
 {
-	glm::mat4 cameraProjection = glm::perspective(glm::radians(_renderData.fov), _renderData.resolution.first / (float)_renderData.resolution.second, _nearPlane, _farPlane);
+	glm::mat4 cameraProjection = glm::perspective(glm::radians(_renderData.m_fov), _renderData.m_resolution.first / (float)_renderData.m_resolution.second, _nearPlane, _farPlane);
 	glm::mat4 invProjection = glm::inverse(cameraProjection);
 
 	glm::vec3 frustumCorners[8];
@@ -209,13 +209,13 @@ glm::mat4 ShadowRenderPass::calculateLightViewProjection(const RenderData & _ren
 	{
 		glm::vec4 corner4 = invProjection * glm::vec4(frustumCorners[i], 1.0f);
 		glm::vec3 corner = corner4 /= corner4.w;
-		bb.min = glm::min(bb.min, corner);
-		bb.max = glm::max(bb.max, corner);
+		bb.m_min = glm::min(bb.m_min, corner);
+		bb.m_max = glm::max(bb.m_max, corner);
 	}
 
-	float radius = glm::distance(bb.min, bb.max) * 0.5f;
-	glm::vec3 sphereCenter = (bb.min + bb.max) * 0.5f;
-	glm::vec3 target = _renderData.invViewMatrix * glm::vec4(sphereCenter, 1.0f);
+	float radius = glm::distance(bb.m_min, bb.m_max) * 0.5f;
+	glm::vec3 sphereCenter = (bb.m_min + bb.m_max) * 0.5f;
+	glm::vec3 target = _renderData.m_invViewMatrix * glm::vec4(sphereCenter, 1.0f);
 
 	glm::vec3 upDir(0.0f, 1.0f, 0.0f);
 

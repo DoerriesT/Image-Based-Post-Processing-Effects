@@ -28,22 +28,22 @@ public:
 	void onResize(unsigned int _width, unsigned int _height) override;
 
 private:
-	GLRenderer renderer;
-	EnvironmentRenderer environmentRenderer;
-	std::shared_ptr<ShaderProgram> blitShader;
-	std::shared_ptr<Window> window;
+	GLRenderer m_renderer;
+	EnvironmentRenderer m_environmentRenderer;
+	std::shared_ptr<ShaderProgram> m_blitShader;
+	std::shared_ptr<Window> m_window;
 
-	std::shared_ptr<Mesh> fullscreenTriangle;
+	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
 	// blit shader uniform
-	GLint uScreenTextureBlit;
-	GLint uRedToWhiteBlit;
-	GLint uScaleBlit;
-	GLint uNormalModeBlit;
-	GLint uInvViewMatrixBlit;
-	GLint uPowerBlit;
-	GLint uPowerValueBlit;
+	GLint m_uScreenTexture;
+	GLint m_uRedToWhite;
+	GLint m_uScale;
+	GLint m_uNormalMode;
+	GLint m_uInvViewMatrix;
+	GLint m_uPower;
+	GLint m_uPowerValue;
 
-	unsigned int frame;
+	unsigned int m_frame;
 };
 

@@ -13,54 +13,54 @@
 
 struct PackedJobTexture
 {
-	bool isDDS;
-	gli::texture gliTexture;
-	unsigned char *stbiData;
-	int width;
-	int height;
-	int channels;
+	bool m_isDDS;
+	gli::texture m_gliTexture;
+	unsigned char *m_stbiData;
+	int m_width;
+	int m_height;
+	int m_channels;
 };
 
 
-std::map<std::string, std::weak_ptr<Texture>> Texture::textureMap;
-float Texture::anisotropicFiltering = 1.0f;
+std::map<std::string, std::weak_ptr<Texture>> Texture::m_textureMap;
+float Texture::m_anisotropicFiltering = 1.0f;
 
 std::shared_ptr<Texture> Texture::createTexture(GLuint _id, GLenum _target)
 {
 	std::string idStr = std::to_string(_id);
-	if (ContainerUtility::contains(textureMap, idStr))
+	if (ContainerUtility::contains(m_textureMap, idStr))
 	{
-		return std::shared_ptr<Texture>(textureMap[idStr]);
+		return std::shared_ptr<Texture>(m_textureMap[idStr]);
 	}
 	else
 	{
 		std::shared_ptr<Texture> texture = std::shared_ptr<Texture>(new Texture(_id, _target));
-		textureMap[idStr] = texture;
+		m_textureMap[idStr] = texture;
 		return texture;
 	}
 }
 
 std::shared_ptr<Texture> Texture::createTexture(const std::string &_filename, bool _instantLoading)
 {
-	if (ContainerUtility::contains(textureMap, _filename))
+	if (ContainerUtility::contains(m_textureMap, _filename))
 	{
-		return std::shared_ptr<Texture>(textureMap[_filename]);
+		return std::shared_ptr<Texture>(m_textureMap[_filename]);
 	}
 	else
 	{
 		std::shared_ptr<Texture> texture = std::shared_ptr<Texture>(new Texture(_filename, _instantLoading));
-		textureMap[_filename] = texture;
+		m_textureMap[_filename] = texture;
 		return texture;
 	}
 }
 
 Texture::Texture(GLuint _id, GLenum _target)
-	:filepath(std::to_string(_id)), valid(true), dataJob(nullptr), id(_id), target(_target)
+	:m_filepath(std::to_string(_id)), m_valid(true), m_dataJob(nullptr), m_id(_id), m_target(_target)
 {
 }
 
 Texture::Texture(const std::string &_filename, bool _instantLoading)
-	: filepath(_filename), valid(false), dataJob(nullptr)
+	: m_filepath(_filename), m_valid(false), m_dataJob(nullptr)
 {
 	JobManager::Work dataPreparation = [=](JobManager::SharedJob job)
 	{
@@ -69,16 +69,16 @@ Texture::Texture(const std::string &_filename, bool _instantLoading)
 		PackedJobTexture *pack = new PackedJobTexture();
 		if (isPNG)
 		{
-			pack->stbiData = stbi_load(_filename.c_str(), &pack->width, &pack->height, &pack->channels, 0);
-			assert(pack->stbiData);
+			pack->m_stbiData = stbi_load(_filename.c_str(), &pack->m_width, &pack->m_height, &pack->m_channels, 0);
+			assert(pack->m_stbiData);
 		}
 		else
 		{
-			pack->gliTexture = gli::load(_filename);
-			assert(!pack->gliTexture.empty());
+			pack->m_gliTexture = gli::load(_filename);
+			assert(!pack->m_gliTexture.empty());
 		}
 
-		pack->isDDS = !isPNG;
+		pack->m_isDDS = !isPNG;
 
 		job->setUserData(pack);
 	};
@@ -87,9 +87,9 @@ Texture::Texture(const std::string &_filename, bool _instantLoading)
 	{
 		PackedJobTexture *textureData = (PackedJobTexture *)job->getUserData();
 
-		if (textureData->isDDS)
+		if (textureData->m_isDDS)
 		{
-			initOpenGL(textureData->gliTexture);
+			initOpenGL(textureData->m_gliTexture);
 		}
 		else
 		{
@@ -97,8 +97,8 @@ Texture::Texture(const std::string &_filename, bool _instantLoading)
 		}
 
 		// set flag that texture can be used
-		valid = true;
-		dataJob.reset();
+		m_valid = true;
+		m_dataJob.reset();
 
 		job->markDone(true);
 	};
@@ -107,9 +107,9 @@ Texture::Texture(const std::string &_filename, bool _instantLoading)
 	{
 		PackedJobTexture *pack = (PackedJobTexture *)job->getUserData();
 
-		if (!pack->isDDS)
+		if (!pack->m_isDDS)
 		{
-			stbi_image_free(pack->stbiData);
+			stbi_image_free(pack->m_stbiData);
 		}
 
 		delete pack;
@@ -122,48 +122,48 @@ Texture::Texture(const std::string &_filename, bool _instantLoading)
 	}
 	else
 	{
-		dataJob = JobManager::getInstance().queue(dataPreparation, dataInitialization, dataCleanup);
+		m_dataJob = JobManager::getInstance().queue(dataPreparation, dataInitialization, dataCleanup);
 	}
 }
 
 Texture::~Texture()
 {
-	if (dataJob)
+	if (m_dataJob)
 	{
-		dataJob->kill();
+		m_dataJob->kill();
 	}
-	ContainerUtility::remove(textureMap, filepath);
-	if (valid)
+	ContainerUtility::remove(m_textureMap, m_filepath);
+	if (m_valid)
 	{
-		glDeleteTextures(1, &id);
+		glDeleteTextures(1, &m_id);
 	}
 }
 
 GLuint Texture::getId() const
 {
-	assert(valid);
-	return id;
+	assert(m_valid);
+	return m_id;
 }
 
 GLenum Texture::getTarget() const
 {
-	return target;
+	return m_target;
 }
 
 bool Texture::isValid() const
 {
-	return valid;
+	return m_valid;
 }
 
 void Texture::setAnisotropicFilteringAll(float _anisotropicFiltering)
 {
-	if (anisotropicFiltering != _anisotropicFiltering)
+	if (m_anisotropicFiltering != _anisotropicFiltering)
 	{
-		for (auto &pair : textureMap)
+		for (auto &pair : m_textureMap)
 		{
 			pair.second.lock()->setAnisotropicFiltering(_anisotropicFiltering);
 		}
-		anisotropicFiltering = _anisotropicFiltering;
+		m_anisotropicFiltering = _anisotropicFiltering;
 	}
 }
 
@@ -171,8 +171,8 @@ void Texture::setAnisotropicFiltering(float _anisotropicFiltering)
 {
 	if (GLAD_GL_EXT_texture_filter_anisotropic)
 	{
-		glBindTexture(target, id);
-		glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, static_cast<GLfloat>(_anisotropicFiltering));
+		glBindTexture(m_target, m_id);
+		glTexParameterf(m_target, GL_TEXTURE_MAX_ANISOTROPY_EXT, static_cast<GLfloat>(_anisotropicFiltering));
 	}
 	else
 	{
@@ -188,11 +188,11 @@ void Texture::initOpenGL(const gli::texture &_file)
 	gli::gl::format const format = glTranslator.translate(texture.format(), texture.swizzles());
 
 	GLenum textureType = glTranslator.translate(texture.target());
-	target = textureType;
-	id = 0;
+	m_target = textureType;
+	m_id = 0;
 
-	glGenTextures(1, &id);
-	glBindTexture(textureType, id);
+	glGenTextures(1, &m_id);
+	glBindTexture(textureType, m_id);
 	// Base and max level are not supported by OpenGL ES 2.0
 	glTexParameteri(textureType, GL_TEXTURE_BASE_LEVEL, 0);
 	glTexParameteri(textureType, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(texture.levels() - 1));
@@ -204,7 +204,7 @@ void Texture::initOpenGL(const gli::texture &_file)
 	glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	setAnisotropicFiltering(anisotropicFiltering);
+	setAnisotropicFiltering(m_anisotropicFiltering);
 
 	glm::tvec3<GLsizei> const extent(texture.extent());
 	GLsizei const totalFaces = static_cast<GLsizei>(texture.layers() * texture.faces());
@@ -274,16 +274,16 @@ void Texture::initOpenGL(const gli::texture &_file)
 
 void Texture::initOpenGLFromData(PackedJobTexture *texture)
 {
-	target = GL_TEXTURE_2D;
-	id = 0;
+	m_target = GL_TEXTURE_2D;
+	m_id = 0;
 
-	glGenTextures(1, &id);
-	glBindTexture(GL_TEXTURE_2D, id);
+	glGenTextures(1, &m_id);
+	glBindTexture(GL_TEXTURE_2D, m_id);
 	GLenum format;
 
-	setAnisotropicFiltering(anisotropicFiltering);
+	setAnisotropicFiltering(m_anisotropicFiltering);
 
-	switch (texture->channels)
+	switch (texture->m_channels)
 	{
 		case 4:
 			format = GL_RGBA;
@@ -297,11 +297,11 @@ void Texture::initOpenGLFromData(PackedJobTexture *texture)
 	}
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(target, 0, format, texture->width, texture->height, 0, format, GL_UNSIGNED_BYTE, texture->stbiData);
+	glTexImage2D(m_target, 0, format, texture->m_width, texture->m_height, 0, format, GL_UNSIGNED_BYTE, texture->m_stbiData);
 
-	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glGenerateMipmap(target);
+	glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glGenerateMipmap(m_target);
 }
