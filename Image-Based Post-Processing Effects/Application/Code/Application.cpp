@@ -65,7 +65,6 @@ namespace App
 		COMBINED_FUNC_DEF(hbaoRadius, double)
 		COMBINED_FUNC_DEF(hbaoMaxRadiusPixels, double)
 		COMBINED_FUNC_DEF(hbaoAngleBias, double)
-		COMBINED_FUNC_DEF(screenSpaceReflectionsEnabled, bool)
 		COMBINED_FUNC_DEF(lensDirtEnabled, bool)
 		COMBINED_FUNC_DEF(lensDirtStrength, double)
 		COMBINED_FUNC_DEF(gtaoSteps, int)
@@ -165,7 +164,7 @@ namespace App
 		cameraController.setSmoothFactor(0.85f);
 
 		TwInit(TW_OPENGL_CORE, NULL); // for core profile
-		TwWindowSize(windowWidth->get(), windowHeight->get());
+		TwWindowSize(Engine::getInstance()->getWindow()->getWidth(), Engine::getInstance()->getWindow()->getHeight());
 		settingsTweakBar = TwNewBar("Settings");
 		TwDefine("Settings refresh=0.49");
 
@@ -279,11 +278,6 @@ namespace App
 				TwAddVarCB(settingsTweakBar, "Bloom", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(bloomEnabled), GETTER_FUNC_PTR(bloomEnabled), this, "group=Lens ");
 				TwAddVarCB(settingsTweakBar, "Lens Dirt", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensDirtEnabled), GETTER_FUNC_PTR(lensDirtEnabled), this, "group=Lens ");
 				TwAddVarCB(settingsTweakBar, "Lens Dirt Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(lensDirtStrength), GETTER_FUNC_PTR(lensDirtStrength), this, "group=Lens min=0.0 max=10.0 step=0.1");
-			}
-
-			// reflections
-			{
-				TwAddVarCB(settingsTweakBar, "Screen Space Reflections", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(screenSpaceReflectionsEnabled), GETTER_FUNC_PTR(screenSpaceReflectionsEnabled), this, "group=Reflections");
 			}
 
 			// depth of field

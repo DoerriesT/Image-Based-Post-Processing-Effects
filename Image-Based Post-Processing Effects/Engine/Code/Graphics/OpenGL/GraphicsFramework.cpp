@@ -14,7 +14,6 @@
 #include "Graphics\Mesh.h"
 #include "RenderData.h"
 #include "Graphics\Texture.h"
-#include "RenderPass/Debug/BoundingBoxRenderPass.h"
 #include "Level.h"
 
 #define STBI_MSC_SECURE_CRT
@@ -89,14 +88,6 @@ void GraphicsFramework::init()
 	uPowerValueBlit = blitShader->createUniform("uPowerValue");
 
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
-
-	glCreateFramebuffers(1, &debugFbo);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, debugFbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, renderer.getDepthStencilTexture(), 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	boundingBoxRenderPass = new BoundingBoxRenderPass(debugFbo, window->getWidth(), window->getHeight());
 }
 
 static glm::mat3 invViewMat;
@@ -384,11 +375,6 @@ void GraphicsFramework::blitToScreen()
 	}
 }
 
-void GraphicsFramework::setShadowQuality(const ShadowQuality &_shadowQuality)
-{
-
-}
-
 GLuint GraphicsFramework::getFinishedFrameTexture()
 {
 	return renderer.getFinishedTexture();
@@ -397,10 +383,4 @@ GLuint GraphicsFramework::getFinishedFrameTexture()
 void GraphicsFramework::onResize(unsigned int _width, unsigned int _height)
 {
 	renderer.resize(_width, _height);
-	boundingBoxRenderPass->resize(_width, _height);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, debugFbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, renderer.getDepthStencilTexture(), 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 }
