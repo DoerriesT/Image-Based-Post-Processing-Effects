@@ -41,7 +41,7 @@ SpotLightRenderPass::SpotLightRenderPass(GLuint _fbo, unsigned int _width, unsig
 	spotLightMesh = Mesh::createMesh("Resources/Models/spotlight.mesh", 1, true);
 }
 
-void SpotLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const GBuffer &_gbuffer, RenderPass **_previousRenderPass)
+void SpotLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass)
 {
 	if (_level->lights.spotLights.empty())
 	{

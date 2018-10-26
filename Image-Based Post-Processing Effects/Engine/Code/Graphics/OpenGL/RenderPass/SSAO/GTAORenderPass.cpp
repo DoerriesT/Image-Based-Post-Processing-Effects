@@ -43,7 +43,7 @@ GTAORenderPass::GTAORenderPass(GLuint _fbo, unsigned int _width, unsigned int _h
 
 double gtaoRenderTime;
 
-void GTAORenderPass::render(const RenderData &_renderData, const Effects &_effects, const GBuffer &_gbuffer, RenderPass **_previousRenderPass)
+void GTAORenderPass::render(const RenderData &_renderData, const Effects &_effects, RenderPass **_previousRenderPass)
 {
 	GLTimerQuery timer(gtaoRenderTime);
 	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0;

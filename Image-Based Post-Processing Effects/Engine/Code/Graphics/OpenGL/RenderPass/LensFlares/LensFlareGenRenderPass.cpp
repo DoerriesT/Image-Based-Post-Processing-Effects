@@ -58,3 +58,8 @@ void LensFlareGenRenderPass::render(const Effects & _effects, GLuint _inputTextu
 
 	fullscreenTriangle->getSubMesh()->render();
 }
+
+void LensFlareGenRenderPass::resize(unsigned int _width, unsigned int _height)
+{
+	state.viewportState = { 0, 0, static_cast<GLint>(_width / 2), static_cast<GLint>(_height / 2) };
+}

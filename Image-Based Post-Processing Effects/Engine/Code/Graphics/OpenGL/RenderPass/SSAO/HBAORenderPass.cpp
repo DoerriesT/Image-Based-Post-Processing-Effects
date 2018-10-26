@@ -44,7 +44,7 @@ HBAORenderPass::HBAORenderPass(GLuint _fbo, unsigned int _width, unsigned int _h
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-void HBAORenderPass::render(const RenderData & _renderData, const Effects & _effects, const GBuffer & _gbuffer, GLuint _noiseTexture, RenderPass **_previousRenderPass)
+void HBAORenderPass::render(const RenderData & _renderData, const Effects & _effects, GLuint _noiseTexture, RenderPass **_previousRenderPass)
 {
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;

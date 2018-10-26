@@ -52,7 +52,7 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 
 bool gtaoMultiBounce = false;
 
-void AmbientLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, GLuint *_lpv, const Volume &_volume, RenderPass **_previousRenderPass)
+void AmbientLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint ssaoTexture, GLuint _brdfLUT, RenderPass **_previousRenderPass)
 {
 	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT5 : GL_COLOR_ATTACHMENT4;
 	RenderPass::begin(*_previousRenderPass);
@@ -66,8 +66,6 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 		bool shadowsEnabled = false;
 		bool ssaoEnabled = false;
 		bool gtaoMultiBounceEnabled = false;
-		bool ssrEnabled = false;
-		int diffuseAmbientSource = 0;
 
 		for (const auto &define : curDefines)
 		{
@@ -89,23 +87,13 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 				{
 					gtaoMultiBounceEnabled = true;
 				}
-				else if (std::get<1>(define) == SSR_ENABLED && std::get<2>(define))
-				{
-					ssrEnabled = true;
-				}
-				else if (std::get<1>(define) == IRRADIANCE_SOURCE)
-				{
-					diffuseAmbientSource = std::get<2>(define);
-				}
 			}
 		}
 
 		if (directionalLightEnabled != (!_level->lights.directionalLights.empty())
 			|| shadowsEnabled != _renderData.shadows
 			|| ssaoEnabled != (_effects.ambientOcclusion != AmbientOcclusion::OFF)
-			|| gtaoMultiBounceEnabled != gtaoMultiBounce
-			|| ssrEnabled != _effects.screenSpaceReflections.enabled
-			|| diffuseAmbientSource != int(_effects.diffuseAmbientSource))
+			|| gtaoMultiBounceEnabled != gtaoMultiBounce)
 		{
 			ambientLightShader->setDefines(
 				{
@@ -113,8 +101,8 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 				{ ShaderProgram::ShaderType::FRAGMENT, SHADOWS_ENABLED, _renderData.shadows },
 				{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, (_effects.ambientOcclusion != AmbientOcclusion::OFF) },
 				{ ShaderProgram::ShaderType::FRAGMENT, GTAO_MULTI_BOUNCE_ENABLED, gtaoMultiBounce },
-				{ ShaderProgram::ShaderType::FRAGMENT, SSR_ENABLED, _effects.screenSpaceReflections.enabled },
-				{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_SOURCE, int(_effects.diffuseAmbientSource) },
+				{ ShaderProgram::ShaderType::FRAGMENT, SSR_ENABLED, 0 },
+				{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_SOURCE, 1 },
 				}
 			);
 			createUniforms();
@@ -124,22 +112,22 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	fullscreenTriangle->getSubMesh()->enableVertexAttribArrays();
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, _gbuffer.ssaoTexture);
+	glBindTexture(GL_TEXTURE_2D, ssaoTexture);
 	glActiveTexture(GL_TEXTURE12);
 	glBindTexture(GL_TEXTURE_2D, _level->environment.irradianceVolume->getProbeTexture()->getId());
 	glActiveTexture(GL_TEXTURE13);
 	glBindTexture(GL_TEXTURE_2D, _level->environment.environmentProbes[0]->getReflectionTexture()->getId());
 	glActiveTexture(GL_TEXTURE9);
 	glBindTexture(GL_TEXTURE_2D, _brdfLUT);
-	glActiveTexture(GL_TEXTURE10);
-	glBindTexture(GL_TEXTURE_2D, _gbuffer.lightTextures[(_renderData.frame + 1) % 2]);
+	//glActiveTexture(GL_TEXTURE10);
+	//glBindTexture(GL_TEXTURE_2D, 0); // TODO: remove and redo SSR; this is previous frame's texture
 
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, _lpv[0]);
-	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_2D, _lpv[1]);
-	glActiveTexture(GL_TEXTURE7);
-	glBindTexture(GL_TEXTURE_2D, _lpv[2]);
+	//glActiveTexture(GL_TEXTURE5);
+	//glBindTexture(GL_TEXTURE_2D, _lpv[0]);
+	//glActiveTexture(GL_TEXTURE6);
+	//glBindTexture(GL_TEXTURE_2D, _lpv[1]);
+	//glActiveTexture(GL_TEXTURE7);
+	//glBindTexture(GL_TEXTURE_2D, _lpv[2]);
 
 	ambientLightShader->bind();
 
@@ -159,19 +147,19 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 	uInverseViewE.set(_renderData.invViewMatrix);
 	uInverseProjectionE.set(_renderData.invProjectionMatrix);
 
-	if (_effects.diffuseAmbientSource == DiffuseAmbientSource::LIGHT_PROPAGATION_VOLUMES)
-	{
-		uVolumeOrigin.set(_volume.origin);
-		uVolumeDimensions.set(_volume.dimensions);
-		uSpacing.set(_volume.spacing);
-	}
-	else
-	{
+	//if (_effects.diffuseAmbientSource == DiffuseAmbientSource::LIGHT_PROPAGATION_VOLUMES)
+	//{
+	//	uVolumeOrigin.set(_volume.origin);
+	//	uVolumeDimensions.set(_volume.dimensions);
+	//	uSpacing.set(_volume.spacing);
+	//}
+	//else
+	//{
 		std::shared_ptr<IrradianceVolume> volume = _level->environment.irradianceVolume;
 		uVolumeOrigin.set(volume->getOrigin());
 		uVolumeDimensions.set(volume->getDimensions());
 		uSpacing.set(volume->getSpacing());
-	}
+	//}
 
 	if (_effects.diffuseAmbientSource != DiffuseAmbientSource::FLAT)
 	{

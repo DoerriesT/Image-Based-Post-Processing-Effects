@@ -22,6 +22,8 @@ struct RenderData
 	float time;
 	bool shadows;
 	float fov;
+	float nearPlane;
+	float farPlane;
 	unsigned int frame;
 	bool bake;
 };

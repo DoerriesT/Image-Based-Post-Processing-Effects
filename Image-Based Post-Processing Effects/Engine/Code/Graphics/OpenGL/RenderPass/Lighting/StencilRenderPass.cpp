@@ -38,7 +38,7 @@ StencilRenderPass::StencilRenderPass(GLuint _fbo, unsigned int _width, unsigned 
 	boxMesh = Mesh::createMesh("Resources/Models/cube.mesh", 1, true);
 }
 
-void StencilRenderPass::render(const RenderData & _renderData, const std::shared_ptr<Level>& _level, const GBuffer & _gbuffer, RenderPass ** _previousRenderPass)
+void StencilRenderPass::render(const RenderData & _renderData, const std::shared_ptr<Level>& _level, RenderPass ** _previousRenderPass)
 {
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;

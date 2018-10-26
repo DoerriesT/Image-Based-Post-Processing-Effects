@@ -75,6 +75,8 @@
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\LensFlares\AnamorphicPrefilterComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\LensFlares\AnamorphicUpsampleComputePass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\MotionBlur\VelocityCorrectionComputePass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\GLRenderer.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\GLRenderResources.h" />
     <ClInclude Include="Code\Graphics\OpenGL\GLTimerQuery.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\FXAARenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAABlendRenderPass.h" />
@@ -103,13 +105,11 @@
     <ClInclude Include="Code\Graphics\Model.h" />
     <ClInclude Include="Code\Graphics\OpenGL\Buffer.h" />
     <ClInclude Include="Code\Graphics\OpenGL\EnvironmentRenderer.h" />
-    <ClInclude Include="Code\Graphics\OpenGL\GBuffer.h" />
     <ClInclude Include="Code\Graphics\OpenGL\GLUtility.h" />
     <ClInclude Include="Code\Graphics\OpenGL\GraphicsFramework.h" />
     <ClInclude Include="Code\Graphics\OpenGL\LightPropagationVolumes.h" />
     <ClInclude Include="Code\Graphics\OpenGL\MediumDescription.h" />
     <ClInclude Include="Code\Graphics\OpenGL\Ocean.h" />
-    <ClInclude Include="Code\Graphics\OpenGL\PostProcessRenderer.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderData.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Geometry\ForwardCustomRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Geometry\ForwardRenderPass.h" />
@@ -141,7 +141,6 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOBlurRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOOriginalRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAORenderPass.h" />
-    <ClInclude Include="Code\Graphics\OpenGL\SceneRenderer.h" />
     <ClInclude Include="Code\Graphics\OpenGL\ShaderProgram.h" />
     <ClInclude Include="Code\Graphics\OpenGL\TileRing.h" />
     <ClInclude Include="Code\Graphics\OpenGL\Uniform.h" />
@@ -262,12 +261,13 @@
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\MotionBlur\VelocityCorrectionComputePass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\EnvironmentRenderer.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\glad.c" />
+    <ClCompile Include="Code\Graphics\OpenGL\GLRenderer.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\GLRenderResources.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\GLTimerQuery.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\GLUtility.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\GraphicsFramework.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\LightPropagationVolumes.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\Ocean.cpp" />
-    <ClCompile Include="Code\Graphics\OpenGL\PostProcessRenderer.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\FXAARenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAABlendRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\AntiAliasing\SMAABlendWeightRenderPass.cpp" />
@@ -320,7 +320,6 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOBlurRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOOriginalRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAORenderPass.cpp" />
-    <ClCompile Include="Code\Graphics\OpenGL\SceneRenderer.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\ShaderProgram.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\TileRing.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\Uniform.cpp" />

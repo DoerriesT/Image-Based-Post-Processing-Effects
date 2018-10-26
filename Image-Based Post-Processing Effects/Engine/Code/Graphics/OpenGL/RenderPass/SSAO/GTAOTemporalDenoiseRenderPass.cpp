@@ -34,7 +34,7 @@ GTAOTemporalDenoiseRenderPass::GTAOTemporalDenoiseRenderPass(GLuint _fbo, unsign
 
 double gtaoTemporalDenoiseTime;
 
-void GTAOTemporalDenoiseRenderPass::render(const RenderData & _renderData, const Effects & _effects, const GBuffer & _gbuffer, GLuint * _ssaoTextures, RenderPass **_previousRenderPass)
+void GTAOTemporalDenoiseRenderPass::render(const RenderData & _renderData, const Effects & _effects, GLuint _velocityTexture, GLuint * _ssaoTextures, RenderPass **_previousRenderPass)
 {
 	GLTimerQuery timer(gtaoTemporalDenoiseTime);
 	drawBuffers[0] = _renderData.frame % 2 ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0;
@@ -47,7 +47,7 @@ void GTAOTemporalDenoiseRenderPass::render(const RenderData & _renderData, const
 	uFrameTime.set((float)Engine::getTimeDelta());
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, _gbuffer.velocityTexture);
+	glBindTexture(GL_TEXTURE_2D, _velocityTexture);
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, _renderData.frame % 2 ? _ssaoTextures[0] : _ssaoTextures[2]);
 	glActiveTexture(GL_TEXTURE6);

@@ -62,3 +62,8 @@ void LensFlareBlurRenderPass::render(GLuint _inputTexture, GLuint _pingPongTextu
 
 	drawBuffers[0] = GL_COLOR_ATTACHMENT0;
 }
+
+void LensFlareBlurRenderPass::resize(unsigned int _width, unsigned int _height)
+{
+	state.viewportState = { 0, 0, static_cast<GLint>(_width / 2), static_cast<GLint>(_height / 2) };
+}

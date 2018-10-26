@@ -49,7 +49,7 @@ DeferredEnvironmentProbeRenderPass::DeferredEnvironmentProbeRenderPass(GLuint _f
 	boxMesh = Mesh::createMesh("Resources/Models/cube.mesh", 1, true);
 }
 
-void DeferredEnvironmentProbeRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, const GLuint _brdfLUT, RenderPass **_previousRenderPass)
+void DeferredEnvironmentProbeRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint _ssaoTexture, GLuint _brdfLUT, RenderPass **_previousRenderPass)
 {
 	if (_level->environment.environmentProbes.empty())
 	{
@@ -94,7 +94,7 @@ void DeferredEnvironmentProbeRenderPass::render(const RenderData &_renderData, c
 	}
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, _gbuffer.ssaoTexture);
+	glBindTexture(GL_TEXTURE_2D, _ssaoTexture);
 	glActiveTexture(GL_TEXTURE9);
 	glBindTexture(GL_TEXTURE_2D, _brdfLUT);
 

@@ -29,7 +29,7 @@ SSAOBlurRenderPass::SSAOBlurRenderPass(GLuint _fbo, unsigned int _width, unsigne
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-void SSAOBlurRenderPass::render(const RenderData & _renderData, const Effects & _effects, const GBuffer & _gbuffer, GLuint _inputTexture, RenderPass **_previousRenderPass)
+void SSAOBlurRenderPass::render(const RenderData & _renderData, const Effects & _effects, GLuint _inputTexture, RenderPass **_previousRenderPass)
 {
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;

@@ -34,7 +34,7 @@ DirectionalLightRenderPass::DirectionalLightRenderPass(GLuint _fbo, unsigned int
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-void DirectionalLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const GBuffer &_gbuffer, RenderPass **_previousRenderPass)
+void DirectionalLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass)
 {
 	if (_level->lights.directionalLights.empty())
 	{

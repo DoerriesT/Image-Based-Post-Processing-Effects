@@ -1,6 +1,5 @@
 #pragma once
-#include "SceneRenderer.h"
-#include "PostProcessRenderer.h"
+#include "GLRenderer.h"
 #include "EnvironmentRenderer.h"
 #include "Window\GLFW\IWindowResizeListener.h"
 
@@ -32,8 +31,7 @@ public:
 	void onResize(unsigned int _width, unsigned int _height) override;
 
 private:
-	SceneRenderer sceneRenderer;
-	PostProcessRenderer postProcessRenderer;
+	GLRenderer renderer;
 	EnvironmentRenderer environmentRenderer;
 	std::shared_ptr<ShaderProgram> blitShader;
 	std::shared_ptr<Window> window;

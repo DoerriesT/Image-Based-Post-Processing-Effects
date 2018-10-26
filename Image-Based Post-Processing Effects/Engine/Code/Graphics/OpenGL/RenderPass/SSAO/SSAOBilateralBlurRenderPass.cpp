@@ -29,7 +29,7 @@ SSAOBilateralBlurRenderPass::SSAOBilateralBlurRenderPass(GLuint _fbo, unsigned i
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-void SSAOBilateralBlurRenderPass::render(const RenderData & _renderData, const Effects & _effects, const GBuffer &_gbuffer, GLuint _ssaoTexture, RenderPass **_previousRenderPass)
+void SSAOBilateralBlurRenderPass::render(const RenderData & _renderData, const Effects & _effects, GLuint _ssaoTexture, RenderPass **_previousRenderPass)
 {
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;

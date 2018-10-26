@@ -3,7 +3,6 @@
 #include "Graphics\OpenGL\ShaderProgram.h"
 #include "Graphics\OpenGL\Uniform.h"
 #include "Graphics\Mesh.h"
-#include "Graphics\OpenGL\GBuffer.h"
 
 struct RenderData;
 struct Level;

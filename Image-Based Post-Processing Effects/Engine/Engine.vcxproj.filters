@@ -419,13 +419,7 @@
     <ClInclude Include="Code\Graphics\OpenGL\Ocean.h">
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\PostProcessRenderer.h">
-      <Filter>Code\Graphics\OpenGL</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Graphics\OpenGL\RenderData.h">
-      <Filter>Code\Graphics\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\SceneRenderer.h">
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="Code\Graphics\OpenGL\ShaderProgram.h">
@@ -490,9 +484,6 @@
     </ClInclude>
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\RenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\GBuffer.h">
-      <Filter>Code\Graphics\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAORenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
@@ -746,6 +737,12 @@
     <ClInclude Include="Code\Graphics\OpenGL\GLTimerQuery.h">
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\GLRenderer.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\GLRenderResources.h">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -917,12 +914,6 @@
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\Ocean.cpp">
-      <Filter>Code\Graphics\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\PostProcessRenderer.cpp">
-      <Filter>Code\Graphics\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\SceneRenderer.cpp">
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\ShaderProgram.cpp">
@@ -1220,6 +1211,12 @@
       <Filter>Code\Graphics\OpenGL\ComputePass\AntiAliasing</Filter>
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\GLTimerQuery.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\GLRenderer.cpp">
+      <Filter>Code\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\GLRenderResources.cpp">
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClCompile>
   </ItemGroup>

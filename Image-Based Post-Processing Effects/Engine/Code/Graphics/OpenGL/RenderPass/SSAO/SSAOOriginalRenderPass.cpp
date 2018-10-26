@@ -28,7 +28,7 @@ SSAOOriginalRenderPass::SSAOOriginalRenderPass(GLuint _fbo, unsigned int _width,
 	fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
-void SSAOOriginalRenderPass::render(const RenderData &_renderData, const Effects &_effects, const GBuffer &_gbuffer, GLuint _noiseTexture, RenderPass **_previousRenderPass)
+void SSAOOriginalRenderPass::render(const RenderData &_renderData, const Effects &_effects, GLuint _noiseTexture, RenderPass **_previousRenderPass)
 {
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;

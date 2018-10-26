@@ -3,8 +3,6 @@
 #include "Graphics\OpenGL\ShaderProgram.h"
 #include "Graphics\OpenGL\Uniform.h"
 #include "Graphics\Mesh.h"
-#include "Graphics\OpenGL\GBuffer.h"
-#include "Graphics\Volume.h"
 
 struct RenderData;
 class Scene;
@@ -15,7 +13,7 @@ class AmbientLightRenderPass : public RenderPass
 {
 public:
 	explicit AmbientLightRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height);
-	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, const GBuffer &_gbuffer, GLuint _brdfLUT, GLuint *_lpv, const Volume &_volume, RenderPass **_previousRenderPass = nullptr);
+	void render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const Effects &_effects, GLuint ssaoTexture, GLuint _brdfLUT, RenderPass **_previousRenderPass = nullptr);
 
 private:
 	std::shared_ptr<ShaderProgram> ambientLightShader;

@@ -34,7 +34,7 @@ GTAOSpatialDenoiseRenderPass::GTAOSpatialDenoiseRenderPass(GLuint _fbo, unsigned
 
 double gtaoSpatialDenoiseTime;
 
-void GTAOSpatialDenoiseRenderPass::render(const RenderData & _renderData, const Effects & _effects, const GBuffer & _gbuffer, GLuint * _ssaoTextures, RenderPass **_previousRenderPass)
+void GTAOSpatialDenoiseRenderPass::render(const RenderData & _renderData, const Effects & _effects, GLuint * _ssaoTextures, RenderPass **_previousRenderPass)
 {
 	GLTimerQuery timer(gtaoSpatialDenoiseTime);
 	RenderPass::begin(*_previousRenderPass);

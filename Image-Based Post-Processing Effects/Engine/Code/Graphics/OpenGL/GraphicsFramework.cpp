@@ -15,14 +15,14 @@
 #include "RenderData.h"
 #include "Graphics\Texture.h"
 #include "RenderPass/Debug/BoundingBoxRenderPass.h"
+#include "Level.h"
 
 #define STBI_MSC_SECURE_CRT
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
 GraphicsFramework::GraphicsFramework(std::shared_ptr<Window> _window)
-	:sceneRenderer(_window),
-	postProcessRenderer(_window),
+	:renderer(),
 	window(_window),
 	environmentRenderer()
 {
@@ -75,8 +75,7 @@ void GraphicsFramework::init()
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 #endif // _DEBUG
 
-	sceneRenderer.init();
-	postProcessRenderer.init();
+	renderer.init(window->getWidth(), window->getHeight());
 	environmentRenderer.init();
 
 	blitShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/Shared/blit.frag");
@@ -94,7 +93,7 @@ void GraphicsFramework::init()
 	glCreateFramebuffers(1, &debugFbo);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, debugFbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, sceneRenderer.getDepthStencilTexture(), 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, renderer.getDepthStencilTexture(), 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	boundingBoxRenderPass = new BoundingBoxRenderPass(debugFbo, window->getWidth(), window->getHeight());
@@ -104,6 +103,7 @@ static glm::mat3 invViewMat;
 static RenderData renderData;
 
 extern bool freeze;
+bool debugDraw = false;
 
 void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Scene &_scene, const std::shared_ptr<Level> &_level, const Effects &_effects)
 {
@@ -141,6 +141,8 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 		renderData.cameraPosition = _camera->getPosition();
 		renderData.viewDirection = _camera->getForwardDirection();
 		renderData.fov = window->getFieldOfView();
+		renderData.nearPlane = Window::NEAR_PLANE;
+		renderData.farPlane = Window::FAR_PLANE;
 		renderData.frame = frame;
 		renderData.bake = false;
 
@@ -151,8 +153,7 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 	}
 	
 
-	sceneRenderer.render(renderData, _scene, _level, _effects);
-	postProcessRenderer.render(renderData, _level, _effects, sceneRenderer.getColorTexture(), sceneRenderer.getDepthStencilTexture(), sceneRenderer.getVelocityTexture(), _camera);
+	renderer.render(renderData, _scene, _level, _effects, false, debugDraw);
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, debugFbo);
 	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, postProcessRenderer.getFinishedTexture(), 0);
@@ -181,7 +182,7 @@ void GraphicsFramework::bake(const Scene &_scene, const std::shared_ptr<Level> &
 	effects.shadowQuality = ShadowQuality::NORMAL;
 	effects.diffuseAmbientSource = DiffuseAmbientSource::IRRADIANCE_VOLUMES;
 
-	sceneRenderer.resize(renderData.resolution);
+	renderer.resize(ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
 
 	for (unsigned int bounce = 0; bounce < _bounces; ++bounce)
 	{
@@ -214,8 +215,8 @@ void GraphicsFramework::bake(const Scene &_scene, const std::shared_ptr<Level> &
 					renderData.viewDirection = -glm::transpose(renderData.viewMatrix)[2];
 					renderData.frustum.update(renderData.viewProjectionMatrix);
 
-					sceneRenderer.render(renderData, _scene, _level, effects);
-					environmentRenderer.updateCubeSide(i, sceneRenderer.getColorTexture());
+					renderer.render(renderData, _scene, _level, effects, true);
+					environmentRenderer.updateCubeSide(i, renderer.getColorTexture());
 				}
 				environmentRenderer.generateMipmaps();
 				environmentRenderer.calculateReflectance(environmentProbe);
@@ -260,8 +261,8 @@ void GraphicsFramework::bake(const Scene &_scene, const std::shared_ptr<Level> &
 							renderData.viewDirection = -glm::transpose(renderData.viewMatrix)[2];
 							renderData.frustum.update(renderData.viewProjectionMatrix);
 
-							sceneRenderer.render(renderData, _scene, _level, effects);
-							environmentRenderer.updateCubeSide(i, sceneRenderer.getColorTexture());
+							renderer.render(renderData, _scene, _level, effects, true);
+							environmentRenderer.updateCubeSide(i, renderer.getColorTexture());
 						}
 						environmentRenderer.calculateIrradiance(volume, glm::ivec3(x, y, z));
 					}
@@ -271,7 +272,7 @@ void GraphicsFramework::bake(const Scene &_scene, const std::shared_ptr<Level> &
 		}
 	}
 
-	sceneRenderer.resize(std::make_pair<>(window->getWidth(), window->getHeight()));
+	renderer.resize(window->getWidth(), window->getHeight());
 }
 
 std::shared_ptr<Texture> GraphicsFramework::render(const AtmosphereParams &_params)
@@ -310,21 +311,21 @@ void GraphicsFramework::blitToScreen()
 	switch (displayMode)
 	{
 	case GBufferDisplayMode::SHADED:
-		texture = postProcessRenderer.getFinishedTexture();
+		texture = renderer.getFinishedTexture();
 		blitShader->setUniform(uScaleBlit, 1.0f);
 		blitShader->setUniform(uRedToWhiteBlit, false);
 		blitShader->setUniform(uNormalModeBlit, false);
 		blitShader->setUniform(uPowerBlit, false);
 		break;
 	case GBufferDisplayMode::ALBEDO:
-		texture = sceneRenderer.getAlbedoTexture();
+		texture = renderer.getAlbedoTexture();
 		blitShader->setUniform(uScaleBlit, 1.0f);
 		blitShader->setUniform(uRedToWhiteBlit, false);
 		blitShader->setUniform(uNormalModeBlit, false);
 		blitShader->setUniform(uPowerBlit, false);
 		break;
 	case GBufferDisplayMode::NORMAL:
-		texture = sceneRenderer.getNormalTexture();
+		texture = renderer.getNormalTexture();
 		blitShader->setUniform(uScaleBlit, 1.0f);
 		blitShader->setUniform(uRedToWhiteBlit, false);
 		blitShader->setUniform(uNormalModeBlit, true);
@@ -332,14 +333,14 @@ void GraphicsFramework::blitToScreen()
 		blitShader->setUniform(uPowerBlit, false);
 		break;
 	case GBufferDisplayMode::MATERIAL:
-		texture = sceneRenderer.getMaterialTexture();
+		texture = renderer.getMaterialTexture();
 		blitShader->setUniform(uScaleBlit, 1.0f);
 		blitShader->setUniform(uRedToWhiteBlit, false);
 		blitShader->setUniform(uNormalModeBlit, false);
 		blitShader->setUniform(uPowerBlit, false);
 		break;
 	case GBufferDisplayMode::DEPTH:
-		texture = sceneRenderer.getDepthStencilTexture();
+		texture = renderer.getDepthStencilTexture();
 		blitShader->setUniform(uScaleBlit, 1.0f);
 		blitShader->setUniform(uRedToWhiteBlit, true);
 		blitShader->setUniform(uNormalModeBlit, false);
@@ -347,14 +348,14 @@ void GraphicsFramework::blitToScreen()
 		blitShader->setUniform(uPowerValueBlit, 30.0f);
 		break;
 	case GBufferDisplayMode::VELOCITY:
-		texture = sceneRenderer.getVelocityTexture();
+		texture = renderer.getVelocityTexture();
 		blitShader->setUniform(uScaleBlit, 10.0f);
 		blitShader->setUniform(uRedToWhiteBlit, false);
 		blitShader->setUniform(uNormalModeBlit, false);
 		blitShader->setUniform(uPowerBlit, false);
 		break;
 	case GBufferDisplayMode::AMBIENT_OCCLUSION:
-		texture = sceneRenderer.getAmbientOcclusionTexture();
+		texture = renderer.getAmbientOcclusionTexture();
 		blitShader->setUniform(uScaleBlit, 1.0f);
 		blitShader->setUniform(uRedToWhiteBlit, true);
 		blitShader->setUniform(uNormalModeBlit, false);
@@ -379,7 +380,7 @@ void GraphicsFramework::blitToScreen()
 	if (UserInput::getInstance().isKeyPressed(InputKey::F11) && Engine::getTime() - lastPressed > 0.5)
 	{
 		lastPressed = Engine::getTime();
-		save2DTextureToFile(postProcessRenderer.getFinishedTexture(), window->getWidth(), window->getHeight());
+		save2DTextureToFile(renderer.getFinishedTexture(), window->getWidth(), window->getHeight());
 	}
 }
 
@@ -390,18 +391,16 @@ void GraphicsFramework::setShadowQuality(const ShadowQuality &_shadowQuality)
 
 GLuint GraphicsFramework::getFinishedFrameTexture()
 {
-	return postProcessRenderer.getFinishedTexture();
+	return renderer.getFinishedTexture();
 }
 
 void GraphicsFramework::onResize(unsigned int _width, unsigned int _height)
 {
-	std::pair<unsigned int, unsigned int> resolution = std::make_pair(_width, _height);
-	sceneRenderer.resize(resolution);
-	postProcessRenderer.resize(resolution);
+	renderer.resize(_width, _height);
 	boundingBoxRenderPass->resize(_width, _height);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, debugFbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, sceneRenderer.getDepthStencilTexture(), 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, renderer.getDepthStencilTexture(), 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }

@@ -40,7 +40,7 @@ PointLightRenderPass::PointLightRenderPass(GLuint _fbo, unsigned int _width, uns
 	pointLightMesh = Mesh::createMesh("Resources/Models/pointlight.mesh", 1, true);
 }
 
-void PointLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, const GBuffer &_gbuffer, RenderPass **_previousRenderPass)
+void PointLightRenderPass::render(const RenderData &_renderData, const std::shared_ptr<Level> &_level, RenderPass **_previousRenderPass)
 {
 	if (_level->lights.pointLights.empty())
 	{
