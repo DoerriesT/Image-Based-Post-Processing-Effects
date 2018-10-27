@@ -1,6 +1,7 @@
 #include "SeperateDofBlurComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
 #include "Graphics\SampleKernel.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 SeperateDofBlurComputePass::SeperateDofBlurComputePass(unsigned int _width, unsigned int _height)
 	:m_blurSamplesSet(false),
@@ -15,8 +16,11 @@ SeperateDofBlurComputePass::SeperateDofBlurComputePass(unsigned int _width, unsi
 	}
 }
 
+double seperateDofBlurComputeTime;
+
 void SeperateDofBlurComputePass::execute(GLuint *_dofTextures, GLuint _cocTexture, GLuint _cocTileTexture)
 {
+	GLTimerQuery timer(seperateDofBlurComputeTime);
 	m_blurShader->bind();
 
 	if (!m_blurSamplesSet)

@@ -1,5 +1,6 @@
 #include "SeperateDofDownsampleComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 SeperateDofDownsampleComputePass::SeperateDofDownsampleComputePass(unsigned int _width, unsigned int _height)
 	:m_width(_width),
@@ -8,8 +9,11 @@ SeperateDofDownsampleComputePass::SeperateDofDownsampleComputePass(unsigned int 
 	m_downsampleShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedDownsample.comp");
 }
 
+double seperateDofDownsampleComputeTime;
+
 void SeperateDofDownsampleComputePass::execute(GLuint _colorTexture, GLuint _cocTexture, GLuint _destinationCocTexture, GLuint _destinationNearTexture, GLuint _destinationFarTexture)
 {
+	GLTimerQuery timer(seperateDofDownsampleComputeTime);
 	m_downsampleShader->bind();
 
 	glActiveTexture(GL_TEXTURE0);

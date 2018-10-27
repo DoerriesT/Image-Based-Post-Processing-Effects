@@ -1,5 +1,6 @@
 #include "SpriteDofRenderPass.h"
 #include "Graphics\Texture.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 SpriteDofRenderPass::SpriteDofRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -60,8 +61,11 @@ SpriteDofRenderPass::SpriteDofRenderPass(GLuint _fbo, unsigned int _width, unsig
 	glBindVertexArray(0);
 }
 
+double spriteDofRenderTime;
+
 void SpriteDofRenderPass::render(GLuint _colorTexture, GLuint _depthTexture, GLuint _cocTexture, GLuint _destinationTexture, RenderPass ** _previousRenderPass)
 {
+	GLTimerQuery timer(spriteDofRenderTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

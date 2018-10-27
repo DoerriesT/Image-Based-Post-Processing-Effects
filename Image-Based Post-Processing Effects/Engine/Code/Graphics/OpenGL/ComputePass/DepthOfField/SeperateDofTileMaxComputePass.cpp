@@ -1,5 +1,6 @@
 #include "SeperateDofTileMaxComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 SeperateDofTileMaxComputePass::SeperateDofTileMaxComputePass(unsigned int _width, unsigned int _height)
 	:m_width(_width),
@@ -10,8 +11,11 @@ SeperateDofTileMaxComputePass::SeperateDofTileMaxComputePass(unsigned int _width
 	m_uLevel.create(m_tileMaxShader);
 }
 
+double seperateDofTileMaxComputeTime;
+
 void SeperateDofTileMaxComputePass::execute(GLuint _cocTexture)
 {
+	GLTimerQuery timer(seperateDofTileMaxComputeTime);
 	m_tileMaxShader->bind();
 
 	glActiveTexture(GL_TEXTURE0);

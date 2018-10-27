@@ -1,6 +1,7 @@
 #include "SimpleDofFillComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
 #include "Graphics\SampleKernel.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 SimpleDofFillComputePass::SimpleDofFillComputePass(unsigned int _width, unsigned int _height)
 	:m_fillSamplesSet(false),
@@ -15,8 +16,11 @@ SimpleDofFillComputePass::SimpleDofFillComputePass(unsigned int _width, unsigned
 	}
 }
 
+double simpleDofFillComputeTime;
+
 void SimpleDofFillComputePass::execute(GLuint *_resultTextures)
 {
+	GLTimerQuery timer(simpleDofFillComputeTime);
 	m_fillShader->bind();
 
 	if (!m_fillSamplesSet)

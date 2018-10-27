@@ -1,5 +1,6 @@
 #include "SeperateDofCompositeComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 SeperateDofCompositeComputePass::SeperateDofCompositeComputePass(unsigned int _width, unsigned int _height)
 	:m_width(_width),
@@ -8,8 +9,11 @@ SeperateDofCompositeComputePass::SeperateDofCompositeComputePass(unsigned int _w
 	m_compositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSeperatedComposite.comp");
 }
 
+double seperateDofCompositeComputeTime;
+
 void SeperateDofCompositeComputePass::execute(GLuint _colorTexture, GLuint _cocTexture, GLuint _destinationTexture)
 {
+	GLTimerQuery timer(seperateDofCompositeComputeTime);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _colorTexture);
 	glActiveTexture(GL_TEXTURE1);

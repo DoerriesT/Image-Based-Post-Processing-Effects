@@ -1,5 +1,6 @@
 #include "SimpleDofCocBlurComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 SimpleDofCocBlurComputePass::SimpleDofCocBlurComputePass(unsigned int _width, unsigned int _height)
 	:m_width(_width),
@@ -10,8 +11,11 @@ SimpleDofCocBlurComputePass::SimpleDofCocBlurComputePass(unsigned int _width, un
 	m_uDirection.create(m_cocBlurShader);
 }
 
+double simpleDofCocBlurComputeTime;
+
 void SimpleDofCocBlurComputePass::execute(GLuint _cocTexture, GLuint * _destinationTextures)
 {
+	GLTimerQuery timer(simpleDofCocBlurComputeTime);
 	m_cocBlurShader->bind();
 	m_uDirection.set(false);
 

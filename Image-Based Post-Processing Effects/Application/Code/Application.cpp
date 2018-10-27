@@ -43,6 +43,29 @@ extern double hbaoRenderTime;
 extern double bilateralBlurRenderTime;
 extern double originalSsaoRenderTime;
 extern double ssaoRenderTime;
+extern double cocComputeTime;
+extern double seperateDofBlurComputeTime;
+extern double seperateDofCompositeComputeTime;
+extern double seperateDofFillComputeTime;
+extern double seperateDofTileMaxComputeTime;
+extern double simpleDofCocBlurComputeTime;
+extern double simpleDofCompositeComputeTime;
+extern double simpleDofFillComputeTime;
+extern double spriteDofCompositeComputeTime;
+extern double cocNeighborTileMaxRenderTime;
+extern double cocTileMaxRenderTime;
+extern double spriteDofRenderTime;
+extern double simpleDofBlurComputeTime;
+extern double seperateDofDownsampleComputeTime;
+
+// sums
+double gtaoSum;
+double hbaoSum;
+double ssaoSum;
+double ssaoOriginalSum;
+double simpleDofSum;
+double spriteDofSum;
+double tiledDofSum;
 
 namespace App
 {
@@ -181,6 +204,8 @@ namespace App
 				TwAddVarRO(settingsTweakBar, "Frame Time", TW_TYPE_STDSTRING, &frameTimeStr, "group=Timings");
 				TwAddVarRO(settingsTweakBar, "Frame Time Average", TW_TYPE_STDSTRING, &frameTimeAvgStr, "group=Timings");
 				TwAddVarRO(settingsTweakBar, "Frame Time Worst", TW_TYPE_STDSTRING, &frameTimeWorstStr, "group=Timings");
+
+				// ssao
 				TwAddVarRO(settingsTweakBar, "GTAO Render", TW_TYPE_DOUBLE, &gtaoRenderTime, "group=Timings");
 				TwAddVarRO(settingsTweakBar, "GTAO Spatial", TW_TYPE_DOUBLE, &gtaoSpatialDenoiseTime, "group=Timings");
 				TwAddVarRO(settingsTweakBar, "GTAO Temporal", TW_TYPE_DOUBLE, &gtaoTemporalDenoiseTime, "group=Timings");
@@ -188,6 +213,30 @@ namespace App
 				TwAddVarRO(settingsTweakBar, "SSAO", TW_TYPE_DOUBLE, &ssaoRenderTime, "group=Timings");
 				TwAddVarRO(settingsTweakBar, "SSAO (Original)", TW_TYPE_DOUBLE, &originalSsaoRenderTime, "group=Timings");
 				TwAddVarRO(settingsTweakBar, "SSAO Blur", TW_TYPE_DOUBLE, &bilateralBlurRenderTime, "group=Timings");
+
+				// dof
+				TwAddVarRO(settingsTweakBar, "CoC Compute", TW_TYPE_DOUBLE, &cocComputeTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "CoC Blur", TW_TYPE_DOUBLE, &simpleDofCocBlurComputeTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Simple DoF Blur", TW_TYPE_DOUBLE, &simpleDofBlurComputeTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Simple DoF Fill", TW_TYPE_DOUBLE, &simpleDofFillComputeTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Simple DoF Composite", TW_TYPE_DOUBLE, &simpleDofCompositeComputeTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Sprite DoF Render", TW_TYPE_DOUBLE, &spriteDofRenderTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Sprite DoF Composite", TW_TYPE_DOUBLE, &spriteDofCompositeComputeTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Coc Tile Max", TW_TYPE_DOUBLE, &cocTileMaxRenderTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Coc Neighbor Tile Max", TW_TYPE_DOUBLE, &cocNeighborTileMaxRenderTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Tiled DoF Downsample", TW_TYPE_DOUBLE, &seperateDofDownsampleComputeTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Tiled DoF Blur", TW_TYPE_DOUBLE, &seperateDofBlurComputeTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Tiled DoF Fill", TW_TYPE_DOUBLE, &seperateDofFillComputeTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Tiled DoF Composite", TW_TYPE_DOUBLE, &seperateDofCompositeComputeTime, "group=Timings");
+
+				// summed timings
+				TwAddVarRO(settingsTweakBar, "GTAO Total", TW_TYPE_DOUBLE, &gtaoSum, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "HBAO Total", TW_TYPE_DOUBLE, &hbaoSum, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "SSAO Total", TW_TYPE_DOUBLE, &ssaoSum, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "SSAO (Original) Total", TW_TYPE_DOUBLE, &ssaoOriginalSum, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Simple DoF Total", TW_TYPE_DOUBLE, &simpleDofSum, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Sprite DoF Total", TW_TYPE_DOUBLE, &spriteDofSum, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "Tiled DoF Total", TW_TYPE_DOUBLE, &tiledDofSum, "group=Timings");
 			}
 
 			// mouse
@@ -409,6 +458,21 @@ namespace App
 		frameTimeStr = std::to_string(timeDelta * 1000.0).substr(0, 6);
 		frameTimeAvgStr = std::to_string(frameTimeAvg * 1000.0).substr(0, 6);
 		frameTimeWorstStr = std::to_string(worstFrameTime * 1000.0).substr(0, 6);
+
+		gtaoSum = gtaoRenderTime + gtaoSpatialDenoiseTime + gtaoTemporalDenoiseTime;
+		gtaoSum *= ambientOcclusion->get() == int(AmbientOcclusion::GTAO);
+		hbaoSum = hbaoRenderTime + bilateralBlurRenderTime;
+		hbaoSum *= ambientOcclusion->get() == int(AmbientOcclusion::HBAO);
+		ssaoSum = ssaoRenderTime + bilateralBlurRenderTime;
+		ssaoSum *= ambientOcclusion->get() == int(AmbientOcclusion::SSAO);
+		ssaoOriginalSum = originalSsaoRenderTime + bilateralBlurRenderTime;
+		ssaoOriginalSum *= ambientOcclusion->get() == int(AmbientOcclusion::SSAO_ORIGINAL);
+		simpleDofSum = cocComputeTime + simpleDofCocBlurComputeTime + simpleDofBlurComputeTime + simpleDofFillComputeTime + simpleDofCompositeComputeTime;
+		simpleDofSum *= depthOfField->get() == int(DepthOfField::SIMPLE);
+		spriteDofSum = cocComputeTime + spriteDofRenderTime + spriteDofCompositeComputeTime;
+		spriteDofSum *= depthOfField->get() == int(DepthOfField::SPRITE_BASED);
+		tiledDofSum = cocComputeTime + cocTileMaxRenderTime + cocNeighborTileMaxRenderTime + seperateDofDownsampleComputeTime + seperateDofBlurComputeTime + seperateDofFillComputeTime + seperateDofCompositeComputeTime;
+		tiledDofSum *= depthOfField->get() == int(DepthOfField::TILE_BASED_SEPERATE);
 
 		if (guiVisible)
 		{

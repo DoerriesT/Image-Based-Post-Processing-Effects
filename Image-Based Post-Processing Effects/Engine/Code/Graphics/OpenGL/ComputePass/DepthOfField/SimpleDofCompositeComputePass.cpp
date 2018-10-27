@@ -1,5 +1,6 @@
 #include "SimpleDofCompositeComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 SimpleDofCompositeComputePass::SimpleDofCompositeComputePass(unsigned int _width, unsigned int _height)
 	:m_width(_width),
@@ -8,8 +9,11 @@ SimpleDofCompositeComputePass::SimpleDofCompositeComputePass(unsigned int _width
 	m_compositeShader = ShaderProgram::createShaderProgram("Resources/Shaders/DepthOfField/dofSimpleComposite.comp");
 }
 
+double simpleDofCompositeComputeTime;
+
 void SimpleDofCompositeComputePass::execute(GLuint _destinationTexture)
 {
+	GLTimerQuery timer(simpleDofCompositeComputeTime);
 	m_compositeShader->bind();
 
 	glBindImageTexture(0, _destinationTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);

@@ -1,5 +1,6 @@
 #include "CocComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 CocComputePass::CocComputePass(unsigned int _width, unsigned int _height)
 	:m_width(_width),
@@ -12,8 +13,11 @@ CocComputePass::CocComputePass(unsigned int _width, unsigned int _height)
 	m_uNearFar.create(m_cocShader);
 }
 
+double cocComputeTime;
+
 void CocComputePass::execute(GLuint _depthTexture, GLuint _destinationCocTexture, float _fieldOfView, float _nearPlane, float _farPlane)
 {
+	GLTimerQuery timer(cocComputeTime);
 	m_cocShader->bind();
 
 	const float filmWidth = 0.035f;

@@ -2,6 +2,7 @@
 #include "Graphics\OpenGL\GLUtility.h"
 #include "Graphics\SampleKernel.h"
 #include <glm/trigonometric.hpp>
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 SeperateDofFillComputePass::SeperateDofFillComputePass(unsigned int _width, unsigned int _height)
 	:m_fillSamplesSet(false),
@@ -16,8 +17,11 @@ SeperateDofFillComputePass::SeperateDofFillComputePass(unsigned int _width, unsi
 	}
 }
 
+double seperateDofFillComputeTime;
+
 void SeperateDofFillComputePass::execute(GLuint * _dofTextures)
 {
+	GLTimerQuery timer(seperateDofFillComputeTime);
 	m_fillShader->bind();
 
 	if (!m_fillSamplesSet)

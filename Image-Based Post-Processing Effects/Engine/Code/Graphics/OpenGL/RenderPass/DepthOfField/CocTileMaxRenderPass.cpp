@@ -1,4 +1,5 @@
 #include "CocTileMaxRenderPass.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 CocTileMaxRenderPass::CocTileMaxRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -30,8 +31,11 @@ CocTileMaxRenderPass::CocTileMaxRenderPass(GLuint _fbo, unsigned int _width, uns
 	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
+double cocTileMaxRenderTime;
+
 void CocTileMaxRenderPass::render(GLuint _inputCocTexture, GLuint _intermediaryTexture, GLuint _cocTileMaxTexture, unsigned int _tileSize, RenderPass ** _previousRenderPass)
 {
+	GLTimerQuery timer(cocTileMaxRenderTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

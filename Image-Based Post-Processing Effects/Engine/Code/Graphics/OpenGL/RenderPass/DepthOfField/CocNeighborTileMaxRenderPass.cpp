@@ -1,4 +1,5 @@
 #include "CocNeighborTileMaxRenderPass.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 CocNeighborTileMaxRenderPass::CocNeighborTileMaxRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -27,8 +28,11 @@ CocNeighborTileMaxRenderPass::CocNeighborTileMaxRenderPass(GLuint _fbo, unsigned
 	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
+double cocNeighborTileMaxRenderTime;
+
 void CocNeighborTileMaxRenderPass::render(GLuint _cocTileMaxTexture, GLuint _cocNeighborTileMaxTexture, RenderPass ** _previousRenderPass)
 {
+	GLTimerQuery timer(cocNeighborTileMaxRenderTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 
