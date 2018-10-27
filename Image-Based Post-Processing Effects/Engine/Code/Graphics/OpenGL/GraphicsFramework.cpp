@@ -100,6 +100,8 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 {
 	static glm::mat4 prevViewProjectionMatrix;
 	static glm::mat4 prevInvJitter;
+	static glm::mat4 prevInvViewMatrix;
+	static glm::mat4 prevInvProjectionMatrix;
 
 	glm::vec2 jitters[] =
 	{
@@ -126,6 +128,8 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 		renderData.m_viewProjectionMatrix = renderData.m_projectionMatrix * renderData.m_viewMatrix;
 		renderData.m_invViewProjectionMatrix = glm::inverse(renderData.m_viewProjectionMatrix);
 		renderData.m_prevViewProjectionMatrix = prevViewProjectionMatrix;
+		renderData.m_prevInvViewMatrix = prevInvViewMatrix;
+		renderData.m_prevInvProjectionMatrix = prevInvProjectionMatrix;
 		renderData.m_resolution = std::make_pair(m_window->getWidth(), m_window->getHeight());
 		renderData.m_shadows = _effects.m_shadowQuality != ShadowQuality::OFF;
 		renderData.m_time = (float)Engine::getTime();
@@ -141,6 +145,8 @@ void GraphicsFramework::render(const std::shared_ptr<Camera> &_camera, const Sce
 
 		prevViewProjectionMatrix = renderData.m_viewProjectionMatrix;
 		prevInvJitter = renderData.m_invJitter;
+		prevInvViewMatrix = renderData.m_invViewMatrix;
+		prevInvProjectionMatrix = renderData.m_invProjectionMatrix;
 	}
 	
 

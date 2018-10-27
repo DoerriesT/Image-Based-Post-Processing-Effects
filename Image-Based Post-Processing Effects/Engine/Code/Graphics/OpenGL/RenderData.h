@@ -15,6 +15,8 @@ struct RenderData
 	glm::mat4 m_viewProjectionMatrix;
 	glm::mat4 m_invViewProjectionMatrix;
 	glm::mat4 m_prevViewProjectionMatrix;
+	glm::mat4 m_prevInvProjectionMatrix;
+	glm::mat4 m_prevInvViewMatrix;
 	glm::mat4 m_invJitter;
 	glm::mat4 m_prevInvJitter;
 	glm::vec3 m_cameraPosition;

@@ -11,10 +11,19 @@ layout(binding=5) uniform sampler2D uPreviousTexture;
 layout(binding=6) uniform sampler2D uInputTexture;
 
 uniform float uFrameTime;
+uniform mat4 uPrevInvProjection;
+uniform mat4 uPrevInvView;
+uniform mat4 uInvProjection;
+uniform mat4 uInvView;
 
 float calulateAlpha(float frameTime, float convergenceTime)
 {
 	return exp(-frameTime / convergenceTime);
+}
+
+float length2(vec3 v)
+{
+	return dot(v, v);
 }
 
 void main(void)
@@ -32,6 +41,20 @@ void main(void)
 
 	// is the reprojected coordinate inside the frame?
 	float insideFrame = float(reprojectedCoord.x < 1.0 && reprojectedCoord.y < 1.0 && reprojectedCoord.x >= 0.0 && reprojectedCoord.y >= 0.0);
+
+	vec4 previousViewPos = uPrevInvProjection * vec4(reprojectedCoord * 2.0 - 1.0, 0.0, 1.0);
+	previousViewPos.xyw *= 1.0 / previousViewPos.w;
+	previousViewPos.z = -previousAo.y;
+	vec4 previousWorldPos = uPrevInvView * previousViewPos;
+	previousWorldPos.xyz /= previousWorldPos.w;
+
+	vec4 currentViewPos = uInvProjection * vec4(vTexCoord * 2.0 - 1.0, 0.0, 1.0);
+	currentViewPos.xyw *= 1.0 / currentViewPos.w;
+	currentViewPos.z = -depth;
+	vec4 currentWorldPos = uInvView * currentViewPos;
+	currentWorldPos.xyz /= currentWorldPos.w;
+
+	float disocclusionWeight = 1.0 - clamp(length2(abs(currentWorldPos.xyz - previousWorldPos.xyz)) * (1.0 / (0.5 * 0.5)), 0.0, 1.0);
 	
 	// based on depth, how likely describes the value the same point?
 	float depthWeight = clamp(1.0 - ((depth - previousAo.y) / (depth * 0.01)), 0.0, 1.0);
@@ -82,7 +105,7 @@ void main(void)
 	
 	//float convergenceAlpha = calulateAlpha(uFrameTime, velocityWeight * 0.5 * (1.0 / 60.0) * 24.0);
 	
-	ao = mix(ao, previousAo.x, (23.0 / 24.0) * depthWeight * velocityWeight * insideFrame);
+	ao = mix(ao, previousAo.x, (23.0 / 24.0) * disocclusionWeight * velocityWeight * insideFrame);
 	
 	oColor = vec4(ao, depth, 0.0, 1.0);
 }

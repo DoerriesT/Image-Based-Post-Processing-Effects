@@ -28,6 +28,10 @@ GTAOTemporalDenoiseRenderPass::GTAOTemporalDenoiseRenderPass(GLuint _fbo, unsign
 	m_gtaoDenoiseShader = ShaderProgram::createShaderProgram("Resources/Shaders/Shared/fullscreenTriangle.vert", "Resources/Shaders/SSAO/gtaoTemporalDenoise.frag");
 
 	m_uFrameTime.create(m_gtaoDenoiseShader);
+	m_uInvProjection.create(m_gtaoDenoiseShader);
+	m_uInvView.create(m_gtaoDenoiseShader);
+	m_uPrevInvProjection.create(m_gtaoDenoiseShader);
+	m_uPrevInvView.create(m_gtaoDenoiseShader);
 
 	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
@@ -45,6 +49,10 @@ void GTAOTemporalDenoiseRenderPass::render(const RenderData & _renderData, const
 
 	glm::vec2 texelSize = 1.0f / glm::vec2(_renderData.m_resolution.first, _renderData.m_resolution.second);
 	m_uFrameTime.set((float)Engine::getTimeDelta());
+	m_uInvProjection.set(_renderData.m_invProjectionMatrix);
+	m_uInvView.set(_renderData.m_invViewMatrix);
+	m_uPrevInvProjection.set(_renderData.m_prevInvProjectionMatrix);
+	m_uPrevInvView.set(_renderData.m_prevInvViewMatrix);
 
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, _velocityTexture);

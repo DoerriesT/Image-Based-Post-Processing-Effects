@@ -20,5 +20,8 @@ private:
 	std::shared_ptr<Mesh> m_fullscreenTriangle;
 
 	Uniform<GLfloat> m_uFrameTime = Uniform<GLfloat>("uFrameTime");
-
+	Uniform<glm::mat4> m_uInvProjection = Uniform<glm::mat4>("uInvProjection");
+	Uniform<glm::mat4> m_uInvView = Uniform<glm::mat4>("uInvView");
+	Uniform<glm::mat4> m_uPrevInvProjection = Uniform<glm::mat4>("uPrevInvProjection");
+	Uniform<glm::mat4> m_uPrevInvView = Uniform<glm::mat4>("uPrevInvView");
 };
