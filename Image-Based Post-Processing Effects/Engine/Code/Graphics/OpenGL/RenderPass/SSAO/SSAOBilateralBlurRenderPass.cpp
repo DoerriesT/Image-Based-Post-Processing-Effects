@@ -1,6 +1,7 @@
 #include "SSAOBilateralBlurRenderPass.h"
 #include "Graphics\OpenGL\RenderData.h"
 #include "Graphics\Effects.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 SSAOBilateralBlurRenderPass::SSAOBilateralBlurRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -29,8 +30,11 @@ SSAOBilateralBlurRenderPass::SSAOBilateralBlurRenderPass(GLuint _fbo, unsigned i
 	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
+double bilateralBlurRenderTime;
+
 void SSAOBilateralBlurRenderPass::render(const RenderData & _renderData, const Effects & _effects, GLuint _ssaoTexture, RenderPass **_previousRenderPass)
 {
+	GLTimerQuery timer(bilateralBlurRenderTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

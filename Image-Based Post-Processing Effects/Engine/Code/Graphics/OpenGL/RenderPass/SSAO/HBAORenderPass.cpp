@@ -2,6 +2,7 @@
 #include <glm\ext.hpp>
 #include "Graphics\OpenGL\RenderData.h"
 #include "Graphics\Effects.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 HBAORenderPass::HBAORenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -44,8 +45,11 @@ HBAORenderPass::HBAORenderPass(GLuint _fbo, unsigned int _width, unsigned int _h
 	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
+double hbaoRenderTime;
+
 void HBAORenderPass::render(const RenderData & _renderData, const Effects & _effects, GLuint _noiseTexture, RenderPass **_previousRenderPass)
 {
+	GLTimerQuery timer(hbaoRenderTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

@@ -2,6 +2,7 @@
 #include <random>
 #include "Graphics\Effects.h"
 #include "Graphics\OpenGL\RenderData.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 SSAORenderPass::SSAORenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -42,8 +43,11 @@ SSAORenderPass::SSAORenderPass(GLuint _fbo, unsigned int _width, unsigned int _h
 	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
+double ssaoRenderTime;
+
 void SSAORenderPass::render(const RenderData & _renderData, const Effects & _effects, GLuint _noiseTexture, RenderPass **_previousRenderPass)
 {
+	GLTimerQuery timer(ssaoRenderTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

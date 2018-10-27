@@ -39,6 +39,10 @@ extern bool anamorphicFlares;
 extern double gtaoRenderTime;
 extern double gtaoSpatialDenoiseTime;
 extern double gtaoTemporalDenoiseTime;
+extern double hbaoRenderTime;
+extern double bilateralBlurRenderTime;
+extern double originalSsaoRenderTime;
+extern double ssaoRenderTime;
 
 namespace App
 {
@@ -180,6 +184,10 @@ namespace App
 				TwAddVarRO(settingsTweakBar, "GTAO Render", TW_TYPE_DOUBLE, &gtaoRenderTime, "group=Timings");
 				TwAddVarRO(settingsTweakBar, "GTAO Spatial", TW_TYPE_DOUBLE, &gtaoSpatialDenoiseTime, "group=Timings");
 				TwAddVarRO(settingsTweakBar, "GTAO Temporal", TW_TYPE_DOUBLE, &gtaoTemporalDenoiseTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "HBAO", TW_TYPE_DOUBLE, &hbaoRenderTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "SSAO", TW_TYPE_DOUBLE, &ssaoRenderTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "SSAO (Original)", TW_TYPE_DOUBLE, &originalSsaoRenderTime, "group=Timings");
+				TwAddVarRO(settingsTweakBar, "SSAO Blur", TW_TYPE_DOUBLE, &bilateralBlurRenderTime, "group=Timings");
 			}
 
 			// mouse
