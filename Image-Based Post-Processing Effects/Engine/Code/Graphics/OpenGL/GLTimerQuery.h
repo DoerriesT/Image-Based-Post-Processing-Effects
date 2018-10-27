@@ -1,6 +1,16 @@
 #pragma once
 #include <glad/glad.h>
 
+#ifndef PROFILING_ENABLED
+#define PROFILING_ENABLED 0
+#endif // !PROFILING_ENABLED
+
+#if PROFILING_ENABLED
+#define SCOPED_TIMER_QUERY(x) GLTimerQuery timer(x);
+#else
+#define SCOPED_TIMER_QUERY(x)
+#endif // PROFILING_ENABLED
+
 class GLTimerQuery
 {
 public:

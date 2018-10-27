@@ -34,7 +34,7 @@ double bilateralBlurRenderTime;
 
 void SSAOBilateralBlurRenderPass::render(const RenderData & _renderData, const Effects & _effects, GLuint _ssaoTexture, RenderPass **_previousRenderPass)
 {
-	GLTimerQuery timer(bilateralBlurRenderTime);
+	SCOPED_TIMER_QUERY(bilateralBlurRenderTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

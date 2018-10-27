@@ -13,7 +13,7 @@ double seperateDofDownsampleComputeTime;
 
 void SeperateDofDownsampleComputePass::execute(GLuint _colorTexture, GLuint _cocTexture, GLuint _destinationCocTexture, GLuint _destinationNearTexture, GLuint _destinationFarTexture)
 {
-	GLTimerQuery timer(seperateDofDownsampleComputeTime);
+	SCOPED_TIMER_QUERY(seperateDofDownsampleComputeTime);
 	m_downsampleShader->bind();
 
 	glActiveTexture(GL_TEXTURE0);

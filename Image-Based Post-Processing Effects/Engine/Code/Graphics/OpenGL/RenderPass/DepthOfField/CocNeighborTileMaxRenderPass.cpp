@@ -32,7 +32,7 @@ double cocNeighborTileMaxRenderTime;
 
 void CocNeighborTileMaxRenderPass::render(GLuint _cocTileMaxTexture, GLuint _cocNeighborTileMaxTexture, RenderPass ** _previousRenderPass)
 {
-	GLTimerQuery timer(cocNeighborTileMaxRenderTime);
+	SCOPED_TIMER_QUERY(cocNeighborTileMaxRenderTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

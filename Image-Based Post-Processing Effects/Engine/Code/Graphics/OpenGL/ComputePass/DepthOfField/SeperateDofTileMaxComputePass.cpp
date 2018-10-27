@@ -15,7 +15,7 @@ double seperateDofTileMaxComputeTime;
 
 void SeperateDofTileMaxComputePass::execute(GLuint _cocTexture)
 {
-	GLTimerQuery timer(seperateDofTileMaxComputeTime);
+	SCOPED_TIMER_QUERY(seperateDofTileMaxComputeTime);
 	m_tileMaxShader->bind();
 
 	glActiveTexture(GL_TEXTURE0);

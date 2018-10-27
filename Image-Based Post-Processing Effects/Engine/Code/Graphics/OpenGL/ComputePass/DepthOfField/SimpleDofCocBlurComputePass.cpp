@@ -15,7 +15,7 @@ double simpleDofCocBlurComputeTime;
 
 void SimpleDofCocBlurComputePass::execute(GLuint _cocTexture, GLuint * _destinationTextures)
 {
-	GLTimerQuery timer(simpleDofCocBlurComputeTime);
+	SCOPED_TIMER_QUERY(simpleDofCocBlurComputeTime);
 	m_cocBlurShader->bind();
 	m_uDirection.set(false);
 

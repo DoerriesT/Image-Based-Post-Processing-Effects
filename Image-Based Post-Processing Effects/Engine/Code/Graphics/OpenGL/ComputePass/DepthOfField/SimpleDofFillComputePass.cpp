@@ -20,7 +20,7 @@ double simpleDofFillComputeTime;
 
 void SimpleDofFillComputePass::execute(GLuint *_resultTextures)
 {
-	GLTimerQuery timer(simpleDofFillComputeTime);
+	SCOPED_TIMER_QUERY(simpleDofFillComputeTime);
 	m_fillShader->bind();
 
 	if (!m_fillSamplesSet)

@@ -17,7 +17,7 @@ double cocComputeTime;
 
 void CocComputePass::execute(GLuint _depthTexture, GLuint _destinationCocTexture, float _fieldOfView, float _nearPlane, float _farPlane)
 {
-	GLTimerQuery timer(cocComputeTime);
+	SCOPED_TIMER_QUERY(cocComputeTime);
 	m_cocShader->bind();
 
 	const float filmWidth = 0.035f;

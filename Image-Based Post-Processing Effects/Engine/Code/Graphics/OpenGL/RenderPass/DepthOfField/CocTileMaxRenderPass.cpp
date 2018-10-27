@@ -35,7 +35,7 @@ double cocTileMaxRenderTime;
 
 void CocTileMaxRenderPass::render(GLuint _inputCocTexture, GLuint _intermediaryTexture, GLuint _cocTileMaxTexture, unsigned int _tileSize, RenderPass ** _previousRenderPass)
 {
-	GLTimerQuery timer(cocTileMaxRenderTime);
+	SCOPED_TIMER_QUERY(cocTileMaxRenderTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

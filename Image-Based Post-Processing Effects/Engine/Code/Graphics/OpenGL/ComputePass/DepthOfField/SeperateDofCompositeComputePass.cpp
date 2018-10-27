@@ -13,7 +13,7 @@ double seperateDofCompositeComputeTime;
 
 void SeperateDofCompositeComputePass::execute(GLuint _colorTexture, GLuint _cocTexture, GLuint _destinationTexture)
 {
-	GLTimerQuery timer(seperateDofCompositeComputeTime);
+	SCOPED_TIMER_QUERY(seperateDofCompositeComputeTime);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _colorTexture);
 	glActiveTexture(GL_TEXTURE1);

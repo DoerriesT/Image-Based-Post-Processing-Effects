@@ -21,7 +21,7 @@ double seperateDofFillComputeTime;
 
 void SeperateDofFillComputePass::execute(GLuint * _dofTextures)
 {
-	GLTimerQuery timer(seperateDofFillComputeTime);
+	SCOPED_TIMER_QUERY(seperateDofFillComputeTime);
 	m_fillShader->bind();
 
 	if (!m_fillSamplesSet)

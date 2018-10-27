@@ -33,7 +33,7 @@ double originalSsaoRenderTime;
 
 void SSAOOriginalRenderPass::render(const RenderData &_renderData, const Effects &_effects, GLuint _noiseTexture, RenderPass **_previousRenderPass)
 {
-	GLTimerQuery timer(originalSsaoRenderTime);
+	SCOPED_TIMER_QUERY(originalSsaoRenderTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

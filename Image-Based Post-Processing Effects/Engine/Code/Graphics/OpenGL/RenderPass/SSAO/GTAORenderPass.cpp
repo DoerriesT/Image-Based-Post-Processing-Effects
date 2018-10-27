@@ -45,7 +45,7 @@ double gtaoRenderTime;
 
 void GTAORenderPass::render(const RenderData &_renderData, const Effects &_effects, RenderPass **_previousRenderPass)
 {
-	GLTimerQuery timer(gtaoRenderTime);
+	SCOPED_TIMER_QUERY(gtaoRenderTime);
 	m_drawBuffers[0] = _renderData.m_frame % 2 ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;

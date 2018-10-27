@@ -49,7 +49,7 @@ double hbaoRenderTime;
 
 void HBAORenderPass::render(const RenderData & _renderData, const Effects & _effects, GLuint _noiseTexture, RenderPass **_previousRenderPass)
 {
-	GLTimerQuery timer(hbaoRenderTime);
+	SCOPED_TIMER_QUERY(hbaoRenderTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

@@ -13,7 +13,7 @@ double simpleDofCompositeComputeTime;
 
 void SimpleDofCompositeComputePass::execute(GLuint _destinationTexture)
 {
-	GLTimerQuery timer(simpleDofCompositeComputeTime);
+	SCOPED_TIMER_QUERY(simpleDofCompositeComputeTime);
 	m_compositeShader->bind();
 
 	glBindImageTexture(0, _destinationTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);

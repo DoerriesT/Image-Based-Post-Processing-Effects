@@ -65,7 +65,7 @@ double spriteDofRenderTime;
 
 void SpriteDofRenderPass::render(GLuint _colorTexture, GLuint _depthTexture, GLuint _cocTexture, GLuint _destinationTexture, RenderPass ** _previousRenderPass)
 {
-	GLTimerQuery timer(spriteDofRenderTime);
+	SCOPED_TIMER_QUERY(spriteDofRenderTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

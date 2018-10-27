@@ -20,7 +20,7 @@ double simpleDofBlurComputeTime;
 
 void SimpleDofBlurComputePass::execute(GLuint _colorTexture, GLuint _cocTexture, GLuint * _dofTextures)
 {
-	GLTimerQuery timer(simpleDofBlurComputeTime);
+	SCOPED_TIMER_QUERY(simpleDofBlurComputeTime);
 	m_blurShader->bind();
 
 	if (!m_blurSamplesSet)

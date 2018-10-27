@@ -36,7 +36,7 @@ double gtaoTemporalDenoiseTime;
 
 void GTAOTemporalDenoiseRenderPass::render(const RenderData & _renderData, const Effects & _effects, GLuint _velocityTexture, GLuint * _ssaoTextures, RenderPass **_previousRenderPass)
 {
-	GLTimerQuery timer(gtaoTemporalDenoiseTime);
+	SCOPED_TIMER_QUERY(gtaoTemporalDenoiseTime);
 	m_drawBuffers[0] = _renderData.m_frame % 2 ? GL_COLOR_ATTACHMENT2 : GL_COLOR_ATTACHMENT0;
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
