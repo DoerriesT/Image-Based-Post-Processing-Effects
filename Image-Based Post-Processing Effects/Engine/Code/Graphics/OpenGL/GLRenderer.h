@@ -75,8 +75,6 @@ class SeperateDofTileMaxComputePass;
 class AntiAliasingTonemapComputePass;
 class AntiAliasingReverseTonemapComputePass;
 class BoundingBoxRenderPass;
-class DeinterleaveRenderPass;
-class ReinterleaveRenderPass;
 
 class GLRenderer
 {
@@ -126,8 +124,6 @@ private:
 	std::unique_ptr<ForwardCustomRenderPass> m_forwardCustomRenderPass;
 	std::unique_ptr<OutlineRenderPass> m_outlineRenderPass;
 	std::unique_ptr<LightProbeRenderPass> m_lightProbeRenderPass;
-	std::unique_ptr<DeinterleaveRenderPass> m_deinterleaveRenderPass;
-	std::unique_ptr<ReinterleaveRenderPass> m_reinterleaveRenderPass;
 
 	// post-processing
 	std::unique_ptr<AnamorphicPrefilterComputePass> m_anamorphicPrefilterComputePass;

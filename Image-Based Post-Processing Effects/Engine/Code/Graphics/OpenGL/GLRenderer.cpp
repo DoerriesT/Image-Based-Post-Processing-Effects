@@ -68,8 +68,6 @@
 #include "ComputePass/AntiAliasing/AntiAliasingTonemapComputePass.h"
 #include "ComputePass/AntiAliasing/AntiAliasingReverseTonemapComputePass.h"
 #include "RenderPass/Debug/BoundingBoxRenderPass.h"
-#include "RenderPass/SSAO/DeinterleaveRenderPass.h"
-#include "RenderPass/SSAO/ReinterleaveRenderPass.h"
 
 unsigned int mbTileSize = 40;
 unsigned int dofTileSize = 16;
@@ -111,8 +109,6 @@ void GLRenderer::init(unsigned int width, unsigned int height)
 	m_forwardCustomRenderPass = std::make_unique<ForwardCustomRenderPass>(m_renderResources->m_gBufferFbo, width, height);
 	m_outlineRenderPass = std::make_unique<OutlineRenderPass>(m_renderResources->m_gBufferFbo, width, height);
 	m_lightProbeRenderPass = std::make_unique<LightProbeRenderPass>(m_renderResources->m_gBufferFbo, width, height);
-	m_deinterleaveRenderPass = std::make_unique<DeinterleaveRenderPass>(m_renderResources->m_deinterleaveFbo, width, height);
-	m_reinterleaveRenderPass = std::make_unique<ReinterleaveRenderPass>(m_renderResources->m_ssaoFbo, width, height);
 
 	m_anamorphicPrefilterComputePass = std::make_unique<AnamorphicPrefilterComputePass>(width, height);
 	m_anamorphicDownsampleComputePass = std::make_unique<AnamorphicDownsampleComputePass>(width, height);
@@ -465,8 +461,6 @@ void GLRenderer::resize(unsigned int width, unsigned int height)
 	m_forwardCustomRenderPass->resize(width, height);
 	m_outlineRenderPass->resize(width, height);
 	m_lightProbeRenderPass->resize(width, height);
-	m_deinterleaveRenderPass->resize(width, height);
-	m_reinterleaveRenderPass->resize(width, height);
 
 	m_anamorphicPrefilterComputePass->resize(width, height);
 	m_anamorphicDownsampleComputePass->resize(width, height);

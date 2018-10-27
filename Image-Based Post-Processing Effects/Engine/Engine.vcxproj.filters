@@ -743,9 +743,6 @@
     <ClInclude Include="Code\Graphics\OpenGL\GLRenderResources.h">
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\DeinterleaveRenderPass.h">
-      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\ReinterleaveRenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClInclude>
@@ -1224,9 +1221,6 @@
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\GLRenderResources.cpp">
       <Filter>Code\Graphics\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\DeinterleaveRenderPass.cpp">
-      <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\ReinterleaveRenderPass.cpp">
       <Filter>Code\Graphics\OpenGL\RenderPass\SSAO</Filter>
