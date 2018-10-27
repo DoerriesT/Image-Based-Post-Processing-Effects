@@ -27,6 +27,7 @@ private:
 	GLuint m_velocityFbo;
 	GLuint m_cocFbo;
 	GLuint m_debugFbo;
+	GLuint m_deinterleaveFbo;
 
 	// textures
 	GLuint m_brdfLUT;
@@ -77,6 +78,9 @@ private:
 	GLuint m_cocNeighborMaxTex;
 	GLuint m_anamorphicPrefilter;
 	GLuint m_anamorphicChain[6];
+	GLuint m_deinterleavedDepthArrayTexture;
+	GLuint m_deinterleavedAoArrayTexture;
+	GLuint m_deinterleavedDepthViews[16];
 
 	explicit GLRenderResources(unsigned int width, unsigned int height);
 	void createResizableTextures(unsigned int width, unsigned int height);

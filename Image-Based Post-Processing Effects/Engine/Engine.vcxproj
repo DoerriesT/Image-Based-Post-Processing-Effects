@@ -99,7 +99,9 @@
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityNeighborTileMaxRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\VelocityTileMaxRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\DeinterleaveRenderPass.h" />
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAOTemporalDenoiseRenderPass.h" />
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\SSAO\ReinterleaveRenderPass.h" />
     <ClInclude Include="Code\Graphics\SampleKernel.h" />
     <ClInclude Include="Code\Graphics\Volume.h" />
     <ClInclude Include="Code\Graphics\Model.h" />
@@ -312,10 +314,12 @@
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Ocean\TildeHktRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\RenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\Shadow\ShadowRenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\DeinterleaveRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAOSpatialDenoiseRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAORenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\GTAOTemporalDenoiseRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\HBAORenderPass.cpp" />
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\ReinterleaveRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOBilateralBlurRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOBlurRenderPass.cpp" />
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\SSAO\SSAOOriginalRenderPass.cpp" />

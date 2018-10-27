@@ -19,6 +19,7 @@ GLRenderResources::~GLRenderResources()
 		m_velocityFbo,
 		m_cocFbo,
 		m_debugFbo,
+		m_deinterleaveFbo
 	};
 
 	glDeleteFramebuffers(sizeof(fbos) / sizeof(GLuint), fbos);
@@ -41,6 +42,7 @@ GLRenderResources::GLRenderResources(unsigned int width, unsigned int height)
 	glGenFramebuffers(1, &m_velocityFbo);
 	glGenFramebuffers(1, &m_cocFbo);
 	glGenFramebuffers(1, &m_debugFbo);
+	glGenFramebuffers(1, &m_deinterleaveFbo);
 
 	createAllTextures(width, height);
 }
@@ -190,6 +192,41 @@ void GLRenderResources::createResizableTextures(unsigned int width, unsigned int
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_ssaoTextureC, 0);
+
+	// deinterleaved ssao
+	{
+		unsigned int quarterWidth = ((width + 3) / 4);
+		unsigned int quarterHeight = ((height + 3) / 4);
+
+		glGenTextures(1, &m_deinterleavedDepthArrayTexture);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, m_deinterleavedDepthArrayTexture);
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_R32F, quarterWidth, quarterHeight, 16);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glGenTextures(16, m_deinterleavedDepthViews);
+
+		for (unsigned int i = 0; i < 16; ++i)
+		{
+			glTextureView(m_deinterleavedDepthViews[i], GL_TEXTURE_2D, m_deinterleavedDepthArrayTexture, GL_R32F, 0, 1, i, 1);
+			glBindTexture(GL_TEXTURE_2D, m_deinterleavedDepthViews[i]);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}
+
+		glGenTextures(1, &m_deinterleavedAoArrayTexture);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, m_deinterleavedAoArrayTexture);
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RG16F, quarterWidth, quarterHeight, 16);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+	
 
 	// full res
 	{
@@ -651,6 +688,24 @@ void GLRenderResources::deleteResizableTextures()
 		m_anamorphicChain[3],
 		m_anamorphicChain[4],
 		m_anamorphicChain[5],
+		m_deinterleavedAoArrayTexture,
+		m_deinterleavedDepthArrayTexture,
+		m_deinterleavedDepthViews[0],
+		m_deinterleavedDepthViews[1],
+		m_deinterleavedDepthViews[2],
+		m_deinterleavedDepthViews[3],
+		m_deinterleavedDepthViews[4],
+		m_deinterleavedDepthViews[5],
+		m_deinterleavedDepthViews[6],
+		m_deinterleavedDepthViews[7],
+		m_deinterleavedDepthViews[8],
+		m_deinterleavedDepthViews[9],
+		m_deinterleavedDepthViews[10],
+		m_deinterleavedDepthViews[11],
+		m_deinterleavedDepthViews[12],
+		m_deinterleavedDepthViews[13],
+		m_deinterleavedDepthViews[14],
+		m_deinterleavedDepthViews[15],
 	};
 
 	glDeleteTextures(sizeof(textures) / sizeof(GLuint), textures);
