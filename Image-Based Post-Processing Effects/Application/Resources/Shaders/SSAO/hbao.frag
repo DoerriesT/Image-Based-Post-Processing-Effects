@@ -30,7 +30,7 @@ uniform float uNumSteps = 4;
 vec3 getViewSpacePos(vec2 uv)
 {
 	float depth = texture(uDepthMap, uv).r;
-	vec4 clipSpacePosition = vec4(uv * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
+	vec4 clipSpacePosition = vec4(vec3(uv, depth) * 2.0 - 1.0, 1.0);
 	vec4 viewSpacePosition = uInverseProjection * clipSpacePosition;
 	viewSpacePosition /= viewSpacePosition.w;
 	viewSpacePosition.z = -viewSpacePosition.z;

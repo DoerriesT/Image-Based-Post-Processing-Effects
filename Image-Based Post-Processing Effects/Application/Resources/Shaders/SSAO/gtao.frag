@@ -6,9 +6,7 @@ in vec2 vTexCoord;
 
 out vec4 oColor;
 
-layout(binding = 1) uniform sampler2D uNormalMap;
 layout(binding = 3) uniform sampler2D uDepthMap;
-layout(binding = 5) uniform sampler2D uNoiseMap;
 
 uniform float uFocalLength;
 uniform mat4 uInverseProjection;
@@ -29,22 +27,11 @@ vec3 getViewSpacePos(vec2 uv)
 {
 	uv *= uInvAORes;
 	float depth = texture(uDepthMap, uv).r;
-	vec4 clipSpacePosition = vec4(uv * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
+	vec4 clipSpacePosition = vec4(vec3(uv, depth) * 2.0 - 1.0, 1.0);
 	vec4 viewSpacePosition = uInverseProjection * clipSpacePosition;
 	viewSpacePosition /= viewSpacePosition.w;
 	//viewSpacePosition.z = -viewSpacePosition.z;
 	return viewSpacePosition.xyz;
-}
-
-vec3 decode (vec2 enc)
-{
-    vec2 fenc = enc * 4.0 - 2.0;
-    float f = dot(fenc, fenc);
-    float g = sqrt(1.0 - f * 0.25);
-    vec3 n;
-    n.xy = fenc * g;
-    n.z = 1.0 -f * 0.5;
-    return n;
 }
 
 vec3 minDiff(vec3 P, vec3 Pr, vec3 Pl)

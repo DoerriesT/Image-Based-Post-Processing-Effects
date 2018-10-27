@@ -19,17 +19,6 @@ uniform float uStrength = 1.0;
 const float NEAR_PLANE = 0.1;
 const float FAR_PLANE = 3000.0;
 
-vec3 decode (vec2 enc)
-{
-    vec2 fenc = enc * 4.0 - 2.0;
-    float f = dot(fenc, fenc);
-    float g = sqrt(1.0 - f * 0.25);
-    vec3 n;
-    n.xy = fenc * g;
-    n.z = 1.0 -f * 0.5;
-    return n;
-}
-
 float getLinearDepth(float depth)
 {
 	return NEAR_PLANE * FAR_PLANE / (FAR_PLANE - depth * (FAR_PLANE - NEAR_PLANE));
