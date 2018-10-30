@@ -128,10 +128,10 @@ void main()
 	
 	
 	// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-	const vec3 prefilteredColor = textureLod(uReflectionTexture, octEncode(correctedTexCoord) * 0.5 + 0.5, roughness * MAX_REFLECTION_LOD).rgb;
+	const vec3 prefilteredColor = textureLod(uReflectionTexture, octEncode(correctedTexCoord) * 0.5 + 0.5, roughness * roughness * MAX_REFLECTION_LOD).rgb;
 
 	const vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, roughness)).rg;
-	const vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
+	const vec3 specular = prefilteredColor * (F0 * brdf.x + brdf.y);
 
 	oFragColor.rgb = specular * computeSpecularOcclusion(NdotV, metallicRoughnessAoShaded.z, roughness);
 }

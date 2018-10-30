@@ -354,7 +354,7 @@ void main()
 	float avgLuminance = texelFetch(uLuminanceTexture, ivec2(0, 0), 0).x;
 	//float EV100 = computeEV100(16.0, 0.01, 100);
 	float EV100 = computeEV100FromAvgLuminance(avgLuminance);
-	EV100 -= 1.0;
+	//EV100 -= 1.0;
 	float exposure = convertEV100ToExposure(EV100);
 	color *= exposure;//calculateExposedColor(color, avgLuminance);
 #else

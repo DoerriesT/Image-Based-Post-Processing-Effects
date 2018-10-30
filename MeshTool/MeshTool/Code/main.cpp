@@ -235,8 +235,8 @@ int main()
 				dstMatFile << METALLIC_PATH_STRING + "\n";
 				dstMatFile << ROUGHNESS_PATH_STRING + "\n";
 				dstMatFile << AO_PATH_STRING + "\n";
-				dstMatFile << EMISSIVE_PATH_STRING + emissivePath + "\n\n";
-				dstMatFile << DISPLACEMENT_PATH_STRING + "\n";
+				dstMatFile << EMISSIVE_PATH_STRING + emissivePath + "\n";
+				dstMatFile << DISPLACEMENT_PATH_STRING + "\n\n";
 			}
 		}
 

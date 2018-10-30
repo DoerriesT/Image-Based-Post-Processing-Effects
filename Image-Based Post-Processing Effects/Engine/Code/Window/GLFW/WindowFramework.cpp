@@ -120,8 +120,8 @@ void WindowFramework::init()
 		int width = vidModes[i].width;
 		int height = vidModes[i].height;
 
-		// we only support resolutions of 800x600 and higher (also they must be evenly divisible by 8)
-		if (width < 800 || height < 600 || width % 8 != 0 || height % 8 != 0)
+		// we only support resolutions of 800x600 and higher
+		if (width < 800 || height < 600)
 		{
 			continue;
 		}

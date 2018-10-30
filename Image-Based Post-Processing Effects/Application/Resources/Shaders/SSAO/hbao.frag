@@ -209,7 +209,7 @@ void main(void)
 		}
 
 		// Average the results and produce the final AO
-		ao = clamp(1.0 - ao / uNumDirections * uStrength, 0.0, 1.0);
+		ao = pow(clamp(1.0 - ao / uNumDirections, 0.0, 1.0), uStrength);
 	}
 
 	oColor = vec4(ao, P.z, 0.0, 0.0);
