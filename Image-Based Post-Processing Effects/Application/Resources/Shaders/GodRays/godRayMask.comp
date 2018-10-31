@@ -17,5 +17,5 @@ void main()
 	vec3 color = texture(uColorTexture, texCoord).rgb;
 	float mask = float(depth == 1.0);
 
-	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(color * mask * 0.01, mask));
+	imageStore(uImgOut, ivec2(gl_GlobalInvocationID.xy), vec4(color * mask, mask));
 }

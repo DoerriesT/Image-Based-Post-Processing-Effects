@@ -28,6 +28,7 @@
 #define GETTER_FUNC_PTR(name) name##GetCallback
 #define SETTER_FUNC_PTR(name) name##SetCallback
 
+extern bool godrays;
 extern bool disp;
 bool renderLightProbes = false;
 extern GBufferDisplayMode displayMode;
@@ -373,6 +374,7 @@ namespace App
 				TwAddVarRW(settingsTweakBar, "GTAO Multi Bounce", TW_TYPE_BOOLCPP, &gtaoMultiBounce, "group=Ambient_Occlusion");
 			}
 
+			TwAddVarRW(settingsTweakBar, "God Rays", TW_TYPE_BOOLCPP, &godrays, nullptr);
 			TwAddVarRW(settingsTweakBar, "Parallax Occlusion Mapping", TW_TYPE_BOOLCPP, &disp, nullptr);
 			TwAddVarRW(settingsTweakBar, "Show Light Probes", TW_TYPE_BOOLCPP, &renderLightProbes, nullptr);
 			TwAddVarRW(settingsTweakBar, "Irradiance Source", TW_TYPE_INT32, &irradianceSource, "min=0 max=2");

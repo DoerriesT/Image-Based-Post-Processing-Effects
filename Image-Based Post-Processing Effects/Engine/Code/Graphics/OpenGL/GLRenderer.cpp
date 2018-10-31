@@ -313,7 +313,11 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 
 	if (effects.m_godrays && !level->m_lights.m_directionalLights.empty())
 	{
-		glm::vec2 sunpos = glm::vec2(renderData.m_viewProjectionMatrix * glm::vec4(level->m_lights.m_directionalLights[0]->getDirection(), 0.0f)) * 0.5f + 0.5f;
+		glm::vec4 sunpos = renderData.m_viewProjectionMatrix * glm::vec4(level->m_lights.m_directionalLights[0]->getDirection() * 1000.0f, 1.0f);
+		sunpos.x = ((sunpos.x + sunpos.w) * 0.5f) / (1e-6f + sunpos.w);
+		sunpos.y = ((sunpos.y + sunpos.w) * 0.5f) / (1e-6f + sunpos.w);
+		sunpos.z = glm::dot(level->m_lights.m_directionalLights[0]->getDirection(), renderData.m_viewDirection);
+		sunpos.z = glm::max(sunpos.z, 0.0f);
 		GLuint godRayTextures[] = { m_renderResources->m_halfResolutionGodRayTexA, m_renderResources->m_halfResolutionGodRayTexB };
 		m_godRayMaskComputePass->execute(effects, colorTexture, m_renderResources->m_gDepthStencilTexture, godRayTextures[0]);
 		m_godRayGenComputePass->execute(effects, godRayTextures, sunpos);

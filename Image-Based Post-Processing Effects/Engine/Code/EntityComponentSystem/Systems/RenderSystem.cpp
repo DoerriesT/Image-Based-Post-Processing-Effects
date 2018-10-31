@@ -221,6 +221,7 @@ void RenderSystem::update(double _currentTime, double _timeDelta)
 int irradianceSource = 1;
 bool freeze;
 bool anamorphicFlares = false;
+bool godrays = false;
 
 void RenderSystem::render()
 {
@@ -235,6 +236,7 @@ void RenderSystem::render()
 	m_effects.m_diffuseAmbientSource = DiffuseAmbientSource(irradianceSource);
 	m_effects.m_anamorphicFlares.m_enabled = anamorphicFlares;
 	m_effects.m_anamorphicFlares.m_color = glm::vec3(0.5f, 0.5f, 1.0f);
+	m_effects.m_godrays = godrays;
 
 	// calculate transformations
 	if(!freeze)
