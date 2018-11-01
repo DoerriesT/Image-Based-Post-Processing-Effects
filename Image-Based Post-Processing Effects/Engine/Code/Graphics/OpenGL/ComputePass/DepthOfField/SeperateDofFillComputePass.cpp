@@ -32,14 +32,12 @@ void SeperateDofFillComputePass::execute(GLuint * _dofTextures)
 
 		unsigned int nSquareTapsSide = 3;
 		float fRecipTaps = 1.0f / ((float)nSquareTapsSide - 1.0f);
-		const float rotAngle = glm::radians(15.0f);
-		const glm::mat2 rot = glm::mat2(glm::cos(rotAngle), -glm::sin(rotAngle), glm::sin(rotAngle), glm::cos(rotAngle));
 
 		for (unsigned int y = 0; y < nSquareTapsSide; ++y)
 		{
 			for (unsigned int x = 0; x < nSquareTapsSide; ++x)
 			{
-				fillSamples[y * nSquareTapsSide + x] = rot * shirleyUnitSquareToDisk(glm::vec2(x * fRecipTaps, y * fRecipTaps));
+				fillSamples[y * nSquareTapsSide + x] = shirleyUnitSquareToDisk(glm::vec2(x * fRecipTaps, y * fRecipTaps));
 			}
 		}
 
