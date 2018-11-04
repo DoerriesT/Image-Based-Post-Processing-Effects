@@ -44,10 +44,10 @@
 #include "ComputePass/DepthOfField/SimpleDofCompositeComputePass.h"
 #include "RenderPass/DepthOfField/SpriteDofRenderPass.h"
 #include "ComputePass/DepthOfField/SpriteDofCompositeComputePass.h"
-#include "ComputePass/DepthOfField/SeperateDofDownsampleComputePass.h"
-#include "ComputePass/DepthOfField/SeperateDofBlurComputePass.h"
-#include "ComputePass/DepthOfField/SeperateDofFillComputePass.h"
-#include "ComputePass/DepthOfField/SeperateDofCompositeComputePass.h"
+#include "ComputePass/DepthOfField/TileBasedDofDownsampleComputePass.h"
+#include "ComputePass/DepthOfField/TileBasedDofBlurComputePass.h"
+#include "ComputePass/DepthOfField/TileBasedDofFillComputePass.h"
+#include "ComputePass/DepthOfField/TileBasedDofCompositeComputePass.h"
 #include "ComputePass/DepthOfField/CocComputePass.h"
 #include "RenderPass/DepthOfField/CocTileMaxRenderPass.h"
 #include "RenderPass/DepthOfField/CocNeighborTileMaxRenderPass.h"
@@ -62,9 +62,7 @@
 #include "ComputePass/Bloom/BloomUpsampleComputePass.h"
 #include "RenderPass/Misc/SimplePostEffectsRenderPass.h"
 #include "RenderPass/Misc/ToneMapRenderPass.h"
-#include "ComputePass/DepthOfField/CombinedDofTileMaxComputePass.h"
-#include "ComputePass/DepthOfField/CombinedDofNeighborTileMaxComputePass.h"
-#include "ComputePass/DepthOfField/SeperateDofTileMaxComputePass.h"
+#include "ComputePass/DepthOfField/TileBasedDofTileMaxComputePass.h"
 #include "ComputePass/AntiAliasing/AntiAliasingTonemapComputePass.h"
 #include "ComputePass/AntiAliasing/AntiAliasingReverseTonemapComputePass.h"
 #include "RenderPass/Debug/BoundingBoxRenderPass.h"
@@ -129,10 +127,10 @@ void GLRenderer::init(unsigned int width, unsigned int height)
 	m_simpleDofCompositeComputePass = std::make_unique<SimpleDofCompositeComputePass>(width, height);
 	m_spriteDofRenderPass = std::make_unique<SpriteDofRenderPass>(m_renderResources->m_cocFbo, width, height / 2);
 	m_spriteDofCompositeComputePass = std::make_unique<SpriteDofCompositeComputePass>(width, height);
-	m_seperateDofDownsampleComputePass = std::make_unique<SeperateDofDownsampleComputePass>(width, height);
-	m_seperateDofBlurComputePass = std::make_unique<SeperateDofBlurComputePass>(width, height);
-	m_seperateDofFillComputePass = std::make_unique<SeperateDofFillComputePass>(width, height);
-	m_seperateDofCompositeComputePass = std::make_unique<SeperateDofCompositeComputePass>(width, height);
+	m_tileBasedDofDownsampleComputePass = std::make_unique<TileBasedDofDownsampleComputePass>(width, height);
+	m_tileBasedDofBlurComputePass = std::make_unique<TileBasedDofBlurComputePass>(width, height);
+	m_tileBasedDofFillComputePass = std::make_unique<TileBasedDofFillComputePass>(width, height);
+	m_tileBasedDofCompositeComputePass = std::make_unique<TileBasedDofCompositeComputePass>(width, height);
 	m_luminanceHistogramComputePass = std::make_unique<LuminanceHistogramComputePass>(width, height);
 	m_luminanceHistogramReduceComputePass = std::make_unique<LuminanceHistogramReduceComputePass>(width, height);
 	m_luminanceHistogramAdaptionComputePass = std::make_unique<LuminanceHistogramAdaptionComputePass>(width, height);
@@ -147,9 +145,7 @@ void GLRenderer::init(unsigned int width, unsigned int height)
 	m_bloomUpsampleComputePass = std::make_unique<BloomUpsampleComputePass>(width, height);
 	m_simplePostEffectsRenderPass = std::make_unique<SimplePostEffectsRenderPass>(m_renderResources->m_ppFullResolutionFbo, width, height);
 	m_toneMapRenderPass = std::make_unique<ToneMapRenderPass>(m_renderResources->m_ppFullResolutionFbo, width, height);
-	m_combinedDofTileMaxComputePass = std::make_unique<CombinedDofTileMaxComputePass>(width, height);
-	m_combinedDofNeighborTileMaxComputePass = std::make_unique<CombinedDofNeighborTileMaxComputePass>(width, height);
-	m_seperateDofTileMaxComputePass = std::make_unique<SeperateDofTileMaxComputePass>(width, height);
+	m_seperateDofTileMaxComputePass = std::make_unique<TileBasedDofTileMaxComputePass>(width, height);
 	m_antiAliasingTonemapComputePass = std::make_unique<AntiAliasingTonemapComputePass>(width, height);
 	m_antiAliasingReverseTonemapComputePass = std::make_unique<AntiAliasingReverseTonemapComputePass>(width, height);
 
@@ -353,12 +349,12 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 		m_cocTileMaxRenderPass->render(m_renderResources->m_fullResolutionCocTexture, m_renderResources->m_cocTexTmp, m_renderResources->m_cocMaxTex, dofTileSize, &previousRenderPass);
 		m_cocNeighborTileMaxRenderPass->render(m_renderResources->m_cocMaxTex, m_renderResources->m_cocNeighborMaxTex, &previousRenderPass);
 
-		m_seperateDofDownsampleComputePass->execute(colorTexture, m_renderResources->m_fullResolutionCocTexture, m_renderResources->m_halfResolutionCocTexA, m_renderResources->m_halfResolutionDofTexA, m_renderResources->m_halfResolutionDofTexB);
+		m_tileBasedDofDownsampleComputePass->execute(colorTexture, m_renderResources->m_fullResolutionCocTexture, m_renderResources->m_halfResolutionCocTexA, m_renderResources->m_halfResolutionDofTexA, m_renderResources->m_halfResolutionDofTexB);
 		//seperateDofTileMaxComputePass->execute(halfResolutionCocTexA);
 		GLuint dofTextures[] = { m_renderResources->m_halfResolutionDofTexA , m_renderResources->m_halfResolutionDofTexB , m_renderResources->m_halfResolutionDofTexC , m_renderResources->m_halfResolutionDofTexD };
-		m_seperateDofBlurComputePass->execute(dofTextures, m_renderResources->m_halfResolutionCocTexA, m_renderResources->m_cocNeighborMaxTex);
-		m_seperateDofFillComputePass->execute(dofTextures);
-		m_seperateDofCompositeComputePass->execute(colorTexture, m_renderResources->m_fullResolutionCocTexture, m_renderResources->m_fullResolutionHdrTexture);
+		m_tileBasedDofBlurComputePass->execute(dofTextures, m_renderResources->m_halfResolutionCocTexA, m_renderResources->m_cocNeighborMaxTex);
+		m_tileBasedDofFillComputePass->execute(dofTextures);
+		m_tileBasedDofCompositeComputePass->execute(colorTexture, m_renderResources->m_fullResolutionCocTexture, m_renderResources->m_fullResolutionHdrTexture);
 		break;
 	}
 	default:
@@ -484,10 +480,10 @@ void GLRenderer::resize(unsigned int width, unsigned int height)
 	m_simpleDofCompositeComputePass->resize(width, height);
 	m_spriteDofRenderPass->resize(width, height / 2);
 	m_spriteDofCompositeComputePass->resize(width, height);
-	m_seperateDofDownsampleComputePass->resize(width, height);
-	m_seperateDofBlurComputePass->resize(width, height);
-	m_seperateDofFillComputePass->resize(width, height);
-	m_seperateDofCompositeComputePass->resize(width, height);
+	m_tileBasedDofDownsampleComputePass->resize(width, height);
+	m_tileBasedDofBlurComputePass->resize(width, height);
+	m_tileBasedDofFillComputePass->resize(width, height);
+	m_tileBasedDofCompositeComputePass->resize(width, height);
 	m_luminanceHistogramComputePass->resize(width, height);
 	m_luminanceHistogramReduceComputePass->resize(width, height);
 	m_luminanceHistogramAdaptionComputePass->resize(width, height);
@@ -502,8 +498,6 @@ void GLRenderer::resize(unsigned int width, unsigned int height)
 	m_bloomUpsampleComputePass->resize(width, height);
 	m_simplePostEffectsRenderPass->resize(width, height);
 	m_toneMapRenderPass->resize(width, height);
-	m_combinedDofTileMaxComputePass->resize(width, height);
-	m_combinedDofNeighborTileMaxComputePass->resize(width, height);
 	m_seperateDofTileMaxComputePass->resize(width, height);
 	m_antiAliasingTonemapComputePass->resize(width, height);
 	m_antiAliasingReverseTonemapComputePass->resize(width, height);

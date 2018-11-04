@@ -4,10 +4,10 @@
 struct Effects;
 struct RenderData;
 
-class SeperateDofCompositeComputePass
+class TileBasedDofCompositeComputePass
 {
 public:
-	explicit SeperateDofCompositeComputePass(unsigned int _width, unsigned int _height);
+	explicit TileBasedDofCompositeComputePass(unsigned int _width, unsigned int _height);
 	void execute(GLuint _colorTexture, GLuint _cocTexture, GLuint _destinationTexture);
 	void resize(unsigned int _width, unsigned int _height);
 

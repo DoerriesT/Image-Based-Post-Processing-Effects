@@ -1,10 +1,10 @@
-#include "SeperateDofFillComputePass.h"
+#include "TileBasedDofFillComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
 #include "Graphics\SampleKernel.h"
 #include <glm/trigonometric.hpp>
 #include "Graphics\OpenGL\GLTimerQuery.h"
 
-SeperateDofFillComputePass::SeperateDofFillComputePass(unsigned int _width, unsigned int _height)
+TileBasedDofFillComputePass::TileBasedDofFillComputePass(unsigned int _width, unsigned int _height)
 	:m_fillSamplesSet(false),
 	m_width(_width),
 	m_height(_height)
@@ -19,7 +19,7 @@ SeperateDofFillComputePass::SeperateDofFillComputePass(unsigned int _width, unsi
 
 double seperateDofFillComputeTime;
 
-void SeperateDofFillComputePass::execute(GLuint * _dofTextures)
+void TileBasedDofFillComputePass::execute(GLuint * _dofTextures)
 {
 	SCOPED_TIMER_QUERY(seperateDofFillComputeTime);
 	m_fillShader->bind();
@@ -53,7 +53,7 @@ void SeperateDofFillComputePass::execute(GLuint * _dofTextures)
 	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
-void SeperateDofFillComputePass::resize(unsigned int _width, unsigned int _height)
+void TileBasedDofFillComputePass::resize(unsigned int _width, unsigned int _height)
 {
 	m_width = _width;
 	m_height = _height;

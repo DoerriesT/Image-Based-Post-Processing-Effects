@@ -1,9 +1,9 @@
-#include "SeperateDofBlurComputePass.h"
+#include "TileBasedDofBlurComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
 #include "Graphics\SampleKernel.h"
 #include "Graphics\OpenGL\GLTimerQuery.h"
 
-SeperateDofBlurComputePass::SeperateDofBlurComputePass(unsigned int _width, unsigned int _height)
+TileBasedDofBlurComputePass::TileBasedDofBlurComputePass(unsigned int _width, unsigned int _height)
 	:m_blurSamplesSet(false),
 	m_width(_width),
 	m_height(_height)
@@ -18,7 +18,7 @@ SeperateDofBlurComputePass::SeperateDofBlurComputePass(unsigned int _width, unsi
 
 double seperateDofBlurComputeTime;
 
-void SeperateDofBlurComputePass::execute(GLuint *_dofTextures, GLuint _cocTexture, GLuint _cocTileTexture)
+void TileBasedDofBlurComputePass::execute(GLuint *_dofTextures, GLuint _cocTexture, GLuint _cocTileTexture)
 {
 	SCOPED_TIMER_QUERY(seperateDofBlurComputeTime);
 	m_blurShader->bind();
@@ -65,7 +65,7 @@ void SeperateDofBlurComputePass::execute(GLuint *_dofTextures, GLuint _cocTextur
 	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
-void SeperateDofBlurComputePass::resize(unsigned int _width, unsigned int _height)
+void TileBasedDofBlurComputePass::resize(unsigned int _width, unsigned int _height)
 {
 	m_width = _width;
 	m_height = _height;

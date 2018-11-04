@@ -4,10 +4,10 @@
 struct Effects;
 struct RenderData;
 
-class SeperateDofBlurComputePass
+class TileBasedDofBlurComputePass
 {
 public:
-	explicit SeperateDofBlurComputePass(unsigned int _width, unsigned int _height);
+	explicit TileBasedDofBlurComputePass(unsigned int _width, unsigned int _height);
 	void execute(GLuint *_dofTextures, GLuint _cocTexture, GLuint _cocTileTexture);
 	void resize(unsigned int _width, unsigned int _height);
 

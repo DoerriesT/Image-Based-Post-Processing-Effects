@@ -4,10 +4,10 @@
 struct Effects;
 struct RenderData;
 
-class SeperateDofFillComputePass
+class TileBasedDofFillComputePass
 {
 public:
-	explicit SeperateDofFillComputePass(unsigned int _width, unsigned int _height);
+	explicit TileBasedDofFillComputePass(unsigned int _width, unsigned int _height);
 	void execute(GLuint *_dofTextures);
 	void resize(unsigned int _width, unsigned int _height);
 

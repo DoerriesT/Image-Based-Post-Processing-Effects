@@ -1,8 +1,8 @@
-#include "SeperateDofTileMaxComputePass.h"
+#include "TileBasedDofTileMaxComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
 #include "Graphics\OpenGL\GLTimerQuery.h"
 
-SeperateDofTileMaxComputePass::SeperateDofTileMaxComputePass(unsigned int _width, unsigned int _height)
+TileBasedDofTileMaxComputePass::TileBasedDofTileMaxComputePass(unsigned int _width, unsigned int _height)
 	:m_width(_width),
 	m_height(_height)
 {
@@ -13,7 +13,7 @@ SeperateDofTileMaxComputePass::SeperateDofTileMaxComputePass(unsigned int _width
 
 double seperateDofTileMaxComputeTime;
 
-void SeperateDofTileMaxComputePass::execute(GLuint _cocTexture)
+void TileBasedDofTileMaxComputePass::execute(GLuint _cocTexture)
 {
 	SCOPED_TIMER_QUERY(seperateDofTileMaxComputeTime);
 	m_tileMaxShader->bind();
@@ -37,7 +37,7 @@ void SeperateDofTileMaxComputePass::execute(GLuint _cocTexture)
 	}
 }
 
-void SeperateDofTileMaxComputePass::resize(unsigned int _width, unsigned int _height)
+void TileBasedDofTileMaxComputePass::resize(unsigned int _width, unsigned int _height)
 {
 	m_width = _width;
 	m_height = _height;

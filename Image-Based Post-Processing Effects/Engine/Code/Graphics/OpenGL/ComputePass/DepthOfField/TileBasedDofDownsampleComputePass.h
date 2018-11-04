@@ -4,10 +4,10 @@
 struct Effects;
 struct RenderData;
 
-class SeperateDofDownsampleComputePass
+class TileBasedDofDownsampleComputePass
 {
 public:
-	explicit SeperateDofDownsampleComputePass(unsigned int _width, unsigned int _height);
+	explicit TileBasedDofDownsampleComputePass(unsigned int _width, unsigned int _height);
 	void execute(GLuint _colorTexture, GLuint _cocTexture, GLuint _destinationCocTexture, GLuint _destinationNearTexture, GLuint _destinationFarTexture);
 	void resize(unsigned int _width, unsigned int _height);
 

@@ -1,8 +1,8 @@
-#include "SeperateDofDownsampleComputePass.h"
+#include "TileBasedDofDownsampleComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
 #include "Graphics\OpenGL\GLTimerQuery.h"
 
-SeperateDofDownsampleComputePass::SeperateDofDownsampleComputePass(unsigned int _width, unsigned int _height)
+TileBasedDofDownsampleComputePass::TileBasedDofDownsampleComputePass(unsigned int _width, unsigned int _height)
 	:m_width(_width),
 	m_height(_height)
 {
@@ -11,7 +11,7 @@ SeperateDofDownsampleComputePass::SeperateDofDownsampleComputePass(unsigned int 
 
 double seperateDofDownsampleComputeTime;
 
-void SeperateDofDownsampleComputePass::execute(GLuint _colorTexture, GLuint _cocTexture, GLuint _destinationCocTexture, GLuint _destinationNearTexture, GLuint _destinationFarTexture)
+void TileBasedDofDownsampleComputePass::execute(GLuint _colorTexture, GLuint _cocTexture, GLuint _destinationCocTexture, GLuint _destinationNearTexture, GLuint _destinationFarTexture)
 {
 	SCOPED_TIMER_QUERY(seperateDofDownsampleComputeTime);
 	m_downsampleShader->bind();
@@ -28,7 +28,7 @@ void SeperateDofDownsampleComputePass::execute(GLuint _colorTexture, GLuint _coc
 	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
-void SeperateDofDownsampleComputePass::resize(unsigned int _width, unsigned int _height)
+void TileBasedDofDownsampleComputePass::resize(unsigned int _width, unsigned int _height)
 {
 	m_width = _width;
 	m_height = _height;

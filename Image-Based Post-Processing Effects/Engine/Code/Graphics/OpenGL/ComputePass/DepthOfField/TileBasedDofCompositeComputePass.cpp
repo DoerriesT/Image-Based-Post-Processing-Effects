@@ -1,8 +1,8 @@
-#include "SeperateDofCompositeComputePass.h"
+#include "TileBasedDofCompositeComputePass.h"
 #include "Graphics\OpenGL\GLUtility.h"
 #include "Graphics\OpenGL\GLTimerQuery.h"
 
-SeperateDofCompositeComputePass::SeperateDofCompositeComputePass(unsigned int _width, unsigned int _height)
+TileBasedDofCompositeComputePass::TileBasedDofCompositeComputePass(unsigned int _width, unsigned int _height)
 	:m_width(_width),
 	m_height(_height)
 {
@@ -11,7 +11,7 @@ SeperateDofCompositeComputePass::SeperateDofCompositeComputePass(unsigned int _w
 
 double seperateDofCompositeComputeTime;
 
-void SeperateDofCompositeComputePass::execute(GLuint _colorTexture, GLuint _cocTexture, GLuint _destinationTexture)
+void TileBasedDofCompositeComputePass::execute(GLuint _colorTexture, GLuint _cocTexture, GLuint _destinationTexture)
 {
 	SCOPED_TIMER_QUERY(seperateDofCompositeComputeTime);
 	glActiveTexture(GL_TEXTURE0);
@@ -26,7 +26,7 @@ void SeperateDofCompositeComputePass::execute(GLuint _colorTexture, GLuint _cocT
 	glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
-void SeperateDofCompositeComputePass::resize(unsigned int _width, unsigned int _height)
+void TileBasedDofCompositeComputePass::resize(unsigned int _width, unsigned int _height)
 {
 	m_width = _width;
 	m_height = _height;
