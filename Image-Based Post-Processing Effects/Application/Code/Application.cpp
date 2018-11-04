@@ -340,8 +340,8 @@ namespace App
 
 			// depth of field
 			{
-				TwEnumVal dofOptions[] = { { (int)DepthOfField::OFF, "Off" },{ (int)DepthOfField::SIMPLE, "Simple" },{ (int)DepthOfField::SPRITE_BASED, "Sprite Based" },{ (int)DepthOfField::TILE_BASED_SEPERATE, "Tile-Based Seperate" },{ (int)DepthOfField::TILE_BASED_COMBINED, "Tile-Based Combined" } };
-				TwType DofTwType = TwDefineEnum("DepthOfFieldType", dofOptions, 5);
+				TwEnumVal dofOptions[] = { { (int)DepthOfField::OFF, "Off" },{ (int)DepthOfField::SIMPLE, "Simple" },{ (int)DepthOfField::SPRITE_BASED, "Sprite Based" },{ (int)DepthOfField::TILE_BASED, "Tile-Based" } };
+				TwType DofTwType = TwDefineEnum("DepthOfFieldType", dofOptions, 4);
 				TwAddVarCB(settingsTweakBar, "Depth of Field", DofTwType, SETTER_FUNC_PTR(depthOfField), GETTER_FUNC_PTR(depthOfField), this, "group=Depth_of_Field");
 			}
 
@@ -474,7 +474,7 @@ namespace App
 		spriteDofSum = cocComputeTime + spriteDofRenderTime + spriteDofCompositeComputeTime;
 		spriteDofSum *= depthOfField->get() == int(DepthOfField::SPRITE_BASED);
 		tiledDofSum = cocComputeTime + cocTileMaxRenderTime + cocNeighborTileMaxRenderTime + seperateDofDownsampleComputeTime + seperateDofBlurComputeTime + seperateDofFillComputeTime + seperateDofCompositeComputeTime;
-		tiledDofSum *= depthOfField->get() == int(DepthOfField::TILE_BASED_SEPERATE);
+		tiledDofSum *= depthOfField->get() == int(DepthOfField::TILE_BASED);
 
 		if (guiVisible)
 		{

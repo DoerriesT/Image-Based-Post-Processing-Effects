@@ -16,10 +16,6 @@
 #define GTAO_MULTI_BOUNCE_ENABLED 0
 #endif // GTAO_MULTI_BOUNCE_ENABLED
 
-#ifndef SSR_ENABLED
-#define SSR_ENABLED 0
-#endif // SSR_ENABLED
-
 #ifndef IRRADIANCE_SOURCE
 #define IRRADIANCE_SOURCE 0
 #endif // IRRADIANCE_SOURCE
@@ -60,10 +56,6 @@ uniform DirectionalLight uDirectionalLight;
 uniform bool uOddFrame;
 uniform mat4 uInverseView;
 uniform mat4 uInverseProjection;
-#if SSR_ENABLED
-uniform mat4 uProjection;
-uniform mat4 uReProjection;
-#endif // SSR_ENABLED
 
 #if IRRADIANCE_SOURCE
 uniform vec3 uVolumeOrigin;
@@ -77,13 +69,6 @@ const float Z_NEAR = 0.1;
 const float Z_FAR = 300.0;
 
 #include "brdf.h"
-
-
-
-#define INVALID_HIT_POINT vec3(-1.0)
-#define LRM_MAX_ITERATIONS		100						// Maximal number of iterations for linear ray-marching
-#define BS_MAX_ITERATIONS		30						// Maximal number of iterations for bineary search
-#define BS_DELTA_EPSILON 0.0001
 
 float interleavedGradientNoise(vec2 v)
 {
@@ -208,88 +193,6 @@ vec2 octEncode(in vec3 v)
     }
     return result;
 }
-
-#if SSR_ENABLED
-vec3 project(vec3 vsCoord)
-{
-	vec4 projectedCoord = uProjection * vec4(vsCoord, 1.0f);
-	projectedCoord.xyz /= projectedCoord.w;
-	projectedCoord.xy = projectedCoord.xy * vec2(0.5) + vec2(0.5);
-
-	return projectedCoord.xyz;
-}
-
-vec3 unproject(vec3 ssCoord)
-{
-	ssCoord.xy = (ssCoord.xy - vec2(0.5)) * vec2(2.0);
-	const vec4 vsCoord = uInverseProjection * vec4(ssCoord, 1.0);
-	return vsCoord.xyz / vsCoord.w;
-}
-
-bool linearRayTraceBinarySearch(inout vec3 rayPos, vec3 rayDir)
-{
-	for (uint i = 0; i < BS_MAX_ITERATIONS; ++i)
-	{		
-		/* Check if we found our final hit point */
-		const float depth = textureLod(uDepthMap, rayPos.xy, 0.0).r;
-		const float depthDelta = linearDepth(depth) - linearDepth(rayPos.z);
-		
-		if (abs(depthDelta) < BS_DELTA_EPSILON)
-		{
-			return true;
-		}
-		
-		/*
-		Move ray forwards if we are in front of geometry and
-		move backwards, if we are behind geometry
-		*/
-		if (depthDelta > 0.0)
-		{
-			rayPos += rayDir;
-		}
-		else
-		{
-			rayPos -= rayDir;
-		}
-		
-		rayDir *= 0.5;
-	}
-	return false;
-}
-
-bool linearRayTrace(inout vec3 rayPos, vec3 rayDir)
-{
-	rayDir = normalize(rayDir);
-	const vec3 rayStart = rayPos;
-	const vec3 rayEnd = rayStart + rayDir;
-	vec3 prevPos = rayPos;
-	
-	
-	for (uint i = 0; i < LRM_MAX_ITERATIONS; ++i)
-	{
-		/* Move to the next sample point */
-		prevPos = rayPos;
-		rayPos = mix(rayStart, rayEnd, float(i) / LRM_MAX_ITERATIONS);
-		
-		/* Check if the ray hit any geometry (delta < 0) */
-		float depth = textureLod(uDepthMap, rayPos.xy, 0).r;
-		float depthDelta = depth - rayPos.z;
-		
-		if (depthDelta < 0.0)
-		{			
-			/*
-			Move between the current and previous point and
-			make a binary search, to quickly find the final hit point
-			*/
-			rayPos = (rayPos + prevPos) * 0.5;
-			return linearRayTraceBinarySearch(rayPos, (rayPos - prevPos) );
-		}
-	}
-	
-	rayPos = INVALID_HIT_POINT;
-	return false;
-}
-#endif // SSR_ENABLED
 
 vec3 GTAOMultiBounce(float visibility, vec3 albedo)
 {
@@ -437,35 +340,9 @@ void main()
 	const vec3 diffuse = irradiance * albedo * metallicRoughnessAoShaded.z;
 #endif // GTAO_MULTI_BOUNCE_ENABLED
 
-	// Screenspace Reflections
-#if SSR_ENABLED
-	vec3 ssPosition = vec3(vTexCoord, texture(uDepthMap, vTexCoord).x);
-	const vec3 vsPosition = unproject(ssPosition);
-	const vec3 vsDir = normalize(vsPosition);
-	const vec3 vsR = reflect(vsDir, N);
-	const vec3 ssO = project(vsPosition + vsR * Z_NEAR);
-	const vec3 R = ssO - ssPosition;
-
-	const bool hit = linearRayTrace(ssPosition, R);
-
-	const vec2 dCoords = smoothstep(0.2, 0.5, abs(vec2(0.5) - ssPosition.xy));
-	const float edgeFactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
-
-	// reproject
-	vec4 reprojected = uReProjection * vec4(ssPosition * 2.0 - 1.0, 1.0);
-	reprojected.xy /= reprojected.w;
-	reprojected.xy = reprojected.xy * 0.5 + 0.5;
-
-	const vec3 ssrColor = textureLod(uPrevFrame, reprojected.xy, metallicRoughnessAoShaded.g * log2(textureSize(uPrevFrame, 0).x)).rgb;
-
-	const vec3 correctedTexCoord = parallaxCorrect((uInverseView * vec4(reflect(-V, N), 0.0)).xyz, worldPos);
-	const vec3 cubeColor = textureLod(uPrefilterMap, octEncode(correctedTexCoord) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
-	const vec3 prefilteredColor = mix(cubeColor, ssrColor, float(hit) * edgeFactor);
-#else
 	const vec3 correctedTexCoord = parallaxCorrect((uInverseView * vec4(reflect(-V, N), 0.0)).xyz, worldPos);
 	// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
 	const vec3 prefilteredColor = textureLod(uPrefilterMap, octEncode(correctedTexCoord) * 0.5 + 0.5, metallicRoughnessAoShaded.g * MAX_REFLECTION_LOD).rgb;
-#endif // SSR_ENABLED
 
 	const vec2 brdf  = texture(uBrdfLUT, vec2(NdotV, metallicRoughnessAoShaded.g)).rg;
 	const vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);

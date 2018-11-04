@@ -91,14 +91,9 @@ enum class AmbientOcclusion
 	OFF, SSAO_ORIGINAL, SSAO, HBAO, GTAO
 };
 
-struct ScreenSpaceReflections
-{
-	bool m_enabled;
-};
-
 enum class ShadowQuality
 {
-	OFF, NORMAL, HIGH
+	OFF, NORMAL
 };
 
 enum class MotionBlur
@@ -108,7 +103,7 @@ enum class MotionBlur
 
 enum class DepthOfField
 {
-	OFF, SIMPLE, SPRITE_BASED, TILE_BASED_SEPERATE, TILE_BASED_COMBINED
+	OFF, SIMPLE, SPRITE_BASED, TILE_BASED
 };
 
 enum class DiffuseAmbientSource
@@ -133,7 +128,6 @@ struct Effects
 	LensFlares m_lensFlares;
 	AnamorphicFlares m_anamorphicFlares;
 	ShadowQuality m_shadowQuality;
-	ScreenSpaceReflections m_screenSpaceReflections;
 	MotionBlur m_motionBlur;
 	float m_exposure;
 	DiffuseAmbientSource m_diffuseAmbientSource;

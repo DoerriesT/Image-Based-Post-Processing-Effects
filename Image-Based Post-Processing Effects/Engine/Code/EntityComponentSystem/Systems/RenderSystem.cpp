@@ -196,10 +196,6 @@ void RenderSystem::init()
 	motionBlur->addListener([&](int _value) { m_effects.m_motionBlur = static_cast<MotionBlur>(_value); });
 	m_effects.m_motionBlur = static_cast<MotionBlur>(motionBlur->get());
 
-	screenSpaceReflectionsEnabled = settingsManager.getBoolSetting("graphics", "screen_space_reflections_enabled", false);
-	screenSpaceReflectionsEnabled->addListener([&](bool _value) { m_effects.m_screenSpaceReflections.m_enabled = _value; });
-	m_effects.m_screenSpaceReflections.m_enabled = screenSpaceReflectionsEnabled->get();
-
 	bakeReflections = settingsManager.getBoolSetting("graphics", "bake_reflections", false);
 	bakeIrradianceVolume = settingsManager.getBoolSetting("graphics", "bake_irradiance_volume", false);
 

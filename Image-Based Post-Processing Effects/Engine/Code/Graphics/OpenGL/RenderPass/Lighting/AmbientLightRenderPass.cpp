@@ -8,7 +8,6 @@ static const char *DIRECTIONAL_LIGHT_ENABLED = "DIRECTIONAL_LIGHT_ENABLED";
 static const char *SHADOWS_ENABLED = "SHADOWS_ENABLED";
 static const char *SSAO_ENABLED = "SSAO_ENABLED";
 static const char *GTAO_MULTI_BOUNCE_ENABLED = "GTAO_MULTI_BOUNCE_ENABLED";
-static const char *SSR_ENABLED = "SSR_ENABLED";
 static const char *IRRADIANCE_SOURCE = "IRRADIANCE_SOURCE";
 
 AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
@@ -39,7 +38,6 @@ AmbientLightRenderPass::AmbientLightRenderPass(GLuint _fbo, unsigned int _width,
 		{ ShaderProgram::ShaderType::FRAGMENT, SHADOWS_ENABLED, 1 },
 		{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, 0 },
 		{ ShaderProgram::ShaderType::FRAGMENT, GTAO_MULTI_BOUNCE_ENABLED, 0 },
-		{ ShaderProgram::ShaderType::FRAGMENT, SSR_ENABLED, 0 },
 		{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_SOURCE, 1 },
 		}, 
 		"Resources/Shaders/Shared/fullscreenTriangle.vert", 
@@ -101,7 +99,6 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 				{ ShaderProgram::ShaderType::FRAGMENT, SHADOWS_ENABLED, _renderData.m_shadows },
 				{ ShaderProgram::ShaderType::FRAGMENT, SSAO_ENABLED, (_effects.m_ambientOcclusion != AmbientOcclusion::OFF) },
 				{ ShaderProgram::ShaderType::FRAGMENT, GTAO_MULTI_BOUNCE_ENABLED, gtaoMultiBounce },
-				{ ShaderProgram::ShaderType::FRAGMENT, SSR_ENABLED, 0 },
 				{ ShaderProgram::ShaderType::FRAGMENT, IRRADIANCE_SOURCE, 1 },
 				}
 			);
@@ -161,12 +158,6 @@ void AmbientLightRenderPass::render(const RenderData &_renderData, const std::sh
 		m_uSpacing.set(volume->getSpacing());
 	//}
 
-	if (_effects.m_diffuseAmbientSource != DiffuseAmbientSource::FLAT)
-	{
-		m_uProjection.set(_renderData.m_projectionMatrix);
-		m_uReProjection.set(_renderData.m_prevViewProjectionMatrix * _renderData.m_invViewProjectionMatrix);
-	}
-
 	m_fullscreenTriangle->getSubMesh()->render();
 }
 
@@ -177,8 +168,6 @@ void AmbientLightRenderPass::createUniforms()
 	m_uOddFrame.create(m_ambientLightShader);
 	m_uInverseProjection.create(m_ambientLightShader);
 	m_uInverseView.create(m_ambientLightShader);
-	m_uProjection.create(m_ambientLightShader);
-	m_uReProjection.create(m_ambientLightShader);
 
 	m_uVolumeOrigin.create(m_ambientLightShader);
 	m_uVolumeDimensions.create(m_ambientLightShader);

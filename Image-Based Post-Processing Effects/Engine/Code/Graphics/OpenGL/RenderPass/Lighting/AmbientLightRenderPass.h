@@ -22,10 +22,8 @@ private:
 	UniformDirectionalLight m_uDirectionalLight = UniformDirectionalLight("uDirectionalLight");
 
 	Uniform<GLboolean> m_uOddFrame = Uniform<GLboolean>("uOddFrame");
-	Uniform<glm::mat4> m_uProjection = Uniform<glm::mat4>("uProjection");
 	Uniform<glm::mat4> m_uInverseProjection = Uniform<glm::mat4>("uInverseProjection");
 	Uniform<glm::mat4> m_uInverseView = Uniform<glm::mat4>("uInverseView");
-	Uniform<glm::mat4> m_uReProjection = Uniform<glm::mat4>("uReProjection");
 
 	Uniform<glm::vec3> m_uVolumeOrigin = Uniform<glm::vec3>("uVolumeOrigin");
 	Uniform<glm::ivec3> m_uVolumeDimensions = Uniform<glm::ivec3>("uVolumeDimensions");

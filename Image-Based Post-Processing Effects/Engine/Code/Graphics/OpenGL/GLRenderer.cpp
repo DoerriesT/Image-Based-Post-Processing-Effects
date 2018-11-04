@@ -348,8 +348,7 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 		m_spriteDofCompositeComputePass->execute(m_renderResources->m_fullResolutionHdrTexture);
 		break;
 	}
-	case DepthOfField::TILE_BASED_COMBINED:
-	case DepthOfField::TILE_BASED_SEPERATE:
+	case DepthOfField::TILE_BASED:
 	{
 		m_cocTileMaxRenderPass->render(m_renderResources->m_fullResolutionCocTexture, m_renderResources->m_cocTexTmp, m_renderResources->m_cocMaxTex, dofTileSize, &previousRenderPass);
 		m_cocNeighborTileMaxRenderPass->render(m_renderResources->m_cocMaxTex, m_renderResources->m_cocNeighborMaxTex, &previousRenderPass);
