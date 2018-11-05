@@ -232,11 +232,6 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 	m_outlineRenderPass->render(renderData, scene, &previousRenderPass);
 	m_lightProbeRenderPass->render(renderData, level, &previousRenderPass);
 
-	// generate mips
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_gLightColorTextures[m_frame % 2]);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
 	if (bake)
 	{
 		glDisable(GL_DEPTH_TEST);
@@ -271,6 +266,11 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 
 		m_antiAliasingReverseTonemapComputePass->execute(colorTexture);
 	}
+
+	// generate mips
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, colorTexture);
+	glGenerateMipmap(GL_TEXTURE_2D);
 
 	// downsample/blur -> upsample/blur/combine with previous result
 	// use end result as bloom and input for lens flares

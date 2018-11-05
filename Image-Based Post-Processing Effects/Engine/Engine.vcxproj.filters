@@ -108,9 +108,6 @@
     <Filter Include="Resources\Shaders\Shadow">
       <UniqueIdentifier>{a832040e-45d1-4aba-8e27-bd86d06d1554}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resources\Shaders\VolumetricLighting">
-      <UniqueIdentifier>{85e92e93-bd8c-4e9d-bc22-90acb05cc2fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Graphics\OpenGL\RenderPass\Debug">
       <UniqueIdentifier>{14cf66f7-4077-473e-95f1-205b96a6e922}</UniqueIdentifier>
     </Filter>
@@ -1355,24 +1352,6 @@
     </None>
     <None Include="..\Application\Resources\Shaders\Shadow\shadow.vert">
       <Filter>Resources\Shaders\Shadow</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolume.frag">
-      <Filter>Resources\Shaders\VolumetricLighting</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolume.tessc">
-      <Filter>Resources\Shaders\VolumetricLighting</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolume.tesse">
-      <Filter>Resources\Shaders\VolumetricLighting</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolume.vert">
-      <Filter>Resources\Shaders\VolumetricLighting</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolumeBase.vert">
-      <Filter>Resources\Shaders\VolumetricLighting</Filter>
-    </None>
-    <None Include="..\Application\Resources\Shaders\VolumetricLighting\phaseLookup.comp">
-      <Filter>Resources\Shaders\VolumetricLighting</Filter>
     </None>
     <None Include="..\Application\Resources\Shaders\Lighting\lightProxy.vert">
       <Filter>Resources\Shaders\Lighting</Filter>

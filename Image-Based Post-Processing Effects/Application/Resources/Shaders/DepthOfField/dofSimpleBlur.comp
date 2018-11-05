@@ -29,12 +29,12 @@ void main()
 		vec2 kernelSampleCoord = uSampleCoords[i];
 
         vec2 sampleCoordNear = vec2(centerCoord + cocNear * texelSize * kernelSampleCoord);
-        vec3 sampleNear = texture(uColorTexture, sampleCoordNear).rgb;
+        vec3 sampleNear = textureLod(uColorTexture, sampleCoordNear, 1).rgb;
  
         sumNear += sampleNear;
 
 		vec2 sampleCoordFar = vec2(centerCoord + cocFar * texelSize * kernelSampleCoord);
-        vec3 sampleFar = texture(uColorTexture, sampleCoordFar).rgb;
+        vec3 sampleFar = textureLod(uColorTexture, sampleCoordFar, 1).rgb;
  
         sumFar += sampleFar;
     }

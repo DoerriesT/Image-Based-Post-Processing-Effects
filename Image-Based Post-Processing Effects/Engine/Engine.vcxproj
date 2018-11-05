@@ -472,12 +472,6 @@
     <None Include="..\Application\Resources\Shaders\SSAO\ssaoBilateralBlur.frag" />
     <None Include="..\Application\Resources\Shaders\SSAO\ssaoBlur.frag" />
     <None Include="..\Application\Resources\Shaders\SSAO\ssaoOriginal.frag" />
-    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolume.frag" />
-    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolume.tessc" />
-    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolume.tesse" />
-    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolume.vert" />
-    <None Include="..\Application\Resources\Shaders\VolumetricLighting\lightVolumeBase.vert" />
-    <None Include="..\Application\Resources\Shaders\VolumetricLighting\phaseLookup.comp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
