@@ -58,6 +58,7 @@ extern double cocTileMaxRenderTime;
 extern double spriteDofRenderTime;
 extern double simpleDofBlurComputeTime;
 extern double seperateDofDownsampleComputeTime;
+extern float fNumber;
 
 // sums
 double gtaoSum;
@@ -343,6 +344,7 @@ namespace App
 				TwEnumVal dofOptions[] = { { (int)DepthOfField::OFF, "Off" },{ (int)DepthOfField::SIMPLE, "Simple" },{ (int)DepthOfField::SPRITE_BASED, "Sprite Based" },{ (int)DepthOfField::TILE_BASED, "Tile-Based" } };
 				TwType DofTwType = TwDefineEnum("DepthOfFieldType", dofOptions, 4);
 				TwAddVarCB(settingsTweakBar, "Depth of Field", DofTwType, SETTER_FUNC_PTR(depthOfField), GETTER_FUNC_PTR(depthOfField), this, "group=Depth_of_Field");
+				TwAddVarRW(settingsTweakBar, "f-Number", TW_TYPE_FLOAT, &fNumber, "group=Depth_of_Field min=1.4 max=16.0 step=0.1");
 			}
 
 			// motion blur

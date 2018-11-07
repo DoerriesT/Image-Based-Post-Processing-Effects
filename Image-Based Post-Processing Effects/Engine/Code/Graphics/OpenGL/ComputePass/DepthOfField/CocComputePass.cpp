@@ -14,19 +14,19 @@ CocComputePass::CocComputePass(unsigned int _width, unsigned int _height)
 }
 
 double cocComputeTime;
+float fNumber = 2.4f;
 
 void CocComputePass::execute(GLuint _depthTexture, GLuint _destinationCocTexture, float _fieldOfView, float _nearPlane, float _farPlane)
 {
 	SCOPED_TIMER_QUERY(cocComputeTime);
 	m_cocShader->bind();
 
-	const float filmWidth = 0.035f;
-	const float apertureSize = 2.4f;
+	const float filmWidth = 0.02195f;
 
 	float focalLength = (0.5f * filmWidth) / glm::tan(_fieldOfView * 0.5f);
 
 	m_uFocalLength.set(focalLength);
-	m_uApertureSize.set(8.0f);
+	m_uApertureSize.set(focalLength / fNumber);
 	m_uNearFar.set(glm::vec2(_nearPlane, _farPlane));
 
 	glActiveTexture(GL_TEXTURE0);

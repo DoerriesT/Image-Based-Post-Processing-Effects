@@ -303,7 +303,7 @@ void main()
 			vec2(0.125, 0.0)
 		};
 
-		const float splitMult = split == 0.0 ? 4.0 : split == 1.0 ? 2.0 : 1.0;
+		const float splitMult = split == 0.0 ? 5.0 : split == 1.0 ? 2.0 : 1.0;
 
 		for(int i = 0; i < 8; ++i)
 		{
