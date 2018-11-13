@@ -195,7 +195,7 @@ vec3 multiDirectionMotionBlur(vec3 color, vec2 texCoord, ivec2 fragCoord, sample
 		weight += f * cone(T, vSLength) * wB;
 		weight += b * cone(T, vCLength) * wA;
 		// originally max(wA, wB), but using min reduces artifacts in extreme conditions
-		weight += cylinder(T, min(vSLength, vCLength)) * min(wA, wB) * 2.0;
+		weight += cylinder(T, min(vSLength, vCLength)) * max(wA, wB) * 2.0;
 	
 		totalWeight += weight;
 		result += texelFetch(colorTexture, S, 0).rgb * weight;

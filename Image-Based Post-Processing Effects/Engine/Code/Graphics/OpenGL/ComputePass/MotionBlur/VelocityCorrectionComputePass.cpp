@@ -4,6 +4,8 @@
 #include "Graphics\OpenGL\GLUtility.h"
 #include "Graphics\OpenGL\GLTimerQuery.h"
 
+static const char *CONSTANT_VELOCITY = "CONSTANT_VELOCITY";
+
 VelocityCorrectionComputePass::VelocityCorrectionComputePass(unsigned int _width, unsigned int _height)
 	:m_width(_width),
 	m_height(_height)
@@ -15,10 +17,37 @@ VelocityCorrectionComputePass::VelocityCorrectionComputePass(unsigned int _width
 }
 
 double velocityCorrectionComputeTime;
+bool constantVelocity = false;
 
 void VelocityCorrectionComputePass::execute(const RenderData & _renderData, GLuint _velocityTexture, GLuint _depthTexture)
 {
 	SCOPED_TIMER_QUERY(velocityCorrectionComputeTime);
+
+	// shader permutations
+	{
+		const auto curDefines = m_velocityCorrectionShader->getDefines();
+
+		bool constVel = false;
+
+		for (const auto &define : curDefines)
+		{
+			if (std::get<0>(define) == ShaderProgram::ShaderType::COMPUTE)
+			{
+				if (std::get<1>(define) == CONSTANT_VELOCITY)
+				{
+					constVel = true;
+				}
+			}
+		}
+
+		if (constVel != constantVelocity)
+		{
+			m_velocityCorrectionShader->setDefines({ { ShaderProgram::ShaderType::COMPUTE, CONSTANT_VELOCITY, constantVelocity } });
+			m_uReprojection.create(m_velocityCorrectionShader);
+			m_uScale.create(m_velocityCorrectionShader);
+		}
+	}
+
 	m_velocityCorrectionShader->bind();
 
 	m_uReprojection.set(_renderData.m_prevViewProjectionMatrix * _renderData.m_invViewProjectionMatrix);

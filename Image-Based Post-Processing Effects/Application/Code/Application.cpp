@@ -38,6 +38,7 @@ extern bool gtaoMultiBounce;
 extern bool freeze;
 extern bool anamorphicFlares;
 extern float fNumber;
+extern bool constantVelocity;
 
 
 namespace App
@@ -86,6 +87,78 @@ namespace App
 		app->windowWidth->set((int)resolution.first);
 		app->windowHeight->set((int)resolution.second);
 		SettingsManager::getInstance().saveToIni();
+	}
+
+	unsigned int scene;
+
+	void TW_CALL sceneGetCallback(void *value, void *clientData)
+	{
+		*(unsigned int *)value = scene;
+	}
+
+	void TW_CALL sceneSetCallback(const void *value, void *clientData)
+	{
+		Camera &camera = *(Camera *)clientData;
+		scene = *((unsigned int *)value);
+
+		glm::vec3 pos;
+		glm::quat rot;
+
+		switch (scene)
+		{
+		case 0:
+			pos = glm::vec3(12.0f, 1.8f, 0.0f);
+			rot = glm::quat(glm::vec3(0.0f, glm::radians(-90.0f), 0.0f));
+			break;
+		case 1:
+			pos = { -9.38771534f, 0.529580772f,  -1.64638960f };
+			rot.x = -0.0124382321f;
+			rot.y = 0.703372002f;
+			rot.z = -0.0123098688f;
+			rot.w = 0.710606515f;
+			break;
+		case 2:
+			pos = { -9.57731056f, 0.258460432f,  -0.0429794118f };
+			rot.x = 0.0531200469f;
+			rot.y = 0.703272939f;
+			rot.z = 0.0528445318f;
+			rot.w = 0.706960320f;
+			break;
+		case 3:
+			pos = { 13.4150219f, 1.95901549f,  -0.898027897f };
+			rot.x = -0.0170103684f;
+			rot.y = 0.973960757f;
+			rot.z = 0.0780826211f;
+			rot.w = -0.212165594f;
+			break;
+		case 4:
+			pos = { 10.1570253f, 1.65887976f,  1.64646232f };
+			rot.x = -0.119959101f;
+			rot.y = 0.551599503f;
+			rot.z = 0.0805459917f;
+			rot.w = -0.821498811f;
+			break;
+		case 5:
+			pos = { -0.964327455f, 1.59974909f,  -0.0586786345f };
+			rot.x = 0.0649230108f;
+			rot.y = 0.708267391f;
+			rot.z = 0.0657015070f;
+			rot.w = 0.699875534f;
+			break;
+		case 6:
+			pos = { -1.87112761f, 4.62619543f, 5.61673927f };
+			rot.x = 0.116875365f;
+			rot.y = 0.491376519f;
+			rot.z = 0.0667413920f;
+			rot.w = 0.860485256f;
+			break;
+		default:
+			assert(false);
+			break;
+		}
+
+		camera.setPosition(pos);
+		camera.setRotation(rot);
 	}
 
 	void TW_CALL mouseSmoothFactorGetCallback(void *value, void *clientData)
@@ -361,25 +434,29 @@ namespace App
 
 			// misc
 			{
+				TwEnumVal displayOptions[] = {
+					{ (int)GBufferDisplayMode::SHADED, "Shaded" },
+				{ (int)GBufferDisplayMode::ALBEDO, "Albedo" },
+				{ (int)GBufferDisplayMode::NORMAL, "Normal" },
+				{ (int)GBufferDisplayMode::MATERIAL, "Material" },
+				{ (int)GBufferDisplayMode::DEPTH, "Depth" },
+				{ (int)GBufferDisplayMode::VELOCITY, "Velocity" },
+				{ (int)GBufferDisplayMode::AMBIENT_OCCLUSION, "Ambient Occlusion" }
+				};
+				TwType DisplayTwType = TwDefineEnum("DisplayType", displayOptions, 7);
+				TwAddVarRW(m_settingsTweakBar, "Display Mode", DisplayTwType, &displayMode, "group=Misc");
+
 				TwAddVarRW(m_settingsTweakBar, "God Rays", TW_TYPE_BOOLCPP, &godrays, "group=Misc");
 				TwAddVarRW(m_settingsTweakBar, "Show Light Probes", TW_TYPE_BOOLCPP, &renderLightProbes, "group=Misc");
 			}
 
-
+			// benchmark
 			{
-				TwEnumVal displayOptions[] = {
-					{ (int)GBufferDisplayMode::SHADED, "Shaded" },
-					{ (int)GBufferDisplayMode::ALBEDO, "Albedo" },
-					{ (int)GBufferDisplayMode::NORMAL, "Normal" },
-					{ (int)GBufferDisplayMode::MATERIAL, "Material" },
-					{ (int)GBufferDisplayMode::DEPTH, "Depth" },
-					{ (int)GBufferDisplayMode::VELOCITY, "Velocity" },
-					{ (int)GBufferDisplayMode::AMBIENT_OCCLUSION, "Ambient Occlusion" }
-				};
-				TwType DisplayTwType = TwDefineEnum("DisplayType", displayOptions, 7);
-				TwAddVarRW(m_settingsTweakBar, "Display Mode", DisplayTwType, &displayMode, nullptr);
+				TwAddButton(m_settingsTweakBar, "Start Benchmark", benchmarkButton, &benchmarkIsRunning, "group=Benchmark");
+				TwAddVarRW(m_settingsTweakBar, "Constant Velocity", TW_TYPE_BOOLCPP, &constantVelocity, "group=Benchmark");
+				TwAddVarCB(m_settingsTweakBar, "Scene", TW_TYPE_UINT32, sceneSetCallback, sceneGetCallback, m_level->m_cameras[0].get(), "group=Benchmark min=0 max=6");
 			}
-			TwAddButton(m_settingsTweakBar, "Benchmark", benchmarkButton, &benchmarkIsRunning, nullptr);
+			
 
 		}
 
@@ -562,7 +639,7 @@ namespace App
 					<< "Single Direction Motion Blur Total:							" << benchmarkTimings.m_singleDirectionMbSum << std::endl
 					<< "Single Direction Motion Blur Velocity Correction:			" << benchmarkTimings.m_velocityCorrectionComputeTime << std::endl
 					<< "Single Direction Motion Blur Velocity Tile Max:				" << benchmarkTimings.m_velocityTileMaxRenderTime << std::endl
-					<< "Single Direction Motion Blur Velocity Neighbor Tile Max:	" << benchmarkTimings.m_velocityTileMaxRenderTime << std::endl
+					<< "Single Direction Motion Blur Velocity Neighbor Tile Max:	" << benchmarkTimings.m_velocityNeighborTileMaxRenderTime << std::endl
 					<< "Single Direction Motion Blur Render:						" << benchmarkTimings.m_motionBlurRenderTime << std::endl
 
 					<< "\nDepth of Field:" << std::endl
@@ -584,7 +661,7 @@ namespace App
 					<< "Multi Direction Motion Blur Total:							" << benchmarkTimings.m_multiDirectionMbSum << std::endl
 					<< "Multi Direction Motion Blur Velocity Correction:			" << benchmarkTimings.m_velocityCorrectionComputeTime << std::endl
 					<< "Multi Direction Motion Blur Velocity Tile Max:				" << benchmarkTimings.m_velocityTileMaxRenderTime << std::endl
-					<< "Multi Direction Motion Blur Velocity Neighbor Tile Max:		" << benchmarkTimings.m_velocityTileMaxRenderTime << std::endl
+					<< "Multi Direction Motion Blur Velocity Neighbor Tile Max:		" << benchmarkTimings.m_velocityNeighborTileMaxRenderTime << std::endl
 					<< "Multi Direction Motion Blur Render:							" << benchmarkTimings.m_motionBlurRenderTime << std::endl
 
 					<< "\nDepth of Field:" << std::endl
@@ -593,6 +670,7 @@ namespace App
 					<< "Tiled Depth of Field CoC Computation:						" << benchmarkTimings.m_cocComputeTime << std::endl
 					<< "Tiled Depth of Field CoC Tile Max:							" << benchmarkTimings.m_cocTileMaxRenderTime << std::endl
 					<< "Tiled Depth of Field CoC Neighbor Tile Max:					" << benchmarkTimings.m_cocNeighborTileMaxRenderTime << std::endl
+					<< "Tiled Depth of Field Downsample:							" << benchmarkTimings.m_seperateDofDownsampleComputeTime << std::endl
 					<< "Tiled Depth of Field Blur:									" << benchmarkTimings.m_seperateDofBlurComputeTime << std::endl
 					<< "Tiled Depth of Field Fill:									" << benchmarkTimings.m_seperateDofFillComputeTime << std::endl
 					<< "Tiled Depth of Field Composite:								" << benchmarkTimings.m_seperateDofCompositeComputeTime << std::endl
