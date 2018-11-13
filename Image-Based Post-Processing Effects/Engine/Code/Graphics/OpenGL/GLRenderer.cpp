@@ -66,6 +66,9 @@
 #include "ComputePass/AntiAliasing/AntiAliasingTonemapComputePass.h"
 #include "ComputePass/AntiAliasing/AntiAliasingReverseTonemapComputePass.h"
 #include "RenderPass/Debug/BoundingBoxRenderPass.h"
+#if PROFILING_ENABLED
+#include "RenderPass/MotionBlur/MotionBlurRenderPass.h"
+#endif // #if PROFILING_ENABLED
 
 unsigned int mbTileSize = 40;
 unsigned int dofTileSize = 16;
@@ -148,6 +151,9 @@ void GLRenderer::init(unsigned int width, unsigned int height)
 	m_seperateDofTileMaxComputePass = std::make_unique<TileBasedDofTileMaxComputePass>(width, height);
 	m_antiAliasingTonemapComputePass = std::make_unique<AntiAliasingTonemapComputePass>(width, height);
 	m_antiAliasingReverseTonemapComputePass = std::make_unique<AntiAliasingReverseTonemapComputePass>(width, height);
+#if PROFILING_ENABLED
+	m_motionBlurRenderPass = std::make_unique<MotionBlurRenderPass>(m_renderResources->m_ppFullResolutionFbo, width, height);
+#endif // #if PROFILING_ENABLED
 
 	m_boundingBoxRenderPass = std::make_unique<BoundingBoxRenderPass>(m_renderResources->m_debugFbo, width, height);
 }
@@ -335,13 +341,13 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 		GLuint dofTextures[] = { m_renderResources->m_halfResolutionDofTexA , m_renderResources->m_halfResolutionDofTexB , m_renderResources->m_halfResolutionDofTexC ,m_renderResources->m_halfResolutionDofTexD };
 		m_simpleDofBlurComputePass->execute(colorTexture, m_renderResources->m_halfResolutionCocTexB, dofTextures);
 		m_simpleDofFillComputePass->execute(dofTextures + 2);
-		m_simpleDofCompositeComputePass->execute(m_renderResources->m_fullResolutionHdrTexture);
+		m_simpleDofCompositeComputePass->execute(m_renderResources->m_fullResolutionHdrTextureA);
 		break;
 	}
 	case DepthOfField::SPRITE_BASED:
 	{
 		m_spriteDofRenderPass->render(colorTexture, m_renderResources->m_gDepthStencilTexture, m_renderResources->m_fullResolutionCocTexture, m_renderResources->m_halfResolutionDofDoubleTex, &previousRenderPass);
-		m_spriteDofCompositeComputePass->execute(m_renderResources->m_fullResolutionHdrTexture);
+		m_spriteDofCompositeComputePass->execute(m_renderResources->m_fullResolutionHdrTextureA);
 		break;
 	}
 	case DepthOfField::TILE_BASED:
@@ -354,7 +360,7 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 		GLuint dofTextures[] = { m_renderResources->m_halfResolutionDofTexA , m_renderResources->m_halfResolutionDofTexB , m_renderResources->m_halfResolutionDofTexC , m_renderResources->m_halfResolutionDofTexD };
 		m_tileBasedDofBlurComputePass->execute(dofTextures, m_renderResources->m_halfResolutionCocTexA, m_renderResources->m_cocNeighborMaxTex);
 		m_tileBasedDofFillComputePass->execute(dofTextures);
-		m_tileBasedDofCompositeComputePass->execute(colorTexture, m_renderResources->m_fullResolutionCocTexture, m_renderResources->m_fullResolutionHdrTexture);
+		m_tileBasedDofCompositeComputePass->execute(colorTexture, m_renderResources->m_fullResolutionCocTexture, m_renderResources->m_fullResolutionHdrTextureA);
 		break;
 	}
 	default:
@@ -388,7 +394,7 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 	}
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, effects.m_depthOfField != DepthOfField::OFF ? m_renderResources->m_fullResolutionHdrTexture : colorTexture);
+	glBindTexture(GL_TEXTURE_2D, effects.m_depthOfField != DepthOfField::OFF ? m_renderResources->m_fullResolutionHdrTextureA : colorTexture);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_gDepthStencilTexture);
 	glActiveTexture(GL_TEXTURE2);
@@ -405,6 +411,12 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_halfResolutionGodRayTexB);
 	glActiveTexture(GL_TEXTURE10);
 	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_anamorphicPrefilter);
+
+#if PROFILING_ENABLED
+	m_motionBlurRenderPass->render((int)effects.m_motionBlur, &previousRenderPass);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_fullResolutionHdrTextureB);
+#endif // PROFILING_ENABLED
 
 	m_toneMapRenderPass->render(effects, glm::dot(glm::vec3(1.0), renderData.m_viewDirection), &previousRenderPass);
 
@@ -501,6 +513,9 @@ void GLRenderer::resize(unsigned int width, unsigned int height)
 	m_seperateDofTileMaxComputePass->resize(width, height);
 	m_antiAliasingTonemapComputePass->resize(width, height);
 	m_antiAliasingReverseTonemapComputePass->resize(width, height);
+#if PROFILING_ENABLED
+	m_motionBlurRenderPass->resize(width, height);
+#endif // PROFILING_ENABLED
 
 	m_boundingBoxRenderPass->resize(width, height);
 }

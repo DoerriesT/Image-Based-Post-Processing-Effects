@@ -214,14 +214,23 @@ void GLRenderResources::createResizableTextures(unsigned int width, unsigned int
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_fullResolutionTextureB, 0);
 
-		glGenTextures(1, &m_fullResolutionHdrTexture);
-		glBindTexture(GL_TEXTURE_2D, m_fullResolutionHdrTexture);
+		glGenTextures(1, &m_fullResolutionHdrTextureA);
+		glBindTexture(GL_TEXTURE_2D, m_fullResolutionHdrTextureA);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_fullResolutionHdrTexture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_fullResolutionHdrTextureA, 0);
+
+		glGenTextures(1, &m_fullResolutionHdrTextureB);
+		glBindTexture(GL_TEXTURE_2D, m_fullResolutionHdrTextureB);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_fullResolutionHdrTextureB, 0);
 
 		glGenTextures(1, &m_fullResolutionCocTexture);
 		glBindTexture(GL_TEXTURE_2D, m_fullResolutionCocTexture);
@@ -616,7 +625,8 @@ void GLRenderResources::deleteResizableTextures()
 		m_luminanceTexture[1],
 		m_fullResolutionTextureA,
 		m_fullResolutionTextureB,
-		m_fullResolutionHdrTexture,
+		m_fullResolutionHdrTextureA,
+		m_fullResolutionHdrTextureB,
 		m_fullResolutionCocTexture,
 		m_fullResolutionDofTexA,
 		m_fullResolutionDofTexB,

@@ -1,4 +1,5 @@
 #include "VelocityNeighborTileMaxRenderPass.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 VelocityNeighborTileMaxRenderPass::VelocityNeighborTileMaxRenderPass(GLuint _fbo, unsigned int _width, unsigned int _height)
 {
@@ -27,8 +28,11 @@ VelocityNeighborTileMaxRenderPass::VelocityNeighborTileMaxRenderPass(GLuint _fbo
 	m_fullscreenTriangle = Mesh::createMesh("Resources/Models/fullscreenTriangle.mesh", 1, true);
 }
 
+double velocityNeighborTileMaxRenderTime;
+
 void VelocityNeighborTileMaxRenderPass::render(GLuint _velocityTileMaxTexture, GLuint _velocityNeighborTileMaxTexture, RenderPass ** _previousRenderPass)
 {
+	SCOPED_TIMER_QUERY(velocityNeighborTileMaxRenderTime);
 	RenderPass::begin(*_previousRenderPass);
 	*_previousRenderPass = this;
 

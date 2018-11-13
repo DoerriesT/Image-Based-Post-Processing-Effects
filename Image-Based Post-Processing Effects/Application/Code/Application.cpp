@@ -10,6 +10,9 @@
 #include <Input\UserInput.h>
 #include <Input\Gamepad.h>
 #include <Graphics\Effects.h>
+#include <sstream>
+#include <Utilities/Utility.h>
+#include <fstream>
 
 #define GETTER_FUNC_DEF(name, type) void TW_CALL name##GetCallback(void *value, void *clientData)	\
 									{																\
@@ -29,45 +32,13 @@
 #define SETTER_FUNC_PTR(name) name##SetCallback
 
 extern bool godrays;
-extern bool disp;
 bool renderLightProbes = false;
 extern GBufferDisplayMode displayMode;
-extern int irradianceSource;
-extern float occAmp;
 extern bool gtaoMultiBounce;
 extern bool freeze;
 extern bool anamorphicFlares;
-extern double gtaoRenderTime;
-extern double gtaoSpatialDenoiseTime;
-extern double gtaoTemporalDenoiseTime;
-extern double hbaoRenderTime;
-extern double bilateralBlurRenderTime;
-extern double originalSsaoRenderTime;
-extern double ssaoRenderTime;
-extern double cocComputeTime;
-extern double seperateDofBlurComputeTime;
-extern double seperateDofCompositeComputeTime;
-extern double seperateDofFillComputeTime;
-extern double seperateDofTileMaxComputeTime;
-extern double simpleDofCocBlurComputeTime;
-extern double simpleDofCompositeComputeTime;
-extern double simpleDofFillComputeTime;
-extern double spriteDofCompositeComputeTime;
-extern double cocNeighborTileMaxRenderTime;
-extern double cocTileMaxRenderTime;
-extern double spriteDofRenderTime;
-extern double simpleDofBlurComputeTime;
-extern double seperateDofDownsampleComputeTime;
 extern float fNumber;
 
-// sums
-double gtaoSum;
-double hbaoSum;
-double ssaoSum;
-double ssaoOriginalSum;
-double simpleDofSum;
-double spriteDofSum;
-double tiledDofSum;
 
 namespace App
 {
@@ -117,18 +88,6 @@ namespace App
 		SettingsManager::getInstance().saveToIni();
 	}
 
-	void TW_CALL lightDirGetCallback(void *value, void *clientData)
-	{
-		*(float *)value = (*(std::shared_ptr<DirectionalLight> *)clientData)->getDirection().z;
-	}
-
-	void TW_CALL lightDirSetCallback(const void *value, void *clientData)
-	{
-		auto dir = (*(std::shared_ptr<DirectionalLight> *)clientData)->getDirection();
-		dir.z = *(float *)value;
-		(*(std::shared_ptr<DirectionalLight> *)clientData)->setDirection(glm::normalize(dir));
-	}
-
 	void TW_CALL mouseSmoothFactorGetCallback(void *value, void *clientData)
 	{
 		*(float *)value = ((CameraController *)clientData)->getSmoothFactor();
@@ -139,8 +98,18 @@ namespace App
 		((CameraController *)clientData)->setSmoothFactor(*(float *)value);
 	}
 
+	void TW_CALL benchmarkButton(void *clientData)
+	{
+		bool &benchmarkEnabled = *((bool *)clientData);
+
+		if (!benchmarkEnabled)
+		{
+			benchmarkEnabled = true;
+		}
+	}
+
 	Application::Application()
-		:cameraController(),
+		:m_cameraController(),
 		guiVisible(true)
 	{
 	}
@@ -187,63 +156,87 @@ namespace App
 		}
 
 
-		level = loadSponzaLevel();
-		SystemManager::getInstance().setLevel(level);
-		cameraController.setCamera(level->m_cameras[level->m_activeCameraIndex]);
-		cameraController.setSmoothFactor(0.85f);
+		m_level = loadSponzaLevel();
+		SystemManager::getInstance().setLevel(m_level);
+		m_cameraController.setCamera(m_level->m_cameras[m_level->m_activeCameraIndex]);
+		m_cameraController.setSmoothFactor(0.85f);
 
 		TwInit(TW_OPENGL_CORE, NULL); // for core profile
 		TwWindowSize(Engine::getInstance()->getWindow()->getWidth(), Engine::getInstance()->getWindow()->getHeight());
-		settingsTweakBar = TwNewBar("Settings");
+		m_settingsTweakBar = TwNewBar("Settings");
+		m_timingsTweakBar = TwNewBar("Timings");
 		TwDefine("Settings refresh=0.49");
 
+		// timings
 		{
-			// timings
-			{
-				TwAddVarRO(settingsTweakBar, "FPS", TW_TYPE_STDSTRING, &fpsStr, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "FPS Average", TW_TYPE_STDSTRING, &fpsAvgStr, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "FPS Worst", TW_TYPE_STDSTRING, &fpsWorstStr, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Frame Time", TW_TYPE_STDSTRING, &frameTimeStr, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Frame Time Average", TW_TYPE_STDSTRING, &frameTimeAvgStr, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Frame Time Worst", TW_TYPE_STDSTRING, &frameTimeWorstStr, "group=Timings");
+			TwAddVarRO(m_timingsTweakBar, "FPS", TW_TYPE_STDSTRING, &fpsStr, "group=Frame_Timings");
+			TwAddVarRO(m_timingsTweakBar, "FPS Average", TW_TYPE_STDSTRING, &fpsAvgStr, "group=Frame_Timings");
+			TwAddVarRO(m_timingsTweakBar, "FPS Worst", TW_TYPE_STDSTRING, &fpsWorstStr, "group=Frame_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Frame Time", TW_TYPE_STDSTRING, &frameTimeStr, "group=Frame_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Frame Time Average", TW_TYPE_STDSTRING, &frameTimeAvgStr, "group=Frame_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Frame Time Worst", TW_TYPE_STDSTRING, &frameTimeWorstStr, "group=Frame_Timings");
 
-				// ssao
-				TwAddVarRO(settingsTweakBar, "GTAO Render", TW_TYPE_DOUBLE, &gtaoRenderTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "GTAO Spatial", TW_TYPE_DOUBLE, &gtaoSpatialDenoiseTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "GTAO Temporal", TW_TYPE_DOUBLE, &gtaoTemporalDenoiseTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "HBAO", TW_TYPE_DOUBLE, &hbaoRenderTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "SSAO", TW_TYPE_DOUBLE, &ssaoRenderTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "SSAO (Original)", TW_TYPE_DOUBLE, &originalSsaoRenderTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "SSAO Blur", TW_TYPE_DOUBLE, &bilateralBlurRenderTime, "group=Timings");
+			// mb
+			TwAddVarRO(m_timingsTweakBar, "Simple MB Velocity Correction", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_velocityCorrectionComputeTime, "group=Simple_Motion_Blur_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Simple MB Render", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_motionBlurRenderTime, "group=Simple_Motion_Blur_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Simple MB Total", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_simpleMbSum, "group=Simple_Motion_Blur_Timings");
 
-				// dof
-				TwAddVarRO(settingsTweakBar, "CoC Compute", TW_TYPE_DOUBLE, &cocComputeTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "CoC Blur", TW_TYPE_DOUBLE, &simpleDofCocBlurComputeTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Simple DoF Blur", TW_TYPE_DOUBLE, &simpleDofBlurComputeTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Simple DoF Fill", TW_TYPE_DOUBLE, &simpleDofFillComputeTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Simple DoF Composite", TW_TYPE_DOUBLE, &simpleDofCompositeComputeTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Sprite DoF Render", TW_TYPE_DOUBLE, &spriteDofRenderTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Sprite DoF Composite", TW_TYPE_DOUBLE, &spriteDofCompositeComputeTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Coc Tile Max", TW_TYPE_DOUBLE, &cocTileMaxRenderTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Coc Neighbor Tile Max", TW_TYPE_DOUBLE, &cocNeighborTileMaxRenderTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Tiled DoF Downsample", TW_TYPE_DOUBLE, &seperateDofDownsampleComputeTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Tiled DoF Blur", TW_TYPE_DOUBLE, &seperateDofBlurComputeTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Tiled DoF Fill", TW_TYPE_DOUBLE, &seperateDofFillComputeTime, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Tiled DoF Composite", TW_TYPE_DOUBLE, &seperateDofCompositeComputeTime, "group=Timings");
+			TwAddVarRO(m_timingsTweakBar, "Single Direction MB Velocity Correction", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_velocityCorrectionComputeTime, "group=Single_Direction_Motion_Blur_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Single Direction MB Velocity Tile Max", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_velocityTileMaxRenderTime, "group=Single_Direction_Motion_Blur_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Single Direction MB Velocity Neighbor Tile Max", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_velocityNeighborTileMaxRenderTime, "group=Single_Direction_Motion_Blur_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Single Direction MB Render", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_motionBlurRenderTime, "group=Single_Direction_Motion_Blur_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Single Direction MB Total", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_singleDirectionMbSum, "group=Single_Direction_Motion_Blur_Timings");
 
-				// summed timings
-				TwAddVarRO(settingsTweakBar, "GTAO Total", TW_TYPE_DOUBLE, &gtaoSum, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "HBAO Total", TW_TYPE_DOUBLE, &hbaoSum, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "SSAO Total", TW_TYPE_DOUBLE, &ssaoSum, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "SSAO (Original) Total", TW_TYPE_DOUBLE, &ssaoOriginalSum, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Simple DoF Total", TW_TYPE_DOUBLE, &simpleDofSum, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Sprite DoF Total", TW_TYPE_DOUBLE, &spriteDofSum, "group=Timings");
-				TwAddVarRO(settingsTweakBar, "Tiled DoF Total", TW_TYPE_DOUBLE, &tiledDofSum, "group=Timings");
-			}
+			TwAddVarRO(m_timingsTweakBar, "Multi Direction MB Velocity Correction", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_velocityCorrectionComputeTime, "group=Multi_Direction_Motion_Blur_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Multi Direction MB Velocity Tile Max", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_velocityTileMaxRenderTime, "group=Multi_Direction_Motion_Blur_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Multi Direction MB Velocity Neighbor Tile Max", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_velocityNeighborTileMaxRenderTime, "group=Multi_Direction_Motion_Blur_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Multi Direction MB Render", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_motionBlurRenderTime, "group=Multi_Direction_Motion_Blur_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Multi Direction MB Total", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_multiDirectionMbSum, "group=Multi_Direction_Motion_Blur_Timings");
 
+			// dof
+			TwAddVarRO(m_timingsTweakBar, "Simple DoF CoC Compute", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_cocComputeTime, "group=Simple_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Simple DoF CoC Blur", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_simpleDofCocBlurComputeTime, "group=Simple_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Simple DoF Blur", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_simpleDofBlurComputeTime, "group=Simple_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Simple DoF Composite", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_simpleDofCompositeComputeTime, "group=Simple_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Simple DoF Total", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_simpleDofSum, "group=Simple_Depth_of_Field_Timings");
+
+			TwAddVarRO(m_timingsTweakBar, "Sprite DoF CoC Compute", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_cocComputeTime, "group=Sprite_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Sprite DoF Render", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_spriteDofRenderTime, "group=Sprite_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Sprite DoF Composite", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_spriteDofCompositeComputeTime, "group=Sprite_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Sprite DoF Total", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_spriteDofSum, "group=Sprite_Depth_of_Field_Timings");
+
+			TwAddVarRO(m_timingsTweakBar, "Tiled DoF CoC Compute", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_cocComputeTime, "group=Tiled_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Tiled DoF Coc Tile Max", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_cocTileMaxRenderTime, "group=Tiled_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Tiled DoF Coc Neighbor Tile Max", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_cocNeighborTileMaxRenderTime, "group=Tiled_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Tiled DoF Downsample", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_seperateDofDownsampleComputeTime, "group=Tiled_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Tiled DoF Blur", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_seperateDofBlurComputeTime, "group=Tiled_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Tiled DoF Fill", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_seperateDofFillComputeTime, "group=Tiled_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Tiled DoF Composite", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_seperateDofCompositeComputeTime, "group=Tiled_Depth_of_Field_Timings");
+			TwAddVarRO(m_timingsTweakBar, "Tiled DoF Total", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_tiledDofSum, "group=Tiled_Depth_of_Field_Timings");
+
+			// ssao
+			TwAddVarRO(m_timingsTweakBar, "SSAO (Original)", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_originalSsaoRenderTime, "group=SSAO_Original_Timings");
+			TwAddVarRO(m_timingsTweakBar, "SSAO (Original) Blur", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_bilateralBlurRenderTime, "group=SSAO_Original_Timings");
+			TwAddVarRO(m_timingsTweakBar, "SSAO (Original) Total", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_ssaoOriginalSum, "group=SSAO_Original_Timings");
+
+			TwAddVarRO(m_timingsTweakBar, "SSAO", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_ssaoRenderTime, "group=SSAO_Timings");
+			TwAddVarRO(m_timingsTweakBar, "SSAO Blur", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_bilateralBlurRenderTime, "group=SSAO_Timings");
+			TwAddVarRO(m_timingsTweakBar, "SSAO Total", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_ssaoSum, "group=SSAO_Timings");
+
+			TwAddVarRO(m_timingsTweakBar, "HBAO", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_hbaoRenderTime, "group=HBAO_Timings");
+			TwAddVarRO(m_timingsTweakBar, "HBAO Blur", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_bilateralBlurRenderTime, "group=HBAO_Timings");
+			TwAddVarRO(m_timingsTweakBar, "HBAO Total", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_hbaoSum, "group=HBAO_Timings");
+
+			TwAddVarRO(m_timingsTweakBar, "GTAO Render", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_gtaoRenderTime, "group=GTAO_Timings");
+			TwAddVarRO(m_timingsTweakBar, "GTAO Spatial", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_gtaoSpatialDenoiseTime, "group=GTAO_Timings");
+			TwAddVarRO(m_timingsTweakBar, "GTAO Temporal", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_gtaoTemporalDenoiseTime, "group=GTAO_Timings");
+			TwAddVarRO(m_timingsTweakBar, "GTAO Total", TW_TYPE_DOUBLE, &m_currentFrameTimings.m_gtaoSum, "group=GTAO_Timings");
+		}
+
+		{
 			// mouse
 			{
-				TwAddVarCB(settingsTweakBar, "Smoothing Factor", TW_TYPE_FLOAT, SETTER_FUNC_PTR(mouseSmoothFactor), GETTER_FUNC_PTR(mouseSmoothFactor), &cameraController, "group=Mouse min=0.0 max=1.0 step=0.01");
+				TwAddVarCB(m_settingsTweakBar, "Smoothing Factor", TW_TYPE_FLOAT, SETTER_FUNC_PTR(mouseSmoothFactor), GETTER_FUNC_PTR(mouseSmoothFactor), &m_cameraController, "group=Mouse min=0.0 max=1.0 step=0.01");
 			}
 
 			// window
@@ -252,7 +245,7 @@ namespace App
 				{
 					TwEnumVal windowOptions[] = { { (int)WindowMode::WINDOWED, "Windowed" },{ (int)WindowMode::BORDERLESS_FULLSCREEN, "Borderless Fullscreen" },{ (int)WindowMode::FULLSCREEN, "Fullscreen" } };
 					TwType WindowModeTwType = TwDefineEnum("WindowModeType", windowOptions, 3);
-					TwAddVarCB(settingsTweakBar, "Window Mode", WindowModeTwType, SETTER_FUNC_PTR(windowMode), GETTER_FUNC_PTR(windowMode), this, "group=Window");
+					TwAddVarCB(m_settingsTweakBar, "Window Mode", WindowModeTwType, SETTER_FUNC_PTR(windowMode), GETTER_FUNC_PTR(windowMode), this, "group=Window");
 				}
 
 				// window resolution
@@ -267,33 +260,23 @@ namespace App
 					{
 						const unsigned int w = resolutions[i].first;
 						const unsigned int h = resolutions[i].second;
-						resolutionOptionStrings.push_back(std::to_string(w) + " x " + std::to_string(h));
+						m_resolutionOptionStrings.push_back(std::to_string(w) + " x " + std::to_string(h));
 					}
 
 					// only call c_str() after vector is completely filled (don't touch it after this point or the char pointers will invalidate)
 					// TODO: find better solution
-					for (size_t i = 0; i < resolutionOptionStrings.size(); ++i)
+					for (size_t i = 0; i < m_resolutionOptionStrings.size(); ++i)
 					{
-						const char *str = resolutionOptionStrings[i].c_str();
+						const char *str = m_resolutionOptionStrings[i].c_str();
 						resolutionOptions.push_back({ (int)i, str });
 					}
 
 					TwType ResolutionTwType = TwDefineEnum("ResolutionType", resolutionOptions.data(), resolutionOptions.size());
-					TwAddVarCB(settingsTweakBar, "Window Resolution", ResolutionTwType, SETTER_FUNC_PTR(windowResolution), GETTER_FUNC_PTR(windowResolution), this, "group=Window");
+					TwAddVarCB(m_settingsTweakBar, "Window Resolution", ResolutionTwType, SETTER_FUNC_PTR(windowResolution), GETTER_FUNC_PTR(windowResolution), this, "group=Window");
 				}
 
 				// vsync
-				TwAddVarCB(settingsTweakBar, "V-Sync", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(vsync), GETTER_FUNC_PTR(vsync), this, "group=Window");
-			}
-
-			// shadows
-			{
-				// shadow quality
-				{
-					TwEnumVal shadowOptions[] = { { (int)ShadowQuality::OFF, "Off" },{ (int)ShadowQuality::NORMAL, "Normal" } };
-					TwType ShadowTwType = TwDefineEnum("ShadowType", shadowOptions, 2);
-					TwAddVarCB(settingsTweakBar, "Shadow Quality", ShadowTwType, SETTER_FUNC_PTR(shadowQuality), GETTER_FUNC_PTR(shadowQuality), this, "group=Shadows");
-				}
+				TwAddVarCB(m_settingsTweakBar, "V-Sync", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(vsync), GETTER_FUNC_PTR(vsync), this, "group=Window");
 			}
 
 			// af
@@ -307,81 +290,81 @@ namespace App
 					for (int i = 2; i <= aa; i *= 2)
 					{
 						// strings need to reside somewhere -> c_str()
-						afOptionStrings.push_back("x" + std::to_string(i));
+						m_afOptionStrings.push_back("x" + std::to_string(i));
 					}
 
 					// only call c_str() after vector is completely filled (don't touch it after this point or the char pointers will invalidate)
 					// TODO: find better solution
 					for (int i = 2, j = 0; i <= aa; i *= 2, ++j)
 					{
-						const char *str = afOptionStrings[j].c_str();
+						const char *str = m_afOptionStrings[j].c_str();
 						afOptions.push_back({ i, str });
 					}
 
 					TwType DofTwType = TwDefineEnum("AfType", afOptions.data(), afOptions.size());
-					TwAddVarCB(settingsTweakBar, "Anisotropic Filtering", DofTwType, SETTER_FUNC_PTR(anisotropicFiltering), GETTER_FUNC_PTR(anisotropicFiltering), this, "group=Anisotropic_Filtering");
+					TwAddVarCB(m_settingsTweakBar, "Anisotropic Filtering", DofTwType, SETTER_FUNC_PTR(anisotropicFiltering), GETTER_FUNC_PTR(anisotropicFiltering), this, "group=Anisotropic_Filtering");
 				}
 			}
 
 			// anti aliasing
 			{
-				TwAddVarCB(settingsTweakBar, "FXAA", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(fxaaEnabled), GETTER_FUNC_PTR(fxaaEnabled), this, "group=Anti-Aliasing");
-				TwAddVarCB(settingsTweakBar, "SMAA", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(smaaEnabled), GETTER_FUNC_PTR(smaaEnabled), this, "group=Anti-Aliasing");
-				TwAddVarCB(settingsTweakBar, "SMAA Temporal AA", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(smaaTemporalAA), GETTER_FUNC_PTR(smaaTemporalAA), this, "group=Anti-Aliasing");
-			}
-
-			// lens
-			{
-				TwAddVarCB(settingsTweakBar, "Lens Flares", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensFlaresEnabled), GETTER_FUNC_PTR(lensFlaresEnabled), this, "group=Lens");
-				TwAddVarRW(settingsTweakBar, "Anamorphic Flares", TW_TYPE_BOOLCPP, &anamorphicFlares, "group=Lens");
-				TwAddVarCB(settingsTweakBar, "Bloom", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(bloomEnabled), GETTER_FUNC_PTR(bloomEnabled), this, "group=Lens ");
-				TwAddVarCB(settingsTweakBar, "Lens Dirt", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensDirtEnabled), GETTER_FUNC_PTR(lensDirtEnabled), this, "group=Lens ");
-				TwAddVarCB(settingsTweakBar, "Lens Dirt Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(lensDirtStrength), GETTER_FUNC_PTR(lensDirtStrength), this, "group=Lens min=0.0 max=10.0 step=0.1");
+				TwAddVarCB(m_settingsTweakBar, "FXAA", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(fxaaEnabled), GETTER_FUNC_PTR(fxaaEnabled), this, "group=Anti-Aliasing");
+				TwAddVarCB(m_settingsTweakBar, "SMAA", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(smaaEnabled), GETTER_FUNC_PTR(smaaEnabled), this, "group=Anti-Aliasing");
+				TwAddVarCB(m_settingsTweakBar, "SMAA Temporal AA", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(smaaTemporalAA), GETTER_FUNC_PTR(smaaTemporalAA), this, "group=Anti-Aliasing");
 			}
 
 			// depth of field
 			{
 				TwEnumVal dofOptions[] = { { (int)DepthOfField::OFF, "Off" },{ (int)DepthOfField::SIMPLE, "Simple" },{ (int)DepthOfField::SPRITE_BASED, "Sprite Based" },{ (int)DepthOfField::TILE_BASED, "Tile-Based" } };
 				TwType DofTwType = TwDefineEnum("DepthOfFieldType", dofOptions, 4);
-				TwAddVarCB(settingsTweakBar, "Depth of Field", DofTwType, SETTER_FUNC_PTR(depthOfField), GETTER_FUNC_PTR(depthOfField), this, "group=Depth_of_Field");
-				TwAddVarRW(settingsTweakBar, "f-Number", TW_TYPE_FLOAT, &fNumber, "group=Depth_of_Field min=1.4 max=16.0 step=0.1");
+				TwAddVarCB(m_settingsTweakBar, "Depth of Field", DofTwType, SETTER_FUNC_PTR(depthOfField), GETTER_FUNC_PTR(depthOfField), this, "group=Depth_of_Field");
+				TwAddVarRW(m_settingsTweakBar, "f-Number", TW_TYPE_FLOAT, &fNumber, "group=Depth_of_Field min=1.4 max=16.0 step=0.1");
 			}
 
 			// motion blur
 			{
 				TwEnumVal mbOptions[] = { { (int)MotionBlur::OFF, "Off" },{ (int)MotionBlur::SIMPLE, "Simple" },{ (int)MotionBlur::TILE_BASED_SINGLE, "Tile-Based Single Direction" },{ (int)MotionBlur::TILE_BASED_MULTI, "Tile-Based Multi Direction" } };
 				TwType MbTwType = TwDefineEnum("MotionBlurType", mbOptions, 4);
-				TwAddVarCB(settingsTweakBar, "Motion Blur", MbTwType, SETTER_FUNC_PTR(motionBlur), GETTER_FUNC_PTR(motionBlur), this, "group=Motion_Blur");
+				TwAddVarCB(m_settingsTweakBar, "Motion Blur", MbTwType, SETTER_FUNC_PTR(motionBlur), GETTER_FUNC_PTR(motionBlur), this, "group=Motion_Blur");
 			}
 
 			// ambient occlusion
 			{
 				TwEnumVal aoOptions[] = { { (int)AmbientOcclusion::OFF, "Off" }, { (int)AmbientOcclusion::SSAO_ORIGINAL, "SSAO (Original)" }, { (int)AmbientOcclusion::SSAO, "SSAO" }, { (int)AmbientOcclusion::HBAO, "HBAO" }, {(int)AmbientOcclusion::GTAO, "GTAO"} };
 				TwType AoTwType = TwDefineEnum("AoType", aoOptions, 5);
-				TwAddVarCB(settingsTweakBar, "Ambient Occlusion", AoTwType, SETTER_FUNC_PTR(ambientOcclusion), GETTER_FUNC_PTR(ambientOcclusion), this, "group=Ambient_Occlusion");
+				TwAddVarCB(m_settingsTweakBar, "Ambient Occlusion", AoTwType, SETTER_FUNC_PTR(ambientOcclusion), GETTER_FUNC_PTR(ambientOcclusion), this, "group=Ambient_Occlusion");
 
-				TwAddVarCB(settingsTweakBar, "SSAO Kernel Size", TW_TYPE_INT32, SETTER_FUNC_PTR(ssaoKernelSize), GETTER_FUNC_PTR(ssaoKernelSize), this, "group=Ambient_Occlusion min=1 max=64");
-				TwAddVarCB(settingsTweakBar, "SSAO Radius", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(ssaoRadius), GETTER_FUNC_PTR(ssaoRadius), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
-				TwAddVarCB(settingsTweakBar, "SSAO Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(ssaoStrength), GETTER_FUNC_PTR(ssaoStrength), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
-				TwAddVarCB(settingsTweakBar, "HBAO Directions", TW_TYPE_INT32, SETTER_FUNC_PTR(hbaoDirections), GETTER_FUNC_PTR(hbaoDirections), this, "group=Ambient_Occlusion min=1 max=32");
-				TwAddVarCB(settingsTweakBar, "HBAO Steps", TW_TYPE_INT32, SETTER_FUNC_PTR(hbaoSteps), GETTER_FUNC_PTR(hbaoSteps), this, "group=Ambient_Occlusion min=1 max=32");
-				TwAddVarCB(settingsTweakBar, "HBAO Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoStrength), GETTER_FUNC_PTR(hbaoStrength), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
-				TwAddVarCB(settingsTweakBar, "HBAO Radius", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoRadius), GETTER_FUNC_PTR(hbaoRadius), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
-				TwAddVarCB(settingsTweakBar, "HBAO Max Radius Pixels", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoMaxRadiusPixels), GETTER_FUNC_PTR(hbaoMaxRadiusPixels), this, "group=Ambient_Occlusion min=1 max=256");
-				TwAddVarCB(settingsTweakBar, "HBAO Angle Bias", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoAngleBias), GETTER_FUNC_PTR(hbaoAngleBias), this, "group=Ambient_Occlusion min=0.0 max=1.5 step=0.01");
-				TwAddVarCB(settingsTweakBar, "GTAO Steps", TW_TYPE_INT32, SETTER_FUNC_PTR(gtaoSteps), GETTER_FUNC_PTR(gtaoSteps), this, "group=Ambient_Occlusion min=1 max=32");
-				TwAddVarCB(settingsTweakBar, "GTAO Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoStrength), GETTER_FUNC_PTR(gtaoStrength), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
-				TwAddVarCB(settingsTweakBar, "GTAO Radius", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoRadius), GETTER_FUNC_PTR(gtaoRadius), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
-				TwAddVarCB(settingsTweakBar, "GTAO Max Radius Pixels", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoMaxRadiusPixels), GETTER_FUNC_PTR(gtaoMaxRadiusPixels), this, "group=Ambient_Occlusion min=1 max=256");
-				TwAddVarRW(settingsTweakBar, "GTAO Multi Bounce", TW_TYPE_BOOLCPP, &gtaoMultiBounce, "group=Ambient_Occlusion");
+				TwAddVarCB(m_settingsTweakBar, "SSAO Kernel Size", TW_TYPE_INT32, SETTER_FUNC_PTR(ssaoKernelSize), GETTER_FUNC_PTR(ssaoKernelSize), this, "group=Ambient_Occlusion min=1 max=64");
+				TwAddVarCB(m_settingsTweakBar, "SSAO Radius", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(ssaoRadius), GETTER_FUNC_PTR(ssaoRadius), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
+				TwAddVarCB(m_settingsTweakBar, "SSAO Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(ssaoStrength), GETTER_FUNC_PTR(ssaoStrength), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
+				TwAddVarCB(m_settingsTweakBar, "HBAO Directions", TW_TYPE_INT32, SETTER_FUNC_PTR(hbaoDirections), GETTER_FUNC_PTR(hbaoDirections), this, "group=Ambient_Occlusion min=1 max=32");
+				TwAddVarCB(m_settingsTweakBar, "HBAO Steps", TW_TYPE_INT32, SETTER_FUNC_PTR(hbaoSteps), GETTER_FUNC_PTR(hbaoSteps), this, "group=Ambient_Occlusion min=1 max=32");
+				TwAddVarCB(m_settingsTweakBar, "HBAO Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoStrength), GETTER_FUNC_PTR(hbaoStrength), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
+				TwAddVarCB(m_settingsTweakBar, "HBAO Radius", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoRadius), GETTER_FUNC_PTR(hbaoRadius), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
+				TwAddVarCB(m_settingsTweakBar, "HBAO Max Radius Pixels", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoMaxRadiusPixels), GETTER_FUNC_PTR(hbaoMaxRadiusPixels), this, "group=Ambient_Occlusion min=1 max=256");
+				TwAddVarCB(m_settingsTweakBar, "HBAO Angle Bias", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(hbaoAngleBias), GETTER_FUNC_PTR(hbaoAngleBias), this, "group=Ambient_Occlusion min=0.0 max=1.5 step=0.01");
+				TwAddVarCB(m_settingsTweakBar, "GTAO Steps", TW_TYPE_INT32, SETTER_FUNC_PTR(gtaoSteps), GETTER_FUNC_PTR(gtaoSteps), this, "group=Ambient_Occlusion min=1 max=32");
+				TwAddVarCB(m_settingsTweakBar, "GTAO Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoStrength), GETTER_FUNC_PTR(gtaoStrength), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
+				TwAddVarCB(m_settingsTweakBar, "GTAO Radius", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoRadius), GETTER_FUNC_PTR(gtaoRadius), this, "group=Ambient_Occlusion min=0.1 max=10.0 step=0.1");
+				TwAddVarCB(m_settingsTweakBar, "GTAO Max Radius Pixels", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(gtaoMaxRadiusPixels), GETTER_FUNC_PTR(gtaoMaxRadiusPixels), this, "group=Ambient_Occlusion min=1 max=256");
+				TwAddVarRW(m_settingsTweakBar, "GTAO Multi Bounce", TW_TYPE_BOOLCPP, &gtaoMultiBounce, "group=Ambient_Occlusion");
 			}
 
-			TwAddVarRW(settingsTweakBar, "God Rays", TW_TYPE_BOOLCPP, &godrays, nullptr);
-			TwAddVarRW(settingsTweakBar, "Parallax Occlusion Mapping", TW_TYPE_BOOLCPP, &disp, nullptr);
-			TwAddVarRW(settingsTweakBar, "Show Light Probes", TW_TYPE_BOOLCPP, &renderLightProbes, nullptr);
-			TwAddVarRW(settingsTweakBar, "Irradiance Source", TW_TYPE_INT32, &irradianceSource, "min=0 max=2");
-			TwAddVarRW(settingsTweakBar, "Occlusion Amplifier", TW_TYPE_FLOAT, &occAmp, "min=0.0 max=100.0 step=0.1");
-			TwAddVarCB(settingsTweakBar, "Light Dir", TW_TYPE_FLOAT, SETTER_FUNC_PTR(lightDir), GETTER_FUNC_PTR(lightDir), &level->m_lights.m_directionalLights[0], "min=-1.0 max=1.0 step=0.01");
+			// lens
+			{
+				TwAddVarCB(m_settingsTweakBar, "Lens Flares", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensFlaresEnabled), GETTER_FUNC_PTR(lensFlaresEnabled), this, "group=Lens");
+				TwAddVarRW(m_settingsTweakBar, "Anamorphic Flares", TW_TYPE_BOOLCPP, &anamorphicFlares, "group=Lens");
+				TwAddVarCB(m_settingsTweakBar, "Bloom", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(bloomEnabled), GETTER_FUNC_PTR(bloomEnabled), this, "group=Lens ");
+				TwAddVarCB(m_settingsTweakBar, "Lens Dirt", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensDirtEnabled), GETTER_FUNC_PTR(lensDirtEnabled), this, "group=Lens ");
+				TwAddVarCB(m_settingsTweakBar, "Lens Dirt Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(lensDirtStrength), GETTER_FUNC_PTR(lensDirtStrength), this, "group=Lens min=0.0 max=10.0 step=0.1");
+			}
+
+			// misc
+			{
+				TwAddVarRW(m_settingsTweakBar, "God Rays", TW_TYPE_BOOLCPP, &godrays, "group=Misc");
+				TwAddVarRW(m_settingsTweakBar, "Show Light Probes", TW_TYPE_BOOLCPP, &renderLightProbes, "group=Misc");
+			}
+
 
 			{
 				TwEnumVal displayOptions[] = {
@@ -394,8 +377,9 @@ namespace App
 					{ (int)GBufferDisplayMode::AMBIENT_OCCLUSION, "Ambient Occlusion" }
 				};
 				TwType DisplayTwType = TwDefineEnum("DisplayType", displayOptions, 7);
-				TwAddVarRW(settingsTweakBar, "Display Mode", DisplayTwType, &displayMode, nullptr);
+				TwAddVarRW(m_settingsTweakBar, "Display Mode", DisplayTwType, &displayMode, nullptr);
 			}
+			TwAddButton(m_settingsTweakBar, "Benchmark", benchmarkButton, &benchmarkIsRunning, nullptr);
 
 		}
 
@@ -403,12 +387,19 @@ namespace App
 		Engine::getInstance()->getWindow()->addResizeListener(this);
 	}
 
-	
+
 
 	void Application::input(double time, double timeDelta)
 	{
-		cameraController.input(time, timeDelta);
-		freeze = UserInput::getInstance().isKeyPressed(InputKey::SPACE);
+		if (!benchmarkIsRunning)
+		{
+			m_cameraController.input(time, timeDelta);
+			freeze = UserInput::getInstance().isKeyPressed(InputKey::SPACE);
+		}
+		else
+		{
+			freeze = false;
+		}
 	}
 
 	void Application::update(double time, double timeDelta)
@@ -425,6 +416,233 @@ namespace App
 
 	void Application::render()
 	{
+		// timer query results
+		extern double gtaoRenderTime;
+		extern double gtaoSpatialDenoiseTime;
+		extern double gtaoTemporalDenoiseTime;
+		extern double hbaoRenderTime;
+		extern double bilateralBlurRenderTime;
+		extern double originalSsaoRenderTime;
+		extern double ssaoRenderTime;
+		extern double cocComputeTime;
+		extern double seperateDofBlurComputeTime;
+		extern double seperateDofCompositeComputeTime;
+		extern double seperateDofFillComputeTime;
+		extern double simpleDofCocBlurComputeTime;
+		extern double simpleDofCompositeComputeTime;
+		extern double simpleDofFillComputeTime;
+		extern double spriteDofCompositeComputeTime;
+		extern double cocNeighborTileMaxRenderTime;
+		extern double cocTileMaxRenderTime;
+		extern double spriteDofRenderTime;
+		extern double simpleDofBlurComputeTime;
+		extern double seperateDofDownsampleComputeTime;
+		extern double velocityCorrectionComputeTime;
+		extern double velocityTileMaxRenderTime;
+		extern double velocityNeighborTileMaxRenderTime;
+		extern double motionBlurRenderTime;
+
+		memset(&m_currentFrameTimings, 0, sizeof(m_currentFrameTimings));
+		m_currentFrameTimings.m_gtaoRenderTime = gtaoRenderTime;
+		m_currentFrameTimings.m_gtaoSpatialDenoiseTime = gtaoSpatialDenoiseTime;
+		m_currentFrameTimings.m_gtaoTemporalDenoiseTime = gtaoTemporalDenoiseTime;
+		m_currentFrameTimings.m_hbaoRenderTime = hbaoRenderTime;
+		m_currentFrameTimings.m_bilateralBlurRenderTime = bilateralBlurRenderTime;
+		m_currentFrameTimings.m_originalSsaoRenderTime = originalSsaoRenderTime;
+		m_currentFrameTimings.m_ssaoRenderTime = ssaoRenderTime;
+		m_currentFrameTimings.m_cocComputeTime = cocComputeTime;
+		m_currentFrameTimings.m_seperateDofBlurComputeTime = seperateDofBlurComputeTime;
+		m_currentFrameTimings.m_seperateDofCompositeComputeTime = seperateDofCompositeComputeTime;
+		m_currentFrameTimings.m_seperateDofFillComputeTime = seperateDofFillComputeTime;
+		m_currentFrameTimings.m_simpleDofCocBlurComputeTime = simpleDofCocBlurComputeTime;
+		m_currentFrameTimings.m_simpleDofCompositeComputeTime = simpleDofCompositeComputeTime;
+		m_currentFrameTimings.m_simpleDofFillComputeTime = simpleDofFillComputeTime;
+		m_currentFrameTimings.m_spriteDofCompositeComputeTime = spriteDofCompositeComputeTime;
+		m_currentFrameTimings.m_cocNeighborTileMaxRenderTime = cocNeighborTileMaxRenderTime;
+		m_currentFrameTimings.m_cocTileMaxRenderTime = cocTileMaxRenderTime;
+		m_currentFrameTimings.m_spriteDofRenderTime = spriteDofRenderTime;
+		m_currentFrameTimings.m_simpleDofBlurComputeTime = simpleDofBlurComputeTime;
+		m_currentFrameTimings.m_seperateDofDownsampleComputeTime = seperateDofDownsampleComputeTime;
+		m_currentFrameTimings.m_velocityCorrectionComputeTime = velocityCorrectionComputeTime;
+		m_currentFrameTimings.m_velocityTileMaxRenderTime = velocityTileMaxRenderTime;
+		m_currentFrameTimings.m_velocityNeighborTileMaxRenderTime = velocityNeighborTileMaxRenderTime;
+		m_currentFrameTimings.m_motionBlurRenderTime = motionBlurRenderTime;
+		m_currentFrameTimings.m_gtaoSum = (gtaoRenderTime + gtaoSpatialDenoiseTime + gtaoTemporalDenoiseTime) * (ambientOcclusion->get() == int(AmbientOcclusion::GTAO));
+		m_currentFrameTimings.m_hbaoSum = (hbaoRenderTime + bilateralBlurRenderTime) * (ambientOcclusion->get() == int(AmbientOcclusion::HBAO));
+		m_currentFrameTimings.m_ssaoSum = (ssaoRenderTime + bilateralBlurRenderTime) * (ambientOcclusion->get() == int(AmbientOcclusion::SSAO));
+		m_currentFrameTimings.m_ssaoOriginalSum = (originalSsaoRenderTime + bilateralBlurRenderTime) * (ambientOcclusion->get() == int(AmbientOcclusion::SSAO_ORIGINAL));
+		m_currentFrameTimings.m_simpleDofSum = (cocComputeTime + simpleDofCocBlurComputeTime + simpleDofBlurComputeTime + simpleDofFillComputeTime + simpleDofCompositeComputeTime)
+			* (depthOfField->get() == int(DepthOfField::SIMPLE));
+		m_currentFrameTimings.m_spriteDofSum = (cocComputeTime + spriteDofRenderTime + spriteDofCompositeComputeTime) * (depthOfField->get() == int(DepthOfField::SPRITE_BASED));
+		m_currentFrameTimings.m_tiledDofSum = (cocComputeTime + cocTileMaxRenderTime + cocNeighborTileMaxRenderTime + seperateDofDownsampleComputeTime + seperateDofBlurComputeTime
+			+ seperateDofFillComputeTime + seperateDofCompositeComputeTime)
+			* (depthOfField->get() == int(DepthOfField::TILE_BASED));
+		m_currentFrameTimings.m_simpleMbSum = (velocityCorrectionComputeTime + motionBlurRenderTime) * (motionBlur->get() == int(MotionBlur::SIMPLE));
+		m_currentFrameTimings.m_singleDirectionMbSum = (velocityCorrectionComputeTime + velocityTileMaxRenderTime + velocityNeighborTileMaxRenderTime + motionBlurRenderTime) * (motionBlur->get() == int(MotionBlur::TILE_BASED_SINGLE));
+		m_currentFrameTimings.m_multiDirectionMbSum = (velocityCorrectionComputeTime + velocityTileMaxRenderTime + velocityNeighborTileMaxRenderTime + motionBlurRenderTime) * (motionBlur->get() == int(MotionBlur::TILE_BASED_MULTI));
+
+		const unsigned int MAX_BENCHMARK_FRAMES = 200;
+		const unsigned int MAX_BENCHMARK_PASSES = 4;
+
+		// benchmark is currently running
+		if (benchmarkIsRunning && benchmarkFrameCount < MAX_BENCHMARK_FRAMES)
+		{
+			// first frame of current pass
+			if (benchmarkFrameCount == 0)
+			{
+				memset(&benchmarkTimings, 0, sizeof(benchmarkTimings));
+
+				// first pass; remember previous settings
+				if (benchmarkPass == 0)
+				{
+					previousMb = motionBlur->get();
+					previousDof = depthOfField->get();
+					previousSsao = ambientOcclusion->get();
+				}
+
+				switch (benchmarkPass)
+				{
+				case 0:
+				case 1:
+				case 2:
+					motionBlur->set(benchmarkPass + 1);
+					depthOfField->set(benchmarkPass + 1);
+					ambientOcclusion->set(benchmarkPass + 1);
+					break;
+				case 3:
+					ambientOcclusion->set(4);
+					break;
+				default:
+					break;
+				}
+
+				std::cout << "starting pass " << benchmarkPass << std::endl;
+				std::cout << "mb " << motionBlur->get() << std::endl;
+				std::cout << "dof " << depthOfField->get() << std::endl;
+				std::cout << "ssao " << ambientOcclusion->get() << std::endl;
+			}
+			++benchmarkFrameCount;
+			benchmarkTimings += m_currentFrameTimings;
+		}
+		// we reached the end of a pass
+		else if (benchmarkIsRunning && benchmarkFrameCount == MAX_BENCHMARK_FRAMES && benchmarkPass < MAX_BENCHMARK_PASSES)
+		{
+			benchmarkTimings *= (1.0 / MAX_BENCHMARK_FRAMES);
+
+			std::stringstream ss;
+			ss << "\n\nPass " << benchmarkPass << std::endl
+				<< "Average Timings over " << MAX_BENCHMARK_FRAMES << " frames\n" << std::endl;
+
+			switch (benchmarkPass)
+			{
+			case 0:
+				ss << "\nMotion Blur:" << std::endl
+
+					<< "Simple Motion Blur Total:									" << benchmarkTimings.m_simpleMbSum << std::endl
+					<< "Simple Motion Blur Velocity Correction:						" << benchmarkTimings.m_velocityCorrectionComputeTime << std::endl
+					<< "Simple Motion Blur Render:									" << benchmarkTimings.m_motionBlurRenderTime << std::endl
+
+					<< "\nDepth of Field:" << std::endl
+
+					<< "Simple Depth of Field Total:								" << benchmarkTimings.m_simpleDofSum << std::endl
+					<< "Simple Depth of Field CoC Computation:						" << benchmarkTimings.m_cocComputeTime << std::endl
+					<< "Simple Depth of Field CoC Blur:								" << benchmarkTimings.m_simpleDofCocBlurComputeTime << std::endl
+					<< "Simple Depth of Field Blur:									" << benchmarkTimings.m_simpleDofBlurComputeTime << std::endl
+					<< "Simple Depth of Field Composite:							" << benchmarkTimings.m_simpleDofCompositeComputeTime << std::endl
+
+					<< "\nScreen Space Ambient Occlusion:" << std::endl
+
+					<< "SSAO (Original) Total:										" << benchmarkTimings.m_ssaoOriginalSum << std::endl
+					<< "SSAO (Original) Render:										" << benchmarkTimings.m_originalSsaoRenderTime << std::endl
+					<< "SSAO (Original) Blur:										" << benchmarkTimings.m_bilateralBlurRenderTime << std::endl;
+				break;
+			case 1:
+				ss << "\nMotion Blur:" << std::endl
+
+					<< "Single Direction Motion Blur Total:							" << benchmarkTimings.m_singleDirectionMbSum << std::endl
+					<< "Single Direction Motion Blur Velocity Correction:			" << benchmarkTimings.m_velocityCorrectionComputeTime << std::endl
+					<< "Single Direction Motion Blur Velocity Tile Max:				" << benchmarkTimings.m_velocityTileMaxRenderTime << std::endl
+					<< "Single Direction Motion Blur Velocity Neighbor Tile Max:	" << benchmarkTimings.m_velocityTileMaxRenderTime << std::endl
+					<< "Single Direction Motion Blur Render:						" << benchmarkTimings.m_motionBlurRenderTime << std::endl
+
+					<< "\nDepth of Field:" << std::endl
+
+					<< "Sprite Depth of Field Total:								" << benchmarkTimings.m_spriteDofSum << std::endl
+					<< "Sprite Depth of Field CoC Computation:						" << benchmarkTimings.m_cocComputeTime << std::endl
+					<< "Sprite Depth of Field Render:								" << benchmarkTimings.m_spriteDofRenderTime << std::endl
+					<< "Sprite Depth of Field Composite:							" << benchmarkTimings.m_spriteDofCompositeComputeTime << std::endl
+
+					<< "\nScreen Space Ambient Occlusion:" << std::endl
+
+					<< "SSAO Total:													" << benchmarkTimings.m_ssaoSum << std::endl
+					<< "SSAO Render:												" << benchmarkTimings.m_ssaoRenderTime << std::endl
+					<< "SSAO Blur:													" << benchmarkTimings.m_bilateralBlurRenderTime << std::endl;
+				break;
+			case 2:
+				ss << "\nMotion Blur:" << std::endl
+
+					<< "Multi Direction Motion Blur Total:							" << benchmarkTimings.m_multiDirectionMbSum << std::endl
+					<< "Multi Direction Motion Blur Velocity Correction:			" << benchmarkTimings.m_velocityCorrectionComputeTime << std::endl
+					<< "Multi Direction Motion Blur Velocity Tile Max:				" << benchmarkTimings.m_velocityTileMaxRenderTime << std::endl
+					<< "Multi Direction Motion Blur Velocity Neighbor Tile Max:		" << benchmarkTimings.m_velocityTileMaxRenderTime << std::endl
+					<< "Multi Direction Motion Blur Render:							" << benchmarkTimings.m_motionBlurRenderTime << std::endl
+
+					<< "\nDepth of Field:" << std::endl
+
+					<< "Tiled Depth of Field Total:									" << benchmarkTimings.m_tiledDofSum << std::endl
+					<< "Tiled Depth of Field CoC Computation:						" << benchmarkTimings.m_cocComputeTime << std::endl
+					<< "Tiled Depth of Field CoC Tile Max:							" << benchmarkTimings.m_cocTileMaxRenderTime << std::endl
+					<< "Tiled Depth of Field CoC Neighbor Tile Max:					" << benchmarkTimings.m_cocNeighborTileMaxRenderTime << std::endl
+					<< "Tiled Depth of Field Blur:									" << benchmarkTimings.m_seperateDofBlurComputeTime << std::endl
+					<< "Tiled Depth of Field Fill:									" << benchmarkTimings.m_seperateDofFillComputeTime << std::endl
+					<< "Tiled Depth of Field Composite:								" << benchmarkTimings.m_seperateDofCompositeComputeTime << std::endl
+
+					<< "\nScreen Space Ambient Occlusion:" << std::endl
+
+					<< "HBAO Total:													" << benchmarkTimings.m_hbaoSum << std::endl
+					<< "HBAO Render:												" << benchmarkTimings.m_hbaoRenderTime << std::endl
+					<< "HBAO Blur:													" << benchmarkTimings.m_bilateralBlurRenderTime << std::endl;
+				break;
+			case 3:
+				ss << "\nScreen Space Ambient Occlusion:" << std::endl
+
+					<< "GTAO Total:													" << benchmarkTimings.m_gtaoSum << std::endl
+					<< "GTAO Render:												" << benchmarkTimings.m_gtaoRenderTime << std::endl
+					<< "GTAO Spatial Denoise:										" << benchmarkTimings.m_gtaoSpatialDenoiseTime << std::endl
+					<< "GTAO Temporal Denoise:										" << benchmarkTimings.m_gtaoTemporalDenoiseTime << std::endl;
+				break;
+			default:
+				assert(false);
+				break;
+			}
+
+			if (benchmarkPass == 0)
+			{
+				benchmarkFilepath = "Benchmark" + Utility::getFormatedTime() + ".txt";
+			}
+			
+			std::ofstream outfile(benchmarkFilepath, std::ios::app);
+			outfile << ss.str();
+			outfile.flush();
+			outfile.close();
+
+			std::cout << "wrote pass " << benchmarkPass << std::endl;
+
+			++benchmarkPass;
+			benchmarkFrameCount = 0;
+		}
+		// end benchmark; reset settings
+		else if (benchmarkIsRunning && benchmarkFrameCount == MAX_BENCHMARK_FRAMES && benchmarkPass == MAX_BENCHMARK_PASSES)
+		{
+			benchmarkIsRunning = false;
+			benchmarkFrameCount = 0;
+			benchmarkPass = 0;
+			motionBlur->set(previousMb);
+			depthOfField->set(previousDof);
+			ambientOcclusion->set(previousSsao);
+		}
+
+
 		static double lastMeasure = Engine::getTime();
 		static double frameTimeSum = 0.0;
 		static double fpsSum;
@@ -462,21 +680,6 @@ namespace App
 		frameTimeStr = std::to_string(timeDelta * 1000.0).substr(0, 6);
 		frameTimeAvgStr = std::to_string(frameTimeAvg * 1000.0).substr(0, 6);
 		frameTimeWorstStr = std::to_string(worstFrameTime * 1000.0).substr(0, 6);
-
-		gtaoSum = gtaoRenderTime + gtaoSpatialDenoiseTime + gtaoTemporalDenoiseTime;
-		gtaoSum *= ambientOcclusion->get() == int(AmbientOcclusion::GTAO);
-		hbaoSum = hbaoRenderTime + bilateralBlurRenderTime;
-		hbaoSum *= ambientOcclusion->get() == int(AmbientOcclusion::HBAO);
-		ssaoSum = ssaoRenderTime + bilateralBlurRenderTime;
-		ssaoSum *= ambientOcclusion->get() == int(AmbientOcclusion::SSAO);
-		ssaoOriginalSum = originalSsaoRenderTime + bilateralBlurRenderTime;
-		ssaoOriginalSum *= ambientOcclusion->get() == int(AmbientOcclusion::SSAO_ORIGINAL);
-		simpleDofSum = cocComputeTime + simpleDofCocBlurComputeTime + simpleDofBlurComputeTime + simpleDofFillComputeTime + simpleDofCompositeComputeTime;
-		simpleDofSum *= depthOfField->get() == int(DepthOfField::SIMPLE);
-		spriteDofSum = cocComputeTime + spriteDofRenderTime + spriteDofCompositeComputeTime;
-		spriteDofSum *= depthOfField->get() == int(DepthOfField::SPRITE_BASED);
-		tiledDofSum = cocComputeTime + cocTileMaxRenderTime + cocNeighborTileMaxRenderTime + seperateDofDownsampleComputeTime + seperateDofBlurComputeTime + seperateDofFillComputeTime + seperateDofCompositeComputeTime;
-		tiledDofSum *= depthOfField->get() == int(DepthOfField::TILE_BASED);
 
 		if (guiVisible)
 		{

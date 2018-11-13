@@ -18,6 +18,9 @@
     <ClCompile Include="Code\SponzaLevel.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="Code\Timings.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Application.h">
@@ -27,6 +30,9 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\SponzaLevel.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Timings.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>

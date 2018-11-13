@@ -138,11 +138,13 @@
     <ClCompile Include="Code\CameraController.cpp" />
     <ClCompile Include="Code\SponzaLevel.cpp" />
     <ClCompile Include="Code\main.cpp" />
+    <ClCompile Include="Code\Timings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Application.h" />
     <ClInclude Include="Code\CameraController.h" />
     <ClInclude Include="Code\SponzaLevel.h" />
+    <ClInclude Include="Code\Timings.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">

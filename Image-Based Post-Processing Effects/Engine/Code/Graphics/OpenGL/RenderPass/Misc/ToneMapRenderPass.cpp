@@ -1,6 +1,7 @@
 #include "ToneMapRenderPass.h"
 #include "Graphics\Texture.h"
 #include "Graphics\Effects.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 static const char *BLOOM_ENABLED = "BLOOM_ENABLED";
 static const char *FLARES_ENABLED = "FLARES_ENABLED";
@@ -66,7 +67,7 @@ void ToneMapRenderPass::render(const Effects &_effects, float _starburstOffset, 
 	// shader permutations
 	{
 		const auto curDefines = m_toneMapShader->getDefines();
-	
+
 		bool bloomEnabled = false;
 		bool flaresEnabled = false;
 		bool dirtEnabled = false;
@@ -74,7 +75,7 @@ void ToneMapRenderPass::render(const Effects &_effects, float _starburstOffset, 
 		bool autoExposureEnabled = false;
 		int motionBlur = 0;
 		bool anamorphicsFlaresEnabled = false;
-	
+
 		for (const auto &define : curDefines)
 		{
 			if (std::get<0>(define) == ShaderProgram::ShaderType::FRAGMENT)
@@ -109,14 +110,14 @@ void ToneMapRenderPass::render(const Effects &_effects, float _starburstOffset, 
 				}
 			}
 		}
-	
+
 		if (bloomEnabled != _effects.m_bloom.m_enabled
 			|| flaresEnabled != _effects.m_lensFlares.m_enabled
 			|| dirtEnabled != _effects.m_lensDirt.m_enabled
 			|| godRaysEnabled != _effects.m_godrays
 			|| autoExposureEnabled != true
 			|| anamorphicsFlaresEnabled != _effects.m_anamorphicFlares.m_enabled
-			|| motionBlur != int(_effects.m_motionBlur))
+			|| motionBlur != (PROFILING_ENABLED ? 0 : int(_effects.m_motionBlur)))
 		{
 			m_toneMapShader->setDefines(
 				{
@@ -126,7 +127,7 @@ void ToneMapRenderPass::render(const Effects &_effects, float _starburstOffset, 
 				{ ShaderProgram::ShaderType::FRAGMENT, DIRT_ENABLED, _effects.m_lensDirt.m_enabled },
 				{ ShaderProgram::ShaderType::FRAGMENT, GOD_RAYS_ENABLED, _effects.m_godrays },
 				{ ShaderProgram::ShaderType::FRAGMENT, AUTO_EXPOSURE_ENABLED, 1 },
-				{ ShaderProgram::ShaderType::FRAGMENT, MOTION_BLUR, int(_effects.m_motionBlur) },
+				{ ShaderProgram::ShaderType::FRAGMENT, MOTION_BLUR, PROFILING_ENABLED ? 0 : int(_effects.m_motionBlur) },
 				}
 			);
 			m_uStarburstOffset.create(m_toneMapShader);

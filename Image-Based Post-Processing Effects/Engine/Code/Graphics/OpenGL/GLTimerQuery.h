@@ -2,7 +2,7 @@
 #include <glad/glad.h>
 
 #ifndef PROFILING_ENABLED
-#define PROFILING_ENABLED 0
+#define PROFILING_ENABLED 1
 #endif // !PROFILING_ENABLED
 
 #if PROFILING_ENABLED

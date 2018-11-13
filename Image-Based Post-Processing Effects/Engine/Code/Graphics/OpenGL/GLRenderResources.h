@@ -47,7 +47,8 @@ private:
 	GLuint m_luminanceTexture[2];
 	GLuint m_fullResolutionTextureA;
 	GLuint m_fullResolutionTextureB;
-	GLuint m_fullResolutionHdrTexture;
+	GLuint m_fullResolutionHdrTextureA;
+	GLuint m_fullResolutionHdrTextureB;
 	GLuint m_fullResolutionCocTexture;
 	GLuint m_fullResolutionDofTexA;
 	GLuint m_fullResolutionDofTexB;

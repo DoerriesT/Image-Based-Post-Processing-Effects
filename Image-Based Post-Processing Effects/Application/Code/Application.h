@@ -7,6 +7,7 @@
 #include <Window\GLFW\IInputListener.h>
 #include <Window\GLFW\IWindowResizeListener.h>
 #include <Settings.h>
+#include "Timings.h"
 
 #define GETTER_FUNC_DECL(name) void TW_CALL name##GetCallback(void *value, void *clientData);
 #define SETTER_FUNC_DECL(name) void TW_CALL name##SetCallback(const void *value, void *clientData);
@@ -67,21 +68,29 @@ namespace App
 		void onResize(unsigned int width, unsigned int height) override;
 
 	private:
-		std::shared_ptr<Level> level;
-		CameraController cameraController;
-		TwBar *settingsTweakBar;
-		std::vector<std::string> afOptionStrings;
-		std::vector<std::string> resolutionOptionStrings;
+		std::shared_ptr<Level> m_level;
+		CameraController m_cameraController;
+		TwBar *m_settingsTweakBar;
+		TwBar *m_timingsTweakBar;
+		std::vector<std::string> m_afOptionStrings;
+		std::vector<std::string> m_resolutionOptionStrings;
 		std::string fpsStr;
 		std::string fpsAvgStr;
 		std::string fpsWorstStr;
 		std::string frameTimeStr;
 		std::string frameTimeAvgStr;
 		std::string frameTimeWorstStr;
-		bool colors;
-		bool bouncing;
 		double scrollOffset;
 		bool guiVisible;
+		Timings m_currentFrameTimings;
+		Timings benchmarkTimings;
+		unsigned int benchmarkFrameCount;
+		bool benchmarkIsRunning;
+		int benchmarkPass;
+		int previousMb;
+		int previousDof;
+		int previousSsao;
+		std::string benchmarkFilepath;
 
 		std::shared_ptr<Setting<int>> shadowQuality;
 		std::shared_ptr<Setting<int>> uiSizeOffset;

@@ -206,7 +206,6 @@ std::string Utility::fileMD5Hash(const std::string & filePath)
 
 bool Utility::readTextFile(const std::string & _filename, std::string & _result)
 {
-	// wtf?
 	/*char *buffer = nullptr;
 	try
 	{

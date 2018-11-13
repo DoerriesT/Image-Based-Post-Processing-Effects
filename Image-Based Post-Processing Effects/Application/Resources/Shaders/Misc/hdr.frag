@@ -50,12 +50,8 @@ uniform float uKeyValue = 0.18;
 uniform float uLensDirtStrength;
 uniform vec3 uAnamorphicFlareColor = vec3(1.0);
 
-const float MAX_SAMPLES = 32.0;
-const float SOFT_Z_EXTENT = 0.1;
 const float Z_NEAR = 0.1;
 const float Z_FAR = 300.0;
-const int TILE_SIZE = 40;
-const float GAMMA = 1.5;
 const float PI = 3.14159265359;
 
 const float A = 0.15; // shoulder strength
@@ -66,11 +62,10 @@ const float E = 0.02; // toe numerator
 const float F = 0.30; // toe denominator
 const vec3 W = vec3(11.2); // linear white point value
 
-float interleavedGradientNoise(vec2 v)
-{
-	vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
-	return fract(magic.z * dot(v, magic.xy));
-}
+#define TILE_SIZE (40)
+#define MAX_SAMPLES (25)
+
+#include "motionBlur.h"
 
 vec3 accurateLinearToSRGB(in vec3 linearCol)
 {
@@ -83,49 +78,6 @@ vec3 accurateLinearToSRGB(in vec3 linearCol)
 vec3 uncharted2Tonemap(vec3 x)
 {
    return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
-}
-
-float zCompare(float a, float b)
-{
-	float result = (a - b) / min(a, b);
-	return clamp(1.0 - result, 0.0, 1.0);
-}
-
-float softDepthCompare(float a, float b)
-{
-	return clamp(1.0 - (a - b) / SOFT_Z_EXTENT, 0.0, 1.0);
-}
-
-float cone(float dist, float velocityMag)
-{
-	return mix(0.0, clamp(1.0 - dist / velocityMag, 0.0, 1.0),  sign(velocityMag));
-}
-
-float cylinder(float dist, float velocityMag)
-{
-	return 1.0 - smoothstep(0.95 * velocityMag, 1.05 * velocityMag, dist);
-}
-
-float linearDepth(float depth)
-{
-    float z_n = 2.0 * depth - 1.0;
-    return 2.0 * Z_NEAR * Z_FAR / (Z_FAR + Z_NEAR - z_n * (Z_FAR - Z_NEAR));
-}
-
-const float HASHSCALE1 = 443.8975;
-
-float hash12(vec2 p)
-{
-	vec3 p3  = fract(vec3(p.xyx) * HASHSCALE1);
-    p3 += dot(p3, p3.yzx + 19.19);
-    return fract((p3.x + p3.y) * p3.z);
-}
-
-// Jitter function for tile lookup
-vec2 jitterTile(vec2 uv)
-{
-	float val = interleavedGradientNoise(uv + vec2(2.0, 0.0)) * PI * 2.0;
-	return vec2(sin(val), cos(val)) * (1.0 / textureSize(uVelocityNeighborMaxTexture, 0).xy) * 0.25;
 }
 
 vec3 calculateExposedColor(vec3 color, float avgLuminance)
@@ -177,141 +129,11 @@ void main()
 	vec3 color = texture(uScreenTexture, vTexCoord).rgb;
 
 #if MOTION_BLUR == 1
-	vec2 texSize = textureSize(uScreenTexture, 0);
-	
-	vec2 velocity = texture(uVelocityTexture, vTexCoord).rg * texSize;
-
-	float speed = length(velocity);
-	float sampleCount = min(floor(speed), MAX_SAMPLES);
-	
-	if(sampleCount >= 1.0)
-	{
-		color = vec3(0.0);
-		for (float i = 0; i < sampleCount; ++i) 
-		{
-			float t = mix(-1.0, 1.0, i / (sampleCount -1.0));
-			ivec2 offset = ivec2(velocity * t);
-			color += texelFetch(uScreenTexture, ivec2(gl_FragCoord.xy) + offset, 0).rgb;
-		}
-		
-		color /= sampleCount;
-	}
+	color = simpleMotionBlur(color, vTexCoord, ivec2(gl_FragCoord.xy), uScreenTexture, uVelocityTexture);
 #elif MOTION_BLUR == 2
-	vec2 texSize = textureSize(uScreenTexture, 0);
-	
-	vec2 vN = texture(uVelocityNeighborMaxTexture, vTexCoord).rg * texSize;
-
-	if(dot(vN, vN) > 0.25)
-	{
-		vec2 vC = texelFetch(uVelocityTexture, ivec2(gl_FragCoord.xy), 0).rg * texSize;
-
-		float depthC = -linearDepth(texelFetch(uDepthTexture, ivec2(gl_FragCoord.xy), 0).x);
-
-		float vCLength = max(length(vC), 0.5);
-		float vNLength = length(vN);
-
-		float weight = 1.0 / vCLength;
-		vec3 sum = color * weight;
-
-		float j = 0.0;
-
-		const int N = 25;
-
-		for (int i = 0; i < N; ++i)
-		{
-			if (i == N / 2)
-			{
-				continue;
-			}
-
-			float t = mix(-1.0, 1.0, (i + j + 1.0) / (N + 1.0));
-			ivec2 S = ivec2(gl_FragCoord.xy) + ivec2(vN * t + 0.5);
-
-			float depthS = -linearDepth(texelFetch(uDepthTexture, S, 0).x);
-
-			float f = softDepthCompare(depthC, depthS);
-			float b = softDepthCompare(depthS, depthC);
-
-			vec2 vS = texelFetch(uVelocityTexture, S, 0).rg * texSize;
-
-			float vSLength = max(length(vS), 0.5);
-
-			float dist = abs(t) * vNLength;
-
-			float alpha = f * cone(dist, vSLength)
-						+ b * cone(dist, vCLength)
-						+ cylinder(dist, vSLength)
-						* cylinder(dist, vCLength) * 2.0;
-
-			weight += alpha;
-			sum += alpha * texelFetch(uScreenTexture, S, 0).rgb;
-		}
-		
-		color = sum / weight;
-	}
-
+	color = singleDirectionMotionBlur(color, vTexCoord, ivec2(gl_FragCoord.xy), uScreenTexture, uVelocityTexture, uDepthTexture, uVelocityNeighborMaxTexture, Z_NEAR, Z_FAR);
 #elif MOTION_BLUR == 3
-	vec2 texSize = textureSize(uScreenTexture, 0);
-	
-	float j = interleavedGradientNoise(vTexCoord * texSize);//(hash12(vTexCoord) - 0.5) * 2.0;
-	vec2 vmax = texture(uVelocityNeighborMaxTexture, vTexCoord + jitterTile(vTexCoord)).rg * texSize;
-	float vmaxLength = length(vmax);
-
-	if(vmaxLength > 0.5)
-	{
-		vec2 wN = vmax / vmaxLength;
-		vec2 vC = texelFetch(uVelocityTexture, ivec2(gl_FragCoord.xy), 0).rg * texSize;
-		vec2 wP = vec2(-wN.y, wN.x);
-		wP = (dot(wP, vC) < 0.0) ? -wP : wP;
-
-		float vCLength = max(length(vC), 0.5);
-		const float velocityThreshold = 1.5;
-		vec2 wC = normalize(mix(wP, vC / vCLength, (vCLength - 0.5) / velocityThreshold));
-
-		const float N = 25;
-		
-		float totalWeight = N / (TILE_SIZE * vCLength);
-		vec3 result = color * totalWeight;
-		
-		float depthC = -linearDepth(texelFetch(uDepthTexture, ivec2(gl_FragCoord.xy), 0).x);
-
-		vec2 dN[2] = { wN, vC / vCLength };
-
-		for (int i = 0; i < N; ++i)
-		{
-			float t = mix(-1.0, 1.0, (i + j * 0.95 + 1.0) / (N + 1.0));
-		
-			vec2 d = bool(i & 1) ? vC : vmax;
-			float T = abs(t) * vmaxLength;
-			ivec2 S = ivec2(gl_FragCoord.xy) + ivec2(t * d);
-		
-			float depthS = -linearDepth(texelFetch(uDepthTexture, S, 0).x);
-		
-			float f = softDepthCompare(depthC, depthS);
-			float b = softDepthCompare(depthS, depthC);
-		
-			vec2 vS = texelFetch(uVelocityTexture, S, 0).rg * texSize;
-
-			float vSLength = max(length(vS), 0.5);
-
-			int index = i & 1;
-			float wA = abs(dot(wC, dN[index]));
-			float wB = abs(dot(vS / vSLength, dN[index]));
-			
-			float weight = 0.0;
-
-			weight += f * cone(T, vSLength) * wB;
-			weight += b * cone(T, vCLength) * wA;
-			// originally max(wA, wB), but using min reduces artifacts in extreme conditions
-			weight += cylinder(T, min(vSLength, vCLength)) * min(wA, wB) * 2.0;
-		
-			totalWeight += weight;
-			result += texelFetch(uScreenTexture, S, 0).rgb * weight;
-		}
-		
-		color = result / totalWeight;
-	}
-
+	color = multiDirectionMotionBlur(color, vTexCoord, ivec2(gl_FragCoord.xy), uScreenTexture, uVelocityTexture, uDepthTexture, uVelocityNeighborMaxTexture, Z_NEAR, Z_FAR);
 #endif // MOTION_BLUR
 
 	vec3 additions = vec3(0.0);

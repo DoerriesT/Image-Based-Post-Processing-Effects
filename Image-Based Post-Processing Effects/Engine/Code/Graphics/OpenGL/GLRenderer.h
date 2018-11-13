@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <glad\glad.h>
+#include "GLTimerQuery.h"
 
 struct GLRenderResources;
 class Scene;
@@ -73,6 +74,7 @@ class TileBasedDofTileMaxComputePass;
 class AntiAliasingTonemapComputePass;
 class AntiAliasingReverseTonemapComputePass;
 class BoundingBoxRenderPass;
+class MotionBlurRenderPass;
 
 class GLRenderer
 {
@@ -164,6 +166,9 @@ private:
 	std::unique_ptr<TileBasedDofTileMaxComputePass> m_seperateDofTileMaxComputePass;
 	std::unique_ptr<AntiAliasingTonemapComputePass> m_antiAliasingTonemapComputePass;
 	std::unique_ptr<AntiAliasingReverseTonemapComputePass> m_antiAliasingReverseTonemapComputePass;
+#if PROFILING_ENABLED
+	std::unique_ptr<MotionBlurRenderPass> m_motionBlurRenderPass;
+#endif // PROFILING_ENABLED
 
 	// debug
 	std::unique_ptr<BoundingBoxRenderPass> m_boundingBoxRenderPass;

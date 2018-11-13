@@ -2,6 +2,7 @@
 #include "Graphics\OpenGL\RenderData.h"
 #include "Engine.h"
 #include "Graphics\OpenGL\GLUtility.h"
+#include "Graphics\OpenGL\GLTimerQuery.h"
 
 VelocityCorrectionComputePass::VelocityCorrectionComputePass(unsigned int _width, unsigned int _height)
 	:m_width(_width),
@@ -13,8 +14,11 @@ VelocityCorrectionComputePass::VelocityCorrectionComputePass(unsigned int _width
 	m_uScale.create(m_velocityCorrectionShader);
 }
 
+double velocityCorrectionComputeTime;
+
 void VelocityCorrectionComputePass::execute(const RenderData & _renderData, GLuint _velocityTexture, GLuint _depthTexture)
 {
+	SCOPED_TIMER_QUERY(velocityCorrectionComputeTime);
 	m_velocityCorrectionShader->bind();
 
 	m_uReprojection.set(_renderData.m_prevViewProjectionMatrix * _renderData.m_invViewProjectionMatrix);

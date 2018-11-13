@@ -731,6 +731,9 @@
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\TileBasedDofTileMaxComputePass.h">
       <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\MotionBlurRenderPass.h">
+      <Filter>Code\Graphics\OpenGL\RenderPass\MotionBlur</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Engine.cpp">
@@ -1197,6 +1200,9 @@
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\TileBasedDofTileMaxComputePass.cpp">
       <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\MotionBlurRenderPass.cpp">
+      <Filter>Code\Graphics\OpenGL\RenderPass\MotionBlur</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
