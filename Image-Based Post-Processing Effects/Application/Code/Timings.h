@@ -17,7 +17,6 @@ namespace App
 		double m_seperateDofFillComputeTime;
 		double m_simpleDofCocBlurComputeTime;
 		double m_simpleDofCompositeComputeTime;
-		double m_simpleDofFillComputeTime;
 		double m_spriteDofCompositeComputeTime;
 		double m_cocNeighborTileMaxRenderTime;
 		double m_cocTileMaxRenderTime;

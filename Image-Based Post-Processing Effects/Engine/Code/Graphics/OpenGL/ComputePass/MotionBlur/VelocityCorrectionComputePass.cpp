@@ -33,7 +33,7 @@ void VelocityCorrectionComputePass::execute(const RenderData & _renderData, GLui
 		{
 			if (std::get<0>(define) == ShaderProgram::ShaderType::COMPUTE)
 			{
-				if (std::get<1>(define) == CONSTANT_VELOCITY)
+				if (std::get<1>(define) == CONSTANT_VELOCITY && std::get<2>(define))
 				{
 					constVel = true;
 				}

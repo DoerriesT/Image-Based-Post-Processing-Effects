@@ -43,13 +43,11 @@ extern bool constantVelocity;
 
 namespace App
 {
-	COMBINED_FUNC_DEF(shadowQuality, int)
 		COMBINED_FUNC_DEF(anisotropicFiltering, int)
 		COMBINED_FUNC_DEF(bloomEnabled, bool)
 		COMBINED_FUNC_DEF(fxaaEnabled, bool)
 		COMBINED_FUNC_DEF(smaaEnabled, bool)
 		COMBINED_FUNC_DEF(smaaTemporalAA, bool)
-		COMBINED_FUNC_DEF(lensFlaresEnabled, bool)
 		COMBINED_FUNC_DEF(ambientOcclusion, int)
 		COMBINED_FUNC_DEF(vsync, bool)
 		COMBINED_FUNC_DEF(windowWidth, int)
@@ -66,8 +64,6 @@ namespace App
 		COMBINED_FUNC_DEF(hbaoRadius, double)
 		COMBINED_FUNC_DEF(hbaoMaxRadiusPixels, double)
 		COMBINED_FUNC_DEF(hbaoAngleBias, double)
-		COMBINED_FUNC_DEF(lensDirtEnabled, bool)
-		COMBINED_FUNC_DEF(lensDirtStrength, double)
 		COMBINED_FUNC_DEF(gtaoSteps, int)
 		COMBINED_FUNC_DEF(gtaoStrength, double)
 		COMBINED_FUNC_DEF(gtaoRadius, double)
@@ -228,13 +224,11 @@ namespace App
 			SettingsManager &settingsManager = SettingsManager::getInstance();
 
 			uiSizeOffset = settingsManager.getIntSetting("graphics", "gui_size", -1);
-			shadowQuality = settingsManager.getIntSetting("graphics", "shadow_quality", 0);
 			anisotropicFiltering = settingsManager.getIntSetting("graphics", "anisotropic_filtering", 1);
 			bloomEnabled = settingsManager.getBoolSetting("graphics", "bloom_enabled", false);
 			fxaaEnabled = settingsManager.getBoolSetting("graphics", "fxaa_enabled", false);
 			smaaEnabled = settingsManager.getBoolSetting("graphics", "smaa_enabled", false);
 			smaaTemporalAA = settingsManager.getBoolSetting("graphics", "smaa_temporal_aa", false);
-			lensFlaresEnabled = settingsManager.getBoolSetting("graphics", "lens_flares_enabled", false);
 			ambientOcclusion = settingsManager.getIntSetting("graphics", "ambient_occlusion", 0);
 			vsync = settingsManager.getBoolSetting("graphics", "vsync", false);
 			windowWidth = settingsManager.getIntSetting("graphics", "window_width", 1080);
@@ -255,9 +249,6 @@ namespace App
 			gtaoStrength = settingsManager.getDoubleSetting("graphics", "gtao_strength", 0.5);
 			gtaoRadius = settingsManager.getDoubleSetting("graphics", "gtao_radius", 0.3);
 			gtaoMaxRadiusPixels = settingsManager.getDoubleSetting("graphics", "gtao_max_radius_pixels", 50.0);
-			screenSpaceReflectionsEnabled = settingsManager.getBoolSetting("graphics", "screen_space_reflections_enabled", false);
-			lensDirtEnabled = settingsManager.getBoolSetting("graphics", "lens_dirt_enabled", false);
-			lensDirtStrength = settingsManager.getDoubleSetting("graphics", "lens_dirt_strength", 2.0);
 
 			settingsManager.saveToIni();
 		}
@@ -422,7 +413,7 @@ namespace App
 
 			// depth of field
 			{
-				TwEnumVal dofOptions[] = { { (int)DepthOfField::OFF, "Off" },{ (int)DepthOfField::SIMPLE, "Simple" },{ (int)DepthOfField::SPRITE_BASED, "Sprite Based" },{ (int)DepthOfField::TILE_BASED, "Tile-Based" } };
+				TwEnumVal dofOptions[] = { { (int)DepthOfField::OFF, "Off" },{ (int)DepthOfField::SIMPLE, "Simple" },{ (int)DepthOfField::SPRITE_BASED, "Sprite-Based" },{ (int)DepthOfField::TILE_BASED, "Scatter-as-Gather" } };
 				TwType DofTwType = TwDefineEnum("DepthOfFieldType", dofOptions, 4);
 				TwAddVarCB(m_settingsTweakBar, "Depth of Field", DofTwType, SETTER_FUNC_PTR(depthOfField), GETTER_FUNC_PTR(depthOfField), this, "group=Depth_of_Field");
 				TwAddVarRW(m_settingsTweakBar, "f-Number", TW_TYPE_FLOAT, &fNumber, "group=Depth_of_Field min=1.4 max=16.0 step=0.1");
@@ -437,7 +428,7 @@ namespace App
 
 			// ambient occlusion
 			{
-				TwEnumVal aoOptions[] = { { (int)AmbientOcclusion::OFF, "Off" }, { (int)AmbientOcclusion::SSAO_ORIGINAL, "SSAO (Original)" }, { (int)AmbientOcclusion::SSAO, "SSAO" }, { (int)AmbientOcclusion::HBAO, "HBAO" }, {(int)AmbientOcclusion::GTAO, "GTAO"} };
+				TwEnumVal aoOptions[] = { { (int)AmbientOcclusion::OFF, "Off" }, { (int)AmbientOcclusion::SSAO_ORIGINAL, "SSAO" }, { (int)AmbientOcclusion::SSAO, "SSAO (Hemisphere)" }, { (int)AmbientOcclusion::HBAO, "HBAO" }, {(int)AmbientOcclusion::GTAO, "GTAO"} };
 				TwType AoTwType = TwDefineEnum("AoType", aoOptions, 5);
 				TwAddVarCB(m_settingsTweakBar, "Ambient Occlusion", AoTwType, SETTER_FUNC_PTR(ambientOcclusion), GETTER_FUNC_PTR(ambientOcclusion), this, "group=Ambient_Occlusion");
 
@@ -459,11 +450,11 @@ namespace App
 
 			// lens
 			{
-				TwAddVarCB(m_settingsTweakBar, "Lens Flares", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensFlaresEnabled), GETTER_FUNC_PTR(lensFlaresEnabled), this, "group=Lens");
-				TwAddVarRW(m_settingsTweakBar, "Anamorphic Flares", TW_TYPE_BOOLCPP, &anamorphicFlares, "group=Lens");
+				//TwAddVarCB(m_settingsTweakBar, "Lens Flares", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensFlaresEnabled), GETTER_FUNC_PTR(lensFlaresEnabled), this, "group=Lens");
+				//TwAddVarRW(m_settingsTweakBar, "Anamorphic Flares", TW_TYPE_BOOLCPP, &anamorphicFlares, "group=Lens");
 				TwAddVarCB(m_settingsTweakBar, "Bloom", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(bloomEnabled), GETTER_FUNC_PTR(bloomEnabled), this, "group=Lens ");
-				TwAddVarCB(m_settingsTweakBar, "Lens Dirt", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensDirtEnabled), GETTER_FUNC_PTR(lensDirtEnabled), this, "group=Lens ");
-				TwAddVarCB(m_settingsTweakBar, "Lens Dirt Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(lensDirtStrength), GETTER_FUNC_PTR(lensDirtStrength), this, "group=Lens min=0.0 max=10.0 step=0.1");
+				//TwAddVarCB(m_settingsTweakBar, "Lens Dirt", TW_TYPE_BOOLCPP, SETTER_FUNC_PTR(lensDirtEnabled), GETTER_FUNC_PTR(lensDirtEnabled), this, "group=Lens ");
+				//TwAddVarCB(m_settingsTweakBar, "Lens Dirt Strength", TW_TYPE_DOUBLE, SETTER_FUNC_PTR(lensDirtStrength), GETTER_FUNC_PTR(lensDirtStrength), this, "group=Lens min=0.0 max=10.0 step=0.1");
 			}
 
 			// misc
@@ -543,7 +534,6 @@ namespace App
 		extern double seperateDofFillComputeTime;
 		extern double simpleDofCocBlurComputeTime;
 		extern double simpleDofCompositeComputeTime;
-		extern double simpleDofFillComputeTime;
 		extern double spriteDofCompositeComputeTime;
 		extern double cocNeighborTileMaxRenderTime;
 		extern double cocTileMaxRenderTime;
@@ -569,7 +559,6 @@ namespace App
 		m_currentFrameTimings.m_seperateDofFillComputeTime = seperateDofFillComputeTime;
 		m_currentFrameTimings.m_simpleDofCocBlurComputeTime = simpleDofCocBlurComputeTime;
 		m_currentFrameTimings.m_simpleDofCompositeComputeTime = simpleDofCompositeComputeTime;
-		m_currentFrameTimings.m_simpleDofFillComputeTime = simpleDofFillComputeTime;
 		m_currentFrameTimings.m_spriteDofCompositeComputeTime = spriteDofCompositeComputeTime;
 		m_currentFrameTimings.m_cocNeighborTileMaxRenderTime = cocNeighborTileMaxRenderTime;
 		m_currentFrameTimings.m_cocTileMaxRenderTime = cocTileMaxRenderTime;
@@ -584,7 +573,7 @@ namespace App
 		m_currentFrameTimings.m_hbaoSum = (hbaoRenderTime + bilateralBlurRenderTime) * (ambientOcclusion->get() == int(AmbientOcclusion::HBAO));
 		m_currentFrameTimings.m_ssaoSum = (ssaoRenderTime + bilateralBlurRenderTime) * (ambientOcclusion->get() == int(AmbientOcclusion::SSAO));
 		m_currentFrameTimings.m_ssaoOriginalSum = (originalSsaoRenderTime + bilateralBlurRenderTime) * (ambientOcclusion->get() == int(AmbientOcclusion::SSAO_ORIGINAL));
-		m_currentFrameTimings.m_simpleDofSum = (cocComputeTime + simpleDofCocBlurComputeTime + simpleDofBlurComputeTime + simpleDofFillComputeTime + simpleDofCompositeComputeTime)
+		m_currentFrameTimings.m_simpleDofSum = (cocComputeTime + simpleDofCocBlurComputeTime + simpleDofBlurComputeTime + simpleDofCompositeComputeTime)
 			* (depthOfField->get() == int(DepthOfField::SIMPLE));
 		m_currentFrameTimings.m_spriteDofSum = (cocComputeTime + spriteDofRenderTime + spriteDofCompositeComputeTime) * (depthOfField->get() == int(DepthOfField::SPRITE_BASED));
 		m_currentFrameTimings.m_tiledDofSum = (cocComputeTime + cocTileMaxRenderTime + cocNeighborTileMaxRenderTime + seperateDofDownsampleComputeTime + seperateDofBlurComputeTime

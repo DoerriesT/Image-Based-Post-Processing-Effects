@@ -40,7 +40,6 @@
 #include "ComputePass/MotionBlur/VelocityCorrectionComputePass.h"
 #include "ComputePass/DepthOfField/SimpleDofCocBlurComputePass.h"
 #include "ComputePass/DepthOfField/SimpleDofBlurComputePass.h"
-#include "ComputePass/DepthOfField/SimpleDofFillComputePass.h"
 #include "ComputePass/DepthOfField/SimpleDofCompositeComputePass.h"
 #include "RenderPass/DepthOfField/SpriteDofRenderPass.h"
 #include "ComputePass/DepthOfField/SpriteDofCompositeComputePass.h"
@@ -62,7 +61,6 @@
 #include "ComputePass/Bloom/BloomUpsampleComputePass.h"
 #include "RenderPass/Misc/SimplePostEffectsRenderPass.h"
 #include "RenderPass/Misc/ToneMapRenderPass.h"
-#include "ComputePass/DepthOfField/TileBasedDofTileMaxComputePass.h"
 #include "ComputePass/AntiAliasing/AntiAliasingTonemapComputePass.h"
 #include "ComputePass/AntiAliasing/AntiAliasingReverseTonemapComputePass.h"
 #include "RenderPass/Debug/BoundingBoxRenderPass.h"
@@ -126,7 +124,6 @@ void GLRenderer::init(unsigned int width, unsigned int height)
 	m_velocityCorrectionComputePass = std::make_unique<VelocityCorrectionComputePass>(width, height);
 	m_simpleDofCocBlurComputePass = std::make_unique<SimpleDofCocBlurComputePass>(width, height);
 	m_simpleDofBlurComputePass = std::make_unique<SimpleDofBlurComputePass>(width, height);
-	m_simpleDofFillComputePass = std::make_unique<SimpleDofFillComputePass>(width, height);
 	m_simpleDofCompositeComputePass = std::make_unique<SimpleDofCompositeComputePass>(width, height);
 	m_spriteDofRenderPass = std::make_unique<SpriteDofRenderPass>(m_renderResources->m_cocFbo, width, height / 2);
 	m_spriteDofCompositeComputePass = std::make_unique<SpriteDofCompositeComputePass>(width, height);
@@ -148,7 +145,6 @@ void GLRenderer::init(unsigned int width, unsigned int height)
 	m_bloomUpsampleComputePass = std::make_unique<BloomUpsampleComputePass>(width, height);
 	m_simplePostEffectsRenderPass = std::make_unique<SimplePostEffectsRenderPass>(m_renderResources->m_ppFullResolutionFbo, width, height);
 	m_toneMapRenderPass = std::make_unique<ToneMapRenderPass>(m_renderResources->m_ppFullResolutionFbo, width, height);
-	m_seperateDofTileMaxComputePass = std::make_unique<TileBasedDofTileMaxComputePass>(width, height);
 	m_antiAliasingTonemapComputePass = std::make_unique<AntiAliasingTonemapComputePass>(width, height);
 	m_antiAliasingReverseTonemapComputePass = std::make_unique<AntiAliasingReverseTonemapComputePass>(width, height);
 #if PROFILING_ENABLED
@@ -340,7 +336,6 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 		m_simpleDofCocBlurComputePass->execute(m_renderResources->m_fullResolutionCocTexture, cocTextures);
 		GLuint dofTextures[] = { m_renderResources->m_halfResolutionDofTexA , m_renderResources->m_halfResolutionDofTexB , m_renderResources->m_halfResolutionDofTexC ,m_renderResources->m_halfResolutionDofTexD };
 		m_simpleDofBlurComputePass->execute(colorTexture, m_renderResources->m_halfResolutionCocTexB, dofTextures);
-		m_simpleDofFillComputePass->execute(dofTextures + 2);
 		m_simpleDofCompositeComputePass->execute(m_renderResources->m_fullResolutionHdrTextureA);
 		break;
 	}
@@ -413,9 +408,12 @@ void GLRenderer::render(const RenderData &renderData, const Scene &scene, const 
 	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_anamorphicPrefilter);
 
 #if PROFILING_ENABLED
-	m_motionBlurRenderPass->render((int)effects.m_motionBlur, &previousRenderPass);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_renderResources->m_fullResolutionHdrTextureB);
+	if (effects.m_motionBlur != MotionBlur::OFF)
+	{
+		m_motionBlurRenderPass->render((int)effects.m_motionBlur, &previousRenderPass);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_renderResources->m_fullResolutionHdrTextureB);
+	}
 #endif // PROFILING_ENABLED
 
 	m_toneMapRenderPass->render(effects, glm::dot(glm::vec3(1.0), renderData.m_viewDirection), &previousRenderPass);
@@ -488,7 +486,6 @@ void GLRenderer::resize(unsigned int width, unsigned int height)
 	m_velocityCorrectionComputePass->resize(width, height);
 	m_simpleDofCocBlurComputePass->resize(width, height);
 	m_simpleDofBlurComputePass->resize(width, height);
-	m_simpleDofFillComputePass->resize(width, height);
 	m_simpleDofCompositeComputePass->resize(width, height);
 	m_spriteDofRenderPass->resize(width, height / 2);
 	m_spriteDofCompositeComputePass->resize(width, height);
@@ -510,7 +507,6 @@ void GLRenderer::resize(unsigned int width, unsigned int height)
 	m_bloomUpsampleComputePass->resize(width, height);
 	m_simplePostEffectsRenderPass->resize(width, height);
 	m_toneMapRenderPass->resize(width, height);
-	m_seperateDofTileMaxComputePass->resize(width, height);
 	m_antiAliasingTonemapComputePass->resize(width, height);
 	m_antiAliasingReverseTonemapComputePass->resize(width, height);
 #if PROFILING_ENABLED

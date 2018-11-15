@@ -141,7 +141,6 @@ private:
 	std::unique_ptr<VelocityCorrectionComputePass> m_velocityCorrectionComputePass;
 	std::unique_ptr<SimpleDofCocBlurComputePass> m_simpleDofCocBlurComputePass;
 	std::unique_ptr<SimpleDofBlurComputePass> m_simpleDofBlurComputePass;
-	std::unique_ptr<SimpleDofFillComputePass> m_simpleDofFillComputePass;
 	std::unique_ptr<SimpleDofCompositeComputePass> m_simpleDofCompositeComputePass;
 	std::unique_ptr<SpriteDofRenderPass> m_spriteDofRenderPass;
 	std::unique_ptr<SpriteDofCompositeComputePass> m_spriteDofCompositeComputePass;
@@ -163,7 +162,6 @@ private:
 	std::unique_ptr<BloomUpsampleComputePass> m_bloomUpsampleComputePass;
 	std::unique_ptr<SimplePostEffectsRenderPass> m_simplePostEffectsRenderPass;
 	std::unique_ptr<ToneMapRenderPass> m_toneMapRenderPass;
-	std::unique_ptr<TileBasedDofTileMaxComputePass> m_seperateDofTileMaxComputePass;
 	std::unique_ptr<AntiAliasingTonemapComputePass> m_antiAliasingTonemapComputePass;
 	std::unique_ptr<AntiAliasingReverseTonemapComputePass> m_antiAliasingReverseTonemapComputePass;
 #if PROFILING_ENABLED

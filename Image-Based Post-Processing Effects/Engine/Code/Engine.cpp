@@ -8,10 +8,8 @@
 #include "EntityComponentSystem\Systems\MovementSystem.h"
 #include "EntityComponentSystem\Systems\RotationSystem.h"
 #include "EntityComponentSystem\Systems\GrabbingSystem.h"
-#include "EntityComponentSystem\Systems\SoundSystem.h"
 #include "EntityComponentSystem\Systems\PerpetualRotationSystem.h"
 #include "EntityComponentSystem\Systems\MovementPathSystem.h"
-#include "EntityComponentSystem\Systems\PhysicsSystem.h"
 #include "IGameLogic.h"
 #include "Window\Window.h"
 #include "EntityComponentSystem\SystemManager.h"
@@ -49,9 +47,7 @@ void Engine::start()
 	m_systemManager.addSystem<RotationSystem>();
 	m_systemManager.addSystem<PerpetualRotationSystem>();
 	m_systemManager.addSystem<RenderSystem>(m_window);
-	m_systemManager.addSystem<PhysicsSystem>();
 	m_systemManager.addSystem<GrabbingSystem>(m_window);
-	m_systemManager.addSystem<SoundSystem>();
 	m_systemManager.init();
 	m_gameLogic.init();
 

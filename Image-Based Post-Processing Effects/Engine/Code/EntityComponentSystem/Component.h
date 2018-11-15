@@ -76,9 +76,8 @@ const std::uint64_t TRANSFORMATION_FAMILY = 1ui64 << 8ui64;
 const std::uint64_t TRANSPARENCY_FAMILY = 1ui64 << 9ui64;
 const std::uint64_t TRANSPARENCY_SHADER_FAMILY = 1ui64 << 10ui64;
 const std::uint64_t OPAQUE_SHADER_FAMILY = 1ui64 << 11ui64;
-const std::uint64_t PHYSICS_FAMILY = 1ui64 << 12ui64;
 
-const std::uint64_t MAX_FAMILY_ID = PHYSICS_FAMILY;
+const std::uint64_t MAX_FAMILY_ID = OPAQUE_SHADER_FAMILY;
 
 
 // default components
@@ -205,30 +204,6 @@ struct PerpetualRotationComponent : public Component<PerpetualRotationComponent>
 	static const std::uint64_t FAMILY_ID;
 };
 
-struct PhysicsComponent : public Component<PhysicsComponent>
-{
-	explicit PhysicsComponent(float _mass, float _restitution, bool _dynamic, bool _kinematic = false, bool _sphere = false)
-		:m_mass(_mass),
-		m_restitution(_restitution), 
-		m_dynamic(_dynamic), 
-		m_kinematic(_kinematic), 
-		m_sphere(_sphere),
-		m_motionState(),
-		m_collisionShape(),
-		m_rigidBody()
-	{ };
-	float m_mass;
-	float m_restitution;
-	bool m_dynamic;
-	bool m_kinematic;
-	bool m_sphere;
-	btMotionState *m_motionState;
-	btCollisionShape *m_collisionShape;
-	btRigidBody *m_rigidBody;
-
-	static const std::uint64_t FAMILY_ID;
-};
-
 struct RenderableComponent : public Component<RenderableComponent>
 {
 	static const std::uint64_t FAMILY_ID;
@@ -244,25 +219,6 @@ struct RotationComponent : public Component<RotationComponent>
 	double m_totalDuration;
 	double(*m_easingFunction)(double, double);
 	std::function<void()> m_onCompleted;
-
-	static const std::uint64_t FAMILY_ID;
-};
-
-enum class SoundType
-{
-	MUSIC, EFFECT, UI
-};
-
-struct SoundComponent : public Component<SoundComponent>
-{
-	explicit SoundComponent(const std::string &_soundFile, const SoundType &_soundType, float _volume = 1.0f, bool _looping = false, bool _paused = true, bool _loadInstantly = false)
-		: m_soundFile(_soundFile), m_soundType(_soundType), m_volume(_volume), m_looping(_looping), m_paused(_paused), m_loadInstantly(_loadInstantly) { };
-	std::string m_soundFile;
-	SoundType m_soundType;
-	float m_volume;
-	bool m_looping;
-	bool m_paused;
-	bool m_loadInstantly;
 
 	static const std::uint64_t FAMILY_ID;
 };

@@ -21,23 +21,8 @@
     <Filter Include="Code\EntityComponentSystem\Systems">
       <UniqueIdentifier>{36023e1e-0f00-459b-8857-0e16397eef8d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Gui">
-      <UniqueIdentifier>{868d1b81-f4b6-4a33-8b27-cdfd3b3cbe85}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Gui\Elements">
-      <UniqueIdentifier>{ddf18284-aa0c-4f1b-8546-9b1199824788}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Gui\Systems">
-      <UniqueIdentifier>{095a1411-dae1-467e-af16-8fc134866d5c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Utilities">
       <UniqueIdentifier>{1d64857a-4d43-4374-8d7f-8dacc4c680a1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Gui\Style">
-      <UniqueIdentifier>{2d455f71-0b4b-4d1a-b11a-1dfe9be17542}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Network">
-      <UniqueIdentifier>{1286c2c9-1bf9-415e-9759-e97d03f9efcb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resources\Shaders\Shared">
       <UniqueIdentifier>{f54cb0f4-abc4-46d1-a4fd-1ad0c4cb86b7}</UniqueIdentifier>
@@ -53,12 +38,6 @@
     </Filter>
     <Filter Include="Code\Graphics\OpenGL">
       <UniqueIdentifier>{14522b25-1ad9-48f9-a04b-8841e595a3a6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Sound">
-      <UniqueIdentifier>{85ccda0b-c00e-4102-acac-c3ebc2e3e7ec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Sound\OpenAL">
-      <UniqueIdentifier>{bc642f1d-373d-452e-b969-f8db6fefba5b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\Window">
       <UniqueIdentifier>{386b7288-00dd-4e97-98f6-c913fe6289cc}</UniqueIdentifier>
@@ -224,42 +203,6 @@
     <ClInclude Include="Code\EasingFunctions.h">
       <Filter>Code</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Gui\Elements\GuiRow.h">
-      <Filter>Code\Gui\Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\Elements\GuiWindow.h">
-      <Filter>Code\Gui\Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\Elements\GuiElement.h">
-      <Filter>Code\Gui\Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\Systems\GuiFontManager.h">
-      <Filter>Code\Gui\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\Systems\GuiInputHandler.h">
-      <Filter>Code\Gui\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\Systems\GuiRenderer.h">
-      <Filter>Code\Gui\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\GuiEvent.h">
-      <Filter>Code\Gui</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\GuiJSONParser.h">
-      <Filter>Code\Gui</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\GuiLayout.h">
-      <Filter>Code\Gui</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\GuiUtility.h">
-      <Filter>Code\Gui</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\nuklearInclude.h">
-      <Filter>Code\Gui</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\Gui.h">
-      <Filter>Code\Gui</Filter>
-    </ClInclude>
     <ClInclude Include="Code\DebugMacro.h">
       <Filter>Code</Filter>
     </ClInclude>
@@ -269,46 +212,16 @@
     <ClInclude Include="Code\Utilities\Utility.h">
       <Filter>Code\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Gui\Style\GuiStyleSheet.h">
-      <Filter>Code\Gui\Style</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\Style\GuiStyleProperty.h">
-      <Filter>Code\Gui\Style</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\Style\GuiStyleBlock.h">
-      <Filter>Code\Gui\Style</Filter>
-    </ClInclude>
     <ClInclude Include="Code\EntityComponentSystem\Systems\MovementSystem.h">
       <Filter>Code\EntityComponentSystem\Systems</Filter>
     </ClInclude>
     <ClInclude Include="Code\EntityComponentSystem\Systems\GrabbingSystem.h">
       <Filter>Code\EntityComponentSystem\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Gui\overview.h">
-      <Filter>Code\Gui</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Utilities\Intersection.h">
       <Filter>Code\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Network\asioInclude.h">
-      <Filter>Code\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Network\NetUtility.h">
-      <Filter>Code\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Network\Connection.h">
-      <Filter>Code\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Network\ByteBuffer.h">
-      <Filter>Code\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Network\BaseServer.h">
-      <Filter>Code\Network</Filter>
-    </ClInclude>
     <ClInclude Include="Code\EntityComponentSystem\Systems\RotationSystem.h">
-      <Filter>Code\EntityComponentSystem\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\EntityComponentSystem\Systems\SoundSystem.h">
       <Filter>Code\EntityComponentSystem\Systems</Filter>
     </ClInclude>
     <ClInclude Include="Code\EntityComponentSystem\Systems\PerpetualRotationSystem.h">
@@ -319,18 +232,6 @@
     </ClInclude>
     <ClInclude Include="Code\Utilities\JSONUtility.h">
       <Filter>Code\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\IIdentifiable.h">
-      <Filter>Code\Gui</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\GuiPopup.h">
-      <Filter>Code\Gui</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Gui\Style\IStyleable.h">
-      <Filter>Code\Gui\Style</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Network\NetLoadManager.h">
-      <Filter>Code\Network</Filter>
     </ClInclude>
     <ClInclude Include="Code\Utilities\md5.h">
       <Filter>Code\Utilities</Filter>
@@ -353,9 +254,6 @@
     <ClInclude Include="Code\Graphics\CameraPath.h">
       <Filter>Code\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Gui\IDimensionable.h">
-      <Filter>Code\Gui</Filter>
-    </ClInclude>
     <ClInclude Include="Code\EntityComponentSystem\IOnComponentAddedListener.h">
       <Filter>Code\EntityComponentSystem</Filter>
     </ClInclude>
@@ -373,9 +271,6 @@
     </ClInclude>
     <ClInclude Include="Code\Graphics\Mesh.h">
       <Filter>Code\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\EntityComponentSystem\Systems\PhysicsSystem.h">
-      <Filter>Code\EntityComponentSystem\Systems</Filter>
     </ClInclude>
     <ClInclude Include="Code\Graphics\AxisAlignedBoundingBox.h">
       <Filter>Code\Graphics</Filter>
@@ -428,21 +323,6 @@
     <ClInclude Include="Code\Graphics\OpenGL\Uniform.h">
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Sound\OpenAL\SoundBuffer.h">
-      <Filter>Code\Sound\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Sound\OpenAL\SoundFramework.h">
-      <Filter>Code\Sound\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Sound\OpenAL\SoundListener.h">
-      <Filter>Code\Sound\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Sound\OpenAL\SoundSource.h">
-      <Filter>Code\Sound\OpenAL</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Sound\OpenAL\stb_vorbis.h">
-      <Filter>Code\Sound\OpenAL</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Window\Window.h">
       <Filter>Code\Window</Filter>
     </ClInclude>
@@ -457,9 +337,6 @@
     </ClInclude>
     <ClInclude Include="Code\Graphics\OpenGL\GLUtility.h">
       <Filter>Code\Graphics\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Sound\OpenAL\ALUtility.h">
-      <Filter>Code\Sound\OpenAL</Filter>
     </ClInclude>
     <ClInclude Include="Code\Utilities\ContainerUtility.h">
       <Filter>Code\Utilities</Filter>
@@ -632,9 +509,6 @@
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofBlurComputePass.h">
       <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofFillComputePass.h">
-      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofCompositeComputePass.h">
       <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
     </ClInclude>
@@ -728,9 +602,6 @@
     <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\TileBasedDofFillComputePass.h">
       <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\TileBasedDofTileMaxComputePass.h">
-      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\MotionBlurRenderPass.h">
       <Filter>Code\Graphics\OpenGL\RenderPass\MotionBlur</Filter>
     </ClInclude>
@@ -769,47 +640,11 @@
     <ClCompile Include="Code\EasingFunctions.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Gui\Elements\GuiRow.cpp">
-      <Filter>Code\Gui\Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Gui\Elements\GuiWindow.cpp">
-      <Filter>Code\Gui\Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Gui\Elements\GuiElement.cpp">
-      <Filter>Code\Gui\Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Gui\Systems\GuiInputHandler.cpp">
-      <Filter>Code\Gui\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Gui\Systems\GuiRenderer.cpp">
-      <Filter>Code\Gui\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Gui\Systems\GuiFontManager.cpp">
-      <Filter>Code\Gui\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Gui\GuiJSONParser.cpp">
-      <Filter>Code\Gui</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Gui\GuiLayout.cpp">
-      <Filter>Code\Gui</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Gui\Gui.cpp">
-      <Filter>Code\Gui</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Utilities\INIFile.cpp">
       <Filter>Code\Utilities</Filter>
     </ClCompile>
     <ClCompile Include="Code\Utilities\Utility.cpp">
       <Filter>Code\Utilities</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Gui\Style\GuiStyleProperty.cpp">
-      <Filter>Code\Gui\Style</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Gui\Style\GuiStyleSheet.cpp">
-      <Filter>Code\Gui\Style</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Gui\Style\GuiStyleBlock.cpp">
-      <Filter>Code\Gui\Style</Filter>
     </ClCompile>
     <ClCompile Include="Code\EntityComponentSystem\Systems\MovementSystem.cpp">
       <Filter>Code\EntityComponentSystem\Systems</Filter>
@@ -820,25 +655,10 @@
     <ClCompile Include="Code\Utilities\Intersection.cpp">
       <Filter>Code\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Network\NetUtility.cpp">
-      <Filter>Code\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Network\Connection.cpp">
-      <Filter>Code\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Network\ByteBuffer.cpp">
-      <Filter>Code\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Network\BaseServer.cpp">
-      <Filter>Code\Network</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Graphics\Lights.cpp">
       <Filter>Code\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Code\EntityComponentSystem\Systems\RotationSystem.cpp">
-      <Filter>Code\EntityComponentSystem\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\EntityComponentSystem\Systems\SoundSystem.cpp">
       <Filter>Code\EntityComponentSystem\Systems</Filter>
     </ClCompile>
     <ClCompile Include="Code\EntityComponentSystem\Systems\PerpetualRotationSystem.cpp">
@@ -849,12 +669,6 @@
     </ClCompile>
     <ClCompile Include="Code\Utilities\JSONUtility.cpp">
       <Filter>Code\Utilities</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Gui\Style\IStyleable.cpp">
-      <Filter>Code\Gui\Style</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Network\NetLoadManager.cpp">
-      <Filter>Code\Network</Filter>
     </ClCompile>
     <ClCompile Include="Code\Utilities\md5.cpp">
       <Filter>Code\Utilities</Filter>
@@ -886,9 +700,6 @@
     <ClCompile Include="Code\Graphics\Model.cpp">
       <Filter>Code\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Code\EntityComponentSystem\Systems\PhysicsSystem.cpp">
-      <Filter>Code\EntityComponentSystem\Systems</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Input\UserInput.cpp">
       <Filter>Code\Input</Filter>
     </ClCompile>
@@ -916,21 +727,6 @@
     <ClCompile Include="Code\Graphics\OpenGL\Uniform.cpp">
       <Filter>Code\Graphics\OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Sound\OpenAL\SoundBuffer.cpp">
-      <Filter>Code\Sound\OpenAL</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Sound\OpenAL\SoundFramework.cpp">
-      <Filter>Code\Sound\OpenAL</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Sound\OpenAL\SoundListener.cpp">
-      <Filter>Code\Sound\OpenAL</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Sound\OpenAL\SoundSource.cpp">
-      <Filter>Code\Sound\OpenAL</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Sound\OpenAL\stb_vorbis.c">
-      <Filter>Code\Sound\OpenAL</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Window\Window.cpp">
       <Filter>Code\Window</Filter>
     </ClCompile>
@@ -939,9 +735,6 @@
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\GLUtility.cpp">
       <Filter>Code\Graphics\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Sound\OpenAL\ALUtility.cpp">
-      <Filter>Code\Sound\OpenAL</Filter>
     </ClCompile>
     <ClCompile Include="Code\Utilities\MathUtility.cpp">
       <Filter>Code\Utilities</Filter>
@@ -1102,9 +895,6 @@
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofBlurComputePass.cpp">
       <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofFillComputePass.cpp">
-      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\SimpleDofCompositeComputePass.cpp">
       <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
     </ClCompile>
@@ -1196,9 +986,6 @@
       <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\TileBasedDofFillComputePass.cpp">
-      <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Graphics\OpenGL\ComputePass\DepthOfField\TileBasedDofTileMaxComputePass.cpp">
       <Filter>Code\Graphics\OpenGL\ComputePass\DepthOfField</Filter>
     </ClCompile>
     <ClCompile Include="Code\Graphics\OpenGL\RenderPass\MotionBlur\MotionBlurRenderPass.cpp">

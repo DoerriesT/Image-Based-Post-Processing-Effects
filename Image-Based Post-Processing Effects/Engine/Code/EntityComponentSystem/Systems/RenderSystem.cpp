@@ -44,7 +44,7 @@ void RenderSystem::init()
 
 	SettingsManager &settingsManager = SettingsManager::getInstance();
 
-	shadowQuality = settingsManager.getIntSetting("graphics", "shadow_quality", 0);
+	shadowQuality = settingsManager.getIntSetting("graphics", "shadow_quality", 1);
 	shadowQuality->addListener([&](int _value) { m_effects.m_shadowQuality = (ShadowQuality)_value; });
 	m_effects.m_shadowQuality = (ShadowQuality)shadowQuality->get();
 

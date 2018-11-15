@@ -20,14 +20,11 @@ namespace App
 	class Application : public IGameLogic, public IInputListener, public IWindowResizeListener
 	{
 		COMBINED_FUNC_DECL(windowResolution)
-			COMBINED_FUNC_DECL(shadowQuality)
-			COMBINED_FUNC_DECL(shadowQuality)
 			COMBINED_FUNC_DECL(anisotropicFiltering)
 			COMBINED_FUNC_DECL(bloomEnabled)
 			COMBINED_FUNC_DECL(fxaaEnabled)
 			COMBINED_FUNC_DECL(smaaEnabled)
 			COMBINED_FUNC_DECL(smaaTemporalAA)
-			COMBINED_FUNC_DECL(lensFlaresEnabled)
 			COMBINED_FUNC_DECL(ambientOcclusion)
 			COMBINED_FUNC_DECL(vsync)
 			COMBINED_FUNC_DECL(windowWidth)
@@ -44,8 +41,6 @@ namespace App
 			COMBINED_FUNC_DECL(hbaoRadius)
 			COMBINED_FUNC_DECL(hbaoMaxRadiusPixels)
 			COMBINED_FUNC_DECL(hbaoAngleBias)
-			COMBINED_FUNC_DECL(lensDirtEnabled)
-			COMBINED_FUNC_DECL(lensDirtStrength)
 			COMBINED_FUNC_DECL(gtaoSteps)
 			COMBINED_FUNC_DECL(gtaoStrength)
 			COMBINED_FUNC_DECL(gtaoRadius)
@@ -92,17 +87,12 @@ namespace App
 		int previousSsao;
 		std::string benchmarkFilepath;
 
-		std::shared_ptr<Setting<int>> shadowQuality;
 		std::shared_ptr<Setting<int>> uiSizeOffset;
 		std::shared_ptr<Setting<int>> anisotropicFiltering;
 		std::shared_ptr<Setting<bool>> bloomEnabled;
-		std::shared_ptr<Setting<bool>> lensDirtEnabled;
-		std::shared_ptr<Setting<double>> lensDirtStrength;
 		std::shared_ptr<Setting<bool>> fxaaEnabled;
 		std::shared_ptr<Setting<bool>> smaaEnabled;
 		std::shared_ptr<Setting<bool>> smaaTemporalAA;
-		std::shared_ptr<Setting<bool>> lensFlaresEnabled;
-		std::shared_ptr<Setting<bool>> screenSpaceReflectionsEnabled;
 		std::shared_ptr<Setting<int>> ambientOcclusion;
 		std::shared_ptr<Setting<bool>> vsync;
 		std::shared_ptr<Setting<int>> windowWidth;
