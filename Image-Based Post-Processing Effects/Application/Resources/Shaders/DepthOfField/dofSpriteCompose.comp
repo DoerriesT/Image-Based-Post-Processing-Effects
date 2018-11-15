@@ -24,7 +24,7 @@ void main()
 	farPlane.rgb = farPlane.a > 0.0 ? farPlane.rgb / farPlane.a : farPlane.rgb;
 	nearPlane.rgb = nearPlane.a > 0.0 ? nearPlane.rgb / nearPlane.a : nearPlane.rgb;
 	
-	color = mix(color, downsampledColor, clamp(max(cocVals.x, cocVals.y) - 1.0, 0.0, 1.0));
+	color = mix(color, downsampledColor, clamp(max(cocVals.x, cocVals.y), 0.0, 1.0));
 	color = mix(color, farPlane.rgb, clamp(farPlane.a, 0.0, 1.0));
 	color = mix(color, nearPlane.rgb, clamp(nearPlane.a, 0.0, 1.0));
 
