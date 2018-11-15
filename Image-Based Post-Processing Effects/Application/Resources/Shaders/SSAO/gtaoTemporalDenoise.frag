@@ -101,7 +101,7 @@ void main(void)
 	float window = velocityWeight * (minMax.y - minMax.x);
 	minMax.x -= 1.5 * window;
 	minMax.y += 1.5 * window;
-	//previousAo.x = clamp(previousAo.x, minMax.x, minMax.y);
+	previousAo.x = clamp(previousAo.x, minMax.x, minMax.y);
 	
 	//float convergenceAlpha = calulateAlpha(uFrameTime, velocityWeight * 0.5 * (1.0 / 60.0) * 24.0);
 	

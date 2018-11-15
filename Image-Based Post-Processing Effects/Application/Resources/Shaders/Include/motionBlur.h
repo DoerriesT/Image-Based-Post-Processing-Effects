@@ -45,10 +45,10 @@ float linearDepth(float depth, float near, float far)
 }
 
 // Jitter function for tile lookup
-vec2 jitterTile(vec2 uv, vec2 rcpTexturesize)
+vec2 jitterTile(vec2 uv, vec2 texturesize, vec2 tileTexelSize)
 {
-	float val = interleavedGradientNoise(uv + vec2(2.0, 0.0)) * PI * 2.0;
-	return vec2(sin(val), cos(val)) * rcpTexturesize * 0.25;
+	float val = interleavedGradientNoise((uv + vec2(2.0, 0.0)) * texturesize) * PI * 2.0;
+	return vec2(sin(val), cos(val)) * tileTexelSize * 0.25;
 }
 
 vec3 simpleMotionBlur(vec3 color, vec2 texCoord, ivec2 fragCoord, sampler2D colorTexture, sampler2D velocityTexture)
@@ -143,7 +143,7 @@ vec3 multiDirectionMotionBlur(vec3 color, vec2 texCoord, ivec2 fragCoord, sample
 	vec2 texSize = textureSize(colorTexture, 0);
 	
 	float j = interleavedGradientNoise(texCoord * texSize);//(hash12(vTexCoord) - 0.5) * 2.0;
-	vec2 vmax = texture(tileTexture, texCoord + jitterTile(texCoord, 1.0 / texSize)).rg * texSize;
+	vec2 vmax = texture(tileTexture, texCoord + jitterTile(texCoord, texSize, 1.0 / textureSize(tileTexture, 0).xy)).rg * texSize;
 	float vmaxLength = length(vmax);
 	
 	if (vmaxLength < 0.5)

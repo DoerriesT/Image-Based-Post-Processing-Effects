@@ -171,6 +171,40 @@ namespace App
 		((CameraController *)clientData)->setSmoothFactor(*(float *)value);
 	}
 
+	void TW_CALL carMovementGetCallback(void *value, void *clientData)
+	{
+		*(bool *)value = EntityManager::getInstance().getComponent<MovementPathComponent>((const Entity *)clientData);
+	}
+
+	void TW_CALL carMovementSetCallback(const void *value, void *clientData)
+	{
+		if (*(bool *)value)
+		{
+			std::vector<PathSegment> pathSegments;
+			pathSegments.push_back(PathSegment(
+				glm::vec3(-9.0, 0.0, 0.0),	// start pos
+				glm::vec3(9.0, 0.0, 0.0),	// end pos
+				glm::vec3(1.0f, 0.0f, 0.0f),						// start tangent
+				glm::vec3(1.0f, 0.0f, 0.0f),						// end tangent
+				1.0,														// duration
+				linear));													// easing function
+			pathSegments.push_back(PathSegment(
+				glm::vec3(9.0, 0.0, 0.0),
+				glm::vec3(-9.0, 0.0, 0.0),
+				glm::vec3(-1.0f, 0.0f, 0.0),
+				glm::vec3(-1.0f, 0.0f, 0.0),
+				1.0,
+				linear));
+
+			EntityManager::getInstance().addComponent<MovementPathComponent>((const Entity *)clientData, pathSegments, Engine::getTime(), true);
+		}
+		else
+		{
+			EntityManager::getInstance().removeComponent<MovementPathComponent>((const Entity *)clientData);
+			EntityManager::getInstance().getComponent<TransformationComponent>((const Entity *)clientData)->m_position = glm::vec3(6.0, 0.0, 0.0);
+		}
+	}
+
 	void TW_CALL benchmarkButton(void *clientData)
 	{
 		bool &benchmarkEnabled = *((bool *)clientData);
@@ -448,6 +482,8 @@ namespace App
 
 				TwAddVarRW(m_settingsTweakBar, "God Rays", TW_TYPE_BOOLCPP, &godrays, "group=Misc");
 				TwAddVarRW(m_settingsTweakBar, "Show Light Probes", TW_TYPE_BOOLCPP, &renderLightProbes, "group=Misc");
+
+				TwAddVarCB(m_settingsTweakBar, "Car Movement", TW_TYPE_BOOLCPP, carMovementSetCallback, carMovementGetCallback, (void *)m_level->m_entityMap["car"], "group=Misc");
 			}
 
 			// benchmark
