@@ -1,5 +1,7 @@
 # Image-Based Post-Processing Effects
 
+![All Effects](featured.png?raw=true "Motion Blur, GTAO and Depth of Field")
+
 This is the source code of my bachelors thesis "State of the Art in Image-Based Post-Processing Effects". It is written in C++, uses OpenGL 4.5 as graphics API and features:
 
 - Physically based rendering (PBR)
